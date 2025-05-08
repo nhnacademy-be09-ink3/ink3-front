@@ -4,9 +4,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 
 @Controller
-public class IndexController {
+public class HomeController {
     @GetMapping("/")
     public String homePage() {
-        return "test"; // templates/home.html 을 찾아 렌더링
+        return "test";
     }
 }
