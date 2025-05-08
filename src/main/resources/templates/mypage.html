@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html
+        xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+        layout:decorate="~{layout/layout}">
+
+<div layout:fragment="content">
+    <!-- My Page Section Begin -->
+    <section class="product spad">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-3 col-md-5">
+                    <div class="sidebar">
+                        <div class="sidebar__item">
+                            <h4>My Page</h4>
+                            <ul>
+                                <li><a href="#" class="active">Dashboard</a></li>
+                                <li><a href="#">Orders</a></li>
+                                <li><a href="#">Wishlist</a></li>
+                                <li><a href="#">Addresses</a></li>
+                                <li><a href="#">Account Details</a></li>
+                                <li><a href="#">Logout</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <!-- Main Content -->
+                <div class="col-lg-9">
+                    <div class="my-page__content">
+                        <!-- 인사말 -->
+                        <div class="my-page__welcome mb-4">
+                            <h4>안녕하세요, 홍길동님</h4>
+                            <p class="text-muted">최근 주문 내역과 계정 정보를 확인할 수 있습니다.</p>
+                        </div>
+
+                        <!-- 최근 주문 내역 -->
+                        <div class="my-page__section mb-5">
+                            <h5 class="mb-3">최근 주문 내역</h5>
+                            <div class="table-responsive">
+                                <table class="table table-bordered align-middle">
+                                    <thead class="table-light">
+                                    <tr>
+                                        <th>주문번호</th>
+                                        <th>날짜</th>
+                                        <th>상태</th>
+                                        <th>총액</th>
+                                        <th>보기</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr>
+                                        <td>#20240506</td>
+                                        <td>2025-05-06</td>
+                                        <td><span class="badge bg-warning text-dark">배송중</span></td>
+                                        <td>₩34,000</td>
+                                        <td><a href="#" class="btn btn-sm btn-outline-dark">상세보기</a></td>
+                                    </tr>
+                                    <tr>
+                                        <td>#20240501</td>
+                                        <td>2025-05-01</td>
+                                        <td><span class="badge bg-success">배송완료</span></td>
+                                        <td>₩56,000</td>
+                                        <td><a href="#" class="btn btn-sm btn-outline-dark">상세보기</a></td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- 계정 정보 요약 -->
+                        <div class="my-page__section">
+                            <h5 class="mb-3">계정 정보</h5>
+                            <form>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="name" class="form-label"><strong>이름</strong></label>
+                                        <input type="text" class="form-control" id="name" value="홍길동">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="email" class="form-label"><strong>이메일</strong></label>
+                                        <input type="email" class="form-control" id="email" value="hong@example.com">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="phone" class="form-label"><strong>휴대폰</strong></label>
+                                        <input type="text" class="form-control" id="phone" value="010-1234-5678">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="address" class="form-label"><strong>기본 주소</strong></label>
+                                        <input type="text" class="form-control" id="address" value="서울시 강남구 테헤란로 123">
+                                    </div>
+                                </div>
+                                <button type="submit" class="site-btn mt-3">회원정보 수정</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- My Page Section End -->
+</div>
+</html>

@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+
+<head>
+    <div th:replace="~{layout/fragments/head::head}"></div>
+</head>
+
+<body>
+<!-- Page Preloder -->
+<div id="preloder">
+    <div class="loader"></div>
+</div>
+<div th:fragment="layout(body)">
+    <div th:replace="~{layout/fragments/header::header}"></div>
+
+    <div layout:fragment="content"></div>
+</div>
+<div th:replace="~{layout/fragments/footer::footer}"></div>
+<div th:replace="~{layout/fragments/script::script}"></div>
+</body>
+</html>
