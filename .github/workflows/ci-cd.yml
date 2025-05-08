@@ -67,7 +67,9 @@ jobs:
         run: echo "${{ steps.extract_version.outputs.version }} 입니다."
 
       - name: Package application (skip tests)
-        run: mvn package -DskipTests=true -B
+        run: |
+          mvn package -DskipTests=true -B
+          ls -R .
 
       - name: Run application in background
         run: |
