@@ -7,6 +7,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 public class IndexController {
     @GetMapping("/")
     public String homePage() {
-        return "index"; // templates/home.html 을 찾아 렌더링
+        return "header"; // templates/home.html 을 찾아 렌더링
     }
 }
