@@ -136,7 +136,7 @@ jobs:
           port: ${{ secrets.SSH_PORT }}
           username: ${{ secrets.SSH_ID }}
           key: ${{ secrets.SSH_KEY }}
-          source: "front/target/*.jar"
+          source: "/home/runner/work/ink3-front/ink3-front/target/*.jar"
           target: "~/ink3-server/front"
 
       - name: Run deploy.sh on server
