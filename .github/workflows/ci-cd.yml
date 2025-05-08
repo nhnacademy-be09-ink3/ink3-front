@@ -118,7 +118,7 @@ jobs:
         run: mvn package -DskipTests=true -B
 
       - name: Verify JAR file
-        run: ls -lh front/target/*.jar
+        run: ls -lh /home/runner/work/ink3-front/ink3-front/target/*.jar
 
       - name: Extract version from POM
         id: extract_version
