@@ -147,7 +147,7 @@ jobs:
           username: ${{ secrets.SSH_ID }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            cd ~/ink3-server/api
+            cd ~/ink3-server/front
             chmod +x deploy.sh
             nohup ./deploy.sh "${{ steps.extract_version.outputs.version }}" > deploy.log 2>&1 &
             exit 0
