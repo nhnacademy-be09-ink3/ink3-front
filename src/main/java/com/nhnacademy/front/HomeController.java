@@ -10,7 +10,7 @@ public class HomeController {
         return "adminpage";
     }
 
-    @GetMapping("/test")
+    @GetMapping("/test12")
     public String testPage() {
         return "test";
     }
