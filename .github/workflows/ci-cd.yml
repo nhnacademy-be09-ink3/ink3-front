@@ -117,14 +117,14 @@ jobs:
         env:
           EUREKA_URL: ${{ secrets.DEV_EUREKA_URL }}
         run: |
-          nohup java -jar /home/runner/work/ink3-front/target/ink3-front-${{ steps.extract_version.outputs.version }}.jar --server.port=8080 > app.log 2>&1 &
+          nohup java -jar /home/runner/work/ink3-front/target/ink3-front-${{ steps.extract_version.outputs.version }}.jar --server.port=10267 > app.log 2>&1 &
           echo $! > app.pid
 
       - name: Wait for application to start
         run: sleep 15
 
       - name: Check health endpoint
-        run: curl --fail http://localhost:8080/actuator/health
+        run: curl --fail http://localhost:10267/actuator/health
 
       - name: Stop application
         run: kill $(cat app.pid)
