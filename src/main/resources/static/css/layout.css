@@ -1,0 +1,27 @@
+body {
+    font-family: 'Inter', sans-serif;
+}
+
+.primary-color {
+    color: #86ef7d;
+}
+
+.bg-primary-color {
+    background-color: #86ef7d;
+}
+
+.hover\:bg-primary-hover:hover {
+    background-color: #6ee7b7;
+}
+
+.focus\:ring-primary-focus:focus {
+    box-shadow: 0 0 0 3px rgba(52, 211, 153, 0.5);
+}
+
+.icon {
+    transition: transform 0.3s ease;
+}
+
+.icon:hover {
+    transform: scale(1.2);
+}

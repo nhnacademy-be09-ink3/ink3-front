@@ -1,28 +1,11 @@
 spring:
+  application:
+    name: int3-front
+  cloud:
+    openfeign:
+      okhttp:
+        enabled: true
   thymeleaf:
     prefix: classpath:/templates/
     suffix: .html
     cache: false
-
-  application:
-    name: Ink3-FRONT
-
-server:
-  port: 10254
-
-eureka:
-  client:
-    service-url:
-      defaultZone: ${EUREKA_URL}
-    fetch-registry: true
-    register-with-eureka: true
-  instance:
-    prefer-ip-address: true
-
-management:
-  endpoints:
-    web:
-      exposure:
-        include: health,info
-  health:
-    show-details: always
