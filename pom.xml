@@ -9,10 +9,10 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.nhnacademy</groupId>
-    <artifactId>ink3-front</artifactId>
+    <artifactId>front</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>ink3-front</name>
-    <description>ink3-front</description>
+    <name>front</name>
+    <description>front</description>
     <url/>
     <licenses>
         <license/>
