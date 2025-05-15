@@ -1,39 +1,47 @@
-<!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="ko">
-<div th:fragment="header">
-    <!-- Header Section Begin -->
-    <header class="header">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-3">
-                    <div class="header__logo">
-                        <a th:href="index.html"><img th:src="@{/img/logo.png}" alt=""></a>
-                    </div>
+<header th:fragment="headerFragment">
+    <div class="bg-white shadow-md py-4">
+        <div class="container mx-auto px-4 flex justify-between items-center">
+            <div class="flex items-center">
+                <h1 class="text-2xl font-semibold text-gray-800 mr-8">
+                    <a href="/" class="text-primary-color">ink3</a>
+                </h1>
+                <div th:replace="~{layout/fragments/nav :: navFragment}"></div>
+            </div>
+            <div class="flex items-center space-x-4 search-container">
+                <button id="search-button" class="text-gray-700 transition-transform duration-300 hover:scale-110">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 icon">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                </button>
+                <input type="text" id="search-input"
+                       class="hidden w-0 opacity-0 border-b-2 border-ink-primary bg-transparent text-gray-800 h-8 text-base transition-all duration-300 outline-none"
+                       placeholder="검색어를 입력하세요"/>
+                <a href="/cart" class="text-gray-700 transition-transform duration-300 hover:scale-110">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 icon">
+                        <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+                        <line x1="3" y1="6" x2="21" y2="6"></line>
+                        <path d="M16 10a4 4 0 0 1-8 0"></path>
+                    </svg>
+                </a>
+                <a href="/me" class="text-gray-700 transition-transform duration-300 hover:scale-110">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 icon">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                </a>
+                <div th:if="${isLoggedIn}">
+                    <a href="/logout"
+                       class="ink-btn-primary">로그아웃</a>
                 </div>
-                <div class="col-lg-6">
-                    <div class="header__search">
-                        <div class="hero__search__form">
-                            <form action="#">
-                                <input type="text" placeholder="Search Books">
-                                <button type="submit" class="site-btn">SEARCH</button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-3">
-                    <div class="header__cart">
-                        <ul>
-                            <li><a href="#"><i class="fa fa-heart"></i> <span>1</span></a></li>
-                            <li><a href="#"><i class="fa fa-shopping-bag"></i> <span>3</span></a></li>
-                            <li>홍길동 님</li>
-                            <li class="header__top__right__auth">
-                                <a href="#"><i class="fa fa-user"></i> Login</a>
-                            </li>
-                        </ul>
-                    </div>
+                <div th:unless="${isLoggedIn}">
+                    <a href="/login"
+                       class="ink-btn-primary">로그인/회원가입</a>
                 </div>
             </div>
         </div>
-    </header>
-</div>
-</html>
+    </div>
+</header>

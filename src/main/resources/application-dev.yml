@@ -1,0 +1,9 @@
+spring:
+  cloud:
+    openfeign:
+      client:
+        config:
+          auth-service:
+            url: http://127.0.0.1:10265/auth
+          shop-service:
+            url: http://127.0.0.1:10265/api

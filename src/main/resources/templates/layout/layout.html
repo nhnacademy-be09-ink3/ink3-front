@@ -1,21 +1,36 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
-      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
-
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <div th:replace="~{layout/fragments/head::head}"></div>
-</head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ink3</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/output.css}">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const searchButton = document.getElementById('search-button');
+            const searchInput = document.getElementById('search-input');
 
-<body>
-<!-- Page Preloder -->
-<div id="preloder">
-    <div class="loader"></div>
-</div>
-<div th:replace="~{layout/fragments/header::header}"></div>
-<div th:fragment="layout(body)">
-    <div layout:fragment="content"></div>
-</div>
-<div th:replace="~{layout/fragments/footer::footer}"></div>
-<div th:replace="~{layout/fragments/script::script}"></div>
+            searchButton.addEventListener('click', () => {
+                searchInput.classList.toggle('hidden');
+                searchInput.classList.toggle('w-0');
+                searchInput.classList.toggle('opacity-0');
+                searchInput.classList.toggle('w-48');
+                searchInput.classList.toggle('opacity-100');
+                searchInput.classList.toggle('pl-2');
+            });
+        });
+    </script>
+</head>
+<body class="bg-gray-100">
+<div th:replace="~{layout/fragments/header :: headerFragment}"></div>
+<main class="container mx-auto px-4 py-8">
+</main>
+<div th:replace="~{layout/fragments/footer :: footerFragment}"></div>
 </body>
 </html>
