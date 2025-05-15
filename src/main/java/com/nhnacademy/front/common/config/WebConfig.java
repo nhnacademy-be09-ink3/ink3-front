@@ -15,6 +15,7 @@ public class WebConfig implements WebMvcConfigurer {
     public void addViewControllers(ViewControllerRegistry registry) {
         WebMvcConfigurer.super.addViewControllers(registry);
         registry.addViewController("/layout").setViewName("layout/layout");
+        registry.addViewController("/component").setViewName("component");
     }
 
     @Override

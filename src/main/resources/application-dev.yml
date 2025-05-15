@@ -7,3 +7,6 @@ spring:
             url: http://127.0.0.1:10265/auth
           shop-service:
             url: http://127.0.0.1:10265/api
+server:
+  servlet:
+    context-path: /dev
