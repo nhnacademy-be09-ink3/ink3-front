@@ -3,10 +3,10 @@ name: CI
 on:
   push:
     branches:
-      - main
+      - dev
   pull_request:
     branches:
-      - main
+      - dev
 
 jobs:
   build:
@@ -92,7 +92,7 @@ jobs:
         with:
           distribution: temurin
           java-version: 21
-          
+
       - name: Extract version from POM
         id: extract_version
         run: |
