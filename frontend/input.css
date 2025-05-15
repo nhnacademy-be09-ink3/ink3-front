@@ -1,7 +1,11 @@
 @import "tailwindcss" source(none);
+/*@import "./node_modules/flowbite/src/themes/default.css";*/
+
+/*@plugin "./node_modules/flowbite/plugin";*/
 
 @source "../src/main/resources";
-@source "./";
+@source "./input.css";
+/*@source "./node_modules/flowbite";*/
 
 @theme {
     --color-ink-primary: #86ef7d;
@@ -13,9 +17,9 @@
 }
 
 .ink-input-field {
-    @apply shadow rounded px-4 py-3 text-gray-700 leading-tight border border-gray-200 focus:outline-2 focus:outline-ink-primary;
+    @apply shadow rounded-md px-4 py-3 text-gray-700 leading-tight border border-gray-200 focus:outline-2 focus:outline-ink-primary;
 }
 
-.ink-card-withe {
+.ink-card-white {
     @apply bg-white shadow-md rounded-lg;
 }
