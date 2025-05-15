@@ -1,7 +1,5 @@
 <!DOCTYPE html>
-
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,30 +9,6 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
-        }
-
-        .primary-color {
-            color: #86ef7d;
-        }
-
-        .bg-primary-color {
-            background-color: #86ef7d;
-        }
-
-        .hover\:bg-primary-hover:hover {
-            background-color: #6ee7b7;
-        }
-
-        .focus\:ring-primary-focus:focus {
-            box-shadow: 0 0 0 3px rgba(52, 211, 153, 0.5);
-        }
-
-        .icon {
-            transition: transform 0.3s ease;
-        }
-
-        .icon:hover {
-            transform: scale(1.2);
         }
     </style>
     <script>
@@ -54,74 +28,9 @@
     </script>
 </head>
 <body class="bg-gray-100">
-<header th:fragment="headerFragment" class="bg-white shadow-md py-4">
-    <div class="container mx-auto px-4 flex justify-between items-center">
-        <div class="flex items-center">
-            <h1 class="text-2xl font-semibold text-gray-800">
-                <a href="/" class="text-primary-color">ink3</a>
-            </h1>
-            <nav class="ml-8"> <!-- 여기 여백 줌 -->
-                <ul class="flex space-x-6">
-                    <li class="nav-item">
-                        <a href="#" class="text-gray-700 hover:text-[#86ef7d] transition-colors category-item">베스트셀러</a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="#" class="text-gray-700 hover:text-[#86ef7d] transition-colors category-item">신간</a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="#" class="text-gray-700 hover:text-[#86ef7d] transition-colors category-item">추천도서</a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="#" class="text-gray-700 hover:text-[#86ef7d] transition-colors category-item">이벤트</a>
-                    </li>
-                </ul>
-            </nav>
-        </div>
-        <div class="flex items-center space-x-4 search-container">
-            <button id="search-button" class="text-gray-700 transition duration-300">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 icon">
-                    <circle cx="11" cy="11" r="8"></circle>
-                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                </svg>
-            </button>
-            <input type="text" id="search-input"
-                   class="hidden w-0 opacity-0 border-b-2 border-[#86ef7d] bg-transparent text-gray-800 h-8 text-base transition-all duration-300 outline-none"
-                   placeholder="검색어를 입력하세요"/>
-            <a href="/cart" class="text-gray-700 transition duration-300">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 icon">
-                    <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
-                    <line x1="3" y1="6" x2="21" y2="6"></line>
-                    <path d="M16 10a4 4 0 0 1-8 0"></path>
-                </svg>
-            </a>
-            <a href="/me" class="text-gray-700 transition duration-300">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 icon">
-                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                    <circle cx="12" cy="7" r="4"></circle>
-                </svg>
-            </a>
-            <div th:if="${isLoggedIn}">
-                <a href="/logout"
-                   class="px-4 py-2 bg-primary-color text-white rounded-md hover:bg-primary-hover transition duration-300 focus:outline-none focus:ring-2 focus:ring-primary-focus">로그아웃</a>
-            </div>
-            <div th:unless="${isLoggedIn}">
-                <a href="/login"
-                   class="px-4 py-2 bg-primary-color text-white rounded-md hover:bg-primary-hover transition duration-300 focus:outline-none focus:ring-2 focus:ring-primary-focus">로그인/회원가입</a>
-            </div>
-        </div>
-    </div>
-</header>
-
+<div th:replace="~{layout/fragments/header :: headerFragment}"></div>
 <main class="container mx-auto px-4 py-8">
 </main>
-
-<footer th:fragment="footerFragment" class="bg-gray-200 py-6">
-    <div class="container mx-auto px-4 text-gray-600 flex justify-center">
-        &copy; 2024 ink3. All rights reserved.
-    </div>
-</footer>
+<div th:replace="~{layout/fragments/footer :: footerFragment}"></div>
 </body>
 </html>

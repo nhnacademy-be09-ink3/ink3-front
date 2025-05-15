@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ink3</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/output.css}">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .primary-color {
+            color: #86ef7d;
+        }
+
+        .bg-primary-color {
+            background-color: #86ef7d;
+        }
+
+        .hover\:bg-primary-hover:hover {
+            background-color: #6ee7b7;
+        }
+
+        .focus\:ring-primary-focus:focus {
+            box-shadow: 0 0 0 3px rgba(52, 211, 153, 0.5);
+        }
+
+        .icon {
+            transition: transform 0.3s ease;
+        }
+
+        .icon:hover {
+            transform: scale(1.2);
+        }
+
+        html, body {
+            height: 100%;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            flex: 0 0 auto;
+        }
+
+        main {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        footer {
+            flex: 0 0 auto;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column; /* 원래대로 수직 배치 유지 */
+            align-items: flex-start; /* 왼쪽 정렬 유지 */
+            width: 100%; /* input-group이 부모의 가로 폭을 채우도록 설정 */
+        }
+
+        .input-group label {
+            display: block; /* 라벨을 블록 요소로 만들어 전체 가로 폭 차지 */
+        }
+
+        .input-group input {
+            flex: 1;
+            border-radius: 0.375rem; /* 둥근 모서리 유지 */
+            height: 3rem; /* 입력 필드 높이 설정 */
+            padding-left: 1rem;
+            width: 100%; /* 입력 필드가 input-group의 가로 폭을 채우도록 설정 */
+        }
+
+        .input-group button {
+            border-radius: 0.375rem; /* 둥근 모서리 유지 */
+            padding: 0.75rem 1rem;
+            font-size: 0.875rem;
+            line-height: 1.25rem;
+            font-weight: 600; /*semibold*/
+            height: 3rem; /* 버튼 높이를 입력 필드와 동일하게 설정 */
+        }
+
+        .input-group.check-button-group {
+            flex-direction: column; /* 다시 수직으로 */
+            align-items: flex-start; /* 왼쪽 정렬 유지 */
+        }
+
+        .input-group.check-button-group > div { /* 입력 필드와 버튼을 감싸는 div */
+            display: flex;
+            width: 100%; /* 가로 폭 채우기 */
+        }
+
+        .input-group.check-button-group > div input {
+            border-radius: 0.375rem 0 0 0.375rem;
+            flex-grow: 1; /* 입력 필드가 남은 공간을 채우도록 설정 */
+        }
+
+        .input-group.check-button-group > div button {
+            border-radius: 0 0.375rem 0.375rem 0;
+            margin-left: 0.5rem; /* 버튼과 입력 필드 사이 간격 추가 */
+        }
+    </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const searchButton = document.getElementById('search-button');
+            const searchInput = document.getElementById('search-input');
+
+            searchButton.addEventListener('click', () => {
+                searchInput.classList.toggle('hidden');
+                searchInput.classList.toggle('w-0');
+                searchInput.classList.toggle('opacity-0');
+                searchInput.classList.toggle('w-48');
+                searchInput.classList.toggle('opacity-100');
+                searchInput.classList.toggle('pl-2');
+            });
+        });
+    </script>
+</head>
+<body class="bg-gray-100">
+<div th:replace="~{layout/fragments/header :: headerFragment}"></div>
+<main>
+    <div class="bg-white rounded-lg shadow-md p-8 w-full max-w-md">
+        <h2 class="text-2xl font-semibold text-gray-800 mb-6 text-center">회원가입</h2>
+        <form class="space-y-4" method="post" action="/register">
+            <div>
+                <label for="name" class="block text-gray-700 text-sm font-bold mb-2">이름</label>
+                <input type="text" id="name" name="name" placeholder="이름을 입력해주세요"
+                       class="shadow appearance-none border border-gray-200 rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+            </div>
+            <div class="input-group check-button-group">
+                <label for="id" class="block text-gray-700 text-sm font-bold mb-2">아이디</label>
+                <div class="flex w-full">
+                    <input type="text" id="id" name="id" placeholder="아이디를 입력해주세요"
+                           class="shadow appearance-none border border-gray-200  w-full  text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                    <button type="button"
+                            class="bg-primary-color text-white  hover:bg-primary-hover transition duration-300  focus:outline-none focus:ring-2 focus:ring-primary-focus">
+                        중복확인
+                    </button>
+                </div>
+            </div>
+            <div>
+                <label for="password" class="block text-gray-700 text-sm font-bold mb-2">비밀번호</label>
+                <input type="password" id="password" name="password" placeholder="비밀번호를 입력해주세요"
+                       class="shadow appearance-none border border-gray-200 rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+            </div>
+            <div class="input-group check-button-group">
+                <label for="email" class="block text-gray-700 text-sm font-bold mb-2">이메일</label>
+                <div class="flex w-full">
+                    <input type="email" id="email" name="email" placeholder="이메일을 입력해주세요"
+                           class="shadow appearance-none border border-gray-200 w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                    <button type="button"
+                            class="bg-primary-color text-white   hover:bg-primary-hover transition duration-300  focus:outline-none focus:ring-2 focus:ring-primary-focus">
+                        중복확인
+                    </button>
+                </div>
+            </div>
+            <div>
+                <label for="phone" class="block text-gray-700 text-sm font-bold mb-2">휴대폰 번호</label>
+                <input type="tel" id="phone" name="phone" placeholder="휴대폰 번호를 입력해주세요"
+                       class="shadow appearance-none border border-gray-200 rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+            </div>
+            <div>
+                <label for="birthday" class="block text-gray-700 text-sm font-bold mb-2">생년월일</label>
+                <input type="date" id="birthday" name="birthday"
+                       class="shadow appearance-none border border-gray-200 rounded w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+            </div>
+            <button type="submit"
+                    class="bg-primary-color text-white w-full py-3 rounded-md hover:bg-primary-hover transition duration-300 focus:outline-none focus:ring-2 focus:ring-primary-focus font-semibold">
+                가입하기
+            </button>
+        </form>
+    </div>
+</main>
+<div th:replace="~{layout/fragments/footer :: footerFragment}"></div>
+</body>
+</html>

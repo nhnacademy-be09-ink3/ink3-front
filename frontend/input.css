@@ -1,1 +1,21 @@
-@import "tailwindcss" source("../src/main/resources");
+@import "tailwindcss" source(none);
+
+@source "../src/main/resources";
+@source "./";
+
+@theme {
+    --color-ink-primary: #86ef7d;
+    --color-ink-primary-hover: #6ee7b7;
+}
+
+.ink-btn-primary {
+    @apply bg-ink-primary text-white px-4 py-2 rounded-md font-semibold transition duration-300 hover:bg-ink-primary-hover;
+}
+
+.ink-input-field {
+    @apply shadow rounded px-4 py-3 text-gray-700 leading-tight border border-gray-200 focus:outline-2 focus:outline-ink-primary;
+}
+
+.ink-card-withe {
+    @apply bg-white shadow-md rounded-lg;
+}
