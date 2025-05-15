@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8" />
+    <title>결제하기</title>
+    <script src="https://js.tosspayments.com/v1/payment"></script>
+</head>
+<body>
+
+<script th:inline="javascript">
+    var clientKey = "test_ck_ALnQvDd2VJ2jvnEdDeLnVMj7X41m";
+    var tossPayments = TossPayments(clientKey);
+
+    tossPayments
+        .requestPayment("카드", {
+            amount: [[${amount}]],
+            orderId: [[${orderId}]],
+            orderName: [[${orderName}]],
+            customerName: [[${customerName}]],
+            successUrl: "http://localhost:10254/payments/success",
+            failUrl: "http://localhost:10254/payments/fail",
+        })
+        .catch(function (error) {
+            if (error.code === "USER_CANCEL") {
+                console.log("사용자가 결제창을 닫았습니다.");
+            } else if (error.code === "INVALID_CARD_COMPANY") {
+                console.log("유효하지 않은 카드 코드입니다.");
+            }
+        });
+</script>
+
+</body>
+</html>
