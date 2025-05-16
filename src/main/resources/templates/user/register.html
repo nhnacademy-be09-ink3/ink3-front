@@ -69,7 +69,7 @@
                 }
 
                 try {
-                    const res = await fetch(`http://localhost:8080/users/check?loginId=${encodeURIComponent(idValue)}`);
+                    const res = await fetch(`${window.api.gatewayBaseUrl}/shop/users/check?loginId=${encodeURIComponent(idValue)}`);
                     const result = await res.json();
                     if (result.data.loginIdAvailable) {
                         alert('사용 가능한 아이디입니다.');
@@ -90,7 +90,7 @@
                 }
 
                 try {
-                    const res = await fetch(`http://localhost:8080/users/check?email=${encodeURIComponent(emailValue)}`);
+                    const res = await fetch(`${window.api.gatewayBaseUrl}/shop/users/check?email=${encodeURIComponent(emailValue)}`);
                     const result = await res.json();
                     if (result.data.emailAvailable) {
                         alert('사용 가능한 이메일입니다.');

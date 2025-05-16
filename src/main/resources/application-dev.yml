@@ -1,3 +1,4 @@
+gateway-base-url: https://ink3.shop/dev/gateway
 spring:
   cloud:
     openfeign:

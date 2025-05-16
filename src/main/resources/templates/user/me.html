@@ -51,7 +51,7 @@
             <div class="w-3/4 flex flex-col space-y-4">
                 <div class="ink-card-white p-6">
                     <h1 class="text-xl font-semibold text-gray-800 mb-6">내 정보</h1>
-                    <form method="post" action="#">
+                    <form method="post" th:action="@{#}">
                         <div class="mb-4">
                             <label for="name" class="block text-gray-700 text-sm font-bold mb-2">
                                 이름
@@ -97,7 +97,7 @@
                 </div>
                 <div class="ink-card-white p-6">
                     <h1 class="text-xl font-semibold text-gray-800 mb-6">비밀번호 수정</h1>
-                    <form method="post" action="#">
+                    <form method="post" th:action="@{#}">
                         <div class="mb-4">
                             <label for="currentPassword" class="block text-gray-700 text-sm font-bold mb-2">
                                 현재 비밀번호

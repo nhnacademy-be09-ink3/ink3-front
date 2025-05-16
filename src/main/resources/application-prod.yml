@@ -1,0 +1,10 @@
+gateway-base-url: https://ink3.shop/gateway
+spring:
+  cloud:
+    openfeign:
+      client:
+        config:
+          auth-service:
+            url: http://127.0.0.1:10250/auth
+          shop-service:
+            url: http://127.0.0.1:10250/shop
