@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
-@FeignClient(name = "shop-service", contextId = "userClient")
+@FeignClient(name = "userClient", url = "${feign.url.shop}")
 public interface UserClient {
     @GetMapping("/users")
     CommonResponse<Map<String, Boolean>> checkUserIdentifierAvailability(
