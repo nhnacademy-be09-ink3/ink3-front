@@ -1,10 +1,7 @@
 package com.nhnacademy.front.common.config;
 
 import com.nhnacademy.front.common.interceptor.AccessTokenInterceptor;
-import com.nhnacademy.front.common.resolver.LoginUserArgumentResolver;
-import java.util.List;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -16,12 +13,6 @@ public class WebConfig implements WebMvcConfigurer {
         WebMvcConfigurer.super.addViewControllers(registry);
         registry.addViewController("/layout").setViewName("layout/layout");
         registry.addViewController("/component").setViewName("component");
-    }
-
-    @Override
-    public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
-        WebMvcConfigurer.super.addArgumentResolvers(resolvers);
-        resolvers.add(new LoginUserArgumentResolver());
     }
 
     @Override

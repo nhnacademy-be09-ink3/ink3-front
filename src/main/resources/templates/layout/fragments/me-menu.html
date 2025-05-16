@@ -1,25 +1,25 @@
 <div th:fragment="meMenuFragment" class="w-1/4 p-4 self-start sticky top-6 ink-card-white space-y-2">
-    <a href="/me" th:classappend="${currentPage == 'me' ? 'bg-green-100': ''}"
+    <a th:href="@{/me}" th:classappend="${currentPage == 'me' ? 'bg-green-100': ''}"
        class="block px-4 py-2 rounded hover:bg-green-100 text-gray-800 font-medium">
         내 정보
     </a>
-    <a href="/me/orders" th:classappend="${currentPage == 'orders' ? 'bg-green-100': ''}"
+    <a th:href="@{/me/orders}" th:classappend="${currentPage == 'orders' ? 'bg-green-100': ''}"
        class="block px-4 py-2 rounded hover:bg-green-100 text-gray-800 font-medium">
         주문 내역
     </a>
-    <a href="/me/coupons" th:classappend="${currentPage == 'coupons' ? 'bg-green-100': ''}"
+    <a th:href="@{/me/coupons}" th:classappend="${currentPage == 'coupons' ? 'bg-green-100': ''}"
        class="block px-4 py-2 rounded hover:bg-green-100 text-gray-800 font-medium">
         쿠폰함
     </a>
-    <a href="/me/likes" th:classappend="${currentPage == 'likes' ? 'bg-green-100': ''}"
+    <a th:href="@{/me/likes}" th:classappend="${currentPage == 'likes' ? 'bg-green-100': ''}"
        class="block px-4 py-2 rounded hover:bg-green-100 text-gray-800 font-medium">
         찜한 상품
     </a>
-    <a href="/me/reviews" th:classappend="${currentPage == 'reviews' ? 'bg-green-100': ''}"
+    <a th:href="@{/me/reviews}" th:classappend="${currentPage == 'reviews' ? 'bg-green-100': ''}"
        class="block px-4 py-2 rounded hover:bg-green-100 text-gray-800 font-medium">
         리뷰 관리
     </a>
-    <a href="/me/withdraw" th:classappend="${currentPage == 'withdraw' ? 'bg-red-100': ''}"
+    <a th:href="@{/me/withdraw}" th:classappend="${currentPage == 'withdraw' ? 'bg-red-100': ''}"
        class="block px-4 py-2 rounded hover:bg-red-100 text-red-600 font-medium">
         회원 탈퇴
     </a>

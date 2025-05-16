@@ -1,11 +1,12 @@
+gateway-base-url: http://localhost:8081
 spring:
   cloud:
     openfeign:
       client:
         config:
           auth-service:
-            url: http://localhost:8081
+            url: http://localhost:8081/auth
           shop-service:
-            url: http://localhost:8080
+            url: http://localhost:8081/shop
 server:
-  port: 8082
+  port: 8080

@@ -27,20 +27,6 @@
     </style>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const searchButton = document.getElementById('search-button');
-            const searchInput = document.getElementById('search-input');
-
-            searchButton.addEventListener('click', () => {
-                searchInput.classList.toggle('hidden');
-                searchInput.classList.toggle('w-0');
-                searchInput.classList.toggle('opacity-0');
-                searchInput.classList.toggle('w-48');
-                searchInput.classList.toggle('opacity-100');
-                searchInput.classList.toggle('pl-2');
-            });
-        });
-
-        document.addEventListener('DOMContentLoaded', () => {
             const form = document.getElementById('registerForm');
             const password = document.getElementById('password');
             const confirmPassword = document.getElementById('confirmPassword');
@@ -69,7 +55,7 @@
                 }
 
                 try {
-                    const res = await fetch(`http://localhost:8080/users/check?loginId=${encodeURIComponent(idValue)}`);
+                    const res = await fetch(`${window.api.gatewayBaseUrl}/shop/users/check?loginId=${encodeURIComponent(idValue)}`);
                     const result = await res.json();
                     if (result.data.loginIdAvailable) {
                         alert('사용 가능한 아이디입니다.');
@@ -90,7 +76,7 @@
                 }
 
                 try {
-                    const res = await fetch(`http://localhost:8080/users/check?email=${encodeURIComponent(emailValue)}`);
+                    const res = await fetch(`${window.api.gatewayBaseUrl}/shop/users/check?email=${encodeURIComponent(emailValue)}`);
                     const result = await res.json();
                     if (result.data.emailAvailable) {
                         alert('사용 가능한 이메일입니다.');
@@ -110,7 +96,7 @@
 <main>
     <div class="ink-card-white p-8 w-full max-w-md">
         <h2 class="text-2xl font-semibold text-gray-800 mb-6 text-center">회원가입</h2>
-        <form id="registerForm" class="space-y-4" method="post" action="/register">
+        <form id="registerForm" class="space-y-4" method="post" th:action="@{/register}">
             <div>
                 <label for="name" class="block text-gray-700 text-sm font-bold mb-2">이름</label>
                 <input type="text" id="name" name="name" placeholder="이름을 입력해주세요"

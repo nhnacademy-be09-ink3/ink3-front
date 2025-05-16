@@ -3,7 +3,7 @@
         <div class="container mx-auto px-4 flex justify-between items-center">
             <div class="flex items-center">
                 <h1 class="text-2xl font-semibold text-gray-800 mr-8">
-                    <a href="/" class="text-primary-color">ink3</a>
+                    <a th:href="@{/}" class="text-primary-color">ink3</a>
                 </h1>
                 <div th:replace="~{layout/fragments/nav :: navFragment}"></div>
             </div>
@@ -18,7 +18,7 @@
                 <input type="text" id="search-input"
                        class="hidden w-0 opacity-0 border-b-2 border-ink-primary bg-transparent text-gray-800 h-8 text-base transition-all duration-300 outline-none"
                        placeholder="검색어를 입력하세요"/>
-                <a href="/cart" class="text-gray-700 transition-transform duration-300 hover:scale-110">
+                <a th:href="@{/cart}" class="text-gray-700 transition-transform duration-300 hover:scale-110">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                          stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 icon">
                         <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
@@ -26,7 +26,7 @@
                         <path d="M16 10a4 4 0 0 1-8 0"></path>
                     </svg>
                 </a>
-                <a href="/me" class="text-gray-700 transition-transform duration-300 hover:scale-110">
+                <a th:href="@{/me}" class="text-gray-700 transition-transform duration-300 hover:scale-110">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                          stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 icon">
                         <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
@@ -34,14 +34,33 @@
                     </svg>
                 </a>
                 <div th:if="${isLoggedIn}">
-                    <a href="/logout"
+                    <a th:href="@{/logout}"
                        class="ink-btn-primary">로그아웃</a>
                 </div>
                 <div th:unless="${isLoggedIn}">
-                    <a href="/login"
+                    <a th:href="@{/login}"
                        class="ink-btn-primary">로그인/회원가입</a>
                 </div>
             </div>
         </div>
     </div>
+    <script th:inline="javascript">
+        window.api = {
+            gatewayBaseUrl: /*[[${gatewayBaseUrl}]]*/ ""
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const searchButton = document.getElementById('search-button');
+            const searchInput = document.getElementById('search-input');
+
+            searchButton.addEventListener('click', () => {
+                searchInput.classList.toggle('hidden');
+                searchInput.classList.toggle('w-0');
+                searchInput.classList.toggle('opacity-0');
+                searchInput.classList.toggle('w-48');
+                searchInput.classList.toggle('opacity-100');
+                searchInput.classList.toggle('pl-2');
+            });
+        });
+    </script>
 </header>

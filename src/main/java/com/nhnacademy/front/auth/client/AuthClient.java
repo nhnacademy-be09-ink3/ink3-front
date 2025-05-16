@@ -10,7 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-@FeignClient(name = "auth-service")
+@FeignClient(name = "auth-service", contextId = "authClient")
 public interface AuthClient {
     @PostMapping("/login")
     CommonResponse<LoginResponse> login(@RequestBody LoginRequest request);
