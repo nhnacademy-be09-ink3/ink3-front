@@ -1,7 +1,7 @@
-package com.nhnacademy.front.auth.client.dto;
+package shop.ink3.auth.dto;
 
 public record LoginResponse(
-        String accessToken,
-        String refreshToken
+        JwtToken accessToken,
+        JwtToken refreshToken
 ) {
 }

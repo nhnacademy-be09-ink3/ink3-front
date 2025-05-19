@@ -1,8 +1,8 @@
-package com.nhnacademy.front.auth.client.dto;
+package shop.ink3.auth.dto;
 
 public record LoginRequest(
         String username,
         String password,
-        UserType type
+        UserRole role
 ) {
 }

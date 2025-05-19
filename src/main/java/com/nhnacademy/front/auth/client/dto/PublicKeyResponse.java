@@ -1,4 +1,4 @@
-package com.nhnacademy.front.auth.client.dto;
+package shop.ink3.auth.dto;
 
 public record PublicKeyResponse(
         String publicKey
