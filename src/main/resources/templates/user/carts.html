@@ -56,7 +56,7 @@
                         </div>
 
                         <ul class="space-y-4">
-                            <li class="flex items-center gap-4" th:each="cart : ${carts}">
+                            <li class="flex items-center gap-4" th:each="cart : ${carts}" th:attr="data-cart-id=${cart.id}">
                                 <input type="checkbox" name="cartIds" th:value="${cart.id}" class="guest-cart-checkbox">
                                 <img th:src="${cart.thumbnailUrl}" alt="상품 이미지"
                                      class="size-40 rounded-sm object-cover"/>
@@ -84,16 +84,11 @@
                                                 0%
                                             </dd>
                                         </div>
-                                        <div>
-                                            <dt class="inline">수량:</dt>
-                                            <form th:action="@{'/carts/' + ${cart.id}}" method="post">
-                                                <input type="hidden" name="_method" value="put"/>
-                                                <input type="number" name="quantity" th:value="${cart.quantity}" min="1"
-                                                       class="border rounded w-16 px-2 py-1"/>
-                                                <button type="submit"
-                                                        class="ml-2 px-2 py-1 text-sm bg-gray-200 rounded">변경
-                                                </button>
-                                            </form>
+                                        <div class="flex items-center gap-2 mt-2">
+                                            <button type="button" class="px-2 py-1 text-sm bg-gray-200 rounded quantity-minus">-</button>
+                                            <input type="number" name="quantity" th:value="${cart.quantity}" min="1" class="w-12 text-center border rounded quantity-input" readonly />
+                                            <button type="button" class="px-2 py-1 text-sm bg-gray-200 rounded quantity-plus">+</button>
+                                            <button type="button" class="ml-2 px-2 py-1 text-sm bg-gray-600 text-white rounded update-btn">변경</button>
                                         </div>
                                     </dl>
                                 </div>
@@ -212,6 +207,51 @@
             } else {
                 selectedDeleteForm.submit();
             }
+        });
+
+        document.querySelectorAll('.quantity-minus').forEach(button => {
+            button.addEventListener('click', () => {
+                const input = button.parentElement.querySelector('.quantity-input');
+                if (parseInt(input.value) > 1) input.value--;
+            });
+        });
+
+        document.querySelectorAll('.quantity-plus').forEach(button => {
+            button.addEventListener('click', () => {
+                const input = button.parentElement.querySelector('.quantity-input');
+                input.value++;
+            });
+        });
+
+        document.querySelectorAll('.update-btn').forEach(button => {
+            button.addEventListener('click', () => {
+                const parent = button.closest('li');
+                const cartId = parent.getAttribute('data-cart-id');
+                const quantity = parent.querySelector('.quantity-input').value;
+
+                if (!cartId || !quantity) {
+                    alert("유효하지 않은 요청입니다.");
+                    return;
+                }
+
+                fetch('/carts/update-quantity', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: new URLSearchParams({ cartId, quantity })
+                })
+                    .then(res => {
+                        if (!res.ok) throw new Error('Failed');
+                        return res.text();
+                    })
+                    .then(() => {
+                        alert('수량이 변경되었습니다.');
+                    })
+                    .catch(() => {
+                        alert('수량 변경에 실패했습니다.');
+                    });
+            });
         });
     });
 </script>
