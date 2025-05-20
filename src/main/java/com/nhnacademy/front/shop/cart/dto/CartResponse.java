@@ -1,4 +1,4 @@
-package com.nhnacademy.front.cart.dto;
+package com.nhnacademy.front.shop.cart.dto;
 
 public record CartResponse(
     Long id,
