@@ -1,30 +1,11 @@
 <!DOCTYPE html>
-<style>
-    ul.space-y-4 > li {
-        border-top: 1px solid #e5e7eb;
-        padding-top: 1rem;
-        margin-top: 1rem;
-    }
-
-    .max-w-lg {
-        max-width: unset;
-    }
-</style>
-
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
-
 <head>
-
     <meta charset="UTF-8">
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>ink3</title>
-
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-
     <link rel="stylesheet" th:href="@{/css/output.css}">
-
     <style>
         ul.space-y-4 > li {
             border-top: 1px solid #e5e7eb;
@@ -36,40 +17,8 @@
             max-width: unset;
         }
     </style>
-
-    <script>
-
-        document.addEventListener('DOMContentLoaded', () => {
-
-            const searchButton = document.getElementById('search-button');
-
-            const searchInput = document.getElementById('search-input');
-
-
-            searchButton.addEventListener('click', () => {
-
-                searchInput.classList.toggle('hidden');
-
-                searchInput.classList.toggle('w-0');
-
-                searchInput.classList.toggle('opacity-0');
-
-                searchInput.classList.toggle('w-48');
-
-                searchInput.classList.toggle('opacity-100');
-
-                searchInput.classList.toggle('pl-2');
-
-            });
-
-        });
-
-    </script>
-
 </head>
-
 <body class="bg-gray-100">
-
 <div th:replace="~{layout/fragments/header :: headerFragment}"></div>
 
 <main class="container mx-auto px-4 py-8">
@@ -89,14 +38,19 @@
                                     <span class="text-ml">전체 선택</span>
                                 </label>
                             </div>
-
                             <div class="flex gap-2">
-                                <form action="/carts/delete-all" method="post">
-                                    <button type="submit" class="bg-ink-primary text-white px-4 py-2 text-sm rounded hover:bg-ink-primary">전체 삭제</button>
-                                </form>
+                                <button id="allDeleteBtn" type="button"
+                                        class="bg-ink-primary text-white px-4 py-2 text-sm rounded hover:bg-ink-primary">
+                                    전체 삭제
+                                </button>
+                                <form id="allDeleteForm" action="/carts/delete-all" method="post"></form>
+
                                 <form id="selectedDeleteForm" action="/carts/delete-selected" method="post">
                                     <input type="hidden" name="cartIds" id="selectedCartIds">
-                                    <button type="submit" class="bg-ink-primary text-white px-4 py-2 text-sm rounded hover:bg-ink-primary">선택 삭제</button>
+                                    <button type="submit"
+                                            class="bg-ink-primary text-white px-4 py-2 text-sm rounded hover:bg-ink-primary">
+                                        선택 삭제
+                                    </button>
                                 </form>
                             </div>
                         </div>
@@ -104,29 +58,41 @@
                         <ul class="space-y-4">
                             <li class="flex items-center gap-4" th:each="cart : ${carts}">
                                 <input type="checkbox" name="cartIds" th:value="${cart.id}" class="guest-cart-checkbox">
-                                <img th:src="${cart.thumbnailUrl}" alt="상품 이미지" class="size-40 rounded-sm object-cover"/>
+                                <img th:src="${cart.thumbnailUrl}" alt="상품 이미지"
+                                     class="size-40 rounded-sm object-cover"/>
 
                                 <div>
                                     <h3 class="text-lg font-semibold text-gray-900" th:text="${cart.bookTitle}">도서명</h3>
                                     <dl class="mt-0.5 space-y-px text-sm text-gray-600">
                                         <div>
                                             <dt class="inline">정가:</dt>
-                                            <dd class="inline line-through text-gray-400" th:text="'\u20A9' + ${#numbers.formatInteger(cart.originalBookPrice, 3, 'COMMA')}">0</dd>
+                                            <dd class="inline line-through text-gray-400"
+                                                th:text="'₩' + ${#numbers.formatInteger(cart.originalBookPrice, 3, 'COMMA')}">
+                                                ₩0
+                                            </dd>
                                         </div>
                                         <div>
                                             <dt class="inline">할인가:</dt>
-                                            <dd class="inline text-black font-semibold" th:text="'\u20A9' + ${#numbers.formatInteger(cart.saleBookPrice, 3, 'COMMA')}">0</dd>
+                                            <dd class="inline text-black font-semibold"
+                                                th:text="'₩' + ${#numbers.formatInteger(cart.saleBookPrice, 3, 'COMMA')}">
+                                                ₩0
+                                            </dd>
                                         </div>
                                         <div>
                                             <dt class="inline">할인율:</dt>
-                                            <dd class="inline text-red-500" th:text="${cart.bookDiscountRate + '%'}">0%</dd>
+                                            <dd class="inline text-red-500" th:text="${cart.bookDiscountRate + '%'}">
+                                                0%
+                                            </dd>
                                         </div>
                                         <div>
                                             <dt class="inline">수량:</dt>
                                             <form th:action="@{'/carts/' + ${cart.id}}" method="post">
-                                                <input type="hidden" name="_method" value="put" />
-                                                <input type="number" name="quantity" th:value="${cart.quantity}" min="1" class="border rounded w-16 px-2 py-1" />
-                                                <button type="submit" class="ml-2 px-2 py-1 text-sm bg-gray-200 rounded">변경</button>
+                                                <input type="hidden" name="_method" value="put"/>
+                                                <input type="number" name="quantity" th:value="${cart.quantity}" min="1"
+                                                       class="border rounded w-16 px-2 py-1"/>
+                                                <button type="submit"
+                                                        class="ml-2 px-2 py-1 text-sm bg-gray-200 rounded">변경
+                                                </button>
                                             </form>
                                         </div>
                                     </dl>
@@ -141,12 +107,10 @@
                                         <dt class="text-left w-full">주문 금액</dt>
                                         <dd class="text-right w-full">￦60,000</dd>
                                     </div>
-
                                     <div class="flex justify-between items-center">
                                         <dt class="text-left w-full">할인 금액</dt>
                                         <dd class="text-right w-full">-￦5,000</dd>
                                     </div>
-
                                     <div class="flex justify-between items-center !text-base font-medium">
                                         <dt class="text-left w-full">총 주문 금액</dt>
                                         <dd class="text-right w-full">￦55,000</dd>
@@ -154,35 +118,19 @@
                                 </dl>
 
                                 <div class="flex justify-end">
-              <span
-                      class="inline-flex items-center justify-center rounded-full bg-indigo-100 px-2.5 py-0.5 text-indigo-700"
-              >
-                <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke-width="1.5"
-                        stroke="currentColor"
-                        class="-ms-1 me-1.5 size-4"
-                >
-                  <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          d="M16.5 6v.75m0 3v.75m0 3v.75m0 3V18m-9-5.25h5.25M7.5 15h3M3.375 5.25c-.621 0-1.125.504-1.125 1.125v3.026a2.999 2.999 0 010 5.198v3.026c0 .621.504 1.125 1.125 1.125h17.25c.621 0 1.125-.504 1.125-1.125v-3.026a2.999 2.999 0 010-5.198V6.375c0-.621-.504-1.125-1.125-1.125H3.375z"
-                  />
-                </svg>
-
-                <p class="text-xs whitespace-nowrap">쿠폰 적용 완료</p>
-              </span>
+                                    <span class="inline-flex items-center justify-center rounded-full bg-indigo-100 px-2.5 py-0.5 text-indigo-700">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                             stroke-width="1.5" stroke="currentColor" class="-ms-1 me-1.5 size-4">
+                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                  d="M16.5 6v.75m0 3v.75m0 3v.75m0 3V18m-9-5.25h5.25M7.5 15h3M3.375 5.25c-.621 0-1.125.504-1.125 1.125v3.026a2.999 2.999 0 010 5.198v3.026c0 .621.504 1.125 1.125 1.125h17.25c.621 0 1.125-.504 1.125-1.125v-3.026a2.999 2.999 0 010-5.198V6.375c0-.621-.504-1.125-1.125-1.125H3.375z"/>
+                                        </svg>
+                                        <p class="text-xs whitespace-nowrap">쿠폰 적용 완료</p>
+                                    </span>
                                 </div>
 
                                 <div class="flex justify-end">
-                                    <a
-                                            href="#"
-                                            class="ink-btn-primary bg-gray-700 px-5 py-3 text-sm text-gray-100 transition hover:bg-gray-600"
-                                    >
-                                        주문하기
-                                    </a>
+                                    <a href="#"
+                                       class="ink-btn-primary bg-gray-700 px-5 py-3 text-sm text-gray-100 transition hover:bg-gray-600">주문하기</a>
                                 </div>
                             </div>
                         </div>
@@ -192,28 +140,82 @@
         </div>
     </section>
 </main>
+
+<!-- 삭제 확인 모달 -->
+<div id="deleteModal" class="fixed inset-0 z-50 bg-white/10 backdrop-blur-sm hidden justify-center items-center">
+    <div class="bg-white rounded-lg p-6 w-80 shadow-lg text-center border border-black">
+        <p class="text-lg font-semibold mb-4">선택한 상품을 삭제하시겠습니까?</p>
+        <div class="flex justify-end gap-2">
+            <button id="cancelBtn" class="px-4 py-2 text-sm rounded bg-gray-200 hover:bg-gray-300">취소</button>
+            <button id="confirmBtn" class="px-4 py-2 text-sm rounded bg-red-500 text-white hover:bg-red-600">삭제</button>
+        </div>
+    </div>
+</div>
+
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         const selectAll = document.getElementById('selectAll');
         const checkboxes = document.querySelectorAll('.guest-cart-checkbox');
         const selectedCartIdsInput = document.getElementById('selectedCartIds');
         const selectedDeleteForm = document.getElementById('selectedDeleteForm');
+        const allDeleteBtn = document.getElementById('allDeleteBtn');
+        const allDeleteForm = document.getElementById('allDeleteForm');
+        const deleteModal = document.getElementById('deleteModal');
+        const cancelBtn = document.getElementById('cancelBtn');
+        const confirmBtn = document.getElementById('confirmBtn');
+        const selectedDeleteBtn = selectedDeleteForm.querySelector('button[type="submit"]');
+
+        let deleteMode = 'selected'; // 또는 'all'
 
         selectAll.addEventListener('change', () => {
             checkboxes.forEach(cb => cb.checked = selectAll.checked);
         });
 
-        selectedDeleteForm.addEventListener('submit', (e) => {
-            const selectedIds = Array.from(checkboxes)
-                .filter(cb => cb.checked)
-                .map(cb => cb.value);
+        selectedDeleteBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const selectedIds = Array.from(checkboxes).filter(cb => cb.checked).map(cb => cb.value);
+            if (selectedIds.length === 0) {
+                alert("삭제할 항목을 선택하세요.");
+                return;
+            }
             selectedCartIdsInput.value = selectedIds.join(',');
+            deleteMode = 'selected';
+            deleteModal.classList.remove('hidden');
+            deleteModal.classList.add('flex');
+        });
+
+        allDeleteBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+
+            checkboxes.forEach(cb => cb.checked = true);
+            selectAll.checked = true;
+
+            const hasItems = checkboxes.length > 0;
+            if (!hasItems) {
+                alert("삭제할 항목이 없습니다.");
+                return;
+            }
+
+            deleteMode = 'all';
+            deleteModal.classList.remove('hidden');
+            deleteModal.classList.add('flex');
+        });
+
+        cancelBtn.addEventListener('click', () => {
+            deleteModal.classList.add('hidden');
+            deleteModal.classList.remove('flex');
+        });
+
+        confirmBtn.addEventListener('click', () => {
+            if (deleteMode === 'all') {
+                allDeleteForm.submit();
+            } else {
+                selectedDeleteForm.submit();
+            }
         });
     });
 </script>
 
 <div th:replace="~{layout/fragments/footer :: footerFragment}"></div>
-
 </body>
-
 </html>
