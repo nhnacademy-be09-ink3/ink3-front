@@ -1,4 +1,4 @@
-package com.nhnacademy.front.cart.client;
+package com.nhnacademy.front.shop.cart.client;
 
 import java.util.List;
 
@@ -11,9 +11,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-import com.nhnacademy.front.cart.dto.CartRequest;
-import com.nhnacademy.front.cart.dto.CartResponse;
-import com.nhnacademy.front.cart.dto.CartUpdateRequest;
+import com.nhnacademy.front.shop.cart.dto.CartRequest;
+import com.nhnacademy.front.shop.cart.dto.CartResponse;
+import com.nhnacademy.front.shop.cart.dto.CartUpdateRequest;
 
 @FeignClient(name = "cartClient", url = "${feign.url.shop}")
 public interface CartClient {
