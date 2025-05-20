@@ -1,19 +1,20 @@
 <nav th:fragment="navFragment">
     <ul class="flex space-x-6">
         <li class="nav-item">
-            <a href="#" class="text-gray-700 hover:text-ink-primary transition-colors category-item">베스트셀러</a>
+            <a th:href="@{#}" class="text-gray-700 hover:text-ink-primary transition-colors category-item">베스트셀러</a>
         </li>
         <li class="nav-item">
-            <a href="#" class="text-gray-700 hover:text-ink-primary transition-colors category-item">신간</a>
+            <a th:href="@{#}" class="text-gray-700 hover:text-ink-primary transition-colors category-item">신간</a>
         </li>
         <li class="nav-item">
-            <a href="#" class="text-gray-700 hover:text-ink-primary transition-colors category-item">추천도서</a>
+            <a th:href="@{#}" class="text-gray-700 hover:text-ink-primary transition-colors category-item">추천도서</a>
         </li>
         <li class="nav-item">
-            <a href="#" class="text-gray-700 hover:text-ink-primary transition-colors category-item">이벤트</a>
+            <a th:href="@{#}" class="text-gray-700 hover:text-ink-primary transition-colors category-item">이벤트</a>
         </li>
         <li class="nav-item">
-            <a href="/component" class="text-gray-700 hover:text-ink-primary transition-colors category-item">컴포넌트</a>
+            <a th:href="@{/component}"
+               class="text-gray-700 hover:text-ink-primary transition-colors category-item">컴포넌트</a>
         </li>
     </ul>
 </nav>
