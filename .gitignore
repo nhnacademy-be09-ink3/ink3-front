@@ -31,3 +31,11 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Tailwind CSS ###
+frontend/node_modules
+frontend/package.json
+frontend/package-lock.json
+
+### Secrete ###
+src/main/resources/application-local.yml
