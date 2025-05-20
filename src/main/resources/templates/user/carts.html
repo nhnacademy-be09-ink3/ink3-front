@@ -26,13 +26,15 @@
     <link rel="stylesheet" th:href="@{/css/output.css}">
 
     <style>
-
-        body {
-
-            font-family: 'Inter', sans-serif;
-
+        ul.space-y-4 > li {
+            border-top: 1px solid #e5e7eb;
+            padding-top: 1rem;
+            margin-top: 1rem;
         }
 
+        .max-w-lg {
+            max-width: unset;
+        }
     </style>
 
     <script>
@@ -71,20 +73,16 @@
 <div th:replace="~{layout/fragments/header :: headerFragment}"></div>
 
 <main class="container mx-auto px-4 py-8">
-
-    <!--    <div class="ink-card-withe w-full p-12">-->
-    <!--    </div>-->
     <section>
         <div class="mx-auto max-w-screen-xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
             <div class="mx-auto max-w-4xl bg-white rounded-2xl shadow p-8">
                 <div class="mx-auto max-w-3xl">
                     <header class="text-center">
-                        <h1 class="text-xl font-bold text-gray-900 sm:text-3xl">장바구니</h1>
+                        <h1 class="text-xl font-bold text-center text-gray-900 mb-6">장바구니</h1>
                     </header>
 
                     <div class="mt-8">
                         <div class="flex justify-between items-center mb-4">
-                            <!-- 왼쪽: 전체 선택 -->
                             <div>
                                 <label class="inline-flex items-center">
                                     <input type="checkbox" id="selectAll" class="mr-2">
@@ -92,73 +90,46 @@
                                 </label>
                             </div>
 
-                            <!-- 오른쪽: 버튼 그룹 -->
                             <div class="flex gap-2">
-                                <button onclick="removeItems()"
-                                        class="bg-ink-primary text-white px-4 py-2 text-sm rounded hover:bg-ink-primary">
-                                    전체 삭제
-                                </button>
-                                <button onclick="removeSelectedItems()"
-                                        class="bg-ink-primary text-white px-4 py-2 text-sm rounded hover:bg-ink-primary">
-                                    선택 삭제
-                                </button>
+                                <form action="/carts/delete-all" method="post">
+                                    <button type="submit" class="bg-ink-primary text-white px-4 py-2 text-sm rounded hover:bg-ink-primary">전체 삭제</button>
+                                </form>
+                                <form id="selectedDeleteForm" action="/carts/delete-selected" method="post">
+                                    <input type="hidden" name="cartIds" id="selectedCartIds">
+                                    <button type="submit" class="bg-ink-primary text-white px-4 py-2 text-sm rounded hover:bg-ink-primary">선택 삭제</button>
+                                </form>
                             </div>
                         </div>
 
                         <ul class="space-y-4">
                             <li class="flex items-center gap-4" th:each="cart : ${carts}">
                                 <input type="checkbox" name="cartIds" th:value="${cart.id}" class="guest-cart-checkbox">
-                                <img th:src="${cart.thumbnailUrl}" alt="상품 이미지"
-                                     class="size-40 rounded-sm object-cover"/>
+                                <img th:src="${cart.thumbnailUrl}" alt="상품 이미지" class="size-40 rounded-sm object-cover"/>
 
                                 <div>
                                     <h3 class="text-lg font-semibold text-gray-900" th:text="${cart.bookTitle}">도서명</h3>
                                     <dl class="mt-0.5 space-y-px text-sm text-gray-600">
-                                        <div class="mt-2">
-                                            <label th:for="'couponSelect_' + ${cart.id}" class="block text-sm font-medium text-gray-700">쿠폰 선택</label>
-                                            <select
-                                                    th:id="'couponSelect_' + ${cart.id}"
-                                                    th:name="'couponSelect_' + ${cart.id}"
-                                                    class="mt-1 block w-full rounded-md border border-gray-300 bg-white py-2 px-3 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-                                            >
-                                                <option value="">쿠폰을 선택하세요</option>
-                                                <option value="10off">생일 쿠폰 (-5,000)</option>
-                                                <option value="freedelivery">무료배송 쿠폰 (-3,000)</option>
-                                            </select>
-                                        </div>
-
                                         <div>
                                             <dt class="inline">정가:</dt>
-                                            <dd class="inline line-through text-gray-400"
-                                                th:text="'₩' + ${#numbers.formatInteger(cart.originalBookPrice, 3, 'COMMA')}">
-                                                ₩20,000
-                                            </dd>
+                                            <dd class="inline line-through text-gray-400" th:text="'\u20A9' + ${#numbers.formatInteger(cart.originalBookPrice, 3, 'COMMA')}">0</dd>
                                         </div>
                                         <div>
                                             <dt class="inline">할인가:</dt>
-                                            <dd class="inline text-black font-semibold"
-                                                th:text="'₩' + ${#numbers.formatInteger(cart.saleBookPrice, 3, 'COMMA')}">
-                                                ₩18,000
-                                            </dd>
+                                            <dd class="inline text-black font-semibold" th:text="'\u20A9' + ${#numbers.formatInteger(cart.saleBookPrice, 3, 'COMMA')}">0</dd>
                                         </div>
                                         <div>
                                             <dt class="inline">할인율:</dt>
-                                            <dd class="inline text-red-500" th:text="${cart.bookDiscountRate + '%'}">
-                                                10%
-                                            </dd>
+                                            <dd class="inline text-red-500" th:text="${cart.bookDiscountRate + '%'}">0%</dd>
                                         </div>
                                         <div>
                                             <dt class="inline">수량:</dt>
-                                            <dd class="inline text-black" th:text="${cart.quantity}">1</dd>
+                                            <form th:action="@{'/carts/' + ${cart.id}}" method="post">
+                                                <input type="hidden" name="_method" value="put" />
+                                                <input type="number" name="quantity" th:value="${cart.quantity}" min="1" class="border rounded w-16 px-2 py-1" />
+                                                <button type="submit" class="ml-2 px-2 py-1 text-sm bg-gray-200 rounded">변경</button>
+                                            </form>
                                         </div>
                                     </dl>
-                                </div>
-
-                                <div class="flex flex-1 items-center justify-end gap-2">
-                                    <form th:action="@{/carts/delete-selected}" method="post">
-                                        <input type="hidden" name="cartIds" th:value="${cart.id}"/>
-                                        <button type="submit" class="text-red-500 hover:text-red-700">삭제</button>
-                                    </form>
                                 </div>
                             </li>
                         </ul>
@@ -220,67 +191,29 @@
             </div>
         </div>
     </section>
-
 </main>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const selectAll = document.getElementById('selectAll');
+        const checkboxes = document.querySelectorAll('.guest-cart-checkbox');
+        const selectedCartIdsInput = document.getElementById('selectedCartIds');
+        const selectedDeleteForm = document.getElementById('selectedDeleteForm');
+
+        selectAll.addEventListener('change', () => {
+            checkboxes.forEach(cb => cb.checked = selectAll.checked);
+        });
+
+        selectedDeleteForm.addEventListener('submit', (e) => {
+            const selectedIds = Array.from(checkboxes)
+                .filter(cb => cb.checked)
+                .map(cb => cb.value);
+            selectedCartIdsInput.value = selectedIds.join(',');
+        });
+    });
+</script>
 
 <div th:replace="~{layout/fragments/footer :: footerFragment}"></div>
 
 </body>
 
 </html>
-
-<script>
-    function removeItems() {
-        fetch("/cart/delete-all", {method: "POST"}).then(() => location.reload());
-    }
-
-    function removeSelectedItems() {
-        const cartIds = Array.from(document.querySelectorAll(".guest-cart-checkbox:checked"))
-            .map(cb => cb.value);
-
-        fetch("/cart/delete-selected", {
-            method: "POST",
-            headers: {"Content-Type": "application/x-www-form-urlencoded"},
-            body: new URLSearchParams({cartIds: cartIds})
-        }).then(() => location.reload());
-    }
-
-    function renderCartItems(items) {
-        const ul = document.querySelector('ul.space-y-4');
-        ul.innerHTML = '';
-
-        items.forEach(item => {
-            const li = document.createElement('li');
-            li.className = 'flex items-center gap-4';
-
-            li.innerHTML = `
-            <input type="checkbox" class="guest-cart-checkbox" value="${item.bookId}">
-            <img src="${item.thumbnailUrl}" alt="${item.title}" class="size-40 rounded-sm object-cover" />
-            <div>
-                <h3 class="text-lg font-semibold text-gray-900">${item.title}</h3>
-                <dl class="mt-0.5 space-y-px text-sm text-gray-600">
-                    <div><dt class="inline">가격:</dt> <dd class="inline text-black">₩${item.price.toLocaleString()}</dd>
-                        <span class="inline-flex items-center ml-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 text-indigo-500">
-                              <path stroke-linecap="round" stroke-linejoin="round" d="M15 8a3 3 0 10-6 0m6 3a2 2 0 11-4 0m-2-3a4 4 0 11-8 0c0 1.36.689 2.47 1.724 3.304A6.017 6.017 0 009.77 9.1c.598-.199 1.153-.326 1.63-.326a2 2 0 002.062 0c.623.217 1.165.504 1.65.824 1.796 1.477 3.2 3.095 3.2 5.354 0 2.259-1.404 3.877-3.2 5.354-1.796 1.477-3.2 3.095-3.2 5.354 0 2.259 1.404 3.877 3.2 5.354 1.796 1.477 3.2 3.095 3.2 5.354m-10.082 1.8a7 7 0 01-6.434-6.434c-.29-.037-.586-.059-.88-.059h-.008c-.667 0-1.217.54-1.217 1.207 0 .308.115.607.337.852a7 7 0 006.434 6.434c.29.037.586.059.88.059h.008c.667 0 1.217-.54 1.217-1.207 0-.308-.115-.607-.337-.852z" />
-                            </svg>
-                            <span>+${item.pointAmount.toLocaleString()}</span>
-                        </span>
-                    </div>
-                    <div><dt class="inline">수량:</dt> <dd class="inline text-black">${item.quantity}</dd></div>
-                </dl>
-            </div>
-        `;
-
-            ul.appendChild(li);
-        });
-
-        const selectAll = document.getElementById('selectAll');
-        if (selectAll) {
-            selectAll.checked = false;
-            selectAll.addEventListener('change', () => {
-                document.querySelectorAll('.guest-cart-checkbox').forEach(cb => cb.checked = selectAll.checked);
-            });
-        }
-    }
-</script>
