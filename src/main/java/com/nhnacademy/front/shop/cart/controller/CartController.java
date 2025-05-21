@@ -1,7 +1,6 @@
 package com.nhnacademy.front.shop.cart.controller;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 import org.springframework.stereotype.Controller;
@@ -12,11 +11,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.nhnacademy.front.shop.cart.client.CartClient;
-import com.nhnacademy.front.common.dto.CommonResponse;
-import com.nhnacademy.front.shop.user.client.UserClient;
 import com.nhnacademy.front.shop.cart.dto.CartRequest;
 import com.nhnacademy.front.shop.cart.dto.CartResponse;
 import com.nhnacademy.front.shop.cart.dto.CartUpdateRequest;
+import com.nhnacademy.front.shop.user.client.UserClient;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
