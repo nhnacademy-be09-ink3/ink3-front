@@ -3,10 +3,12 @@ package com.nhnacademy.front.auth.client;
 import com.nhnacademy.front.auth.client.dto.LoginRequest;
 import com.nhnacademy.front.auth.client.dto.LoginResponse;
 import com.nhnacademy.front.auth.client.dto.LogoutRequest;
+import com.nhnacademy.front.auth.client.dto.PublicKeyResponse;
 import com.nhnacademy.front.auth.client.dto.ReissueRequest;
 import com.nhnacademy.front.common.dto.CommonResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -20,4 +22,7 @@ public interface AuthClient {
 
     @PostMapping("/reissue")
     CommonResponse<LoginResponse> reissue(@RequestBody ReissueRequest request);
+
+    @GetMapping("/public-key")
+    CommonResponse<PublicKeyResponse> getPublicKey();
 }

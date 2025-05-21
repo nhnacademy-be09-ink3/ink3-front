@@ -9,4 +9,5 @@ public record AddressResponse(
         String extraAddress,
         Boolean isDefault
 ) {
+
 }

@@ -1,5 +1,6 @@
 package com.nhnacademy.front.shop.user.controller;
 
+import com.nhnacademy.front.auth.client.AuthClient;
 import com.nhnacademy.front.common.dto.CommonResponse;
 import com.nhnacademy.front.shop.user.client.dto.UserCreateRequest;
 import com.nhnacademy.front.shop.user.client.dto.UserResponse;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 @Controller
 public class UserController {
     private final UserClient userClient;
+    private final AuthClient authClient;
 
     @GetMapping("/register")
     public String getRegister() {

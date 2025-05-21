@@ -4,6 +4,9 @@ import com.nhnacademy.front.common.dto.CommonResponse;
 import com.nhnacademy.front.common.dto.PageResponse;
 import com.nhnacademy.front.shop.order.client.OrderClient;
 import com.nhnacademy.front.shop.order.예시DTO.AddressResponse;
+import com.nhnacademy.front.shop.user.client.dto.UserResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -24,7 +27,7 @@ public class OrderFromController {
      * @return
      */
     @GetMapping
-    public String getOrderFrom(Model model){
+    public String getOrderFrom(Model model, HttpServletRequest request) {
         // 사용자 주소
 /*
         CommonResponse<PageResponse<AddressResponse>> userAddresses = orderClient.getUserAddresses();
@@ -35,6 +38,9 @@ public class OrderFromController {
         // 주문 상품 리스트
 
         // 사용자 정보 입력
+//        CommonResponse<UserResponse> userResponse = orderClient.getUser();
+//        UserResponse user = userResponse.data();
+//        model.addAttribute("user", user);
 
         // 쿠폰 리스트 입력
 

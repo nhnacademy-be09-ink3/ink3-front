@@ -1,9 +1,8 @@
 package com.nhnacademy.front.common.interceptor;
 
+import com.nhnacademy.front.util.CookieUtil;
 import feign.RequestInterceptor;
 import feign.RequestTemplate;
-import jakarta.servlet.http.Cookie;
-import java.util.Arrays;
 import java.util.Objects;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
@@ -20,16 +19,14 @@ public class FeignAccessTokenInterceptor implements RequestInterceptor {
             return;
         }
 
-        Cookie[] cookies = attributes.getRequest().getCookies();
+        Object accessTokenAttribute = attributes.getRequest().getAttribute("accessToken");
 
-        if (Objects.isNull(cookies)) {
-            return;
+        String accessToken = Objects.nonNull(accessTokenAttribute)
+                ? accessTokenAttribute.toString()
+                : CookieUtil.getCookieValue(attributes.getRequest(), "accessToken");
+
+        if (Objects.nonNull(accessToken)) {
+            template.header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken);
         }
-
-        Arrays.stream(cookies)
-                .filter(cookie -> "accessToken".equals(cookie.getName()))
-                .findFirst()
-                .map(Cookie::getValue)
-                .ifPresent(accessToken -> template.header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken));
     }
 }

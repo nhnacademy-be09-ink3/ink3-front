@@ -3,3 +3,6 @@ feign:
   url:
     auth: http://127.0.0.1:10250/auth
     shop: http://127.0.0.1:10250/shop
+auth:
+  protected-paths:
+    - /me/*
