@@ -68,10 +68,13 @@ public class AuthRequiredFilter implements Filter {
     }
 
     private boolean isExpired(String accessToken) {
+        final long BUFFER_TIME_MILLIS = 30 * 1000L;
+
         try {
             DecodedJWT jwt = JWT.decode(accessToken);
             Date expiresAt = jwt.getExpiresAt();
-            return expiresAt.before(new Date());
+            long now = System.currentTimeMillis();
+            return expiresAt.getTime() - now <= BUFFER_TIME_MILLIS;
         } catch (Exception e) {
             return true;
         }

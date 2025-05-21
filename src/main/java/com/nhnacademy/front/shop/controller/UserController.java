@@ -1,4 +1,4 @@
-package com.nhnacademy.front.shop.user.controller;
+package com.nhnacademy.front.shop.controller;
 
 import com.nhnacademy.front.auth.client.AuthClient;
 import com.nhnacademy.front.common.dto.CommonResponse;
