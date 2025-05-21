@@ -1,12 +1,31 @@
 package com.nhnacademy.front.util;
 
 import com.nhnacademy.front.auth.client.dto.JwtToken;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.time.Duration;
+import java.util.Arrays;
+import java.util.Objects;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 
 public class CookieUtil {
+    private CookieUtil() {
+        throw new IllegalStateException("Utility class");
+    }
+
+    public static String getCookieValue(HttpServletRequest request, String cookieName) {
+        Cookie[] cookies = request.getCookies();
+
+        if (Objects.isNull(cookies)) {
+            return null;
+        }
+
+        return Arrays.stream(cookies)
+                .filter(cookie -> cookieName.equals(cookie.getName()))
+                .findFirst().map(Cookie::getValue).orElse(null);
+    }
 
     public static void setTokenCookies(
             HttpServletResponse response,

@@ -1,4 +1,4 @@
-package com.nhnacademy.front.user.client.dto;
+package com.nhnacademy.front.shop.user.client.dto;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

@@ -1,4 +1,4 @@
-package com.nhnacademy.front.user.dto;
+package com.nhnacademy.front.shop.user.dto;
 
 import java.time.LocalDate;
 

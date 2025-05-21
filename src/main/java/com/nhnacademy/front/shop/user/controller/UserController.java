@@ -1,10 +1,11 @@
-package com.nhnacademy.front.user.controller;
+package com.nhnacademy.front.shop.user.controller;
 
+import com.nhnacademy.front.auth.client.AuthClient;
 import com.nhnacademy.front.common.dto.CommonResponse;
-import com.nhnacademy.front.user.client.UserClient;
-import com.nhnacademy.front.user.client.dto.UserCreateRequest;
-import com.nhnacademy.front.user.client.dto.UserResponse;
-import com.nhnacademy.front.user.dto.RegisterRequest;
+import com.nhnacademy.front.shop.user.client.UserClient;
+import com.nhnacademy.front.shop.user.client.dto.UserCreateRequest;
+import com.nhnacademy.front.shop.user.client.dto.UserResponse;
+import com.nhnacademy.front.shop.user.dto.RegisterRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 @Controller
 public class UserController {
     private final UserClient userClient;
+    private final AuthClient authClient;
 
     @GetMapping("/register")
     public String getRegister() {

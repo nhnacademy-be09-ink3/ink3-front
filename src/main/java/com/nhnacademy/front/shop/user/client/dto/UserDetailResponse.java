@@ -1,6 +1,6 @@
-package com.nhnacademy.front.user.client.dto;
+package com.nhnacademy.front.shop.user.client.dto;
 
-import com.nhnacademy.front.membership.client.dto.MembershipResponse;
+import com.nhnacademy.front.shop.membership.client.dto.MembershipResponse;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 

@@ -2,15 +2,14 @@ package com.nhnacademy.front.common.interceptor;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import jakarta.servlet.http.Cookie;
+import com.nhnacademy.front.util.CookieUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.util.Arrays;
 import java.util.Objects;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
-public class AccessTokenInterceptor implements HandlerInterceptor {
+public class LoginStatusInterceptor implements HandlerInterceptor {
     @Override
     public void postHandle(
             HttpServletRequest request,
@@ -24,28 +23,18 @@ public class AccessTokenInterceptor implements HandlerInterceptor {
             return;
         }
 
-        String accessToken = getAccessToken(request);
+        String refreshToken = CookieUtil.getCookieValue(request, "refreshToken");
 
-        if (Objects.isNull(accessToken)) {
+        if (Objects.isNull(refreshToken)) {
             modelAndView.addObject("isLoggedIn", false);
             return;
         }
 
         try {
-            DecodedJWT jwt = JWT.decode(accessToken);
+            DecodedJWT jwt = JWT.decode(refreshToken);
             modelAndView.addObject("isLoggedIn", true);
         } catch (Exception e) {
             modelAndView.addObject("isLoggedIn", false);
         }
-    }
-
-    private String getAccessToken(HttpServletRequest request) {
-        Cookie[] cookies = request.getCookies();
-        if (Objects.isNull(cookies)) {
-            return null;
-        }
-        return Arrays.stream(cookies)
-                .filter(cookie -> "accessToken".equals(cookie.getName()))
-                .findFirst().map(Cookie::getValue).orElse(null);
     }
 }
