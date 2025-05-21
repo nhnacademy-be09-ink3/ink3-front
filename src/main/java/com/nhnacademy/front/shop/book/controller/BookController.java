@@ -1,4 +1,4 @@
-package com.nhnacademy.front.book.controller;
+package com.nhnacademy.front.shop.book.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;

@@ -1,4 +1,4 @@
-package com.nhnacademy.front.shop.cart.controller;
+package com.nhnacademy.front.shop.controller;
 
 import java.util.List;
 import java.util.Objects;
