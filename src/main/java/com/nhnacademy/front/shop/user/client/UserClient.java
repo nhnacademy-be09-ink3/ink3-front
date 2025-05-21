@@ -20,4 +20,7 @@ public interface UserClient {
 
     @PostMapping("/users")
     CommonResponse<UserResponse> createUser(@RequestBody UserCreateRequest request);
+
+    @GetMapping("/users/me")
+    CommonResponse<Map<String, Long>> getCurrentUser();
 }
