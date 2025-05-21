@@ -1,14 +1,18 @@
-package com.nhnacademy.front.user.client.dto;
+package com.nhnacademy.front.shop.user.client.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 
-public record UserUpdateRequest(
+public record SocialUserCreateRequest(
+        @NotBlank String loginId,
+        @NotBlank String password,
         @NotBlank String name,
         @NotBlank @Email String email,
         @NotBlank String phone,
-        @NotNull LocalDate birthday
+        @NotNull LocalDate birthday,
+        @NotBlank String provider,
+        @NotBlank String providerUserId
 ) {
 }

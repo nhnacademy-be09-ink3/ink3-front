@@ -1,8 +1,8 @@
-package com.nhnacademy.front.user.client;
+package com.nhnacademy.front.shop.user.client;
 
 import com.nhnacademy.front.common.dto.CommonResponse;
-import com.nhnacademy.front.user.client.dto.UserCreateRequest;
-import com.nhnacademy.front.user.client.dto.UserResponse;
+import com.nhnacademy.front.shop.user.client.dto.UserCreateRequest;
+import com.nhnacademy.front.shop.user.client.dto.UserResponse;
 import java.util.Map;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
