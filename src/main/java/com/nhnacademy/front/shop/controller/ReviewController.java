@@ -13,7 +13,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.nhnacademy.front.shop.review.client.ReviewClient;
 import com.nhnacademy.front.shop.review.dto.MeReviewRequest;
-import com.nhnacademy.front.shop.review.dto.ReviewUpdateRequest;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
