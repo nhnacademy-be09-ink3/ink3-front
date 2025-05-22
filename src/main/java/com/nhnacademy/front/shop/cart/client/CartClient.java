@@ -24,6 +24,9 @@ public interface CartClient {
     @PostMapping("/me/carts")
     CommonResponse<CartResponse> addCart(@RequestBody MeCartRequest request);
 
+    @PostMapping("/me/carts/merge-guest")
+    void mergeGuestCart(@RequestBody List<MeCartRequest> guestItems);
+
     @PutMapping("/me/carts/{cartId}")
     CommonResponse<CartResponse> updateQuantity(@PathVariable Long cartId, @RequestBody CartUpdateRequest request);
 
