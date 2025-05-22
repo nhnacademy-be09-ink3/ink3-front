@@ -131,7 +131,34 @@
                                     <th>상품금액</th>
                                 </tr>
                                 </thead>
-                                <tbody id="guest-cart-body"></tbody>
+                                <tbody id="guest-cart-body">
+                                <tr th:each="cart : ${guestCarts}" th:data-id="${cart.bookId}" class="cart-item-row">
+                                    <td><input type="checkbox" class="guest-cart-checkbox" th:value="${cart.bookId}"></td>
+                                    <td>
+                                        <div class="cart-item-info">
+                                            <img th:src="${cart.book.thumbnailUrl}" class="cart-image"/>
+                                            <div class="product-details">
+                                                <h3 class="product-title" th:text="${cart.book.bookTitle}">도서 제목</h3>
+                                                <div class="price-info">
+                                                    <span class="line-through" th:text="${#numbers.formatInteger(cart.book.originalBookPrice, 3, 'COMMA') + '원'}"></span>
+                                                    <span class="font-semibold" th:text="${#numbers.formatInteger(cart.book.saleBookPrice, 3, 'COMMA') + '원'}"></span>
+                                                    <span class="discount" th:text="${'(' + cart.book.bookDiscountRate + '% 할인)'}"></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="qty-control">
+                                            <button class="qty-btn minus">-</button>
+                                            <input class="qty-input" type="number" min="1" th:value="${cart.quantity}" readonly />
+                                            <button class="qty-btn plus">+</button>
+                                            <button class="update-btn">변경</button>
+                                        </div>
+                                    </td>
+                                    <td class="item-price"
+                                        th:text="${#numbers.formatInteger(cart.book.saleBookPrice * cart.quantity, 3, 'COMMA') + ' 원'}">총가격</td>
+                                </tr>
+                                </tbody>
                             </table>
                         </div>
                         <div class="mt-8 flex justify-end border-t border-gray-100 pt-8">
@@ -139,15 +166,15 @@
                                 <dl class="space-y-0.5 text-ml text-gray-700">
                                     <div class="flex justify-between">
                                         <dt>주문 금액</dt>
-                                        <dd id="orderPrice">0 원</dd>
+                                        <dd id="orderPrice" th:text="${#numbers.formatInteger(orderPrices, 3, 'COMMA') + ' 원'}"></dd>
                                     </div>
                                     <div class="flex justify-between">
                                         <dt>할인 금액</dt>
-                                        <dd id="discountPrice">-0 원</dd>
+                                        <dd id="discountPrice" th:text="${#numbers.formatInteger(discountPrices, 3, 'COMMA') + ' 원'}"></dd>
                                     </div>
                                     <div class="flex justify-between font-medium text-base">
                                         <dt>총 주문 금액</dt>
-                                        <dd id="totalPrice">0 원</dd>
+                                        <dd id="totalPrice" th:text="${#numbers.formatInteger(totalPrice, 3, 'COMMA') + ' 원'}"></dd>
                                     </div>
                                 </dl>
                                 <div class="flex justify-end">
@@ -172,61 +199,11 @@
     }
 
     function saveCart(cart) {
-        document.cookie = `${COOKIE_NAME}=${encodeURIComponent(JSON.stringify(cart))}; path=/; max-age=${60 * 60 * 24 * 3}`;
-    }
-
-    function renderCart() {
-        const cart = getCart();
-        const tbody = document.getElementById("guest-cart-body");
-        tbody.innerHTML = '';
-
-        if (cart.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="4" class="text-center text-gray-600">장바구니가 비어 있습니다.</td></tr>';
-            return;
-        }
-
-        let order = 0, discount = 0;
-
-        cart.forEach(item => {
-            const price = item.price;
-            const discountRate = 20;
-            const sale = Math.floor(price * (1 - discountRate / 100));
-            const total = sale * item.quantity;
-
-            order += price * item.quantity;
-            discount += (price - sale) * item.quantity;
-
-            tbody.innerHTML += `
-            <tr data-id="${item.bookId}" class="cart-item-row">
-                <td><input type="checkbox" class="guest-cart-checkbox" value="${item.bookId}"></td>
-                <td>
-                    <div class="cart-item-info">
-                        <img src="${item.thumbnailUrl}" class="cart-image"/>
-                        <div class="product-details">
-                            <h3 class="product-title">${item.title}</h3>
-                            <div class="price-info">
-                                <span class="line-through">${price.toLocaleString()}원</span>
-                                <span class="font-semibold">${sale.toLocaleString()}원</span>
-                                <span class="discount">(${discountRate}% 할인)</span>
-                            </div>
-                        </div>
-                    </div>
-                </td>
-                <td>
-                    <div class="qty-control">
-                        <button class="qty-btn minus">-</button>
-                        <input class="qty-input" type="number" min="1" value="${item.quantity}" readonly />
-                        <button class="qty-btn plus">+</button>
-                        <button class="update-btn">변경</button>
-                    </div>
-                </td>
-                <td class="item-price">${total.toLocaleString()} 원</td>
-            </tr>`;
-        });
-
-        document.getElementById('orderPrice').textContent = `${order.toLocaleString()} 원`;
-        document.getElementById('discountPrice').textContent = `- ${discount.toLocaleString()} 원`;
-        document.getElementById('totalPrice').textContent = `${(order - discount).toLocaleString()} 원`;
+        const simplified = cart.map(item => ({
+            bookId: item.bookId,
+            quantity: item.quantity
+        }));
+        document.cookie = `${COOKIE_NAME}=${encodeURIComponent(JSON.stringify(simplified))}; path=/; max-age=${60 * 60 * 24 * 3}`;
     }
 
     function attachEvents() {
@@ -236,14 +213,12 @@
 
         document.getElementById('allDeleteBtn').onclick = () => {
             saveCart([]);
-            renderCart();
         };
 
         document.getElementById('selectedDeleteBtn').onclick = () => {
             const selectedIds = Array.from(document.querySelectorAll('.guest-cart-checkbox:checked')).map(cb => Number(cb.value));
             const cart = getCart().filter(item => !selectedIds.includes(item.bookId));
             saveCart(cart);
-            renderCart();
         };
 
         document.addEventListener('click', e => {
@@ -264,13 +239,11 @@
                     quantity: parseInt(input.value)
                 } : item);
                 saveCart(updated);
-                renderCart();
             }
         });
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-        renderCart();
         attachEvents();
     });
 </script>

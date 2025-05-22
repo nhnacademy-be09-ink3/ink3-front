@@ -92,40 +92,83 @@
                         </span>
                     </div>
 
-                    <form th:action="@{/carts}" method="post" class="flex gap-4 mt-auto">
-                        <input type="hidden" name="bookId" th:value="1"/>
+<!--                    <div th:if="${isLoggedIn}">-->
+<!--                        <form th:action="@{/carts}" method="post" class="flex gap-4 mt-auto">-->
+<!--                            <input type="hidden" name="bookId" th:value="1"/>-->
 
-                        <div class="flex mb-4">
+<!--                            <div class="flex mb-4">-->
+<!--                            <span class="flex items-center">-->
+<!--                                <span class="text-md text-gray-600 mb-1">수량</span>-->
+<!--                                <span class="flex ml-3 pl-3 py-2 border-l-2 border-gray-200 space-x-2s"></span>-->
+<!--                                <input-->
+<!--                                        id="quantity"-->
+<!--                                        name="quantity"-->
+<!--                                        type="number"-->
+<!--                                        min="1"-->
+<!--                                        value="1"-->
+<!--                                        class="w-16 px-2 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"-->
+<!--                                />-->
+<!--                            </span>-->
+<!--                            </div>-->
+
+<!--                            <div class="flex gap-4 mt-0.5">-->
+<!--                                <button type="submit"-->
+<!--                                        class="ink-btn-primary bg-gray-300 text-gray-800 hover:bg-gray-400">-->
+<!--                                    장바구니에 넣기-->
+<!--                                </button>-->
+<!--                            </div>-->
+
+<!--                            <div class="flex gap-4 mt-0.5">-->
+<!--                                <a href="/books" class="ink-btn-primary bg-gray-300 text-gray-800 hover:bg-gray-400">목록으로</a>-->
+<!--                                <button class="rounded-full w-10 h-10 bg-gray-200 p-0 border-0 inline-flex items-center justify-center text-gray-500 ml-4">-->
+<!--                                    <svg fill="currentColor" stroke-linecap="round" stroke-linejoin="round"-->
+<!--                                         stroke-width="2"-->
+<!--                                         class="w-5 h-5" viewBox="0 0 24 24">-->
+<!--                                        <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"></path>-->
+<!--                                    </svg>-->
+<!--                                </button>-->
+<!--                            </div>-->
+<!--                        </form>-->
+<!--                    </div>-->
+
+                    <div th:unless="${isLoggedIn}">
+                        <form th:action="@{/guest-carts}" method="post" class="flex gap-4 mt-auto">
+                            <input type="hidden" name="bookId" th:value="1"/>
+
+                            <div class="flex mb-4">
                             <span class="flex items-center">
                                 <span class="text-md text-gray-600 mb-1">수량</span>
                                 <span class="flex ml-3 pl-3 py-2 border-l-2 border-gray-200 space-x-2s"></span>
                                 <input
-                                    id="quantity"
-                                    name="quantity"
-                                    type="number"
-                                    min="1"
-                                    value="1"
-                                    class="w-16 px-2 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                        id="quantity"
+                                        name="quantity"
+                                        type="number"
+                                        min="1"
+                                        value="1"
+                                        class="w-16 px-2 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 />
                             </span>
-                        </div>
+                            </div>
 
-                        <div class="flex gap-4 mt-0.5">
-                            <button type="submit" class="ink-btn-primary bg-gray-300 text-gray-800 hover:bg-gray-400">
-                                장바구니에 넣기
-                            </button>
-                        </div>
+                            <div class="flex gap-4 mt-0.5">
+                                <button type="submit"
+                                        class="ink-btn-primary bg-gray-300 text-gray-800 hover:bg-gray-400">
+                                    장바구니에 넣기
+                                </button>
+                            </div>
 
-                        <div class="flex gap-4 mt-0.5">
-                            <a href="/books" class="ink-btn-primary bg-gray-300 text-gray-800 hover:bg-gray-400">목록으로</a>
-                            <button class="rounded-full w-10 h-10 bg-gray-200 p-0 border-0 inline-flex items-center justify-center text-gray-500 ml-4">
-                                <svg fill="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                     class="w-5 h-5" viewBox="0 0 24 24">
-                                    <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"></path>
-                                </svg>
-                            </button>
-                        </div>
-                    </form>
+                            <div class="flex gap-4 mt-0.5">
+                                <a href="/books" class="ink-btn-primary bg-gray-300 text-gray-800 hover:bg-gray-400">목록으로</a>
+                                <button class="rounded-full w-10 h-10 bg-gray-200 p-0 border-0 inline-flex items-center justify-center text-gray-500 ml-4">
+                                    <svg fill="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                         stroke-width="2"
+                                         class="w-5 h-5" viewBox="0 0 24 24">
+                                        <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
 
                     <div>
                         <div class="flex items-baseline gap-2 mb-6">
