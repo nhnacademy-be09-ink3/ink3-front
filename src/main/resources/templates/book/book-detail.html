@@ -14,8 +14,8 @@
 </head>
 <body class="bg-gray-100">
 <div th:replace="~{layout/fragments/header :: headerFragment}"></div>
-<main class="container mx-auto px-4 py-8">
 
+<main class="container mx-auto px-4 py-8">
     <section class="text-gray-600 body-font overflow-hidden">
         <div class="bg-white rounded-lg shadow-md container px-5 py-24 mx-auto pl-16">
             <div class="lg:w-4/5 mx-auto flex flex-wrap">
@@ -205,6 +205,7 @@
                 </div>
             </div>
         </div>
+
         <div class="max-w-5xl mx-auto px-4 py-12 border-t border-gray-200 mt-12">
             <div class="md:flex md:gap-8">
                 <!-- 섹션 제목 -->
@@ -230,9 +231,137 @@
             </div>
         </div>
 
-    </section>
+        <!-- 탭 버튼 -->
+        <div class="max-w-5xl mx-auto px-4 mt-8 border-b border-gray-300 flex">
+            <button id="infoTabBtn" class="px-4 py-2 font-semibold bg-gray-800 text-white">도서정보</button>
+            <button id="reviewTabBtn" class="px-4 py-2 text-gray-700">리뷰/한줄평 <span class="text-xs">(25/3)</span>
+            </button>
+        </div>
 
+        <!-- 도서정보 탭 내용 -->
+        <div id="infoTabContent" class="max-w-5xl mx-auto px-4 py-12 border-t border-gray-200">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">책소개</h2>
+            <div class="md:w-4/5 w-full text-gray-700 leading-relaxed space-y-4">
+                <p>
+                    아름다운 세계관과 개성 넘치는 캐릭터, 유려한 문체와 깊이 있는 감성으로 한국 판타지를 이끌어온 전민희 작가의 대표작 『룬의 아이들』 신작이 엘릭시르에서 출간된다. '룬의
+                    아이들' 시리즈는 국내 판매량 총 160만 부를 넘은 밀리언셀러다. 뿐만 아니라 일본, 대만, 태국, 중국에 수출되어 국내외 판매량을 합치면 300만 부를 훌쩍 넘어 아시아
+                    전역에서 가장 사랑받는 판타지라는 평가를 받고 있다.
+                </p>
+                <p>
+                    『룬의 아이들 - 블러디드』는 『룬의 아이들 - 윈터러』에 이은 2부 『룬의 아이들 - 데모닉』이 완결된 지 11년 만의 신작이다. 1부 ‘룬의 아이들’ 시리즈 3부에
+                    해당하는 이번 작품은 실종된 오빠에 얽힌 비밀과 맞서 분투하는 공녀를 중심으로 ‘블러디드’라는 힘에 관한 이야기를 다루고 있다.
+                </p>
+                <p>
+                    『윈터러』와 『데모닉』의 세계관을 이어받은 3부 『블러디드』는 속도감 있는 전개와 새로운 캐릭터의 등장으로 첫 권부터 독자들의 호기심을 불러일으켜왔다. 소설의 클라이막스를
+                    향해 달려가고 있는 이번 8권에서는 전권에 이어 샤를로트가 지닌 ‘블러디드’라는 힘, 바로 그 힘의 근원이 된 것으로 추정되는 샤를로트의 어머니의 정체, 그리고 ‘에투알’의
+                    사명에 대한 더욱 깊고 거대한 비밀이 밝혀진다.
+                </p>
+                <p>
+                    한편, 켈티카의 추억 어린 거리로 돌아온 막시민 또한 나름대로의 방법으로 진상에 다가가고 있었다. 그 과정에서 막시민은 그동안 외면해왔던 자신의 진심을 마주함과 동시에,
+                    까맣게 모르고 있던 반짝이는 가능성을 발견한다. 마침내 결전의 장소로 향하는 샤를로트와 막시민, 두 사람은 아이언페이스와의 오래된 약속과 세상의 종말을 눈앞에 두고 과연
+                    어떠한 선택을 하게 될까?
+                </p>
+            </div>
+
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">목차</h2>
+            <div class="md:w-4/5 w-full text-gray-700 leading-relaxed space-y-4">
+                <p>
+                    15장 Origin
+                    <br>사과나무의 땅 11
+                    <br>지켜지는 자 41
+                    <br>기나긴 죽음 74
+                    <br>육신에만 담을 수 있는 것 98
+                    <br>
+                    <br>16장 Every Life
+                    <br>한 인간의 무게 121
+                    <br>아이언워크 144
+                    <br>전통 있는 학교들의 입장 169
+                    <br>신장개업 186
+                    <br>돌아온 탐정 207
+                    <br>근원 감응자 235
+                    <br>다람쥐통 265
+                    <br>휴업 286
+                    <br>외교 특사 306
+                </p>
+            </div>
+        </div>
+
+        <!-- 리뷰 탭 내용 -->
+        <div id="reviewTabContent" class="max-w-5xl mx-auto px-4 py-12 border-t border-gray-200">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">리뷰</h2>
+
+            <!-- 리뷰 목록 -->
+            <div class="space-y-6" th:each="review : ${reviews}">
+                <div class="p-4 bg-white rounded shadow">
+                    <div class="flex justify-between">
+                        <p class="font-semibold text-gray-800" th:text="${review.title}">리뷰 제목</p>
+                        <span class="text-sm text-gray-500"
+                              th:text="${#temporals.format(review.createdAt, 'yyyy-MM-dd HH:mm')}">날짜</span>
+                    </div>
+                    <p class="text-sm text-yellow-500">
+                        <span th:each="i : ${#numbers.sequence(1, review.rating)}">⭐</span>
+                    </p>
+                    <p class="text-gray-600 mt-1" th:text="${review.content}">리뷰 내용</p>
+
+                    <!-- 리뷰 수정 폼 -->
+                    <form th:action="@{/books/{bookId}/reviews/{reviewId}/update(bookId=${bookId}, reviewId=${review.id})}"
+                          method="post" class="mt-2 space-y-2">
+                        <input type="hidden" name="userId" th:value="${review.userId}">
+                        <input type="hidden" name="orderBookId" th:value="${review.orderBookId}">
+                        <input type="text" name="title" th:value="${review.title}" class="w-full border p-2 rounded"
+                               required>
+                        <textarea name="content" class="w-full border p-2 rounded" required
+                                  th:text="${review.content}"></textarea>
+                        <input type="number" name="rating" min="1" max="5" th:value="${review.rating}"
+                               class="w-24 border p-1 rounded" required>
+                        <button type="submit" class="text-sm text-blue-500 hover:underline">수정</button>
+                    </form>
+
+                    <!-- 리뷰 삭제 폼 -->
+                    <form th:action="@{/books/{bookId}/reviews/{reviewId}/delete(bookId=${bookId}, reviewId=${review.id})}"
+                          method="post">
+                        <button type="submit" class="text-sm text-red-500 mt-2 hover:underline">삭제</button>
+                    </form>
+                </div>
+            </div>
+            <div th:if="${#lists.isEmpty(reviews)}" class="text-gray-500">등록된 리뷰가 없습니다.</div>
+
+            <!-- 리뷰 등록 폼 -->
+            <form th:action="@{/books/{bookId}/reviews(bookId=${bookId})}" method="post" class="space-y-4 mt-8">
+                <input type="hidden" name="userId" th:value="${userId}">
+                <input type="hidden" name="orderBookId" th:value="${orderBookId}">
+                <input type="text" name="title" placeholder="리뷰 제목" class="w-full border p-2 rounded" required>
+                <textarea name="content" placeholder="리뷰 내용" class="w-full border p-2 rounded" required></textarea>
+                <input type="number" name="rating" min="1" max="5" value="5" class="w-24 border p-1 rounded" required>
+                <button type="submit" class="px-4 py-2 bg-green-500 text-white rounded">리뷰 등록</button>
+            </form>
+        </div>
+    </section>
 </main>
+
 <div th:replace="~{layout/fragments/footer :: footerFragment}"></div>
+
+<script>
+    const infoTabBtn = document.getElementById("infoTabBtn");
+    const reviewTabBtn = document.getElementById("reviewTabBtn");
+    const infoTabContent = document.getElementById("infoTabContent");
+    const reviewTabContent = document.getElementById("reviewTabContent");
+
+    infoTabBtn.addEventListener("click", () => {
+        infoTabContent.classList.remove("hidden");
+        reviewTabContent.classList.add("hidden");
+        infoTabBtn.classList.add("bg-gray-800", "text-white");
+        reviewTabBtn.classList.remove("bg-gray-800", "text-white");
+        reviewTabBtn.classList.add("text-gray-700");
+    });
+
+    reviewTabBtn.addEventListener("click", () => {
+        reviewTabContent.classList.remove("hidden");
+        infoTabContent.classList.add("hidden");
+        reviewTabBtn.classList.add("bg-gray-800", "text-white");
+        infoTabBtn.classList.remove("bg-gray-800", "text-white");
+        infoTabBtn.classList.add("text-gray-700");
+    });
+</script>
 </body>
 </html>
