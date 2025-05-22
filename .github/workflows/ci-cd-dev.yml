@@ -112,7 +112,7 @@ jobs:
 
       - name: Run application in background
         run: |
-          nohup java -jar /home/runner/work/ink3-front/ink3-front/target/front-${{ steps.extract_version.outputs.version }}.jar --server.port=10254 --spring.profiles.active=test --spring.rabbitmq.host=${{ secrets.RABBITMQ_HOST }} --spring.rabbitmq.port=${{ secrets.RABBITMQ_PORT }} --spring.rabbitmq.username=${{ secrets.RABBITMQ_USERNAME }} --spring.rabbitmq.password=${{ secrets.RABBITMQ_PASSWORD }} > app.log 2>&1 &
+          nohup java -jar /home/runner/work/ink3-front/ink3-front/target/front-${{ steps.extract_version.outputs.version }}.jar --server.port=10254 --spring.rabbitmq.host=s4.java21.net --spring.rabbitmq.port=5672 --spring.rabbitmq.username=admin --spring.rabbitmq.password=nhnacademy123! > app.log 2>&1 &
           echo $! > app.pid
 
       - name: Wait for application to start
