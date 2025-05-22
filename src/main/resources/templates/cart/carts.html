@@ -144,9 +144,9 @@
                                         class="bg-ink-primary text-white px-4 py-2 text-sm rounded hover:bg-ink-primary">
                                     전체 삭제
                                 </button>
-                                <form id="allDeleteForm" action="/carts/delete-all" method="post"></form>
+                                <form id="allDeleteForm" th:action="@{/carts/delete-all}" method="post"></form>
 
-                                <form id="selectedDeleteForm" action="/carts/delete-selected" method="post">
+                                <form id="selectedDeleteForm" th:action="@{/carts/delete-selected}" method="post">
                                     <input type="hidden" name="cartIds" id="selectedCartIds">
                                     <button type="submit"
                                             class="bg-ink-primary text-white px-4 py-2 text-sm rounded hover:bg-ink-primary">
@@ -344,7 +344,7 @@
                     return;
                 }
 
-                fetch('/carts/update-quantity', {
+                fetch('/dev/carts/update-quantity', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded'
