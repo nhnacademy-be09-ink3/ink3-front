@@ -1,6 +1,6 @@
 package com.nhnacademy.front.auth.client.dto;
 
-public enum UserType {
+public enum UserRole {
     ADMIN,
     USER
 }
