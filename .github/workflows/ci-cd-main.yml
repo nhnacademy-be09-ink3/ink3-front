@@ -62,7 +62,7 @@ jobs:
 
       - name: SonarQube Scan
         run: |
-          mvn verify sonar:sonar \
+          mvn verify -Dspring.profiles.active=test sonar:sonar \
             -Dsonar.projectKey=ink3_front_server \
             -Dsonar.projectName='ink3_front_server' \
             -Dsonar.host.url=http://s4.java21.net:9000 \
@@ -122,7 +122,7 @@ jobs:
 
       - name: Run application in background
         run: |
-          nohup java -jar /home/runner/work/ink3-front/ink3-front/target/front-${{ steps.extract_version.outputs.version }}.jar --server.port=10254 --spring.rabbitmq.host=${{ secrets.RABBITMQ_HOST }} --spring.rabbitmq.port=${{ secrets.RABBITMQ_PORT }} --spring.rabbitmq.username=${{ secrets.RABBITMQ_USERNAME }} --spring.rabbitmq.password=${{ secrets.RABBITMQ_PASSWORD }} > app.log 2>&1 &
+          nohup java -jar /home/runner/work/ink3-front/ink3-front/target/front-${{ steps.extract_version.outputs.version }}.jar --server.port=10254 --spring.profiles.active=test --spring.rabbitmq.host=${{ secrets.RABBITMQ_HOST }} --spring.rabbitmq.port=${{ secrets.RABBITMQ_PORT }} --spring.rabbitmq.username=${{ secrets.RABBITMQ_USERNAME }} --spring.rabbitmq.password=${{ secrets.RABBITMQ_PASSWORD }} > app.log 2>&1 &
           echo $! > app.pid
 
       - name: Wait for application to start
