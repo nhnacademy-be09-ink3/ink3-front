@@ -1,11 +1,8 @@
 package com.nhnacademy.front.shop.controller;
 
-import com.nhnacademy.front.auth.client.AuthClient;
-import com.nhnacademy.front.common.dto.CommonResponse;
-import com.nhnacademy.front.shop.user.client.UserClient;
-import com.nhnacademy.front.shop.user.client.dto.UserCreateRequest;
-import com.nhnacademy.front.shop.user.client.dto.UserResponse;
+import com.nhnacademy.front.shop.user.client.dto.UserDetailResponse;
 import com.nhnacademy.front.shop.user.dto.RegisterRequest;
+import com.nhnacademy.front.shop.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
@@ -18,8 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 @RequiredArgsConstructor
 @Controller
 public class UserController {
-    private final UserClient userClient;
-    private final AuthClient authClient;
+    private final UserService userService;
 
     @GetMapping("/register")
     public String getRegister() {
@@ -28,22 +24,16 @@ public class UserController {
 
     @PostMapping("/register")
     public String postRegister(@ModelAttribute RegisterRequest request) {
-        log.info("Register request: {}", request);
-        CommonResponse<UserResponse> response = userClient.createUser(new UserCreateRequest(
-                request.id(),
-                request.password(),
-                request.name(),
-                request.email(),
-                request.phone(),
-                request.birthday()
-        ));
-        log.info("Register response: {}", response);
+        userService.registerUser(request);
         return "redirect:/";
     }
 
     @GetMapping("/me")
     public String getMe(Model model) {
         model.addAttribute("currentPage", "me");
+        UserDetailResponse user = userService.getCurrentUserDetail();
+        log.info(user.toString());
+        model.addAttribute("user", user);
         return "user/me";
     }
 
@@ -51,6 +41,18 @@ public class UserController {
     public String getMeOrders(Model model) {
         model.addAttribute("currentPage", "orders");
         return "user/me";
+    }
+
+    @GetMapping("/me/addresses")
+    public String getMeAddresses(Model model) {
+        model.addAttribute("currentPage", "addresses");
+        return "user/me-addresses";
+    }
+
+    @GetMapping("/me/points")
+    public String getMePoints(Model model) {
+        model.addAttribute("currentPage", "points");
+        return "user/me-points";
     }
 
     @GetMapping("/me/coupons")
