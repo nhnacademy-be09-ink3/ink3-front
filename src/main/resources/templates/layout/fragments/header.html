@@ -18,14 +18,26 @@
                 <input type="text" id="search-input"
                        class="hidden w-0 opacity-0 border-b-2 border-ink-primary bg-transparent text-gray-800 h-8 text-base transition-all duration-300 outline-none"
                        placeholder="검색어를 입력하세요"/>
-                <a th:href="@{/cart}" class="text-gray-700 transition-transform duration-300 hover:scale-110">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 icon">
-                        <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
-                        <line x1="3" y1="6" x2="21" y2="6"></line>
-                        <path d="M16 10a4 4 0 0 1-8 0"></path>
-                    </svg>
-                </a>
+                <div th:if="${isLoggedIn}">
+                    <a th:href="@{/carts}" class="text-gray-700 transition-transform duration-300 hover:scale-110">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 icon">
+                            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+                            <line x1="3" y1="6" x2="21" y2="6"></line>
+                            <path d="M16 10a4 4 0 0 1-8 0"></path>
+                        </svg>
+                    </a>
+                </div>
+                <div th:unless="${isLoggedIn}">
+                    <a th:href="@{/guest-carts}" class="text-gray-700 transition-transform duration-300 hover:scale-110">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 icon">
+                            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+                            <line x1="3" y1="6" x2="21" y2="6"></line>
+                            <path d="M16 10a4 4 0 0 1-8 0"></path>
+                        </svg>
+                    </a>
+                </div>
                 <a th:href="@{/me}" class="text-gray-700 transition-transform duration-300 hover:scale-110">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                          stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 icon">
