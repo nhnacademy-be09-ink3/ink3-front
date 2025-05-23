@@ -3,7 +3,7 @@ package com.nhnacademy.front.auth.controller;
 import com.nhnacademy.front.auth.client.AuthClient;
 import com.nhnacademy.front.auth.client.dto.LoginResponse;
 import com.nhnacademy.front.auth.client.dto.LogoutRequest;
-import com.nhnacademy.front.auth.client.dto.UserRole;
+import com.nhnacademy.front.auth.client.dto.UserType;
 import com.nhnacademy.front.auth.dto.ClientLoginRequest;
 import com.nhnacademy.front.auth.service.AuthService;
 import com.nhnacademy.front.util.CookieUtil;
