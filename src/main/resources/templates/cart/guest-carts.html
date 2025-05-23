@@ -7,6 +7,34 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/output.css}">
     <style>
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 50;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+        }
+        .modal.show {
+            display: flex;
+        }
+        .modal-content {
+            background-color: white;
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+        .modal-buttons {
+            margin-top: 1rem;
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.5rem;
+        }
         .cart-box {
             background-color: white;
             border-radius: 1rem;
@@ -190,6 +218,16 @@
     </section>
 </main>
 <div id="footer"></div>
+<div id="confirmModal" class="modal">
+    <div class="modal-content">
+        <p id="modalText" class="text-lg font-semibold">정말 삭제하시겠습니까?</p>
+        <div class="modal-buttons">
+            <button id="cancelModalBtn" class="px-4 py-2 text-sm bg-gray-200 rounded hover:bg-gray-300">취소</button>
+            <button id="confirmModalBtn" class="px-4 py-2 text-sm bg-red-500 text-white rounded hover:bg-red-600">확인</button>
+        </div>
+    </div>
+</div>
+
 <script>
     const COOKIE_NAME = 'guest_cart';
 
@@ -199,26 +237,65 @@
     }
 
     function saveCart(cart) {
-        const simplified = cart.map(item => ({
-            bookId: item.bookId,
-            quantity: item.quantity
-        }));
+        const simplified = cart.map(item => ({ bookId: item.bookId, quantity: item.quantity }));
         document.cookie = `${COOKIE_NAME}=${encodeURIComponent(JSON.stringify(simplified))}; path=/; max-age=${60 * 60 * 24 * 3}`;
     }
 
+    function renderCart() {
+        location.reload();
+    }
+
+    function showModal(text, onConfirm) {
+        const modal = document.getElementById('confirmModal');
+        const modalText = document.getElementById('modalText');
+        const cancelBtn = document.getElementById('cancelModalBtn');
+        const confirmBtn = document.getElementById('confirmModalBtn');
+
+        modalText.textContent = text;
+        modal.classList.add('show');
+
+        function handleCancel() {
+            modal.classList.remove('show');
+            cancelBtn.removeEventListener('click', handleCancel);
+            confirmBtn.removeEventListener('click', handleConfirm);
+        }
+
+        function handleConfirm() {
+            modal.classList.remove('show');
+            cancelBtn.removeEventListener('click', handleCancel);
+            confirmBtn.removeEventListener('click', handleConfirm);
+            onConfirm();
+        }
+
+        cancelBtn.addEventListener('click', handleCancel);
+        confirmBtn.addEventListener('click', handleConfirm);
+    }
+
     function attachEvents() {
-        document.getElementById('selectAll').addEventListener('change', e => {
-            document.querySelectorAll('.guest-cart-checkbox').forEach(cb => cb.checked = e.target.checked);
+        const selectAll = document.getElementById('selectAll');
+        const checkboxes = document.querySelectorAll('.guest-cart-checkbox');
+
+        selectAll.addEventListener('change', e => {
+            checkboxes.forEach(cb => cb.checked = e.target.checked);
         });
 
         document.getElementById('allDeleteBtn').onclick = () => {
-            saveCart([]);
+            checkboxes.forEach(cb => cb.checked = true);
+            selectAll.checked = true;
+            showModal('선택한 상품을 삭제하시겠습니까?', () => {
+                saveCart([]);
+                renderCart();
+            });
         };
 
         document.getElementById('selectedDeleteBtn').onclick = () => {
-            const selectedIds = Array.from(document.querySelectorAll('.guest-cart-checkbox:checked')).map(cb => Number(cb.value));
-            const cart = getCart().filter(item => !selectedIds.includes(item.bookId));
-            saveCart(cart);
+            const selectedIds = Array.from(checkboxes).filter(cb => cb.checked).map(cb => Number(cb.value));
+            if (selectedIds.length === 0) return alert("삭제할 상품을 선택해주세요.");
+            showModal('선택한 상품을 삭제하시겠습니까?', () => {
+                const cart = getCart().filter(item => !selectedIds.includes(item.bookId));
+                saveCart(cart);
+                renderCart();
+            });
         };
 
         document.addEventListener('click', e => {
@@ -233,12 +310,12 @@
             } else if (e.target.classList.contains('minus')) {
                 if (parseInt(input.value) > 1) input.value = parseInt(input.value) - 1;
             } else if (e.target.classList.contains('update-btn')) {
-                const cart = getCart();
-                const updated = cart.map(item => item.bookId === id ? {
-                    ...item,
-                    quantity: parseInt(input.value)
-                } : item);
-                saveCart(updated);
+                showModal('수량을 변경하시겠습니까?', () => {
+                    const cart = getCart();
+                    const updated = cart.map(item => item.bookId === id ? { ...item, quantity: parseInt(input.value) } : item);
+                    saveCart(updated);
+                    renderCart();
+                });
             }
         });
     }
