@@ -1,29 +1,34 @@
-name: Setup .env
+name: setup-env
 
 on:
   workflow_call:
-    outputs:
-      env_file:
-        description: "Path to the .env file"
-        value: .env
 
 jobs:
   setup-env:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Create .env
+      - name: Checkout repository (필요한 경우)
+        uses: actions/checkout@v3
+
+      - name: Print working directory
+        run: pwd
+
+      - name: Create .env file
         run: |
           echo "RABBITMQ_HOST=${{ secrets.RABBITMQ_HOST }}" >> .env
           echo "RABBITMQ_PORT=${{ secrets.RABBITMQ_PORT }}" >> .env
           echo "RABBITMQ_USERNAME=${{ secrets.RABBITMQ_USERNAME }}" >> .env
           echo "RABBITMQ_PASSWORD=${{ secrets.RABBITMQ_PASSWORD }}" >> .env
 
-      - name: Show .env for debug (optional)
-        run: cat .env
-
-      - name: List files in workspace
-        run: ls -al
+      - name: Check .env exists
+        run: |
+          if [ ! -f .env ]; then
+            echo "❌ .env not found!"
+            exit 1
+          fi
+          echo "✅ .env file content:"
+          cat .env
 
       - name: Upload .env as artifact
         uses: actions/upload-artifact@v4
