@@ -5,15 +5,13 @@ on:
     branches:
       - dev
 
-env:
-  RABBITMQ_HOST: ${{ secrets.RABBITMQ_HOST }}
-  RABBITMQ_PORT: ${{ secrets.RABBITMQ_PORT }}
-  RABBITMQ_USERNAME: ${{ secrets.RABBITMQ_USERNAME }}
-  RABBITMQ_PASSWORD: ${{ secrets.RABBITMQ_PASSWORD }}
-
 jobs:
+  setup-env:
+    uses: ./.github/workflows/env-setup.yml
+
   build:
     name: Build JAR
+    needs: setup-env
     runs-on: ubuntu-latest
 
 
@@ -62,6 +60,17 @@ jobs:
           distribution: temurin
           java-version: 21
 
+
+      - name: Download .env
+        uses: actions/download-artifact@v4
+        with:
+          name: env-file
+
+      - name: Load .env
+        run: |
+          source .env
+      
+
       - name: SonarQube Scan
         run: |
           mvn verify sonar:sonar \
@@ -96,6 +105,15 @@ jobs:
         with:
           distribution: temurin
           java-version: 21
+
+      - name: Download .env
+        uses: actions/download-artifact@v4
+        with:
+          name: env-file
+
+      - name: Load .env
+        run: |
+          source .env
 
       - name: Extract version from POM
         id: extract_version
@@ -154,6 +172,17 @@ jobs:
           distribution: temurin
           java-version: 21
 
+
+      - name: Download .env
+        uses: actions/download-artifact@v4
+        with:
+          name: env-file
+
+      - name: Load .env
+        run: |
+          source .env
+      
+
       - name: Build JAR (skip tests)
         run: mvn package -DskipTests=true -B
 
@@ -189,9 +218,6 @@ jobs:
           script: |
             cd ~/ink3-server-dev/front-dev
             chmod +x deploy.sh
-            export RABBITMQ_HOST=${{ secrets.RABBITMQ_HOST }}
-            export RABBITMQ_PORT=${{ secrets.RABBITMQ_PORT }}
-            export RABBITMQ_USERNAME=${{ secrets.RABBITMQ_USERNAME }}
-            export RABBITMQ_PASSWORD=${{ secrets.RABBITMQ_PASSWORD }}
             nohup ./deploy.sh "${{ steps.extract_version.outputs.version }}" > deploy.log 2>&1 &
             exit 0
+
