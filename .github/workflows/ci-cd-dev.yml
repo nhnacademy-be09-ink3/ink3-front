@@ -96,15 +96,6 @@ jobs:
           distribution: temurin
           java-version: 21
 
-      - name: Download .env
-        uses: actions/download-artifact@v4
-        with:
-          name: env-file
-
-      - name: Load .env
-        run: |
-          source .env
-
       - name: Extract version from POM
         id: extract_version
         run: |
@@ -162,11 +153,6 @@ jobs:
           distribution: temurin
           java-version: 21
 
-
-      - name: Download .env
-        uses: actions/download-artifact@v4
-        with:
-          name: env-file
 
       - name: Build JAR (skip tests)
         run: mvn package -DskipTests=true -B
