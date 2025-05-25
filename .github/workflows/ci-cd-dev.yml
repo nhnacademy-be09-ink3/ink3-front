@@ -5,6 +5,12 @@ on:
     branches:
       - dev
 
+env:
+  RABBITMQ_HOST: ${{ secrets.RABBITMQ_HOST }}
+  RABBITMQ_PORT: ${{ secrets.RABBITMQ_PORT }}
+  RABBITMQ_USERNAME: ${{ secrets.RABBITMQ_USERNAME }}
+  RABBITMQ_PASSWORD: ${{ secrets.RABBITMQ_PASSWORD }}
+
 jobs:
   build:
     name: Build JAR
@@ -37,8 +43,8 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-m2-
 
-      - name: Build with coverage
-        run: mvn clean verify -B
+      - name: Build all modules with Maven
+        run: mvn clean install -DskipTests=true -B
 
   sonar-analysis:
     name: SonarQube Analysis
@@ -57,7 +63,7 @@ jobs:
 
       - name: SonarQube Scan
         run: |
-          mvn verify sonar:sonar \
+          mvn verify -Dspring.profiles.active=test sonar:sonar \
             -Dsonar.projectKey=ink3_front_server \
             -Dsonar.projectName='ink3_front_server' \
             -Dsonar.host.url=http://s4.java21.net:9000 \
@@ -112,11 +118,11 @@ jobs:
 
       - name: Run application in background
         run: |
-          nohup java -jar /home/runner/work/ink3-front/ink3-front/target/front-${{ steps.extract_version.outputs.version }}.jar --server.port=10254 > app.log 2>&1 &
+          nohup java -jar /home/runner/work/ink3-front/ink3-front/target/front-${{ steps.extract_version.outputs.version }}.jar --server.port=10254 --spring.profiles.active=test --spring.rabbitmq.host=${{ secrets.RABBITMQ_HOST }} --spring.rabbitmq.port=${{ secrets.RABBITMQ_PORT }} --spring.rabbitmq.username=${{ secrets.RABBITMQ_USERNAME }} --spring.rabbitmq.password=${{ secrets.RABBITMQ_PASSWORD }} > app.log 2>&1 &
           echo $! > app.pid
 
       - name: Wait for application to start
-        run: sleep 15
+        run: sleep 30
 
       - name: Check health endpoint
         run: curl --fail http://localhost:10254/actuator/health
@@ -125,7 +131,7 @@ jobs:
         run: kill $(cat app.pid)
 
       - name: Run unit tests
-        run: mvn test -B
+        run: mvn test -B -Dspring.profiles.active=test
 
       - name: Print app log if health check fails
         if: failure()
@@ -146,6 +152,7 @@ jobs:
         with:
           distribution: temurin
           java-version: 21
+
 
       - name: Build JAR (skip tests)
         run: mvn package -DskipTests=true -B
@@ -182,5 +189,10 @@ jobs:
           script: |
             cd ~/ink3-server-dev/front-dev
             chmod +x deploy.sh
+            export RABBITMQ_HOST=${{ secrets.RABBITMQ_HOST }}
+            export RABBITMQ_PORT=${{ secrets.RABBITMQ_PORT }}
+            export RABBITMQ_USERNAME=${{ secrets.RABBITMQ_USERNAME }}
+            export RABBITMQ_PASSWORD=${{ secrets.RABBITMQ_PASSWORD }}
             nohup ./deploy.sh "${{ steps.extract_version.outputs.version }}" > deploy.log 2>&1 &
             exit 0
+

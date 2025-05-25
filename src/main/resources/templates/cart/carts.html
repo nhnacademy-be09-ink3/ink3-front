@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ink3</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/output.css}">
+    <style>
+        ul.space-y-4 > li {
+            border-top: 1px solid #e5e7eb;
+            padding-top: 1rem;
+            margin-top: 1rem;
+        }
+
+        .max-w-lg {
+            max-width: unset;
+        }
+
+        .cart-box {
+            background-color: white;
+            border-radius: 1rem;
+            overflow: hidden;
+        }
+
+        .cart-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .cart-table thead th {
+            padding: 1rem;
+            text-align: left;
+            font-weight: bold;
+            font-size: 0.875rem;
+            color: #4b5563;
+            border-bottom: 5px solid #e5e7eb;
+        }
+
+        .cart-table tbody td {
+            padding: 0.75rem;
+            font-size: 0.875rem;
+            color: #374151;
+        }
+
+        .cart-table tbody tr:not(:last-child) {
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .cart-item-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .cart-image {
+            width: 80px;
+            height: 100px;
+            object-fit: cover;
+        }
+
+        .product-details {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .price-info {
+            font-size: 0.875rem;
+        }
+
+        .price-info .line-through {
+            color: #9ca3af;
+        }
+
+        .price-info .discount {
+            color: #ef4444;
+        }
+
+        .qty-control {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .qty-btn {
+            font-size: 0.875rem;
+            padding: 0.25rem 0.5rem;
+            border: 1px solid #ccc;
+            border-radius: 0.25rem;
+            background-color: #f9f9f9;
+            cursor: pointer;
+        }
+
+        .qty-input {
+            width: 40px;
+            text-align: center;
+            border: 1px solid #ccc;
+            border-radius: 0.25rem;
+            font-size: 0.875rem;
+        }
+
+        .update-btn {
+            font-size: 0.875rem;
+            padding: 0.25rem 0.5rem;
+            border: 1px solid #ccc;
+            border-radius: 0.25rem;
+            background-color: #6b7280;
+            color: white;
+            cursor: pointer;
+        }
+
+        .item-price {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+<div th:replace="~{layout/fragments/header :: headerFragment}"></div>
+
+<main class="container mx-auto px-4 py-8">
+    <section>
+        <div class="mx-auto max-w-screen-xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
+            <div class="mx-auto max-w-4xl bg-white rounded-2xl shadow p-8">
+                <div class="mx-auto max-w-3xl">
+                    <header class="text-center">
+                        <h1 class="text-xl font-bold text-center text-gray-900 mb-6">Ink3</h1>
+                    </header>
+
+                    <div class="mt-8">
+                        <div class="flex justify-between items-center mb-4">
+                            <div>
+                                <label class="inline-flex items-center">
+                                    <input type="checkbox" id="selectAll" class="mr-2">
+                                    <span class="text-ml">전체 선택</span>
+                                </label>
+                            </div>
+                            <div class="flex gap-2">
+                                <button id="allDeleteBtn" type="button"
+                                        class="bg-ink-primary text-white px-4 py-2 text-sm rounded hover:bg-ink-primary">
+                                    전체 삭제
+                                </button>
+                                <form id="allDeleteForm" th:action="@{/carts/delete-all}" method="post"></form>
+
+                                <form id="selectedDeleteForm" th:action="@{/carts/delete-selected}" method="post">
+                                    <input type="hidden" name="cartIds" id="selectedCartIds">
+                                    <button type="submit"
+                                            class="bg-ink-primary text-white px-4 py-2 text-sm rounded hover:bg-ink-primary">
+                                        선택 삭제
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <div class="mt-8" th:if="${#lists.isEmpty(carts)}">
+                            <p class="text-center text-gray-600">장바구니가 비어 있습니다.</p>
+                        </div>
+
+                        <div class="mt-8 cart-box" th:if="${!#lists.isEmpty(carts)}">
+                            <table class="cart-table">
+                                <thead>
+                                <tr>
+                                    <th></th>
+                                    <th>상품정보</th>
+                                    <th>수량</th>
+                                    <th>상품금액</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr th:each="cart : ${carts}" class="cart-item-row"
+                                    th:attr="data-cart-id=${cart.id}">
+                                    <td><input type="checkbox" name="cartIds" th:value="${cart.id}"
+                                               class="guest-cart-checkbox"></td>
+                                    <td>
+                                        <div class="cart-item-info">
+                                            <img th:src="@{${cart.thumbnailUrl}}" alt="상품 이미지"
+                                                 class="cart-image"/>
+                                            <div class="product-details">
+                                                <h3 class="text-lg font-semibold text-gray-900"
+                                                    th:text="${cart.bookTitle}">도서명</h3>
+                                                <div class="price-info">
+                                                    <span class="line-through text-gray-400"
+                                                          th:text="${#numbers.formatInteger(cart.originalBookPrice, 3, 'COMMA')} + '원'">0 원</span>
+                                                    <span class="font-semibold text-black"
+                                                          th:text="${#numbers.formatInteger(cart.saleBookPrice, 3, 'COMMA')} + '원'">0 원</span>
+                                                    <span class="text-red-500"
+                                                          th:text="'(' + ${cart.bookDiscountRate} + '% 할인)'">0%</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="qty-control">
+                                            <button type="button"
+                                                    class="qty-btn quantity-minus">-
+                                            </button>
+                                            <input type="number" name="quantity" th:value="${cart.quantity}" min="1"
+                                                   class="w-12 text-center border rounded qty-input" readonly/>
+                                            <button type="button"
+                                                    class="qty-btn quantity-plus">+
+                                            </button>
+                                            <button type="button"
+                                                    class="update-btn ml-2">변경
+                                            </button>
+                                        </div>
+                                    </td>
+                                    <td class="item-price"
+                                        th:text="${#numbers.formatInteger(cart.saleBookPrice * cart.quantity, 3, 'COMMA')} + ' 원'">
+                                        ₩0
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="mt-8 flex justify-end border-t border-gray-100 pt-8">
+                            <div class="w-screen max-w-lg space-y-4">
+                                <dl class="space-y-0.5 text-ml text-gray-700">
+                                    <div class="flex justify-between items-center">
+                                        <dt class="text-left w-full">주문 금액</dt>
+                                        <dd class="text-right w-full" th:text="${#numbers.formatInteger(orderPrices, 3, 'COMMA')} + ' 원'">0 원</dd>
+                                    </div>
+                                    <div class="flex justify-between items-center">
+                                        <dt class="text-left w-full">할인 금액</dt>
+                                        <dd class="text-right w-full" th:text="'- ' + ${#numbers.formatInteger(discountPrices, 3, 'COMMA')} + ' 원'">0 원</dd>
+                                    </div>
+                                    <div class="flex justify-between items-center !text-base font-medium">
+                                        <dt class="text-left w-full">총 주문 금액</dt>
+                                        <dd class="text-right w-full" th:text="${#numbers.formatInteger(totalPrice, 3, 'COMMA')} + ' 원'">0 원</dd>
+                                    </div>
+                                </dl>
+
+                                <div class="flex justify-end">
+                                    <a href="#"
+                                       class="ink-btn-primary bg-gray-700 px-5 py-3 text-sm text-gray-100 transition hover:bg-gray-600">주문하기</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+
+<div id="deleteModal" class="fixed inset-0 z-50 bg-white/10 backdrop-blur-sm hidden justify-center items-center">
+    <div class="bg-white rounded-lg p-6 w-80 shadow-lg text-center border border-black">
+        <p class="text-lg font-semibold mb-4">선택한 상품을 삭제하시겠습니까?</p>
+        <div class="flex justify-end gap-2">
+            <button id="cancelBtn" class="px-4 py-2 text-sm rounded bg-gray-200 hover:bg-gray-300">취소</button>
+            <button id="confirmBtn" class="px-4 py-2 text-sm rounded bg-red-500 text-white hover:bg-red-600">삭제</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const selectAll = document.getElementById('selectAll');
+        const checkboxes = document.querySelectorAll('.guest-cart-checkbox');
+        const selectedCartIdsInput = document.getElementById('selectedCartIds');
+        const selectedDeleteForm = document.getElementById('selectedDeleteForm');
+        const allDeleteBtn = document.getElementById('allDeleteBtn');
+        const allDeleteForm = document.getElementById('allDeleteForm');
+        const deleteModal = document.getElementById('deleteModal');
+        const cancelBtn = document.getElementById('cancelBtn');
+        const confirmBtn = document.getElementById('confirmBtn');
+        const selectedDeleteBtn = selectedDeleteForm.querySelector('button[type="submit"]');
+
+        let deleteMode = 'selected'; // 또는 'all'
+
+        selectAll.addEventListener('change', () => {
+            checkboxes.forEach(cb => cb.checked = selectAll.checked);
+        });
+
+        selectedDeleteBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const selectedIds = Array.from(checkboxes).filter(cb => cb.checked).map(cb => cb.value);
+            if (selectedIds.length === 0) {
+                alert("삭제할 항목을 선택하세요.");
+                return;
+            }
+            selectedCartIdsInput.value = selectedIds.join(',');
+            deleteMode = 'selected';
+            deleteModal.classList.remove('hidden');
+            deleteModal.classList.add('flex');
+        });
+
+        allDeleteBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+
+            checkboxes.forEach(cb => cb.checked = true);
+            selectAll.checked = true;
+
+            const hasItems = checkboxes.length > 0;
+            if (!hasItems) {
+                alert("삭제할 항목이 없습니다.");
+                return;
+            }
+
+            deleteMode = 'all';
+            deleteModal.classList.remove('hidden');
+            deleteModal.classList.add('flex');
+        });
+
+        cancelBtn.addEventListener('click', () => {
+            deleteModal.classList.add('hidden');
+            deleteModal.classList.remove('flex');
+        });
+
+        confirmBtn.addEventListener('click', () => {
+            if (deleteMode === 'all') {
+                allDeleteForm.submit();
+            } else {
+                selectedDeleteForm.submit();
+            }
+        });
+
+        document.querySelectorAll('.quantity-minus').forEach(button => {
+            button.addEventListener('click', () => {
+                const input = button.parentElement.querySelector('.qty-input');
+                if (parseInt(input.value) > 1) input.value--;
+            });
+        });
+
+        document.querySelectorAll('.quantity-plus').forEach(button => {
+            button.addEventListener('click', () => {
+                const input = button.parentElement.querySelector('.qty-input');
+                input.value++;
+            });
+        });
+
+        document.querySelectorAll('.update-btn').forEach(button => {
+            button.addEventListener('click', () => {
+                const parent = button.closest('.cart-item-row');
+                const cartId = parent.getAttribute('data-cart-id');
+                const quantity = parent.querySelector('.qty-input').value;
+
+                if (!cartId || !quantity) {
+                    alert("유효하지 않은 요청입니다.");
+                    return;
+                }
+
+                //TODO: 수정해야함
+                fetch('/dev/carts/update-quantity', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: new URLSearchParams({cartId, quantity})
+                })
+                    .then(res => {
+                        if (!res.ok) throw new Error('Failed');
+                        return res.text();
+                    })
+                    .then(() => {
+                        alert('수량이 변경되었습니다.');
+                    })
+                    .catch(() => {
+                        alert('수량 변경에 실패했습니다.');
+                    });
+            });
+        });
+    });
+</script>
+
+<div th:replace="~{layout/fragments/footer :: footerFragment}"></div>
+</body>
+</html>
