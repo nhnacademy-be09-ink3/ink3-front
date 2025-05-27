@@ -23,6 +23,8 @@ public class DevFeignAccessTokenInterceptor implements RequestInterceptor {
     public void apply(RequestTemplate template) {
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
 
+        log.info("RequestAttributes: {}", RequestContextHolder.getRequestAttributes());
+
         if (Objects.isNull(attributes)) {
             return;
         }
@@ -39,7 +41,7 @@ public class DevFeignAccessTokenInterceptor implements RequestInterceptor {
             UserType userType = UserType.valueOf(
                     decodedAccessToken.getClaim("userType").asString().toUpperCase()
             );
-            
+
             template.header("X-User-Id", String.valueOf(id));
             template.header("X-User-Role", userType.name());
         }
