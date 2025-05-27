@@ -1,0 +1,8 @@
+<div th:fragment="meHeaderFragment" class="ink-card-white p-4 text-center">
+    <h1 class="text-3xl font-semibold text-gray-800 mb-2">마이페이지</h1>
+    <h1 class="text-xl font-semibold text-gray-800 mb-2" th:text="${user.name() + '님 환영합니다'}"></h1>
+    <p class="text-gray-600">
+        맴버십 등급: <span class="font-bold" th:text="${user.membership().name()}"></span> |
+        보유 포인트: <span class="font-bold" th:text="${user.point() + 'P'}"></span>
+    </p>
+</div>
