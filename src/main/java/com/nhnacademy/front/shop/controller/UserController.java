@@ -2,6 +2,9 @@ package com.nhnacademy.front.shop.controller;
 
 import com.nhnacademy.front.auth.client.AuthClient;
 import com.nhnacademy.front.common.dto.CommonResponse;
+import com.nhnacademy.front.common.dto.PageResponse;
+import com.nhnacademy.front.shop.order.client.OrderClient;
+import com.nhnacademy.front.shop.order.dto.OrderResponse;
 import com.nhnacademy.front.shop.user.client.dto.UserCreateRequest;
 import com.nhnacademy.front.shop.user.client.dto.UserResponse;
 import com.nhnacademy.front.shop.user.dto.RegisterRequest;
@@ -13,6 +16,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -20,6 +24,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 public class UserController {
     private final UserClient userClient;
     private final AuthClient authClient;
+    private final OrderClient orderClient;
 
     @GetMapping("/register")
     public String getRegister() {
@@ -48,8 +53,14 @@ public class UserController {
     }
 
     @GetMapping("/me/orders")
-    public String getMeOrders(Model model) {
-        model.addAttribute("currentPage", "orders");
+    public String getMeOrders(
+            Model model,
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "size", defaultValue = "10") int size
+    ) {
+        CommonResponse<PageResponse<OrderResponse>> orderListByUserResponse = orderClient.getOrderListByUser(page, size);
+        PageResponse<OrderResponse> orderListByUser = orderListByUserResponse.data();
+        model.addAttribute("currentPage", orderListByUser);
         return "user/me";
     }
 

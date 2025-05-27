@@ -11,14 +11,29 @@
     var clientKey = "test_ck_ALnQvDd2VJ2jvnEdDeLnVMj7X41m";
     var tossPayments = TossPayments(clientKey);
 
+    var amount = [[${amount}]];
+    var orderId = '[[${orderId}]]';
+    var orderName = '[[${orderName}]]';
+    var customerName = '[[${customerName}]]';
+    var discountAmount = [[${discountAmount}]];
+    var usedPointAmount = [[${usedPointAmount}]];
+
+    var successUrl = '[[${tossSuccessURL}]]'
+        + '?orderId=' + orderId
+        + '&amount=' + amount
+        + '&usedPointAmount=' + usedPointAmount
+        + '&discountAmount=' + discountAmount;
+
+    var failUrl = '[[${tossFailURL}]]';
+
     tossPayments
         .requestPayment("카드", {
-            amount: [[${amount}]],
-            orderId: [[${orderId}]],
-            orderName: [[${orderName}]],
-            customerName: [[${customerName}]],
-            successUrl: "http://localhost:10254/payments/success",
-            failUrl: "http://localhost:10254/payments/fail",
+            amount: amount,
+            orderId: orderId,
+            orderName: orderName,
+            customerName: customerName,
+            successUrl: successUrl,
+            failUrl: failUrl
         })
         .catch(function (error) {
             if (error.code === "USER_CANCEL") {

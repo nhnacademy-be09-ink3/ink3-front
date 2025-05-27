@@ -18,98 +18,120 @@
     <div class="flex flex-col lg:flex-row gap-10">
 
         <!-- 왼쪽: 입력 -->
-        <div class="flex-1 bg-white p-8 rounded-xl shadow">
+        <div class="w-full lg:w-[70%] bg-white p-8 rounded-xl shadow">
             <!-- 주문 상품 목록 -->
             <section class="mb-8">
                 <h2 class="text-2xl font-semibold mb-4">주문 상품</h2>
+                <!-- 주문 상품 카드: 가로 정렬 -->
+                <div th:each="item : ${cart}"
+                     class="cart-item bg-white p-4 rounded-xl shadow text-sm flex items-center gap-6 mb-4"
+                     th:attr="data-price=${item.saleBookPrice}, data-quantity=${item.quantity}">
+                    <!-- 이미지 -->
+                    <div class="w-16 flex-shrink-0">
+                        <img th:src="${item.thumbnailUrl}" alt="도서 이미지"
+                             class="w-full h-auto rounded border border-gray-200">
+                    </div>
 
-                <!-- 주문 상품 카드 목록 -->
-                <div class="space-y-4">
+                    <!-- 상품명 -->
+                    <div class="min-w-[130px]">
+                        <div class="text-gray-500 text-xs">상품명</div>
+                        <div class="font-medium text-gray-800" th:text="${item.bookTitle}">도서 제목</div>
+                    </div>
 
-                    <!-- 상품 1 -->
-                    <div class="bg-gray-50 p-4 rounded-lg shadow text-sm">
-                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
-                            <!-- 상품명 -->
-                            <div>
-                                <div class="text-gray-500 text-xs mb-1">상품명</div>
-                                <div class="font-medium text-gray-800">스프링의 정석</div>
-                            </div>
-                            <!-- 수량 -->
-                            <div>
-                                <div class="text-gray-500 text-xs mb-1">수량</div>
-                                <div>2개</div>
-                            </div>
-                            <!-- 가격 -->
-                            <div>
-                                <div class="text-gray-500 text-xs mb-1">가격</div>
-                                <div>20,000원</div>
-                            </div>
-                            <!-- 포장지 선택 -->
-                            <div>
-                                <div class="text-gray-500 text-xs mb-1">포장지 선택</div>
-                                <select class="ink-input-field w-full">
-                                    <option>포장 없음</option>
-                                    <option>포장지 A (+1,000원)</option>
-                                    <option>포장지 B (+2,000원)</option>
-                                </select>
-                            </div>
+                    <!-- 정가 -->
+                    <div class="min-w-[100px]">
+                        <div class="text-gray-500 text-xs">정가</div>
+                        <div th:text="${#numbers.formatInteger(item.originalBookPrice, 0, 'COMMA') + '원'}">정가</div>
+                    </div>
+
+                    <!-- 수량 -->
+                    <div class="min-w-[60px]">
+                        <div class="text-gray-500 text-xs">수량</div>
+                        <div th:text="${item.quantity + '개'}">0개</div>
+                    </div>
+
+                    <!-- 할인금액 -->
+                    <div class="min-w-[140px]">
+                        <div class="text-gray-500 text-xs">할인금액</div>
+                        <div class="text-red-600 font-semibold"
+                             th:text="${#numbers.formatInteger(item.saleBookPrice, 0, 'COMMA') + '원'}">
+                            할인금액
+                        </div>
+                        <div class="text-xs text-red-500"
+                             th:if="${item.bookDiscountRate != null}"
+                             th:text="|(${item.bookDiscountRate}% ↓)|">
+                        </div>                    </div>
+
+                    <!-- 합계 -->
+                    <div class="min-w-[100px] text-right">
+                        <div class="text-gray-500 text-xs">합계</div>
+                        <div class="text-base font-bold text-gray-900"
+                             th:text="${#numbers.formatInteger(item.saleBookPrice * item.quantity, 0, 'COMMA') + '원'}">
+                            합계
                         </div>
                     </div>
 
-                    <!-- 상품 2 -->
-                    <div class="bg-gray-50 p-4 rounded-lg shadow text-sm">
-                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
-                            <div>
-                                <div class="text-gray-500 text-xs mb-1">상품명</div>
-                                <div class="font-medium text-gray-800">JPA 완벽 가이드</div>
-                            </div>
-                            <div>
-                                <div class="text-gray-500 text-xs mb-1">수량</div>
-                                <div>1개</div>
-                            </div>
-                            <div>
-                                <div class="text-gray-500 text-xs mb-1">가격</div>
-                                <div>25,000원</div>
-                            </div>
-                            <div>
-                                <div class="text-gray-500 text-xs mb-1">포장지 선택</div>
-                                <select class="ink-input-field w-full">
-                                    <option>포장 없음</option>
-                                    <option>포장지 A (+1,000원)</option>
-                                    <option>포장지 B (+2,000원)</option>
-                                </select>
-                            </div>
-                        </div>
+                    <!-- 포장지 선택 -->
+                    <div class="flex-1 min-w-[100px]">
+                        <label class="block mb-1 text-sm font-medium text-gray-700">포장지 선택</label>
+                        <select class="packaging-select ink-input-field w-full">
+                            <option th:each="p : ${packagings}"
+                                    th:value="${p.id}"
+                                    th:text="${p.name + ' (' + #numbers.formatInteger(p.price, 0, 'COMMA') + '원)'}"
+                                    th:attr="data-price=${p.price}"
+                                    th:disabled="${!p.isAvailable}">
+                            </option>
+                        </select>
                     </div>
 
+                    <!-- 쿠폰 적용 -->
+                    <div class="flex-1 min-w-[100px]">
+                        <label class="block mb-1 text-sm font-medium text-gray-700">쿠폰 선택</label>
+                        <select class="ink-input-field w-full" name="couponId">
+                            <option selected disabled>쿠폰을 선택하세요</option>
+                            <option value="1">신규가입 5% 쿠폰 (발급일: 2025-05-01)</option>
+                            <option value="2">10,000원 이상 구매시 2,000원 할인 쿠폰 (발급일: 2025-05-10)</option>
+                            <option value="3">전 카테고리 3% 할인 쿠폰 (발급일: 2025-05-20)</option>
+                        </select>
+                    </div>
                 </div>
 
+
             </section>
+
 
             <!-- 주문자 정보 -->
             <section class="mb-8">
                 <h2 class="text-2xl font-semibold mt-10 mb-4">주문자 정보</h2>
 
-                <div class="bg-gray-50 p-4 rounded-lg shadow space-y-6 text-sm">
+                <!-- 버튼 추가 -->
+                <div class="flex justify-end mb-2">
+                    <button type="button" id="loadMyInfoBtn" class="ink-btn-primary text-sm px-4 py-2">
+                        내 정보 가져오기
+                    </button>
+                </div>
 
+                <div class="bg-gray-50 p-4 rounded-lg shadow space-y-6 text-sm">
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <label class="block mb-1 text-sm font-medium text-gray-700">이름</label>
-                            <input type="text" class="ink-input-field w-full" placeholder="홍길동">
+                            <input type="text" class="ink-input-field w-full" id="ordererName" placeholder="홍길동">
                         </div>
                         <div>
                             <label class="block mb-1 text-sm font-medium text-gray-700">연락처</label>
-                            <input type="text" class="ink-input-field w-full" placeholder="010-1234-5678">
+                            <input type="text" class="ink-input-field w-full" id="ordererPhone"
+                                   placeholder="010-1234-5678">
                         </div>
                     </div>
-
                     <div>
                         <label class="block mb-1 text-sm font-medium text-gray-700">이메일</label>
-                        <input type="email" class="ink-input-field w-full" placeholder="example@email.com">
+                        <input type="email" class="ink-input-field w-full" id="ordererEmail"
+                               placeholder="example@email.com">
                     </div>
-
                 </div>
-
+                <input type="hidden" id="userName" th:value="${user.name}">
+                <input type="hidden" id="userPhone" th:value="${user.phone}">
+                <input type="hidden" id="userEmail" th:value="${user.email}">
             </section>
 
             <!-- 배송지 정보 -->
@@ -154,20 +176,25 @@
                             <div class="flex flex-col space-y-[16px]">
                                 <!-- 우편번호 + 버튼 -->
                                 <div class="flex gap-2">
-                                    <input type="text" id="postalCode" class="ink-input-field w-[30%]" placeholder="우편번호" readonly>
-                                    <button type="button" onclick="execDaumPostcode()" class="ink-btn-primary text-sm px-4 py-2 h-full">
+                                    <input type="text" id="postalCode" class="ink-input-field w-[30%]"
+                                           placeholder="우편번호" readonly>
+                                    <button type="button" onclick="execDaumPostcode()"
+                                            class="ink-btn-primary text-sm px-4 py-2 h-full">
                                         우편번호 찾기
                                     </button>
                                 </div>
 
                                 <!-- 도로명 주소 -->
-                                <input type="text" id="defaultAddress" class="ink-input-field w-full" placeholder="도로명 주소" readonly>
+                                <input type="text" id="defaultAddress" class="ink-input-field w-full"
+                                       placeholder="도로명 주소" readonly>
 
                                 <!-- 상세 주소 -->
-                                <input type="text" id="detailAddress" class="ink-input-field w-full" placeholder="상세 주소 입력">
+                                <input type="text" id="detailAddress" class="ink-input-field w-full"
+                                       placeholder="상세 주소 입력">
 
                                 <!-- 참고 주소 -->
-                                <input type="text" id="extraAddress" class="ink-input-field w-full" placeholder="참고 주소 입력">
+                                <input type="text" id="extraAddress" class="ink-input-field w-full"
+                                       placeholder="참고 주소 입력">
                             </div>
                         </div>
 
@@ -185,7 +212,9 @@
                     <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-xl">
                         <div class="flex justify-between items-center mb-4">
                             <h2 class="text-lg font-semibold">주소록</h2>
-                            <button id="closeAddressModal" class="text-gray-500 hover:text-gray-700 text-xl leading-none">&times;</button>
+                            <button id="closeAddressModal"
+                                    class="text-gray-500 hover:text-gray-700 text-xl leading-none">&times;
+                            </button>
                         </div>
 
                         <div class="overflow-x-auto">
@@ -207,9 +236,12 @@
                                     </td>
                                     <td class="px-4 py-2 border" th:text="${addr.name}">홍길동</td>
                                     <td class="px-4 py-2 border"
-                                        th:text="${addr.defaultAddress + ' ' + addr.detailAddress + ' ' + (addr.extraAddress ?: '')}">주소</td>
+                                        th:text="${addr.defaultAddress + ' ' + addr.detailAddress + ' ' + (addr.extraAddress ?: '')}">
+                                        주소
+                                    </td>
                                     <td class="px-4 py-2 border" th:text="${addr.postalCode}">12345</td>
-                                    <td class="px-4 py-2 border text-center" th:text="${addr.isDefault ? '기본' : ''}"></td>
+                                    <td class="px-4 py-2 border text-center"
+                                        th:text="${addr.isDefault ? '기본' : ''}"></td>
                                     <td class="px-4 py-2 border text-center">
                                         <button type="button"
                                                 class="ink-btn-primary text-sm px-2 py-1"
@@ -236,35 +268,37 @@
 
                 <div class="bg-gray-50 p-4 rounded-lg shadow space-y-6 text-sm">
 
-                    <!-- 쿠폰 선택 -->
-                    <div>
-                        <label class="block mb-1 text-sm font-medium text-gray-700">사용 가능한 쿠폰</label>
-                        <select class="ink-input-field w-full">
-                            <option selected disabled>쿠폰을 선택하세요</option>
-                            <option>WELCOME 10% 할인</option>
-                            <option>무료배송 쿠폰</option>
-                            <option>3천원 할인 쿠폰</option>
-                        </select>
-                    </div>
-
                     <!-- 포인트 입력 -->
                     <div>
                         <label class="block mb-1 text-sm font-medium text-gray-700">포인트 사용</label>
-                        <div class="flex flex-col sm:flex-row gap-2">
+                        <div class="flex flex-col sm:flex-row gap-2 items-center">
                             <input
                                     type="number"
-                                    class="ink-input-field w-full sm:w-[70%]"
+                                    class="ink-input-field w-full sm:w-[60%]"
                                     placeholder="사용할 포인트를 입력하세요"
+                                    name="usedPoint"
+                                    th:attr="max=${user.point}"
                             />
                             <button
                                     type="button"
-                                    class="ink-btn-primary w-full sm:w-[30%] text-sm"
+                                    id="applyPointBtn"
+                                    class="ink-btn-primary w-full sm:w-[20%] text-sm"
                             >
                                 적용
                             </button>
+                            <label class="flex items-center gap-1 text-sm sm:w-[20%] whitespace-nowrap mt-2 sm:mt-0">
+                                <input type="checkbox" id="useAllPointChk" />
+                                전체 사용
+                            </label>
                         </div>
-                        <p class="text-xs text-gray-500 mt-1">보유 포인트: <span class="text-gray-700 font-semibold">12,000P</span></p>
+                        <p class="text-xs text-gray-500 mt-1">
+                            보유 포인트:
+                            <span class="text-gray-700 font-semibold"
+                                  th:text="${#numbers.formatInteger(user.point, 0, 'COMMA') + 'P'}">0P</span><br/>
+                            <span class="text-red-500">※ 최대 <span th:text="${user.point}">0</span>P 까지 입력 가능합니다.</span>
+                        </p>
                     </div>
+
                 </div>
             </section>
         </div>
@@ -275,20 +309,58 @@
                 <div>
                     <h2 class="text-xl font-bold border-b pb-2 mb-4">주문 요약</h2>
                     <div class="space-y-2 text-sm mb-6">
-                        <div class="flex justify-between"><span>스프링의 정석</span><span>2개 / 20,000원</span></div>
-                        <div class="flex justify-between"><span>JPA 가이드</span><span>1개 / 25,000원</span></div>
+                        <!-- 상품별 요약 반복 렌더링 -->
+                        <div th:each="item : ${cart}" class="flex justify-between">
+                            <span th:text="${item.bookTitle}">도서명</span>
+                            <span th:text="${item.quantity + '개 / ' + (#numbers.formatInteger(item.saleBookPrice * item.quantity, 0, 'COMMA') + '원')}">0개 / 0원</span>
+                        </div>
                     </div>
 
                     <h2 class="text-xl font-bold border-b pb-2 mb-4">결제 내역</h2>
                     <div class="space-y-2 text-sm">
-                        <div class="flex justify-between"><span>상품 총액</span><span>45,000원</span></div>
-                        <div class="flex justify-between"><span>할인</span><span>-1,000원</span></div>
-                        <div class="flex justify-between"><span>배송비</span><span>3,000원</span></div>
-                        <div class="flex justify-between font-bold text-base"><span>최종 결제</span><span>47,000원</span></div>
+                        <!-- 상품 총액 -->
+                        <div class="flex justify-between">
+                            <span>상품 총액</span>
+                            <span><span data-role="product-total">0원</span></span>
+                        </div>
+
+                        <!-- 할인 -->
+                        <div class="flex justify-between">
+                            <span>할인</span>
+                            <span>-1,000원</span>
+                        </div>
+
+                        <!-- 배송비 -->
+                        <div class="flex justify-between">
+                            <span>배송비</span>
+                            <span>3,000원</span>
+                        </div>
+
+                        <!-- 포장지 비용 -->
+                        <div class="flex justify-between">
+                            <span>포장지 비용</span>
+                            <span><span data-role="packaging-total">0원</span></span>
+                        </div>
+
+                        <!-- 포인트 사용 -->
+                        <div class="flex justify-between">
+                            <span>포인트 사용</span>
+                            <span><span data-role="point-used">0원</span></span>
+                        </div>
+
+                        <!-- 최종 결제 금액 -->
+                        <div class="flex justify-between font-bold text-base">
+                            <span>최종 결제</span>
+                            <span><span data-role="final-total">0원</span></span>
+                        </div>
                     </div>
                 </div>
 
-                <button class="ink-btn-primary mt-8 w-full text-base py-2">결제하기</button>
+                <form method="get" action="/dev/payments">
+                    <button type="submit" class="ink-btn-primary mt-8 w-full text-base py-2">
+                        결제하기
+                    </button>
+                </form>
             </div>
         </div>
     </div>
@@ -299,20 +371,18 @@
 
 
 
-<script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
 <script>
     document.addEventListener("DOMContentLoaded", () => {
+        // 1. 주소록 관련 --------------------------
         const modal = document.getElementById("addressModal");
         const closeBtn = document.getElementById("closeAddressModal");
         const addressTypeRadios = document.querySelectorAll('input[name="addressType"]');
 
-        // 주소 입력 방식이 '주소록'일 때 모달 열기
         addressTypeRadios.forEach(radio => {
             radio.addEventListener("change", (e) => {
                 if (e.target.value === "book") {
                     modal.classList.remove("hidden");
-                }else if (e.target.value === "search") {
-                    // 수동 입력 선택 시 모든 필드 초기화
+                } else if (e.target.value === "search") {
                     document.querySelector("input[placeholder='홍길동']").value = "";
                     document.querySelector("input[placeholder='010-9876-5432']").value = "";
                     document.getElementById("postalCode").value = "";
@@ -323,48 +393,117 @@
             });
         });
 
-        // 모달 닫기
         closeBtn.addEventListener("click", () => {
             modal.classList.add("hidden");
         });
 
-        // 주소록에서 선택 버튼 클릭 시 입력 필드 채우기
         document.querySelectorAll('button[data-name]').forEach(button => {
             button.addEventListener("click", (e) => {
                 const btn = e.currentTarget;
-
                 document.querySelector("input[placeholder='홍길동']").value = btn.dataset.name;
                 document.getElementById("postalCode").value = btn.dataset.postalCode;
                 document.getElementById("defaultAddress").value = btn.dataset.defaultAddress;
                 document.getElementById("detailAddress").value = btn.dataset.detailAddress;
                 document.getElementById("extraAddress").value = btn.dataset.extraAddress || "";
-
                 modal.classList.add("hidden");
             });
         });
-    });
 
-    // 다음 주소 검색 API 실행
-    function execDaumPostcode() {
-        document.getElementById('postalCode').value = '';
-        document.getElementById('defaultAddress').value = '';
-        document.getElementById('detailAddress').value = '';
-        document.getElementById('extraAddress').value = '';
+        // 2. 내 정보 불러오기 --------------------------
+        const myInfoBtn = document.getElementById("loadMyInfoBtn");
+        if (myInfoBtn) {
+            myInfoBtn.addEventListener("click", () => {
+                const name = document.getElementById("userName")?.value || "";
+                const phone = document.getElementById("userPhone")?.value || "";
+                const email = document.getElementById("userEmail")?.value || "";
 
-        new daum.Postcode({
-            oncomplete: function(data) {
-                let fullAddress = data.roadAddress;
-                let extra = '';
+                document.querySelector("input[placeholder='홍길동']").value = name;
+                document.querySelector("input[placeholder='010-1234-5678']").value = phone;
+                document.querySelector("input[placeholder='example@email.com']").value = email;
+            });
+        }
 
-                if (data.addressType === 'R') {
-                    if (data.bname) extra += data.bname;
-                    if (data.buildingName) extra += (extra ? ', ' + data.buildingName : data.buildingName);
-                }
+        // 3. 결제 금액 요약 계산 --------------------------
+        const PRODUCT_TOTAL_EL = document.querySelector('[data-role="product-total"]');
+        const PACKAGING_TOTAL_EL = document.querySelector('[data-role="packaging-total"]');
+        const FINAL_TOTAL_EL = document.querySelector('[data-role="final-total"]');
+        const POINT_INPUT = document.querySelector('input[name="usedPoint"]');
+        const POINT_USED_EL = document.querySelector('[data-role="point-used"]');
+        const APPLY_BTN = document.getElementById('applyPointBtn');
+        const USE_ALL_CHECK = document.getElementById('useAllPointChk');
+        let usedPoint = 0;
 
-                document.getElementById('postalCode').value = data.zonecode;
-                document.getElementById('defaultAddress').value = fullAddress;
-                document.getElementById('extraAddress').value = extra
+        const DISCOUNT = 1000;
+        const SHIPPING_FEE = 3000;
+
+        function formatCurrency(num) {
+            return new Intl.NumberFormat('ko-KR').format(num) + '원';
+        }
+
+        function updateSummary() {
+            let productTotal = 0;
+            let packagingTotal = 0;
+
+            document.querySelectorAll('.cart-item').forEach(item => {
+                const price = parseInt(item.dataset.price || '0', 10);
+                const quantity = parseInt(item.dataset.quantity || '0', 10);
+                productTotal += price * quantity;
+
+                const selectEl = item.querySelector('select.packaging-select');
+                const selectedOption = selectEl?.selectedOptions[0];
+                const packagingPrice = parseInt(selectedOption?.dataset.price || '0', 10);
+                packagingTotal += packagingPrice;
+            });
+
+            const maxPoint = parseInt(POINT_INPUT.getAttribute('max') || '0', 10);
+            if (usedPoint > maxPoint) usedPoint = maxPoint;
+
+            const finalTotal = productTotal - DISCOUNT + SHIPPING_FEE + packagingTotal - usedPoint;
+
+            PRODUCT_TOTAL_EL.textContent = formatCurrency(productTotal);
+            PACKAGING_TOTAL_EL.textContent = formatCurrency(packagingTotal);
+            FINAL_TOTAL_EL.textContent = formatCurrency(finalTotal < 0 ? 0 : finalTotal);
+            POINT_USED_EL.textContent = formatCurrency(usedPoint);
+        }
+
+        // 초기 계산
+        updateSummary();
+
+        // 포장지 선택 시 다시 계산
+        document.querySelectorAll('select.packaging-select').forEach(select => {
+            select.addEventListener('change', updateSummary);
+        });
+
+        // 포인트 적용 버튼 클릭
+        APPLY_BTN?.addEventListener('click', () => {
+            const maxPoint = parseInt(POINT_INPUT.getAttribute('max') || '0', 10);
+            const entered = parseInt(POINT_INPUT.value || '0', 10);
+
+            if (entered > maxPoint) {
+                alert(`최대 ${maxPoint.toLocaleString()}P 까지 사용할 수 있습니다.`);
+                usedPoint = 0;
+                POINT_INPUT.value = '';
+                USE_ALL_CHECK.checked = false;
+            } else {
+                usedPoint = entered;
+                USE_ALL_CHECK.checked = (entered === maxPoint);
             }
-        }).open();
-    }
+
+            updateSummary();
+        });
+
+        // 전체 사용 체크박스 클릭
+        USE_ALL_CHECK?.addEventListener('change', (e) => {
+            const maxPoint = parseInt(POINT_INPUT.getAttribute('max') || '0', 10);
+            if (e.target.checked) {
+                usedPoint = maxPoint;
+                POINT_INPUT.value = maxPoint;
+            } else {
+                usedPoint = 0;
+                POINT_INPUT.value = '';
+            }
+
+            updateSummary();
+        });
+    });
 </script>

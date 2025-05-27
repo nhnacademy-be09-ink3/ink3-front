@@ -3,9 +3,10 @@ package com.nhnacademy.front.shop.controller;
 import com.nhnacademy.front.common.dto.CommonResponse;
 import com.nhnacademy.front.common.dto.PageResponse;
 import com.nhnacademy.front.shop.order.client.OrderClient;
+import com.nhnacademy.front.shop.order.dto.PackagingResponse;
 import com.nhnacademy.front.shop.order.예시DTO.AddressResponse;
+import com.nhnacademy.front.shop.order.예시DTO.CartResponse;
 import com.nhnacademy.front.shop.user.client.dto.UserResponse;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -22,55 +23,53 @@ public class OrderFromController {
 
     /**
      * 주문서 작성 페이지 return
-     * 1. model : 사용자 주소
      * @param model
      * @return
      */
-    @GetMapping
-    public String getOrderFrom(Model model, HttpServletRequest request) {
+    @GetMapping("/user")
+    public String getUserOrderFrom(Model model, HttpServletResponse request) {
+        //TODO : me 방식으로 바꿔야함!
+        // Long userId = Long.parseLong(request.getHeader("X-USER-ID"));
+
         // 사용자 주소
-/*
-        CommonResponse<PageResponse<AddressResponse>> userAddresses = orderClient.getUserAddresses();
+        CommonResponse<PageResponse<AddressResponse>> userAddresses = orderClient.getUserAddresses(4L,0,10);
         List<AddressResponse> addressList = userAddresses.data().content();
+
+        // 사용자 정보 입력 -> get me 방식으로 수정.
+        CommonResponse<UserResponse> currentUser = orderClient.getUser(4L);
+        UserResponse user = currentUser.data();
+
+        // 장바구니 리스트 or 도서 상품 1개 바로 가져오기
+        CommonResponse<List<CartResponse>> cartsResponse = orderClient.getCartsWithCoupons(4L);
+        List<CartResponse> cart = cartsResponse.data();
+
+
+        // 포장지 리스트 입력
+        CommonResponse<PageResponse<PackagingResponse>> packagingsResponse = orderClient.getPackagings(0,100);
+        PageResponse<PackagingResponse> packagingsPageResponse = packagingsResponse.data();
+        List<PackagingResponse> packagings = packagingsPageResponse.content();
+
+        model.addAttribute("cart", cart);
+        model.addAttribute("user", user);
         model.addAttribute("addressList", addressList);
-*/
-
-        // 주문 상품 리스트
-
-        // 사용자 정보 입력
-//        CommonResponse<UserResponse> userResponse = orderClient.getUser();
-//        UserResponse user = userResponse.data();
-//        model.addAttribute("user", user);
-
-        // 쿠폰 리스트 입력
-
-        // 포인트 정보 입력
+        model.addAttribute("packagings", packagings);
+        return "/order/orderPage";
+    }
 
 
 
-        //TODO : 예시 데이터이기 때문에 삭제 필요.
-        List<AddressResponse> addressListTest = List.of(
-                new AddressResponse(
-                        1L,
-                        "홍길동",
-                        "12345",
-                        "서울특별시 강남구 테헤란로 123",
-                        "101동 202호",
-                        "삼성역 근처",
-                        true
-                ),
-                new AddressResponse(
-                        2L,
-                        "김영희",
-                        "54321",
-                        "부산광역시 해운대구 우동 456",
-                        "301호",
-                        "",
-                        false
-                )
-        );
+    @GetMapping("/guest")
+    public String getGuestOrderForm(Model model) {
+        //TODO : 장바구니 리스트(쿠키) or 도서 상품 1개 바로 가져오기
 
-        model.addAttribute("addressList", addressListTest);
+
+        // 포장지 리스트 입력
+        CommonResponse<PageResponse<PackagingResponse>> packagingsResponse = orderClient.getPackagings(0,100);
+        PageResponse<PackagingResponse> packagingsPageResponse = packagingsResponse.data();
+        List<PackagingResponse> packagings = packagingsPageResponse.content();
+
+
+        model.addAttribute("packagings", packagings);
         return "/order/orderPage";
     }
 }

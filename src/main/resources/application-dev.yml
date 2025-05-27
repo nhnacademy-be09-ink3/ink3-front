@@ -4,8 +4,13 @@ server:
     context-path: /dev
 feign:
   url:
-    auth: http://127.0.0.1:10265/auth
-    shop: http://127.0.0.1:10265/shop
+    auth: https://ink3.shop/dev/gateway/auth
+    shop: https://ink3.shop/dev/gateway/shop
 auth:
   protected-paths:
     - /me/*
+
+toss:
+  url:
+    success: http://localhost:8080/dev/payments/success
+    fail: http://localhost:8080/dev/payments/fail
