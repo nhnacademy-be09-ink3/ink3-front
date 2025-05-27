@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 
 import com.nhnacademy.front.common.dto.CommonResponse;
+import com.nhnacademy.front.shop.book.dto.BookResponse;
 import com.nhnacademy.front.shop.cart.dto.CartBookResponse;
 import com.nhnacademy.front.shop.cart.dto.CartRequest;
 import com.nhnacademy.front.shop.cart.dto.CartResponse;
@@ -40,6 +41,6 @@ public interface CartClient {
     @DeleteMapping("/me/carts/{cartId}")
     void deleteCart(@PathVariable Long cartId);
 
-    @GetMapping("/books/{id}")
-    CartBookResponse getBookById(@PathVariable Long id);
+    @GetMapping("/books/{bookId}")
+    CommonResponse<BookResponse> getBookById(@PathVariable Long bookId);
 }

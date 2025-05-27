@@ -17,10 +17,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nhnacademy.front.common.dto.CommonResponse;
+import com.nhnacademy.front.shop.book.dto.BookResponse;
 import com.nhnacademy.front.shop.cart.client.CartClient;
 import com.nhnacademy.front.shop.cart.dto.CartBookResponse;
 import com.nhnacademy.front.shop.cart.dto.CartResponse;
@@ -38,12 +40,26 @@ import lombok.extern.slf4j.Slf4j;
 public class CartController {
     private final CartClient cartClient;
 
+    /**
+     * 장바구니 추가
+     * @param bookId
+     * @param quantity
+     * @return
+     */
     @PostMapping("/carts")
     public String addCartItem(@RequestParam Long bookId, @RequestParam int quantity) {
         cartClient.addCart(new MeCartRequest(bookId, quantity));
         return "redirect:/carts";
     }
 
+    /**
+     * 비회원 장바구니 추가
+     * @param bookId
+     * @param quantity
+     * @param guestCartCookie
+     * @param response
+     * @return
+     */
     @PostMapping("/guest-carts")
     public String addGuestCartItem(
         @RequestParam Long bookId,
@@ -69,7 +85,7 @@ public class CartController {
                 MeCartRequest item = cartList.get(i);
                 if (item.bookId().equals(bookId)) {
                     int newQuantity = item.quantity() + quantity;
-                    cartList.set(i, new MeCartRequest(bookId, newQuantity)); // ✅ 새 객체로 대체
+                    cartList.set(i, new MeCartRequest(bookId, newQuantity));
                     exists = true;
                     break;
                 }
@@ -85,6 +101,7 @@ public class CartController {
                 .maxAge(60 * 60 * 24 * 3)
                 .build();
             response.addHeader("Set-Cookie", cookie.toString());
+            log.info("비회원 장바구니 저장 완료");
 
         } catch (IOException e) {
             log.error("비회원 장바구니 저장 실패", e);
@@ -93,12 +110,24 @@ public class CartController {
         return "redirect:/guest-carts";
     }
 
+    /**
+     * 수량 변경
+     * @param cartId
+     * @param quantity
+     */
     @PostMapping("/carts/update-quantity")
     @ResponseBody
     public void updateCartQuantity(@RequestParam Long cartId, @RequestParam int quantity) {
         cartClient.updateQuantity(cartId, new CartUpdateRequest(quantity));
     }
 
+    /**
+     * 장바구니 조회
+     * @param guestCartCookie
+     * @param response
+     * @param model
+     * @return
+     */
     @GetMapping("/carts")
     public String getCarts(
         @CookieValue(value = "guest_cart", required = false, defaultValue = "EMPTY") String guestCartCookie,
@@ -123,6 +152,12 @@ public class CartController {
         return "cart/carts";
     }
 
+    /**
+     * 비회원 장바구니 조회
+     * @param guestCartCookie
+     * @param model
+     * @return
+     */
     @GetMapping("/guest-carts")
     public String getGuestCarts(
         @CookieValue(value = "guest_cart", required = false) String guestCartCookie,
@@ -144,7 +179,9 @@ public class CartController {
 
         for (MeCartRequest item : guestItems) {
             try {
-                CartBookResponse book = cartClient.getBookById(item.bookId());
+                BookResponse data = cartClient.getBookById(item.bookId()).data();
+                CartBookResponse book = new CartBookResponse(data.title(), data.originalPrice(), data.salePrice(),
+                    data.discountRate(), data.thumbnailUrl());
                 log.info("🔍 응답 book = {}", book);
                 int quantity = item.quantity();
                 int order = book.originalBookPrice() * quantity;
