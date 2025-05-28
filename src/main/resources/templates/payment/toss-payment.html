@@ -12,24 +12,26 @@
     var tossPayments = TossPayments(clientKey);
 
     var amount = [[${amount}]];
-    var orderId = '[[${orderId}]]';
-    var orderName = '[[${orderName}]]';
-    var customerName = '[[${customerName}]]';
+    var orderUUID = [[${orderId}]];
+    var orderName = [[${orderName}]];
+    var customerName = [[${customerName}]];
     var discountAmount = [[${discountAmount}]];
     var usedPointAmount = [[${usedPointAmount}]];
+    var realOrderId = [[${realOrderId}]]
 
-    var successUrl = '[[${tossSuccessURL}]]'
-        + '?orderId=' + orderId
+    var successUrl = [[${tossSuccessURL}]]
+        + '?orderId=' + realOrderId
+        + '&orderUUID=' + orderUUID
         + '&amount=' + amount
         + '&usedPointAmount=' + usedPointAmount
         + '&discountAmount=' + discountAmount;
 
-    var failUrl = '[[${tossFailURL}]]';
+    var failUrl = [[${tossFailURL}]];
 
     tossPayments
         .requestPayment("카드", {
             amount: amount,
-            orderId: orderId,
+            orderId: orderUUID,
             orderName: orderName,
             customerName: customerName,
             successUrl: successUrl,

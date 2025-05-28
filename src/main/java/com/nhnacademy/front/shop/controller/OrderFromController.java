@@ -6,6 +6,7 @@ import com.nhnacademy.front.shop.order.client.OrderClient;
 import com.nhnacademy.front.shop.order.dto.PackagingResponse;
 import com.nhnacademy.front.shop.order.예시DTO.AddressResponse;
 import com.nhnacademy.front.shop.order.예시DTO.CartResponse;
+import com.nhnacademy.front.shop.user.client.UserClient;
 import com.nhnacademy.front.shop.user.client.dto.UserResponse;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.List;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/orders")
 public class OrderFromController {
     private final OrderClient orderClient;
+    private final UserClient userClient;
 
     /**
      * 주문서 작성 페이지 return
@@ -27,20 +29,18 @@ public class OrderFromController {
      * @return
      */
     @GetMapping("/user")
-    public String getUserOrderFrom(Model model, HttpServletResponse request) {
-        //TODO : me 방식으로 바꿔야함!
-        // Long userId = Long.parseLong(request.getHeader("X-USER-ID"));
+    public String getUserOrderFrom(Model model) {
+        // 사용자 정보 입력
+        CommonResponse<UserResponse> currentUser = userClient.getCurrentUser();
+        UserResponse user = currentUser.data();
+        long userId = user.id();
 
         // 사용자 주소
-        CommonResponse<PageResponse<AddressResponse>> userAddresses = orderClient.getUserAddresses(4L,0,10);
+        CommonResponse<PageResponse<AddressResponse>> userAddresses = orderClient.getUserAddresses(userId,0,10);
         List<AddressResponse> addressList = userAddresses.data().content();
 
-        // 사용자 정보 입력 -> get me 방식으로 수정.
-        CommonResponse<UserResponse> currentUser = orderClient.getUser(4L);
-        UserResponse user = currentUser.data();
-
         // 장바구니 리스트 or 도서 상품 1개 바로 가져오기
-        CommonResponse<List<CartResponse>> cartsResponse = orderClient.getCartsWithCoupons(4L);
+        CommonResponse<List<CartResponse>> cartsResponse = orderClient.getCartsWithCoupons(userId);
         List<CartResponse> cart = cartsResponse.data();
 
 

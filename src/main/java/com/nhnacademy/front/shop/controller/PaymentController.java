@@ -9,6 +9,8 @@ import com.nhnacademy.front.shop.payment.dto.PaymentConfirmRequest;
 import com.nhnacademy.front.shop.payment.dto.PaymentResponse;
 import com.nhnacademy.front.shop.payment.dto.PaymentType;
 import com.nhnacademy.front.shop.payment.dto.TossUrlProperty;
+import com.nhnacademy.front.shop.user.client.UserClient;
+import com.nhnacademy.front.shop.user.client.dto.UserResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -24,26 +26,26 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class PaymentController {
     private final PaymentClient paymentClient;
     private final OrderClient orderClient;
+    private final UserClient userClient;
     private final TossUrlProperty tossUrlProperty;
 
-    @GetMapping
+    @PostMapping
     public String getPaymentPage(
             Model model,
-            @RequestBody OrderFormCreateRequest orderFormCreateRequest,
-            @RequestParam int discountAmount,
-            @RequestParam int usedPointAmount,
-            @RequestParam int paymentAmount) {
-
+            @RequestBody OrderFormCreateRequest orderFormCreateRequest) {
         CommonResponse<OrderResponse> commonOrderResponse = orderClient.createOrder(orderFormCreateRequest);
         OrderResponse orderResponse = commonOrderResponse.data();
 
-        //TODO 사용자 정보 가져오기 + 주문 이름 정하기
-        model.addAttribute("amount", paymentAmount);
+        //TODO 주문명 수정 필요
+        String orderName = "임시 주문 명칭";
+
+        model.addAttribute("usedPointAmount", orderFormCreateRequest.usedPointAmount());
+        model.addAttribute("discountAmount", orderFormCreateRequest.discountAmount());
+        model.addAttribute("amount", orderFormCreateRequest.paymentAmount());
         model.addAttribute("orderId", orderResponse.getOrderUUID());
-        model.addAttribute("orderName", "... 도서 외 ...권");
-        model.addAttribute("customerName", "홍길동");
-        model.addAttribute("discountAmount", discountAmount);
-        model.addAttribute("usedPointAmount", usedPointAmount);
+        model.addAttribute("realOrderId", orderResponse.getOrderUUID());
+        model.addAttribute("orderName", orderName);
+        model.addAttribute("customerName", orderFormCreateRequest.orderCreateRequest().getOrdererName());
         model.addAttribute("tossSuccessURL", tossUrlProperty.getSuccessURL());
         model.addAttribute("tossFailURL", tossUrlProperty.getFailURL());
         return "payment/toss-payment";
@@ -54,15 +56,18 @@ public class PaymentController {
     public String paymentSuccess(
             Model model,
             @RequestParam("paymentKey") String paymentKey,
-            @RequestParam("orderId") String orderUUID,
+            @RequestParam("orderId") long orderId,
+            @RequestParam("orderUUID") String orderUUID,
             @RequestParam("amount") int amount,
             @RequestParam("discountAmount") int discountAmount,
             @RequestParam("usedPointAmount") int usedPointAmount
     ) {
-        //TODO : 결제 수단은 어떻게 알지?
+        CommonResponse<UserResponse> currentUser = userClient.getCurrentUser();
+        UserResponse user = currentUser.data();
+
         PaymentConfirmRequest paymentConfirmRequest = new PaymentConfirmRequest(
-                4L,
-                0L,
+                user.id(),
+                orderId,
                 paymentKey,
                 orderUUID,
                 discountAmount,

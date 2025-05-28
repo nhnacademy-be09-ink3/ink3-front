@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ink3</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" th:href="@{/css/output.css}">
+    <link rel="stylesheet" th:href="@{/css/output.css(v=${#dates.createNow().getTime()})}">
+    <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -14,19 +15,20 @@
 </head>
 <body class="bg-gray-100">
 <div th:replace="~{layout/fragments/header :: headerFragment}"></div>
-<main class="container mx-auto px-4 py-8">
+<main class="container max-w-screen-xl mx-auto px-4 py-8">
     <div class="flex flex-col lg:flex-row gap-10">
 
         <!-- 왼쪽: 입력 -->
-        <div class="w-full lg:w-[70%] bg-white p-8 rounded-xl shadow">
+        <div class="flex-1 bg-white p-8 rounded-xl shadow">
             <!-- 주문 상품 목록 -->
             <section class="mb-8">
                 <h2 class="text-2xl font-semibold mb-4">주문 상품</h2>
                 <!-- 주문 상품 카드: 가로 정렬 -->
                 <div th:each="item : ${cart}"
                      class="cart-item bg-white p-4 rounded-xl shadow text-sm flex items-center gap-6 mb-4"
-                     th:attr="data-price=${item.saleBookPrice}, data-quantity=${item.quantity}">
-                    <!-- 이미지 -->
+                     th:attr="data-book-id=${item.bookId}, data-price=${item.saleBookPrice}, data-quantity=${item.quantity}">
+
+                <!-- 이미지 -->
                     <div class="w-16 flex-shrink-0">
                         <img th:src="${item.thumbnailUrl}" alt="도서 이미지"
                              class="w-full h-auto rounded border border-gray-200">
@@ -129,6 +131,7 @@
                                placeholder="example@email.com">
                     </div>
                 </div>
+                <input type="hidden" id="userId" th:value="${user.id}" />
                 <input type="hidden" id="userName" th:value="${user.name}">
                 <input type="hidden" id="userPhone" th:value="${user.phone}">
                 <input type="hidden" id="userEmail" th:value="${user.email}">
@@ -356,11 +359,10 @@
                     </div>
                 </div>
 
-                <form method="get" action="/dev/payments">
-                    <button type="submit" class="ink-btn-primary mt-8 w-full text-base py-2">
-                        결제하기
-                    </button>
-                </form>
+                <button type="button" onclick="submitOrderForm()" class="ink-btn-primary mt-8 w-full text-base py-2">
+                    결제하기
+                </button>
+
             </div>
         </div>
     </div>
@@ -506,4 +508,126 @@
             updateSummary();
         });
     });
+    function execDaumPostcode() {
+        new daum.Postcode({
+            oncomplete: function (data) {
+                let addr = '';
+                let extraAddr = '';
+
+                // 기본 주소 설정
+                if (data.userSelectedType === 'R') {
+                    addr = data.roadAddress;
+                } else {
+                    addr = data.jibunAddress;
+                }
+
+                // 참고 주소 설정
+                if (data.userSelectedType === 'R') {
+                    if (data.bname !== '' && /[동|로|가]$/g.test(data.bname)) {
+                        extraAddr += data.bname;
+                    }
+                    if (data.buildingName !== '' && data.apartment === 'Y') {
+                        extraAddr += (extraAddr !== '' ? ', ' + data.buildingName : data.buildingName);
+                    }
+                    if (extraAddr !== '') {
+                        extraAddr = ' (' + extraAddr + ')';
+                    }
+                }
+
+                // 입력란에 값 설정
+                document.getElementById("postalCode").value = data.zonecode;
+                document.getElementById("defaultAddress").value = addr;
+                document.getElementById("extraAddress").value = extraAddr;
+
+                // 상세 주소 입력창에 포커스
+                document.getElementById("detailAddress").focus();
+            }
+        }).open();
+    }
+
+    function submitOrderForm() {
+        const ordererName = document.getElementById("ordererName").value;
+        const ordererPhone = document.getElementById("ordererPhone").value;
+        const userId = parseInt(document.getElementById("userId").value, 10);
+
+        const recipientName = document.querySelector("input[placeholder='홍길동']").value;
+        const recipientPhone = document.querySelector("input[placeholder='010-9876-5432']").value;
+        const preferredDate = document.querySelector("input[type='date']").value;
+        const postalCode = document.getElementById("postalCode").value;
+        const defaultAddress = document.getElementById("defaultAddress").value;
+        const detailAddress = document.getElementById("detailAddress").value;
+        const extraAddress = document.getElementById("extraAddress").value;
+
+        const orderItems = [];
+        document.querySelectorAll(".cart-item").forEach(item => {
+            const bookId = parseInt(item.dataset.bookId);
+            const price = parseInt(item.dataset.price);
+            const quantity = parseInt(item.dataset.quantity);
+            const packagingId = parseInt(item.querySelector("select.packaging-select")?.value || 0);
+            const couponIdEl = item.querySelector("select[name='couponId']");
+            const couponId = couponIdEl && !couponIdEl.disabled ? parseInt(couponIdEl.value) : null;
+
+            orderItems.push({
+                bookId,
+                packagingId,
+                couponStoreId: couponId,
+                price,
+                quantity
+            });
+        });
+
+        const usedPoint = parseInt(document.querySelector("input[name='usedPoint']").value || "0", 10);
+        const discountAmount = 1000; // 임시 할인값
+        const usedPointAmount = usedPoint;
+        const paymentAmountText = document.querySelector('[data-role="final-total"]').textContent.trim();
+        const paymentAmount = parseInt(paymentAmountText.replace(/[^0-9]/g, ''), 10); // "45,000원" → 45000
+
+        const orderFormCreateRequest = {
+            orderCreateRequest: {
+                userId,
+                ordererName,
+                ordererPhone
+            },
+            shipmentCreateRequest: {
+                preferredDeliveryDate: preferredDate,
+                recipientName,
+                recipientPhone,
+                postalCode: parseInt(postalCode),
+                defaultAddress,
+                detailAddress,
+                extraAddress,
+                shippingFee: 3000,
+                shippingCode: null
+            },
+            createRequestList: orderItems,
+            discountAmount,
+            usedPointAmount,
+            paymentAmount
+        };
+
+        fetch("/payments", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(orderFormCreateRequest)
+        })
+            .then(response => {
+                if (!response.ok) throw new Error("결제 요청 실패");
+                return response.text();
+            })
+            .then(html => {
+                document.open();
+                document.write(html);
+                document.close();
+            })
+            .catch(error => {
+                console.error("에러 발생:", error);
+                alert("결제 요청 중 문제가 발생했습니다.");
+            });
+
+        return false;
+    }
+
+
 </script>
