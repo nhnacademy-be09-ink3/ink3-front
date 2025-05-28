@@ -56,11 +56,11 @@ public class AuthRequiredFilter implements Filter {
                     CookieUtil.setTokenCookies(httpResponse, reissueRes.accessToken(), reissueRes.refreshToken());
                     httpRequest.setAttribute("accessToken", reissueRes.accessToken().token());
                 } catch (Exception e) {
-                    httpResponse.sendRedirect("/login");
+                    httpResponse.sendRedirect(httpRequest.getContextPath() + "/login");
                     return;
                 }
             } else {
-                httpResponse.sendRedirect("/login");
+                httpResponse.sendRedirect(httpRequest.getContextPath() + "/login");
                 return;
             }
         }
