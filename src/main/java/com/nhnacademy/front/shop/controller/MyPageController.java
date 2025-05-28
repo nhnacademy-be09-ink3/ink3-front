@@ -22,7 +22,6 @@ import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -61,7 +60,7 @@ public class MyPageController {
         return "redirect:/me";
     }
 
-    @PatchMapping("/me/password")
+    @PutMapping("/me/password")
     public String updatePassword(
             @ModelAttribute @Valid UserPasswordUpdateRequest request,
             @CookieValue String accessToken,
@@ -99,7 +98,7 @@ public class MyPageController {
         return "redirect:/me/addresses";
     }
 
-    @PatchMapping("/me/addresses/{addressId}/default")
+    @PutMapping("/me/addresses/{addressId}/default")
     public String setDefaultAddress(@PathVariable long addressId) {
         addressService.setDefaultAddress(addressId);
         return "redirect:/me/addresses";

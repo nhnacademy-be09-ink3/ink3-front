@@ -177,7 +177,7 @@
             const formData = new FormData(form);
 
             const response = await fetch(`${contextPath}me/password`, {
-                method: 'PATCH',
+                method: 'PUT',
                 body: formData,
                 credentials: 'include',
                 redirect: 'manual'
