@@ -34,6 +34,12 @@ public class BookController {
         return "book/book-detail";
     }
 
+    @GetMapping("/admin/books")
+    public String getAdminBooks(Model model) {
+        model.addAttribute("books", bookClient.getBooks().data());
+        return "book/book-management";
+    }
+
     @GetMapping("/book-register")
     public String getBookRegister() {
         return "book/book-register";

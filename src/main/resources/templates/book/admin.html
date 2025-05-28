@@ -87,8 +87,57 @@
                 <p>여기에 카테고리 관리 내용이 들어갑니다.</p>
             </div>
             <div id="publisher" class="page">
-                <h2>출판사 관리</h2>
-                <p>여기에 출판사 관리 내용이 들어갑니다.</p>
+                <h2 class="text-xl font-semibold mb-4">출판사 관리</h2>
+
+                <!-- 출판사 등록 -->
+                <div class="mt-6">
+                    <h3 class="text-lg font-medium mb-2">새 출판사 등록</h3>
+                    <form th:action="@{/admin/publisher/create}" method="post" class="flex items-center gap-4">
+                        <input type="text" name="name" placeholder="출판사 이름"
+                               class="ink-input-field w-1/2" required />
+                        <button type="submit" class="ink-btn-primary">등록</button>
+                    </form>
+                </div>
+                <br>
+                <!-- 출판사 목록 -->
+                <div class="mb-6">
+                    <h3 class="text-lg font-medium mb-2">등록된 출판사</h3>
+                    <table class="w-full text-left border border-gray-300 rounded-md">
+                        <thead class="bg-gray-100">
+                        <tr>
+                            <th class="p-2">이름</th>
+                            <th class="p-2 text-center">수정</th>
+                            <th class="p-2 text-center">삭제</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="publisher : ${publishers}" class="border-t">
+                            <td class="p-2">
+                                <span th:text="${publisher}"></span>
+                                <input th:if="${#strings.equals(publisher.id, editingId)}" type="text" name="editName"
+                                       th:value="${publisher.name}" class="ink-input-field w-full" />
+                            </td>
+                            <td class="p-2 text-center">
+                                <form th:if="${not #strings.equals(publisher.id, editingId)}" th:action="@{/admin/publisher/edit}" method="post">
+                                    <input type="hidden" name="id" th:value="${publisher.id}" />
+                                    <button type="submit" class="ink-btn-primary">수정</button>
+                                </form>
+                                <form th:if="${#strings.equals(publisher.id, editingId)}" th:action="@{/admin/publisher/update}" method="post">
+                                    <input type="hidden" name="id" th:value="${publisher.id}" />
+                                    <input type="hidden" name="name" th:value="${publisher.name}" />
+                                    <button type="submit" class="ink-btn-primary">저장</button>
+                                </form>
+                            </td>
+                            <td class="p-2 text-center">
+                                <form th:action="@{/admin/publisher/delete}" method="post">
+                                    <input type="hidden" name="id" th:value="${publisher.id}" />
+                                    <button type="submit" class="ink-btn-danger">삭제</button>
+                                </form>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
             <div id="tag" class="page">
                 <h2>태그 관리</h2>
