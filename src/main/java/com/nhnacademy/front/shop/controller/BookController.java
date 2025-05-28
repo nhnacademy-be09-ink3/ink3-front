@@ -18,25 +18,26 @@ public class BookController {
 
     private final BookClient bookClient;
 
-    @GetMapping("/books/{bookId}")
-    public String getBookDetail(@PathVariable Long bookId, Model model) {
-        CommonResponse<BookResponse> response = bookClient.getBookDetail(bookId);
-        model.addAttribute("book", response.data());
-        return "book/book-detail";
-    }
-
     @GetMapping("/book-register")
     public String getBookRegister() {
         return "book/book-register";
     }
 
-    @GetMapping("/books/category")
-    public String getCategoryList() {
+    @GetMapping("/books/category/{categoryName}")
+    public String getCategoryList(@PathVariable String categoryName, Model model) {
+        model.addAttribute("categoryName", categoryName);
         return "book/category-list";
     }
 
     @GetMapping("/books/search")
     public String getSearchList() {
         return "book/search-list";
+    }
+
+    @GetMapping("/books/{bookId}")
+    public String getBookDetail(@PathVariable Long bookId, Model model) {
+        CommonResponse<BookResponse> response = bookClient.getBookDetail(bookId);
+        model.addAttribute("book", response.data());
+        return "book/book-detail";
     }
 }
