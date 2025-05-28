@@ -7,13 +7,21 @@
        class="block px-4 py-2 rounded hover:bg-green-100 text-gray-800 font-medium">
         주문 내역
     </a>
-    <a th:href="@{/me/coupons}" th:classappend="${currentPage == 'coupons' ? 'bg-green-100': ''}"
+    <a th:href="@{/me/addresses}" th:classappend="${currentPage == 'addresses' ? 'bg-green-100': ''}"
        class="block px-4 py-2 rounded hover:bg-green-100 text-gray-800 font-medium">
-        쿠폰함
+        주소 관리
+    </a>
+    <a th:href="@{/me/points}" th:classappend="${currentPage == 'points' ? 'bg-green-100': ''}"
+       class="block px-4 py-2 rounded hover:bg-green-100 text-gray-800 font-medium">
+        포인트 내역
     </a>
     <a th:href="@{/me/likes}" th:classappend="${currentPage == 'likes' ? 'bg-green-100': ''}"
        class="block px-4 py-2 rounded hover:bg-green-100 text-gray-800 font-medium">
-        찜한 상품
+        찜 목록
+    </a>
+    <a th:href="@{/me/coupons}" th:classappend="${currentPage == 'coupons' ? 'bg-green-100': ''}"
+       class="block px-4 py-2 rounded hover:bg-green-100 text-gray-800 font-medium">
+        쿠폰함
     </a>
     <a th:href="@{/me/reviews}" th:classappend="${currentPage == 'reviews' ? 'bg-green-100': ''}"
        class="block px-4 py-2 rounded hover:bg-green-100 text-gray-800 font-medium">

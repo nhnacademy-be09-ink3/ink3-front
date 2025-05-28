@@ -2,13 +2,11 @@ package com.nhnacademy.front.auth.controller;
 
 import com.nhnacademy.front.auth.client.AuthClient;
 import com.nhnacademy.front.auth.client.dto.LoginResponse;
-import com.nhnacademy.front.auth.client.dto.LogoutRequest;
 import com.nhnacademy.front.auth.client.dto.UserType;
 import com.nhnacademy.front.auth.dto.ClientLoginRequest;
 import com.nhnacademy.front.auth.service.AuthService;
 import com.nhnacademy.front.util.CookieUtil;
 import jakarta.servlet.http.HttpServletResponse;
-import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CookieValue;
@@ -51,10 +49,7 @@ public class AuthController {
             @CookieValue(name = "accessToken", required = false) String accessToken,
             HttpServletResponse response
     ) {
-        if (Objects.nonNull(accessToken)) {
-            authClient.logout(new LogoutRequest(accessToken));
-        }
-        CookieUtil.expireTokenCookies(response);
+        authService.logout(accessToken, response);
         return "redirect:/";
     }
 }

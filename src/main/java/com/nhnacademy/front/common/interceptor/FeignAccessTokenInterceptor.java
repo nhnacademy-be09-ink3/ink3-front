@@ -4,11 +4,15 @@ import com.nhnacademy.front.util.CookieUtil;
 import feign.RequestInterceptor;
 import feign.RequestTemplate;
 import java.util.Objects;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+@Slf4j
+@Profile("prod")
 @Component
 public class FeignAccessTokenInterceptor implements RequestInterceptor {
     @Override

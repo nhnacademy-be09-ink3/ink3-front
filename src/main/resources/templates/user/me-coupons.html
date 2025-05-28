@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ink3</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" th:href="@{/css/output.css}">
+    <link rel="stylesheet" th:href="@{/css/output.css(v=${#dates.createNow().getTime()})}">
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -16,21 +16,13 @@
 <div th:replace="~{layout/fragments/header :: headerFragment}"></div>
 <main class="container mx-auto px-4 py-8">
     <div class="w-8/12 mx-auto flex flex-col space-y-6">
-        <div class="ink-card-white p-4 text-center">
-            <h1 class="text-3xl font-semibold text-gray-800 mb-2">마이페이지</h1>
-            <h1 class="text-xl font-semibold text-gray-800 mb-2">홍길동님 환영합니다</h1>
-            <p class="text-gray-600">
-                맴버십 등급: <span class="font-bold">일반</span> |
-                보유 포인트: <span class="font-bold">12,500P</span> |
-                사용 가능한 쿠폰: <span class="font-bold">3장</span>
-            </p>
-        </div>
+        <div th:replace="~{user/fragments/me-header :: meHeaderFragment}"></div>
 
         <!-- 하단 1:3 레이아웃 -->
         <div class="flex gap-6">
 
             <!-- 왼쪽 메뉴 (1/4) -->
-            <div th:replace="~{layout/fragments/me-menu :: meMenuFragment}"></div>
+            <div th:replace="~{user/fragments/me-menu :: meMenuFragment}"></div>
 
             <!-- 오른쪽 콘텐츠 (3/4) -->
             <div class="w-3/4 flex flex-col space-y-4">

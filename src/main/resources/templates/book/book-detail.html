@@ -20,16 +20,21 @@
         <div class="bg-white rounded-lg shadow-md container px-5 py-24 mx-auto pl-16">
             <div class="lg:w-4/5 mx-auto flex flex-wrap">
                 <div class="flex-shrink-0 w-full h-full md:w-1/3">
-                    <img src="https://image.aladin.co.kr/product/36401/67/cover500/k012039783_1.jpg" alt="책 표지"
+                    <img th:src="${book.thumbnailUrl}" alt="책 표지"
                          class="w-full h-auto object-cover rounded-md">
                 </div>
                 <div class="lg:w-1/2 w-full lg:pl-10 lg:py-6 mt-6 lg:mt-0">
-                    <h1 class="text-gray-900 text-3xl title-font font-medium mb-1">룬의 아이들 - 블러디드 8</h1>
+                    <h1 class="text-gray-900 text-3xl title-font font-medium mb-1" th:text="${book.title}"></h1>
+
                     <div class="flex mb-4">
                         <span class="flex items-center">
-                            <span class="text-gray-600">전민희 (지은이)</span>
-                            <span class="flex ml-3 pl-3 py-2 border-l-2 border-gray-200 space-x-2s">엘릭시르</span>
-                            <span class="flex ml-3 pl-3 py-2 border-l-2 border-gray-200 space-x-2s">2025-05-08</span>
+                            <span class="text-gray-600">
+                            <th:block th:each="author, iterStat : ${book.authorNames}">
+                                <span th:text="${author}"></span><th:block th:if="${!iterStat.last}">, </th:block>
+                            </th:block>
+                        </span>
+                            <span class="flex ml-3 pl-3 py-2 border-l-2 border-gray-200 space-x-2s" th:text="${book.publisherName}"></span>
+                            <span class="flex ml-3 pl-3 py-2 border-l-2 border-gray-200 space-x-2s" th:text="${book.publishedAt}"></span>
 
                         </span>
                     </div>
@@ -65,14 +70,18 @@
                         </span>
                     </div>
                     <!-- 책 소개 -->
-                    <p class="leading-relaxed">『룬의 아이들 - 윈터러』에 이은 2부 『룬의 아이들 - 데모닉』이 완결된 지 11년 만의 신작이다. 1부 ‘룬의 아이들’ 시리즈
-                        3부에 해당하는 이번 작품은 실종된 오빠에 얽힌 비밀과 맞서 분투하는 공녀를 중심으로 ‘블러디드’라는 힘에 관한 이야기를 다루고 있다.</p>
+                    <p class="leading-relaxed" th:text="${book.description}"></p>
                     <br>
                     <!-- 카테고리 -->
                     <div class="flex mb-4">
                         <span class="flex items-center">
                             <span class="text-md text-gray-600 mb-1">카테고리</span>
-                            <span class="text-gray-800 flex ml-3 pl-3 py-2 border-l-2 border-gray-200 space-x-2s">국내도서>소설/시/희곡>판타지/환상문학>한국판타지/환상소설</span>
+                            <span class="text-gray-800 flex ml-3 pl-3 py-2 border-l-2 border-gray-200 flex-col">
+                                <th:block th:each="category, iterStat : ${book.categoryNames}">
+                                    <span th:text="${category}"></span>
+                                    <br th:if="${!iterStat.last}" />
+                                </th:block>
+                            </span>
                         </span>
                     </div>
 
@@ -80,7 +89,14 @@
                     <div class="flex mb-4">
                         <span class="flex items-center">
                             <span class="text-md text-gray-600 mb-1">태그</span>
-                            <span class="text-gray-800 flex ml-3 pl-3 py-2 border-l-2 border-gray-200 space-x-2s">태그</span>
+                            <span class="text-gray-800 flex ml-3 pl-3 py-2 border-l-2 border-gray-200 space-x-2s">
+                                <th:block th:each="tag, iterStat : ${book.tagNames}">
+                                    <span th:text="${tag}"></span><th:block th:if="${!iterStat.last}">, </th:block>
+                                </th:block>
+                                <span th:unless="${#lists.size(book.tagNames) > 0}">
+                                    태그 미설정
+                                </span>
+                            </span>
                         </span>
                     </div>
 
@@ -88,7 +104,8 @@
                     <div class="flex mb-4">
                         <span class="flex items-center">
                             <span class="text-md text-gray-600 mb-1">포장 가능 여부</span>
-                            <span class="text-gray-800 flex ml-3 pl-3 py-2 border-l-2 border-gray-200 space-x-2s">가능</span>
+                            <span class="text-gray-800 flex ml-3 pl-3 py-2 border-l-2 border-gray-200 space-x-2s"
+                                  th:text="${book.isPackable ? '가능' : '불가능'}"></span>
                         </span>
                     </div>
 
@@ -173,13 +190,16 @@
                     <div>
                         <div class="flex items-baseline gap-2 mb-6">
                             <!-- 정가 -->
-                            <span class="title-font font-medium text-gray-400 line-through text-lg">17,000원</span>
+                            <span class="title-font font-medium text-gray-400 line-through text-lg" th:text="${book.originalPrice} + '원'"></span>
 
                             <!-- 할인가 -->
-                            <span class="title-font font-medium text-2xl text-gray-900">15,300원</span>
+                            <span class="title-font font-medium text-2xl text-gray-900" th:text="${book.salePrice()} + '원'"></span>
 
                             <!-- 할인률 -->
-                            <span class="title-font font-medium bg-red-100 text-red-600 text-sm font-bold px-2 py-1 rounded-md">10%</span>
+                            <span class="title-font font-medium bg-red-100 text-red-600 text-sm font-bold px-2 py-1 rounded-md"
+                                  th:if="${book.discountRate != null && book.discountRate > 0}"
+                                  th:text="${book.discountRate} + '%'">
+                            </span>
                         </div>
                     </div>
                 </div>
@@ -187,65 +207,26 @@
         </div>
         <div class="max-w-5xl mx-auto px-4 py-12 border-t border-gray-200 mt-12">
             <div class="md:flex md:gap-8">
-                <!-- 왼쪽: 섹션 제목 -->
+                <!-- 섹션 제목 -->
                 <div class="md:w-1/5 w-full mb-4 md:mb-0">
                     <h2 class="text-xl font-semibold text-gray-800">책소개</h2>
                 </div>
 
-                <!-- 오른쪽: 소개 내용 -->
-                <div class="md:w-4/5 w-full text-gray-700 leading-relaxed space-y-4">
-                    <p>
-                        아름다운 세계관과 개성 넘치는 캐릭터, 유려한 문체와 깊이 있는 감성으로 한국 판타지를 이끌어온 전민희 작가의 대표작 『룬의 아이들』 신작이 엘릭시르에서 출간된다. '룬의
-                        아이들' 시리즈는 국내 판매량 총 160만 부를 넘은 밀리언셀러다. 뿐만 아니라 일본, 대만, 태국, 중국에 수출되어 국내외 판매량을 합치면 300만 부를 훌쩍 넘어 아시아
-                        전역에서 가장 사랑받는 판타지라는 평가를 받고 있다.
-                    </p>
-                    <p>
-                        『룬의 아이들 - 블러디드』는 『룬의 아이들 - 윈터러』에 이은 2부 『룬의 아이들 - 데모닉』이 완결된 지 11년 만의 신작이다. 1부 ‘룬의 아이들’ 시리즈 3부에
-                        해당하는 이번 작품은 실종된 오빠에 얽힌 비밀과 맞서 분투하는 공녀를 중심으로 ‘블러디드’라는 힘에 관한 이야기를 다루고 있다.
-                    </p>
-                    <p>
-                        『윈터러』와 『데모닉』의 세계관을 이어받은 3부 『블러디드』는 속도감 있는 전개와 새로운 캐릭터의 등장으로 첫 권부터 독자들의 호기심을 불러일으켜왔다. 소설의 클라이막스를
-                        향해 달려가고 있는 이번 8권에서는 전권에 이어 샤를로트가 지닌 ‘블러디드’라는 힘, 바로 그 힘의 근원이 된 것으로 추정되는 샤를로트의 어머니의 정체, 그리고 ‘에투알’의
-                        사명에 대한 더욱 깊고 거대한 비밀이 밝혀진다.
-                    </p>
-                    <p>
-                        한편, 켈티카의 추억 어린 거리로 돌아온 막시민 또한 나름대로의 방법으로 진상에 다가가고 있었다. 그 과정에서 막시민은 그동안 외면해왔던 자신의 진심을 마주함과 동시에,
-                        까맣게 모르고 있던 반짝이는 가능성을 발견한다. 마침내 결전의 장소로 향하는 샤를로트와 막시민, 두 사람은 아이언페이스와의 오래된 약속과 세상의 종말을 눈앞에 두고 과연
-                        어떠한 선택을 하게 될까?
-                    </p>
-                </div>
+                <!-- 소개 내용 -->
+                <div class="md:w-4/5 w-full text-gray-700 leading-relaxed space-y-4" th:text="${book.description}"></div>
             </div>
         </div>
 
         <!-- 목차 섹션 -->
         <div class="max-w-5xl mx-auto px-4 py-12 border-t border-gray-200">
             <div class="md:flex md:gap-8">
-                <!-- 왼쪽: 섹션 제목 -->
+                <!-- 섹션 제목 -->
                 <div class="md:w-1/5 w-full mb-4 md:mb-0">
                     <h2 class="text-xl font-semibold text-gray-800">목차</h2>
                 </div>
 
-                <!-- 오른쪽: 목차 내용 -->
-                <div class="md:w-4/5 w-full text-gray-700 leading-relaxed space-y-4">
-                    <p>
-                        15장 Origin
-                        <br>사과나무의 땅 11
-                        <br>지켜지는 자 41
-                        <br>기나긴 죽음 74
-                        <br>육신에만 담을 수 있는 것 98
-                        <br>
-                        <br>16장 Every Life
-                        <br>한 인간의 무게 121
-                        <br>아이언워크 144
-                        <br>전통 있는 학교들의 입장 169
-                        <br>신장개업 186
-                        <br>돌아온 탐정 207
-                        <br>근원 감응자 235
-                        <br>다람쥐통 265
-                        <br>휴업 286
-                        <br>외교 특사 306
-                    </p>
-                </div>
+                <!-- 목차 내용 -->
+                <div class="md:w-4/5 w-full text-gray-700 leading-relaxed space-y-4" th:text="${book.contents}"></div>
             </div>
         </div>
 
