@@ -18,7 +18,7 @@ public class BookController {
 
     private final BookClient bookClient;
 
-    @GetMapping("/main")
+    @GetMapping
     public String getBookMain() {
         return "book/book-main";
     }
