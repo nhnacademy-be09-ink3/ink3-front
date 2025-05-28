@@ -1,4 +1,4 @@
-package shop.ink3.api.book.publisher.dto;
+package com.nhnacademy.front.shop.publisher.client.dto;
 
 import jakarta.validation.constraints.NotBlank;
 

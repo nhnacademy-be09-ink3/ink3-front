@@ -1,10 +1,8 @@
-package com.nhnacademy.front.shop.book.controller;
+package com.nhnacademy.front.shop.controller;
 
 import com.nhnacademy.front.common.dto.CommonResponse;
 import com.nhnacademy.front.shop.book.client.BookClient;
-import com.nhnacademy.front.shop.book.client.dto.BookCreateRequest;
 import com.nhnacademy.front.shop.book.client.dto.BookResponse;
-import java.util.List;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,8 +10,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -34,10 +30,10 @@ public class BookController {
         return "book/book-detail";
     }
 
-    @GetMapping("/admin/books")
+    @GetMapping("/books")
     public String getAdminBooks(Model model) {
         model.addAttribute("books", bookClient.getBooks().data());
-        return "book/book-management";
+        return "book/admin";
     }
 
     @GetMapping("/book-register")
@@ -45,8 +41,8 @@ public class BookController {
         return "book/book-register";
     }
 
-    @GetMapping("/book-management")
+    @GetMapping("/admin")
     public String getBookManagement() {
-        return "book/book-management";
+        return "book/admin";
     }
 }

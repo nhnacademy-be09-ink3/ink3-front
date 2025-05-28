@@ -28,7 +28,11 @@
 
                     <div class="flex mb-4">
                         <span class="flex items-center">
-                            <span class="text-gray-600" th:text="${book.authorNames}">전민희 (지은이)</span>
+                            <span class="text-gray-600">
+                            <th:block th:each="author, iterStat : ${book.authorNames}">
+                                <span th:text="${author}"></span><th:block th:if="${!iterStat.last}">, </th:block>
+                            </th:block>
+                        </span>
                             <span class="flex ml-3 pl-3 py-2 border-l-2 border-gray-200 space-x-2s" th:text="${book.publisherName}"></span>
                             <span class="flex ml-3 pl-3 py-2 border-l-2 border-gray-200 space-x-2s" th:text="${book.publishedAt}"></span>
 
@@ -72,7 +76,12 @@
                     <div class="flex mb-4">
                         <span class="flex items-center">
                             <span class="text-md text-gray-600 mb-1">카테고리</span>
-                            <span class="text-gray-800 flex ml-3 pl-3 py-2 border-l-2 border-gray-200 space-x-2s">국내도서>소설/시/희곡>판타지/환상문학>한국판타지/환상소설</span>
+                            <span class="text-gray-800 flex ml-3 pl-3 py-2 border-l-2 border-gray-200 flex-col">
+                                <th:block th:each="category, iterStat : ${book.categoryNames}">
+                                    <span th:text="${category}"></span>
+                                    <br th:if="${!iterStat.last}" />
+                                </th:block>
+                            </span>
                         </span>
                     </div>
 
@@ -80,7 +89,14 @@
                     <div class="flex mb-4">
                         <span class="flex items-center">
                             <span class="text-md text-gray-600 mb-1">태그</span>
-                            <span class="text-gray-800 flex ml-3 pl-3 py-2 border-l-2 border-gray-200 space-x-2s">태그</span>
+                            <span class="text-gray-800 flex ml-3 pl-3 py-2 border-l-2 border-gray-200 space-x-2s">
+                                <th:block th:each="tag, iterStat : ${book.tagNames}">
+                                    <span th:text="${tag}"></span><th:block th:if="${!iterStat.last}">, </th:block>
+                                </th:block>
+                                <span th:unless="${#lists.size(book.tagNames) > 0}">
+                                    태그 미설정
+                                </span>
+                            </span>
                         </span>
                     </div>
 
@@ -174,15 +190,16 @@
                     <div>
                         <div class="flex items-baseline gap-2 mb-6">
                             <!-- 정가 -->
-                            <span class="title-font font-medium text-gray-400 line-through text-lg" th:text="${book.originalPrice}"></span>
+                            <span class="title-font font-medium text-gray-400 line-through text-lg" th:text="${book.originalPrice} + '원'"></span>
 
                             <!-- 할인가 -->
-                            <span class="title-font font-medium text-2xl text-gray-900" th:text="${book.salePrice()}"></span>
+                            <span class="title-font font-medium text-2xl text-gray-900" th:text="${book.salePrice()} + '원'"></span>
 
                             <!-- 할인률 -->
                             <span class="title-font font-medium bg-red-100 text-red-600 text-sm font-bold px-2 py-1 rounded-md"
                                   th:if="${book.discountRate != null && book.discountRate > 0}"
-                                  th:text="${book.discountRate} + '%'"></span>
+                                  th:text="${book.discountRate} + '%'">
+                            </span>
                         </div>
                     </div>
                 </div>

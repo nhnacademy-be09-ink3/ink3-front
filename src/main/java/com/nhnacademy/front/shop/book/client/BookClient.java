@@ -1,9 +1,9 @@
 package com.nhnacademy.front.shop.book.client;
 
 import com.nhnacademy.front.common.dto.CommonResponse;
-import com.nhnacademy.front.common.dto.PageResponse;
 import com.nhnacademy.front.shop.book.client.dto.BookCreateRequest;
 import com.nhnacademy.front.shop.book.client.dto.BookResponse;
+import java.util.List;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,7 +17,7 @@ public interface BookClient {
     CommonResponse<BookResponse> createBook(@RequestBody BookCreateRequest request);
 
     @GetMapping("/books")
-    CommonResponse<PageResponse<BookResponse>> getBooks();
+    CommonResponse<List<BookResponse>> getBooks();
 
     @GetMapping("/books/{bookId}")
     CommonResponse<BookResponse> getBookDetail(@PathVariable Long bookId);
