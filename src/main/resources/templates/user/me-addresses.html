@@ -158,10 +158,10 @@
     }
 
     async function setDefaultAddress(id) {
-        if (confirm('이 주소를 기본주소로 지정할까요?')) {
+        if (confirm('이 주소를 기본주소로 지정하시겠습니까?')) {
             try {
                 const response = await fetch(`${contextPath}me/addresses/${id}/default`, {
-                    method: 'PATCH',
+                    method: 'PUT',
                     credentials: 'include',
                     redirect: 'manual'
                 });

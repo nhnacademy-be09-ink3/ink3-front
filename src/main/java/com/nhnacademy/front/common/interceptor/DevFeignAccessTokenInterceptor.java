@@ -23,8 +23,6 @@ public class DevFeignAccessTokenInterceptor implements RequestInterceptor {
     public void apply(RequestTemplate template) {
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
 
-        log.info("RequestAttributes: {}", RequestContextHolder.getRequestAttributes());
-
         if (Objects.isNull(attributes)) {
             return;
         }
