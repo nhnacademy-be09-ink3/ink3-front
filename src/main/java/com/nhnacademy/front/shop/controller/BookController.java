@@ -18,11 +18,6 @@ public class BookController {
 
     private final BookClient bookClient;
 
-    @GetMapping
-    public String getBookMain() {
-        return "book/book-main";
-    }
-
     @GetMapping("/books/{bookId}")
     public String getBookDetail(@PathVariable Long bookId, Model model) {
         CommonResponse<BookResponse> response = bookClient.getBookDetail(bookId);
