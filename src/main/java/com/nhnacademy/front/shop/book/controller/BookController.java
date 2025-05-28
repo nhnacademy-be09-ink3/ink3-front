@@ -43,4 +43,15 @@ public class BookController {
     public String getBookManagement() {
         return "book/book-management";
     }
+
+
+    @GetMapping("/books/category")
+    public String getCategoryList() {
+        return "book/category-list";
+    }
+
+    @GetMapping("/books/search")
+    public String getSearchList() {
+        return "book/search-list";
+    }
 }
