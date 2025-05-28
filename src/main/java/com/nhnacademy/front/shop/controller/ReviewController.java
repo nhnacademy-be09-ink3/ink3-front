@@ -2,11 +2,15 @@ package com.nhnacademy.front.shop.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.nhnacademy.front.shop.review.client.ReviewClient;
+import com.nhnacademy.front.shop.review.dto.ReviewFormRequest;
+import com.nhnacademy.front.shop.review.dto.ReviewFormUpdateRequest;
 import com.nhnacademy.front.shop.review.dto.ReviewRequest;
 import com.nhnacademy.front.shop.review.dto.ReviewUpdateRequest;
 
@@ -20,32 +24,29 @@ import lombok.extern.slf4j.Slf4j;
 public class ReviewController {
     private final ReviewClient reviewClient;
 
-    @PostMapping("/{bookId}/reviews")
-    public String addReview(@PathVariable Long bookId, Model model) {
-        Long userId = 2L; //TODO: 실제로는 로그인 정보에서 가져와야 함
-        Long orderBookId = 1L; //TODO: 실제 주문 도서 ID
+    @PostMapping("books/{bookId}/reviews")
+    public String addReview(@PathVariable Long bookId,
+        @ModelAttribute ReviewFormRequest form) {
+        Long userId = 2L; // TODO: 실제 로그인 유저 정보
+        Long orderBookId = 1L; // TODO: 실제 주문 도서 ID
 
-        model.addAttribute("bookId", bookId);
-        model.addAttribute("userId", userId);
-        model.addAttribute("orderBookId", orderBookId);
-
-        reviewClient.addReview(new ReviewRequest(userId, bookId, null, null, 0));
+        reviewClient.addReview(form.toRequest(userId, orderBookId), form.images());
         return "redirect:/books/" + bookId;
     }
 
-    @PostMapping("/{bookId}/reviews/{reviewId}/update")
+    @PostMapping("books/{bookId}/reviews/{reviewId}")
     public String updateReview(@PathVariable Long bookId,
         @PathVariable Long reviewId,
-        ReviewUpdateRequest request) {
-        reviewClient.updateReview(reviewId, request);
+        @ModelAttribute ReviewFormUpdateRequest form) {
+
+        reviewClient.updateReview(reviewId, form.toRequest(), form.images());
         return "redirect:/books/" + bookId;
     }
 
-    @PostMapping("/{bookId}/reviews/{reviewId}/delete")
+    @DeleteMapping("books/{bookId}/reviews/{reviewId}")
     public String deleteReview(@PathVariable Long bookId,
         @PathVariable Long reviewId) {
         reviewClient.deleteReview(reviewId);
         return "redirect:/books/" + bookId;
     }
 }
-
