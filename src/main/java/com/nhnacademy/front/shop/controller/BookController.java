@@ -16,7 +16,6 @@ import com.nhnacademy.front.shop.book.dto.BookResponse;
 import com.nhnacademy.front.shop.book.dto.MainBookResponse;
 import com.nhnacademy.front.shop.review.client.ReviewClient;
 import com.nhnacademy.front.shop.review.dto.ReviewListResponse;
-import com.nhnacademy.front.util.CookieUtil;
 import com.nhnacademy.front.util.PageUtil;
 
 import lombok.RequiredArgsConstructor;
@@ -115,8 +114,9 @@ public class BookController {
         return "book/book-register";
     }
 
-    @GetMapping("/books/category")
-    public String getCategoryList() {
+    @GetMapping("/books/category/{categoryName}")
+    public String getCategoryList(@PathVariable String categoryName, Model model) {
+        model.addAttribute("categoryName", categoryName);
         return "book/category-list";
     }
 
