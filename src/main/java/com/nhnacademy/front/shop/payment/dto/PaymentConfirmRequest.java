@@ -5,8 +5,8 @@ public record PaymentConfirmRequest(
         Long orderId,
         String paymentKey,
         String orderUUID,
-        Integer usedPointAmount,
         Integer discountAmount,
+        Integer usedPointAmount,
         Integer amount,
         PaymentType paymentType
 ){

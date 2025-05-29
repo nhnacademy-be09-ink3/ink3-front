@@ -6,45 +6,55 @@
     <script src="https://js.tosspayments.com/v1/payment"></script>
 </head>
 <body>
+<section>
+    <h2>결제 정보</h2>
+    <p>총 결제 금액: <span th:text="(${amount}) + '원'">0원</span></p>
+    <button id="payment-button" th:text="(${amount}) + '원 결제하기'">결제하기</button>
+</section>
 
 <script th:inline="javascript">
-    var clientKey = "test_ck_ALnQvDd2VJ2jvnEdDeLnVMj7X41m";
-    var tossPayments = TossPayments(clientKey);
+    const clientKey = "test_ck_ALnQvDd2VJ2jvnEdDeLnVMj7X41m";
+    const tossPayments = TossPayments(clientKey);
 
-    var amount = [[${amount}]];
-    var orderUUID = [[${orderId}]];
-    var orderName = [[${orderName}]];
-    var customerName = [[${customerName}]];
-    var discountAmount = [[${discountAmount}]];
-    var usedPointAmount = [[${usedPointAmount}]];
-    var realOrderId = [[${realOrderId}]]
+    const amount = [[${amount}]];
+    const discountAmount = [[${discountAmount}]];
+    const usedPointAmount = [[${usedPointAmount}]];
+    const realOrderId = [[${realOrderId}]];
+    const userId = [[${userId}]]
 
-    var successUrl = [[${tossSuccessURL}]]
-        + '?orderId=' + realOrderId
-        + '&orderUUID=' + orderUUID
-        + '&amount=' + amount
+    const orderId = [[${orderId}]];
+    const orderName = [[${orderName}]];
+    const customerName = [[${customerName}]];
+    const failUrl = [[${tossFailURL}]];
+    const successUrl = [[${tossSuccessURL}]]
+        + '?realOrderId=' + realOrderId
         + '&usedPointAmount=' + usedPointAmount
-        + '&discountAmount=' + discountAmount;
+        + '&discountAmount=' + discountAmount
+        + '&userId=' + userId;
 
-    var failUrl = [[${tossFailURL}]];
-
-    tossPayments
-        .requestPayment("카드", {
-            amount: amount,
-            orderId: orderUUID,
-            orderName: orderName,
-            customerName: customerName,
-            successUrl: successUrl,
-            failUrl: failUrl
-        })
-        .catch(function (error) {
-            if (error.code === "USER_CANCEL") {
-                console.log("사용자가 결제창을 닫았습니다.");
-            } else if (error.code === "INVALID_CARD_COMPANY") {
-                console.log("유효하지 않은 카드 코드입니다.");
-            }
+    const button = document.getElementById('payment-button');
+    if (button) {
+        button.addEventListener('click', function () {
+            tossPayments
+                .requestPayment("카드", {
+                    amount: amount,
+                    orderId: orderId,
+                    orderName: orderName,
+                    customerName: customerName,
+                    successUrl: successUrl,
+                    failUrl: failUrl
+                })
+                .catch(function (error) {
+                    if (error.code === "USER_CANCEL") {
+                        alert("사용자가 결제를 취소했습니다.");
+                    } else {
+                        console.error("결제 오류:", error);
+                    }
+                });
         });
+    } else {
+        console.error("#payment-button not found");
+    }
 </script>
-
 </body>
 </html>

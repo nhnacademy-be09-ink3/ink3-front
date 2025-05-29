@@ -121,8 +121,7 @@
                         </div>
                         <div>
                             <label class="block mb-1 text-sm font-medium text-gray-700">연락처</label>
-                            <input type="text" class="ink-input-field w-full" id="ordererPhone"
-                                   placeholder="010-1234-5678">
+                            <input type="text" class="ink-input-field w-full" id="ordererPhone" placeholder="010-9876-5432">
                         </div>
                     </div>
                     <div>
@@ -165,11 +164,11 @@
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
                                 <label class="block mb-1 text-sm font-medium text-gray-700">수령인</label>
-                                <input type="text" class="ink-input-field w-full" placeholder="홍길동">
+                                <input type="text" class="ink-input-field w-full" id="recipientName" placeholder="수령인">
                             </div>
                             <div>
                                 <label class="block mb-1 text-sm font-medium text-gray-700">연락처</label>
-                                <input type="text" class="ink-input-field w-full" placeholder="010-9876-5432">
+                                <input type="text" class="ink-input-field w-full" id="recipientPhone"  placeholder="010-9876-5432">
                             </div>
                         </div>
 
@@ -225,7 +224,7 @@
                                 <thead class="bg-gray-100 text-gray-700">
                                 <tr>
                                     <th class="px-4 py-2 border">선택</th>
-                                    <th class="px-4 py-2 border">수령인</th>
+                                    <th class="px-4 py-2 border">주소명</th>
                                     <th class="px-4 py-2 border">주소</th>
                                     <th class="px-4 py-2 border">우편번호</th>
                                     <th class="px-4 py-2 border">기본</th>
@@ -237,7 +236,7 @@
                                     <td class="px-4 py-2 border text-center">
                                         <input type="radio" name="selectedAddr">
                                     </td>
-                                    <td class="px-4 py-2 border" th:text="${addr.name}">홍길동</td>
+                                    <td class="px-4 py-2 border" th:text="${addr.name}" th:attr="data-label=${addr.name}">집</td>
                                     <td class="px-4 py-2 border"
                                         th:text="${addr.defaultAddress + ' ' + addr.detailAddress + ' ' + (addr.extraAddress ?: '')}">
                                         주소
@@ -267,7 +266,7 @@
 
             <!-- 쿠폰 및 포인트 -->
             <section>
-                <h2 class="text-2xl font-semibold mt-10 mb-4">쿠폰 및 포인트</h2>
+                <h2 class="text-2xl font-semibold mt-10 mb-4">포인트</h2>
 
                 <div class="bg-gray-50 p-4 rounded-lg shadow space-y-6 text-sm">
 
@@ -385,8 +384,7 @@
                 if (e.target.value === "book") {
                     modal.classList.remove("hidden");
                 } else if (e.target.value === "search") {
-                    document.querySelector("input[placeholder='홍길동']").value = "";
-                    document.querySelector("input[placeholder='010-9876-5432']").value = "";
+                    document.getElementById("recipientPhone").value = "";
                     document.getElementById("postalCode").value = "";
                     document.getElementById("defaultAddress").value = "";
                     document.getElementById("detailAddress").value = "";
@@ -402,7 +400,6 @@
         document.querySelectorAll('button[data-name]').forEach(button => {
             button.addEventListener("click", (e) => {
                 const btn = e.currentTarget;
-                document.querySelector("input[placeholder='홍길동']").value = btn.dataset.name;
                 document.getElementById("postalCode").value = btn.dataset.postalCode;
                 document.getElementById("defaultAddress").value = btn.dataset.defaultAddress;
                 document.getElementById("detailAddress").value = btn.dataset.detailAddress;
@@ -410,6 +407,7 @@
                 modal.classList.add("hidden");
             });
         });
+
 
         // 2. 내 정보 불러오기 --------------------------
         const myInfoBtn = document.getElementById("loadMyInfoBtn");
@@ -419,9 +417,10 @@
                 const phone = document.getElementById("userPhone")?.value || "";
                 const email = document.getElementById("userEmail")?.value || "";
 
-                document.querySelector("input[placeholder='홍길동']").value = name;
-                document.querySelector("input[placeholder='010-1234-5678']").value = phone;
-                document.querySelector("input[placeholder='example@email.com']").value = email;
+                // 주문자 정보 input에 채우기
+                document.getElementById("ordererName").value = name;
+                document.getElementById("ordererPhone").value = phone;
+                document.getElementById("ordererEmail").value = email;
             });
         }
 

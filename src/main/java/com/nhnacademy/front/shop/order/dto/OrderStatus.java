@@ -1,6 +1,7 @@
 package com.nhnacademy.front.shop.order.dto;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -19,7 +20,7 @@ public enum OrderStatus {
     @JsonCreator
     public static OrderStatus getStatus(String str) {
         for (OrderStatus status : OrderStatus.values()) {
-            if (status.label.equals(str)) {
+            if (str.toUpperCase().equals(status.name())) {
                 return status;
             }
         }
