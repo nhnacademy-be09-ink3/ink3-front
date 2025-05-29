@@ -5,6 +5,8 @@ import com.nhnacademy.front.common.dto.PageResponse;
 import com.nhnacademy.front.shop.address.client.dto.AddressCreateRequest;
 import com.nhnacademy.front.shop.address.client.dto.AddressUpdateRequest;
 import com.nhnacademy.front.shop.address.service.AddressService;
+import com.nhnacademy.front.shop.like.client.dto.LikeResponse;
+import com.nhnacademy.front.shop.like.service.LikeService;
 import com.nhnacademy.front.shop.point.client.dto.PointHistoryResponse;
 import com.nhnacademy.front.shop.point.service.PointService;
 import com.nhnacademy.front.shop.user.client.dto.UserPasswordUpdateRequest;
@@ -22,7 +24,6 @@ import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -36,6 +37,7 @@ public class MyPageController {
     private final AuthService authService;
     private final AddressService addressService;
     private final PointService pointService;
+    private final LikeService likeService;
 
     @GetMapping("/register")
     public String getRegister() {
@@ -61,7 +63,7 @@ public class MyPageController {
         return "redirect:/me";
     }
 
-    @PatchMapping("/me/password")
+    @PutMapping("/me/password")
     public String updatePassword(
             @ModelAttribute @Valid UserPasswordUpdateRequest request,
             @CookieValue String accessToken,
@@ -99,7 +101,7 @@ public class MyPageController {
         return "redirect:/me/addresses";
     }
 
-    @PatchMapping("/me/addresses/{addressId}/default")
+    @PutMapping("/me/addresses/{addressId}/default")
     public String setDefaultAddress(@PathVariable long addressId) {
         addressService.setDefaultAddress(addressId);
         return "redirect:/me/addresses";
@@ -134,10 +136,24 @@ public class MyPageController {
     }
 
     @GetMapping("/me/likes")
-    public String getMeLikes(Model model) {
+    public String getMeLikes(@RequestParam(required = false, defaultValue = "0") int page, Model model) {
+        PageResponse<LikeResponse> likes = likeService.getCurrentUserLikes(page, 5, "id,desc");
+        PageUtil.PageInfo pageInfo = PageUtil.calculatePageRange(
+                likes.page(), likes.totalPages(), 5
+        );
+
         model.addAttribute("currentPage", "likes");
         model.addAttribute("user", userService.getCurrentUserDetail());
+        model.addAttribute("likes", likes);
+        model.addAttribute("pageInfo", pageInfo);
+
         return "user/me-likes";
+    }
+
+    @DeleteMapping("/me/likes/{likeId}")
+    public String deleteLike(@PathVariable long likeId) {
+        likeService.deleteCurrentUserLike(likeId);
+        return "redirect:/me/likes";
     }
 
     @GetMapping("/me/reviews")

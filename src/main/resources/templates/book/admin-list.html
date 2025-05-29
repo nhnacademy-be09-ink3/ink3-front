@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ink3</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/output.css}">
+</head>
+<body class="bg-gray-50 p-6">
+<h1 class="text-2xl font-bold text-red-700 mb-6">🛠️ 관리자 도서 리스트</h1>
+
+<!-- 도서 목록 -->
+<div class="space-y-6">
+    <div class="flex bg-white rounded-xl shadow-md p-4 border border-red-300">
+        <img src="/images/book3.jpg" alt="도서 썸네일" class="w-32 h-48 object-cover rounded-lg" />
+        <div class="ml-6 flex-grow">
+            <h2 class="text-lg font-semibold">복음 택배</h2>
+            <p class="text-sm text-gray-500 mb-1">정희춘 · 꿈미 | 2025년 5월</p>
+            <p class="text-red-600 font-semibold">13,300원 <span class="text-xs text-gray-400 ml-2">(5% 할인)</span></p>
+            <p class="text-xs text-gray-400 mt-1">판매지수: 120 · 출고일: 5/21 (수)</p>
+            <p class="text-sm mt-2 text-gray-700 line-clamp-2">
+                예수님을 처음 만나는 이들을 위한 복음 안내서입니다. 누구든 쉽게 복음을 접할 수 있도록 구성되었습니다.
+            </p>
+        </div>
+        <div class="flex flex-col justify-between ml-6">
+            <button class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">상세</button>
+            <button class="bg-red-100 text-red-700 px-4 py-2 rounded hover:bg-red-200 mt-2">삭제</button>
+        </div>
+    </div>
+    <!-- 반복 -->
+</div>
+
+<!-- 페이지네이션 -->
+<div class="flex justify-center mt-10 space-x-1">
+    <button class="px-3 py-1 border rounded bg-blue-500 text-white">1</button>
+    <button class="px-3 py-1 border rounded hover:bg-gray-100">2</button>
+    <button class="px-3 py-1 border rounded hover:bg-gray-100">3</button>
+    <span class="px-2 py-1">...</span>
+    <button class="px-3 py-1 border rounded hover:bg-gray-100">10</button>
+    <button class="px-3 py-1 border rounded hover:bg-gray-100">&gt;</button>
+</div>
+</body>
+</html>

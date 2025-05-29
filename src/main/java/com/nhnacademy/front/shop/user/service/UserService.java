@@ -43,7 +43,6 @@ public class UserService {
     }
 
     public void withdrawCurrentUser() {
-
         userClient.withdrawCurrentUser();
     }
 }

@@ -65,13 +65,36 @@
             const searchButton = document.getElementById('search-button');
             const searchInput = document.getElementById('search-input');
 
+            let isVisible = false;
+
+            const doSearch = () => {
+                const query = searchInput.value.trim();
+                if (query) {
+                    window.location.href = `/books/search?q=${encodeURIComponent(query)}`;
+                }
+            };
+
             searchButton.addEventListener('click', () => {
+                isVisible = !isVisible;
+
                 searchInput.classList.toggle('hidden');
                 searchInput.classList.toggle('w-0');
                 searchInput.classList.toggle('opacity-0');
                 searchInput.classList.toggle('w-48');
                 searchInput.classList.toggle('opacity-100');
                 searchInput.classList.toggle('pl-2');
+
+                if (isVisible) {
+                    setTimeout(() => searchInput.focus(), 100);
+                } else {
+                    doSearch();
+                }
+            });
+
+            searchInput.addEventListener('keydown', (event) => {
+                if (event.key === 'Enter') {
+                    doSearch();
+                }
             });
         });
     </script>

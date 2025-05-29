@@ -14,7 +14,7 @@
 </head>
 <body class="bg-gray-100">
 <div th:replace="~{layout/fragments/header :: headerFragment}"></div>
-<main class="container mx-auto px-4 py-8">
+<main class="container mx-auto px-4 py-8 min-h-[calc(100vh-72px-64px)]">
     <div class="w-8/12 mx-auto flex flex-col space-y-6">
         <div th:replace="~{user/fragments/me-header :: meHeaderFragment}"></div>
 
@@ -28,9 +28,25 @@
             <div class="w-3/4 flex flex-col space-y-4">
                 <div class="ink-card-white p-6">
                     <h1 class="text-xl font-semibold text-gray-800 mb-6">회원 탈퇴</h1>
-                    <form method="post" action="#">
+
+                    <!-- 경고 박스 -->
+                    <div class="flex items-start gap-3 p-4 mb-6 bg-red-50 border border-red-200 rounded-md">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-600 mt-0.5" fill="none"
+                             viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M12 9v2m0 4h.01M12 5a7 7 0 100 14 7 7 0 000-14z"/>
+                        </svg>
+                        <p class="text-sm text-gray-700">
+                            회원 탈퇴를 진행하면 <span class="font-semibold text-red-600">모든 계정 정보 및 이용 기록</span>이 삭제되며, 복구가
+                            불가능합니다.<br>
+                            신중하게 선택해 주세요.
+                        </p>
+                    </div>
+
+                    <form method="post" th:action="@{/me/withdraw}">
                         <button type="submit"
-                                class="bg-red-600 text-white px-4 py-2 w-full rounded-md font-semibold transition duration-300 hover:bg-red-400">
+                                class="bg-red-600 text-white px-4 py-2 w-full rounded-md font-semibold transition duration-300 hover:bg-red-500"
+                                id="withdrawal-btn">
                             회원 탈퇴
                         </button>
                     </form>
@@ -41,4 +57,13 @@
 </main>
 <div th:replace="~{layout/fragments/footer :: footerFragment}"></div>
 </body>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('withdrawal-btn').addEventListener('click', function (event) {
+            if (!confirm('정말로 탈퇴하시겠습니까?\n탈퇴 후에는 계정 정보가 모두 삭제되며 복구가 불가능합니다.')) {
+                event.preventDefault();
+            }
+        });
+    });
+</script>
 </html>
