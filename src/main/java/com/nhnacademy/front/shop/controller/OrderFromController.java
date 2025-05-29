@@ -8,7 +8,6 @@ import com.nhnacademy.front.shop.order.예시DTO.AddressResponse;
 import com.nhnacademy.front.shop.order.예시DTO.CartResponse;
 import com.nhnacademy.front.shop.user.client.UserClient;
 import com.nhnacademy.front.shop.user.client.dto.UserResponse;
-import jakarta.servlet.http.HttpServletResponse;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
