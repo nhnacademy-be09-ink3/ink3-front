@@ -26,7 +26,7 @@
                 </h1>
 
                 <!-- 정렬 + 표시 개수 묶기 -->
-                <div class="flex items-center gap-6">
+                <div class="flex items-center gap-4">
                     <!-- 정렬 -->
                     <div class="flex items-center gap-2">
                         <label for="sortSelect" class="text-sm text-gray-700">정렬:</label>
@@ -55,11 +55,9 @@
             <div id="book-list" class="flex flex-col gap-6 px-4"></div>
 
             <!-- 추천 도서 -->
-            <section id="recommended-section" class="py-10 mt-12">
+            <section id="recommended-section" class="py-10 mt-16">
                 <h2 class="text-2xl font-semibold mb-6 text-gray-800">📖 이런 책은 어떠신가요?</h2>
-                <div class="max-w-full px-4 py-10">
-                    <div id="recommended-books" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6 justify-items-center"></div>
-                </div>
+                <div id="recommended-books" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6 justify-items-center"></div>
             </section>
         </div>
     </div>
@@ -76,6 +74,8 @@
     let bookList;
     let recommendedBooks;
     let currentSort = 'title,asc';
+
+    const isLoggedIn = [[${isLoggedIn}]];
 
     document.getElementById('sortSelect').addEventListener('change', (e) => {
         currentSort = e.target.value;
@@ -183,9 +183,9 @@
 
         window.changeQty = function (id, delta) {
             const qtyEl = document.getElementById(`qty-${id}`);
-            let current = parseInt(qtyEl.innerText);
+            let current = parseInt(qtyEl.value) || 1;
             const next = Math.max(1, current + delta);
-            qtyEl.innerText = next;
+            qtyEl.value = next;
         };
 
         itemsPerPageSelect.addEventListener('change', () => {
@@ -236,37 +236,53 @@
         books.forEach(book => {
             const div = document.createElement('div');
             div.className = 'flex bg-white rounded-xl shadow hover:shadow-md w-full max-w-5xl mx-auto transition p-4';
+
             div.innerHTML = `
-          <div class="w-[130px] h-[190px] flex-shrink-0 mr-6">
-              <img src="${book.thumbnailUrl}" alt="${book.title}" class="w-full h-full object-cover rounded-md" />
-          </div>
-          <div class="flex justify-between w-full">
-            <div class="flex flex-col justify-between flex-1">
-              <div>
-                <h2 class="text-lg font-bold text-gray-900 mb-1">${book.title}</h2>
-                <p class="text-sm text-gray-600 mb-1">
-                  ${(book.authorNames || []).join(', ')} · ${book.publisher || '출판사'} | ${book.pubDate || '출판일'}
-                </p>
-                <p class="text-base font-semibold text-red-600 mb-1">
-                  ${(book.originalPrice * 0.9).toLocaleString()}원
-                  <span class="text-sm text-gray-400">10% 할인</span>
-                </p>
-                <p class="text-sm text-gray-400 line-through">${book.originalPrice?.toLocaleString()}원</p>
-                <p class="text-sm mt-2 text-gray-700 line-clamp-2">${book.description || ''}</p>
-              </div>
-            </div>
+                    <a href="/books/${book.id}" class="w-[130px] h-[190px] flex-shrink-0 mr-6 block">
+                        <img src="${book.thumbnailUrl}" alt="${book.title}" class="w-full h-full object-cover rounded-md" />
+                    </a>
+                    <div class="flex flex-col justify-between flex-1">
+                        <div>
+                            <a href="/books/${book.id}" class="text-lg font-bold text-gray-900 mb-1 hover:underline block">
+                                ${book.title}
+                            </a>
+                            <a href="/books/${book.id}" class="text-sm text-gray-600 mb-1 block">
+                                ${book.authorNames?.join(', ') || '저자 없음'} · ${book.publisherName} | ${book.publishedAt}
+                            </a>
+                            <a href="/books/${book.id}" class="text-base font-semibold text-red-600 mb-1 block">
+                                ${book.salePrice.toLocaleString()}원 <span class="title-font font-medium bg-red-100 text-red-600 text-sm font-bold px-2 py-1 rounded-md">${book.discountRate}%</span>
+                            </a>
+                            <a href="/books/${book.id}" class="text-sm text-gray-400 line-through block">
+                                ${book.originalPrice.toLocaleString()}원
+                            </a>
+                            <a href="/books/${book.id}" class="text-sm mt-2 text-gray-700 line-clamp-2 block">
+                                ${book.description}
+                            </a>
+                        </div>
+                    </div>
             <div class="flex flex-col items-end w-40 flex-shrink-0">
-              <div class="flex items-center justify-between border border-gray-300 rounded px-2 py-1 w-full mb-3">
-                <button onclick="changeQty(${book.id}, -1)" class="text-gray-700 px-2">−</button>
-                <span id="qty-${book.id}" class="px-2">1</span>
-                <button onclick="changeQty(${book.id}, 1)" class="text-gray-700 px-2">＋</button>
-              </div>
-              <div class="flex flex-col gap-3 w-full">
-                <button class="ink-btn-primary text-sm px-4 py-2 w-full">카트에 담기</button>
-                <button class="ink-btn-primary text-sm px-4 py-2 w-full mb-2">바로구매</button>
-              </div>
+                <div class="flex items-center justify-between border border-gray-300 rounded px-2 py-1 w-full mb-3">
+                    <button onclick="changeQty(${book.id}, -1)" class="text-gray-700 px-2">−</button>
+                    <input
+                          type="text"
+                          id="qty-${book.id}"
+                          class="w-10 text-center outline-none bg-transparent px-2"
+                          value="1"
+                          maxlength="3"
+                          onkeyup="checkNumeric(this)"
+                          title="수량설정"
+                        />
+                    <button onclick="changeQty(${book.id}, 1)" class="text-gray-700 px-2">＋</button>
+                </div>
+                <div class="flex flex-col gap-3 w-full">
+                    <button class="ink-btn-primary text-sm px-4 py-2 w-full"
+                        onclick="addToCart(${book.id}, document.getElementById('qty-${book.id}').value)">
+                        카트에 담기
+                    </button>
+                    <button class="ink-btn-primary text-sm px-4 py-2 w-full mb-2">바로구매</button>
+                </div>
             </div>
-          </div>`;
+        `;
             bookList.appendChild(div);
         });
     };
@@ -317,6 +333,36 @@
             paginationEl.appendChild(createBtn('>', endPage + 1));
         }
     };
+
+    function checkNumeric(input) {
+        input.value = input.value.replace(/[^0-9]/g, '');
+        if (input.value === '' || parseInt(input.value) < 1) {
+            input.value = 1;
+        }
+    }
+
+    function addToCart(bookId, quantity) {
+        const url = isLoggedIn ? '/carts' : '/guest-carts';
+
+        const form = document.createElement('form');
+        form.method = 'post';
+        form.action = url;
+
+        const bookInput = document.createElement('input');
+        bookInput.type = 'hidden';
+        bookInput.name = 'bookId';
+        bookInput.value = bookId;
+        form.appendChild(bookInput);
+
+        const qtyInput = document.createElement('input');
+        qtyInput.type = 'hidden';
+        qtyInput.name = 'quantity';
+        qtyInput.value = quantity;
+        form.appendChild(qtyInput);
+
+        document.body.appendChild(form);
+        form.submit();
+    }
 </script>
 </body>
 </html>
