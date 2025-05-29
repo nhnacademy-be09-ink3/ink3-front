@@ -32,18 +32,6 @@ public class AuthController {
         return "redirect:/";
     }
 
-    @GetMapping("/admin/login")
-    public String getAdminLogin() {
-        return "auth/admin-login";
-    }
-
-    @PostMapping("/admin/login")
-    public String postAdminLogin(@ModelAttribute ClientLoginRequest clientLoginRequest, HttpServletResponse response) {
-        LoginResponse loginResponse = authService.login(clientLoginRequest, UserType.ADMIN);
-        CookieUtil.setTokenCookies(response, loginResponse.accessToken(), loginResponse.refreshToken());
-        return "redirect:/";
-    }
-
     @GetMapping("/logout")
     public String logout(
             @CookieValue(name = "accessToken", required = false) String accessToken,
@@ -51,5 +39,26 @@ public class AuthController {
     ) {
         authService.logout(accessToken, response);
         return "redirect:/";
+    }
+
+    @GetMapping("/admin/login")
+    public String getAdminLogin() {
+        return "admin/auth/login";
+    }
+
+    @PostMapping("/admin/login")
+    public String postAdminLogin(@ModelAttribute ClientLoginRequest clientLoginRequest, HttpServletResponse response) {
+        LoginResponse loginResponse = authService.login(clientLoginRequest, UserType.ADMIN);
+        CookieUtil.setTokenCookies(response, loginResponse.accessToken(), loginResponse.refreshToken());
+        return "redirect:/admin";
+    }
+
+    @GetMapping("/admin/logout")
+    public String adminLogout(
+            @CookieValue(name = "accessToken", required = false) String accessToken,
+            HttpServletResponse response
+    ) {
+        authService.logout(accessToken, response);
+        return "redirect:/admin";
     }
 }
