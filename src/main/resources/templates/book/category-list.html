@@ -22,15 +22,28 @@
         <div class="flex-1">
             <div class="flex justify-between items-center mb-6">
                 <h1 id="search-title" class="text-2xl font-bold text-gray-800" th:text="'📂 ' + ${categoryName}">📂 카테고리명</h1>
-                <div class="flex items-center">
-                    <label for="itemsPerPage" class="mr-2 text-sm text-gray-700">표시 개수:</label>
-                    <select id="itemsPerPage" class="border border-gray-300 rounded px-2 py-1 text-sm">
-                        <option value="5">5개</option>
-                        <option value="10" selected>10개</option>
-                        <option value="15">15개</option>
-                        <option value="20">20개</option>
-                        <option value="25">25개</option>
-                    </select>
+
+                <div class="flex items-center gap-4">
+                    <div class="flex items-center gap-2">
+                        <label for="sortSelect" class="text-sm text-gray-700">정렬:</label>
+                        <select id="sortSelect" class="border border-gray-300 rounded px-2 py-1 text-sm">
+                            <option value="title,asc">제목순</option>
+                            <option value="originalPrice,asc">가격 낮은순</option>
+                            <option value="originalPrice,desc">가격 높은순</option>
+                            <option value="publishedAt,desc">출간일 최신순</option>
+                        </select>
+                    </div>
+
+                    <div class="flex items-center gap-2">
+                        <label for="itemsPerPage" class="text-sm text-gray-700">표시 개수:</label>
+                        <select id="itemsPerPage" class="border border-gray-300 rounded px-2 py-1 text-sm">
+                            <option value="5">5개</option>
+                            <option value="10" selected>10개</option>
+                            <option value="15">15개</option>
+                            <option value="20">20개</option>
+                            <option value="25">25개</option>
+                        </select>
+                    </div>
                 </div>
             </div>
 
@@ -49,6 +62,16 @@
 <div th:replace="~{layout/fragments/footer :: footerFragment}"></div>
 
 <script th:inline="javascript">
+
+    let currentSort = 'title,asc';
+
+
+
+    function goToCategory(name) {
+        const encoded = encodeURIComponent(name);
+        location.href = `/books/category?name=${encoded}`; // ✅ /books/category 경로 + query param
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
         const bookList = document.getElementById('book-list');
         const paginationEl = document.getElementById('pagination');
@@ -68,8 +91,8 @@
         fetch('https://ink3.shop/dev/gateway/shop/categories')
             .then(res => res.json())
             .then(data => {
-                const flatList = data.data.content; // ← content 배열 추출
-                const tree = buildCategoryTree(flatList); // ← tree 구성
+                const flatList = data.data.content;
+                const tree = buildCategoryTree(flatList);
                 const container = document.getElementById('category-menu');
                 renderCategoryMenu(tree, container);
             })
@@ -128,9 +151,14 @@
                 btn.textContent = label;
                 btn.className = `px-3 py-1 border rounded ${isActive ? 'bg-ink-primary text-white' : 'hover:bg-gray-100'}`;
                 btn.disabled = page < 1 || page > totalPages;
+
                 btn.addEventListener('click', () => {
                     currentPage = page;
                     fetchBooks();
+                    const scrollTarget = document.getElementById('search-title');
+                    if (scrollTarget) {
+                        scrollTarget.scrollIntoView({ behavior: 'instant', block: 'start' });
+                    }
                 });
                 return btn;
             };
@@ -170,18 +198,7 @@
                 recommendedBooks.appendChild(div);
             });
         };
-        // ✅ 실제 API 호출
 
-        const fetchBooks = () => {
-            fetch(`https://ink3.shop/dev/gateway/shop/books?page=${currentPage - 1}&size=${itemsPerPage}&category=${encodedCategory}`)
-                .then(response => response.json())
-                .then(data => {
-                    const result = data.data;
-                    renderBooks(result.content);
-                    renderPagination(result.totalElements);
-                })
-                .catch(err => console.error('API 에러 발생:', err));
-        };
         // 수량 조절
 
         window.changeQty = (id, delta) => {
@@ -217,16 +234,23 @@
             return roots;
         };
 
+        document.getElementById('sortSelect').addEventListener('change', (e) => {
+            currentSort = e.target.value;
+            currentPage = 1;
+            fetchBooks();
+        });
+
+
         const renderCategoryMenu = (categories, container) => {
             categories.forEach(cat => {
                 const li = document.createElement('li');
                 li.className = 'relative group inline-block';
                 li.innerHTML = `
-                  <button type="button"
-                    onclick="location.href='/books/category/${encodeURIComponent(cat.name)}'"
-                    class="text-left font-medium text-gray-700 hover:text-ink-primary transition-colors cursor-pointer whitespace-nowrap px-2 py-1 w-max">
-                    ${cat.name}
-                  </button>
+                    <button type="button"
+                        onclick="goToCategory('${cat.name}')"
+                        class="text-left font-medium text-gray-700 hover:text-ink-primary transition-colors cursor-pointer whitespace-nowrap px-2 py-1 w-max">
+                        ${cat.name}
+                    </button>
                 `;
 
                 if (cat.children.length > 0) {
@@ -241,8 +265,6 @@
 
             applyHoverDelay();
         };
-
-
         const applyHoverDelay = () => {
             document.querySelectorAll('#category-menu li.group').forEach(group => {
                 const submenu = group.querySelector('ul');
@@ -263,8 +285,23 @@
                 });
             });
         };
+
+        // ✅ 실제 API 호출
+
+        const fetchBooks = () => {
+            fetch(`https://ink3.shop/dev/gateway/shop/books?page=${currentPage - 1}&size=${itemsPerPage}&category=${encodedCategory}&sort=${currentSort}`)
+                .then(response => response.json())
+                .then(data => {
+                    const result = data.data;
+                    renderBooks(result.content);
+                    renderPagination(result.totalElements);
+                })
+                .catch(err => console.error('API 에러 발생:', err));
+        };
         renderRecommended();
+
         fetchBooks();
+
     });
 </script>
 </body>
