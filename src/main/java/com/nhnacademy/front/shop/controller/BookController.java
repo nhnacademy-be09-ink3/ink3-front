@@ -1,8 +1,10 @@
 package com.nhnacademy.front.shop.controller;
 
 import com.nhnacademy.front.common.dto.CommonResponse;
+import com.nhnacademy.front.common.dto.PageResponse;
 import com.nhnacademy.front.shop.book.client.BookClient;
 import com.nhnacademy.front.shop.book.client.dto.BookResponse;
+import com.nhnacademy.front.shop.publisher.client.dto.PublisherResponse;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -39,4 +41,5 @@ public class BookController {
     public String getSearchList() {
         return "book/search-list";
     }
+
 }
