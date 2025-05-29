@@ -114,9 +114,9 @@ public class BookController {
         return "book/book-register";
     }
 
-    @GetMapping("/books/category/{categoryName}")
-    public String getCategoryList(@PathVariable String categoryName, Model model) {
-        model.addAttribute("categoryName", categoryName);
+    @GetMapping("/books/category")
+    public String getBooksByCategory(@RequestParam String name, Model model) {
+        model.addAttribute("categoryName", name);
         return "book/category-list";
     }
 
