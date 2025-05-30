@@ -1,10 +1,8 @@
 package com.nhnacademy.front.shop.controller;
 
 import com.nhnacademy.front.common.dto.CommonResponse;
-import com.nhnacademy.front.common.dto.PageResponse;
 import com.nhnacademy.front.shop.book.client.BookClient;
 import com.nhnacademy.front.shop.book.client.dto.BookResponse;
-import com.nhnacademy.front.shop.publisher.client.dto.PublisherResponse;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,6 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -33,7 +32,8 @@ public class BookController {
     }
 
     @GetMapping("/books/category")
-    public String getCategoryList() {
+    public String getBooksByCategory(@RequestParam String name, Model model) {
+        model.addAttribute("categoryName", name);
         return "book/category-list";
     }
 
@@ -41,5 +41,4 @@ public class BookController {
     public String getSearchList() {
         return "book/search-list";
     }
-
 }
