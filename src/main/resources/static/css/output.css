@@ -992,9 +992,6 @@
   .pl-4 {
     padding-left: calc(var(--spacing) * 4);
   }
-  .pl-6 {
-    padding-left: calc(var(--spacing) * 6);
-  }
   .pl-16 {
     padding-left: calc(var(--spacing) * 16);
   }
