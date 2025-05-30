@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 
 import com.nhnacademy.front.common.dto.CommonResponse;
-import com.nhnacademy.front.shop.book.dto.BookResponse;
+import com.nhnacademy.front.shop.book.client.dto.BookResponse;
 import com.nhnacademy.front.shop.cart.dto.CartBookResponse;
 import com.nhnacademy.front.shop.cart.dto.CartRequest;
 import com.nhnacademy.front.shop.cart.dto.CartResponse;
