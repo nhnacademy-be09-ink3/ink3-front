@@ -45,8 +45,6 @@ public class DevFeignAccessTokenInterceptor implements RequestInterceptor {
         }
 
         template.header(HttpHeaders.USER_AGENT, "Mozilla/5.0");
-        template.header(HttpHeaders.ACCEPT, "application/json");
-        template.header(HttpHeaders.CONTENT_TYPE, "application/json");
 
         log.info("Feign Request → Method: {}, URL: {}", template.method(), template.url());
         log.info("Headers: {}", template.headers());
