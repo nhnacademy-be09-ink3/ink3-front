@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>결제 데이터 확인</title>
+    <link rel="stylesheet" th:href="@{/css/output.css}">
+</head>
+<body class="bg-gray-100 font-sans leading-relaxed">
+<main class="max-w-4xl mx-auto p-8 bg-white shadow rounded-lg mt-12 space-y-6">
+    <h1 class="text-2xl font-bold border-b pb-4">결제 전 데이터 확인</h1>
+
+    <!-- 주문자 정보 -->
+    <section>
+        <h2 class="text-xl font-semibold mb-2">주문자 정보</h2>
+        <ul class="text-sm space-y-1">
+            <li><strong>회원 ID:</strong> <span th:text="${orderForm.orderCreateRequest.userId}">1</span></li>
+            <li><strong>주문자 이름:</strong> <span th:text="${orderForm.orderCreateRequest.ordererName}">홍길동</span></li>
+            <li><strong>연락처:</strong> <span th:text="${orderForm.orderCreateRequest.ordererPhone}">010-0000-0000</span></li>
+        </ul>
+    </section>
+
+    <!-- 배송 정보 -->
+    <section>
+        <h2 class="text-xl font-semibold mt-6 mb-2">배송지 정보</h2>
+        <ul class="text-sm space-y-1">
+            <li><strong>수령인:</strong> <span th:text="${orderForm.shipmentCreateRequest.recipientName}"></span></li>
+            <li><strong>연락처:</strong> <span th:text="${orderForm.shipmentCreateRequest.recipientPhone}"></span></li>
+            <li><strong>우편번호:</strong> <span th:text="${orderForm.shipmentCreateRequest.postalCode}"></span></li>
+            <li><strong>기본 주소:</strong> <span th:text="${orderForm.shipmentCreateRequest.defaultAddress}"></span></li>
+            <li><strong>상세 주소:</strong> <span th:text="${orderForm.shipmentCreateRequest.detailAddress}"></span></li>
+            <li><strong>참고 주소:</strong> <span th:text="${orderForm.shipmentCreateRequest.extraAddress}"></span></li>
+            <li><strong>희망 배송일:</strong> <span th:text="${orderForm.shipmentCreateRequest.preferredDeliveryDate}"></span></li>
+            <li><strong>배송비:</strong> <span th:text="${#numbers.formatInteger(orderForm.shipmentCreateRequest.shippingFee, 0, 'COMMA') + '원'}"></span></li>
+        </ul>
+    </section>
+
+    <!-- 주문 도서 목록 -->
+    <section>
+        <h2 class="text-xl font-semibold mt-6 mb-2">주문 도서 정보</h2>
+        <table class="w-full text-sm table-auto border border-gray-200">
+            <thead class="bg-gray-100 text-left">
+            <tr>
+                <th class="px-4 py-2 border">도서 ID</th>
+                <th class="px-4 py-2 border">수량</th>
+                <th class="px-4 py-2 border">단가</th>
+                <th class="px-4 py-2 border">포장지 ID</th>
+                <th class="px-4 py-2 border">쿠폰 ID</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="book : ${orderForm.createRequestList}">
+                <td class="px-4 py-2 border" th:text="${book.bookId}">1</td>
+                <td class="px-4 py-2 border" th:text="${book.quantity}">1</td>
+                <td class="px-4 py-2 border" th:text="${#numbers.formatInteger(book.price, 0, 'COMMA') + '원'}">10,000원</td>
+                <td class="px-4 py-2 border" th:text="${book.packagingId}">-</td>
+                <td class="px-4 py-2 border" th:text="${book.couponStoreId}">-</td>
+            </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <!-- 금액 요약 -->
+    <section class="mt-6">
+        <h2 class="text-xl font-semibold mb-2">금액 요약</h2>
+        <ul class="text-sm space-y-1">
+            <li><strong>할인 금액:</strong> <span th:text="${#numbers.formatInteger(orderForm.discountAmount, 0, 'COMMA') + '원'}">0원</span></li>
+            <li><strong>포인트 사용:</strong> <span th:text="${#numbers.formatInteger(orderForm.usedPointAmount, 0, 'COMMA') + '원'}">0원</span></li>
+            <li><strong>총 결제 금액:</strong> <span th:text="${#numbers.formatInteger(orderForm.paymentAmount, 0, 'COMMA') + '원'}">0원</span></li>
+        </ul>
+    </section>
+
+    <!-- 결제 버튼 -->
+    <div class="mt-6 flex gap-4">
+        <form th:action="@{/payments/toss}" method="post">
+            <input type="hidden" name="orderId" th:value="${orderId}" />
+            <input type="hidden" name="amount" th:value="${amount}" />
+            <input type="hidden" name="orderName" th:value="${orderName}" />
+            <input type="hidden" name="customerName" th:value="${customerName}" />
+            <button type="submit" class="bg-indigo-600 text-white px-6 py-2 rounded hover:bg-indigo-700">
+                Toss 결제 진행
+            </button>
+        </form>
+        <a href="/" class="text-sm text-gray-600 self-center hover:underline">홈으로</a>
+    </div>
+</main>
+</body>
+</html>
