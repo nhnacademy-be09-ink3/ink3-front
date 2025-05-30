@@ -38,6 +38,7 @@ public class BookController {
         model.addAttribute("book", response.data());
         return "book/book-detail";
     }
+
     @GetMapping("/book-edit/{book-id}")
     public String getBookEdit(@PathVariable(name="book-id") Long bookId, Model model) {
         CommonResponse<BookResponse> response = bookClient.getBookDetail(bookId);
@@ -54,8 +55,6 @@ public class BookController {
 
         return "book/book-edit";
     }
-
-
 
     @GetMapping("/book-register")
     public String getBookRegister() {
