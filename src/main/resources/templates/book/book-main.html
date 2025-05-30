@@ -29,369 +29,99 @@
 
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
 
-            <!-- 도서 카드 시작 -->
-            <div class="ink-card-white p-4 flex flex-col items-center text-center">
-                <a href="/book" class="ink-card-white p-4 flex flex-col items-center text-center h-full mb-6">
-                    <div class="w-[200px] h-full bg-gray-100 rounded-md overflow-hidden mb-1">
-                        <img
-                                src="https://image.aladin.co.kr/product/36401/67/cover200/k012039783_1.jpg"
-                                alt="책 표지"
-                                class="w-full h-full object-cover"
-                                onerror="this.style.display='none';"
-                        />
+            <!-- 동적으로 도서 목록 렌더링 -->
+            <div th:each="book : ${bestSeller}" class="ink-card-white p-4 flex flex-col items-center text-center">
+                <a th:href="@{/books/{id}(id=${book.id})}" class="ink-card-white p-4 flex flex-col items-center text-center h-full mb-6">
+                    <div class="w-[200px] h-[280px] bg-gray-100 rounded-md overflow-hidden mb-1">
+                        <img th:src="${book.thumbnailUrl}" alt="책 표지"
+                             class="w-full h-full object-cover"
+                             onerror="this.style.display='none';"/>
                     </div>
                 </a>
 
-                <h3 class="text-lg font-semibold text-gray-800 mb-1">룬의 아이들 - 블러디드 8</h3>
-                <p class="text-sm text-gray-700 mb-1">전민희 (지은이)</p>
+                <h3 class="text-lg font-semibold text-gray-800 mb-1" th:text="${book.title}">책 제목</h3>
+                <p class="text-sm text-gray-700 mb-1" th:text="${book.authorNames()}">작가</p>
 
                 <div class="mb-3 flex items-baseline justify-center gap-2">
-                    <span class="text-gray-400 line-through text-sm">₩17,000</span>
-                    <span class="text-base text-gray-900 font-bold">₩15,300</span>
-                    <span class="bg-red-100 text-red-600 text-xs font-bold px-2 py-0.5 rounded-md">10%</span>
+                <span class="text-gray-400 line-through text-sm"
+                      th:text="'₩' + ${#numbers.formatDecimal(book.originalPrice(), 0, 'COMMA', 0, 'POINT')}">₩00,000</span>
+                    <span class="text-base text-gray-900 font-bold"
+                          th:text="'₩' + ${#numbers.formatDecimal(book.salePrice(), 0, 'COMMA', 0, 'POINT')}">₩00,000</span>
+                    <span class="bg-red-100 text-red-600 text-xs font-bold px-2 py-0.5 rounded-md"
+                          th:text="${book.discountRate()} + '%'">0%</span>
                 </div>
 
-                <a href="/book" class="ink-btn-primary w-full text-center">자세히 보기</a>
-            </div>
-            <!-- 도서 카드 끝 -->
-
-            <!-- 도서 카드 2 -->
-            <div class="min-w-[250px] ink-card-white p-4 flex flex-col items-center text-center">
-                <a href="/book" class="ink-card-white p-4 flex flex-col items-center text-center h-full mb-6">
-                    <div class="w-[200px] h-full bg-gray-100 rounded-md overflow-hidden mb-1">
-                        <img
-                                src="https://image.aladin.co.kr/product/36401/67/cover200/k012039783_1.jpg"
-                                alt="책 표지"
-                                class="w-full h-full object-cover"
-                                onerror="this.style.display='none';"
-                        />
-                    </div>
-                </a>
-
-                <h3 class="text-lg font-semibold text-gray-800 mb-1">룬의 아이들 8</h3>
-                <p class="text-sm text-gray-700 mb-1">전민희</p>
-                <div class="mb-3 flex items-baseline justify-center gap-2">
-                    <span class="text-gray-400 line-through text-sm">₩17,000</span>
-                    <span class="text-base text-gray-900 font-bold">₩15,300</span>
-                    <span class="bg-red-100 text-red-600 text-xs font-bold px-2 py-0.5 rounded-md">10%</span>
-                </div>
-                <a href="/book" class="ink-btn-primary w-full text-center">자세히 보기</a>
+                <a th:href="@{/books/{id}(id=${book.id})}" class="ink-btn-primary w-full text-center">자세히 보기</a>
             </div>
 
-            <!-- 도서 카드 3 -->
-            <div class="ink-card-white p-4 flex flex-col items-center text-center">
-                <a href="/book" class="ink-card-white p-4 flex flex-col items-center text-center h-full mb-6">
-                    <div class="w-[200px] h-full bg-gray-100 rounded-md overflow-hidden mb-1">
-                        <img
-                                src="/img.jpg"
-                                alt="책 표지"
-                                class="w-full h-full object-cover"
-                                onerror="this.style.display='none';"
-                        />
-                    </div>
-                </a>
-
-                <h3 class="text-lg font-semibold text-gray-800 mb-1">책 제목</h3>
-                <p class="text-sm text-gray-700 mb-1">작가</p>
-
-                <div class="mb-3 flex items-baseline justify-center gap-2">
-                    <span class="text-gray-400 line-through text-sm">₩00,000</span>
-                    <span class="text-base text-gray-900 font-bold">₩00,000</span>
-                    <span class="bg-red-100 text-red-600 text-xs font-bold px-2 py-0.5 rounded-md">0%</span>
-                </div>
-
-                <a href="/book" class="ink-btn-primary w-full text-center">자세히 보기</a>
-            </div>
-
-            <!-- 도서 카드 4 (할인 없음) -->
-            <div class="ink-card-white p-4 flex flex-col items-center text-center">
-                <a href="/book" class="ink-card-white p-4 flex flex-col items-center text-center h-full mb-6">
-                    <div class="w-[200px] h-full bg-gray-100 rounded-md overflow-hidden mb-1">
-                        <img
-                                src="/img.jpg"
-                                alt="책 표지"
-                                class="w-full h-full object-cover"
-                                onerror="this.style.display='none';"
-                        />
-                    </div>
-                </a>
-
-                <h3 class="text-lg font-semibold text-gray-800 mb-1">책 제목</h3>
-                <p class="text-sm text-gray-700 mb-1">작가</p>
-
-                <p class="text-base text-gray-900 font-bold mb-3">₩15,000</p>
-
-                <a href="/book" class="ink-btn-primary w-full text-center">자세히 보기</a>
-            </div>
-
-            <!-- 도서 카드 5 (할인 없음) -->
-            <div class="ink-card-white p-4 flex flex-col items-center text-center">
-                <a href="/book" class="ink-card-white p-4 flex flex-col items-center text-center h-full mb-6">
-                    <div class="w-[200px] h-full bg-gray-100 rounded-md overflow-hidden mb-1">
-                        <img
-                                src="/img.jpg"
-                                alt="책 표지"
-                                class="w-full h-full object-cover"
-                                onerror="this.style.display='none';"
-                        />
-                    </div>
-                </a>
-
-                <h3 class="text-lg font-semibold text-gray-800 mb-1">책 제목</h3>
-                <p class="text-sm text-gray-700 mb-1">작가</p>
-
-                <p class="text-base text-gray-900 font-bold mb-3">₩15,000</p>
-
-                <a href="/book" class="ink-btn-primary w-full text-center">자세히 보기</a>
-            </div>
         </div>
     </section>
 
     <!-- 두 번째 section : 신간 -->
     <section class="py-16">
-        <h2 class="text-2xl font-bold mb-6 text-gray-800 text-center">✨ 신간</h2>
+        <h2 class="text-2xl font-bold mb-6 text-gray-800 text-center">📚 베스트셀러</h2>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
 
-            <!-- 도서 카드 시작 -->
-            <div class="ink-card-white p-4 flex flex-col items-center text-center">
-                <a href="/book" class="ink-card-white p-4 flex flex-col items-center text-center h-full mb-6">
-                    <div class="w-[200px] h-full bg-gray-100 rounded-md overflow-hidden mb-1">
-                        <img
-                                src="https://image.aladin.co.kr/product/36401/67/cover200/k012039783_1.jpg"
-                                alt="책 표지"
-                                class="w-full h-full object-cover"
-                                onerror="this.style.display='none';"
-                        />
+            <!-- 동적으로 도서 목록 렌더링 -->
+            <div th:each="book : ${newBooks}" class="ink-card-white p-4 flex flex-col items-center text-center">
+                <a th:href="@{/books/{id}(id=${book.id})}" class="ink-card-white p-4 flex flex-col items-center text-center h-full mb-6">
+                    <div class="w-[200px] h-[280px] bg-gray-100 rounded-md overflow-hidden mb-1">
+                        <img th:src="${book.thumbnailUrl}" alt="책 표지"
+                             class="w-full h-full object-cover"
+                             onerror="this.style.display='none';"/>
                     </div>
                 </a>
 
-                <h3 class="text-lg font-semibold text-gray-800 mb-1">룬의 아이들 - 블러디드 8</h3>
-                <p class="text-sm text-gray-700 mb-1">전민희 (지은이)</p>
+                <h3 class="text-lg font-semibold text-gray-800 mb-1" th:text="${book.title}">책 제목</h3>
+                <p class="text-sm text-gray-700 mb-1" th:text="${book.authorNames()}">작가</p>
 
                 <div class="mb-3 flex items-baseline justify-center gap-2">
-                    <span class="text-gray-400 line-through text-sm">₩17,000</span>
-                    <span class="text-base text-gray-900 font-bold">₩15,300</span>
-                    <span class="bg-red-100 text-red-600 text-xs font-bold px-2 py-0.5 rounded-md">10%</span>
+                <span class="text-gray-400 line-through text-sm"
+                      th:text="'₩' + ${#numbers.formatDecimal(book.originalPrice(), 0, 'COMMA', 0, 'POINT')}">₩00,000</span>
+                    <span class="text-base text-gray-900 font-bold"
+                          th:text="'₩' + ${#numbers.formatDecimal(book.salePrice(), 0, 'COMMA', 0, 'POINT')}">₩00,000</span>
+                    <span class="bg-red-100 text-red-600 text-xs font-bold px-2 py-0.5 rounded-md"
+                          th:text="${book.discountRate()} + '%'">0%</span>
                 </div>
 
-                <a href="/book" class="ink-btn-primary w-full text-center">자세히 보기</a>
-            </div>
-            <!-- 도서 카드 끝 -->
-
-            <!-- 도서 카드 2 -->
-            <div class="min-w-[250px] ink-card-white p-4 flex flex-col items-center text-center">
-                <a href="/book" class="ink-card-white p-4 flex flex-col items-center text-center h-full mb-6">
-                    <div class="w-[200px] h-full bg-gray-100 rounded-md overflow-hidden mb-1">
-                        <img
-                                src="https://image.aladin.co.kr/product/36401/67/cover200/k012039783_1.jpg"
-                                alt="책 표지"
-                                class="w-full h-full object-cover"
-                                onerror="this.style.display='none';"
-                        />
-                    </div>
-                </a>
-
-                <h3 class="text-lg font-semibold text-gray-800 mb-1">룬의 아이들 8</h3>
-                <p class="text-sm text-gray-700 mb-1">전민희</p>
-                <div class="mb-3 flex items-baseline justify-center gap-2">
-                    <span class="text-gray-400 line-through text-sm">₩17,000</span>
-                    <span class="text-base text-gray-900 font-bold">₩15,300</span>
-                    <span class="bg-red-100 text-red-600 text-xs font-bold px-2 py-0.5 rounded-md">10%</span>
-                </div>
-                <a href="/book" class="ink-btn-primary w-full text-center">자세히 보기</a>
+                <a th:href="@{/books/{id}(id=${book.id})}" class="ink-btn-primary w-full text-center">자세히 보기</a>
             </div>
 
-            <!-- 도서 카드 3 -->
-            <div class="ink-card-white p-4 flex flex-col items-center text-center">
-                <a href="/book" class="ink-card-white p-4 flex flex-col items-center text-center h-full mb-6">
-                    <div class="w-[200px] h-full bg-gray-100 rounded-md overflow-hidden mb-1">
-                        <img
-                                src="/img.jpg"
-                                alt="책 표지"
-                                class="w-full h-full object-cover"
-                                onerror="this.style.display='none';"
-                        />
-                    </div>
-                </a>
-
-                <h3 class="text-lg font-semibold text-gray-800 mb-1">책 제목</h3>
-                <p class="text-sm text-gray-700 mb-1">작가</p>
-
-                <div class="mb-3 flex items-baseline justify-center gap-2">
-                    <span class="text-gray-400 line-through text-sm">₩00,000</span>
-                    <span class="text-base text-gray-900 font-bold">₩00,000</span>
-                    <span class="bg-red-100 text-red-600 text-xs font-bold px-2 py-0.5 rounded-md">0%</span>
-                </div>
-
-                <a href="/book" class="ink-btn-primary w-full text-center">자세히 보기</a>
-            </div>
-
-            <!-- 도서 카드 4 (할인 없음) -->
-            <div class="ink-card-white p-4 flex flex-col items-center text-center">
-                <a href="/book" class="ink-card-white p-4 flex flex-col items-center text-center h-full mb-6">
-                    <div class="w-[200px] h-full bg-gray-100 rounded-md overflow-hidden mb-1">
-                        <img
-                                src="/img.jpg"
-                                alt="책 표지"
-                                class="w-full h-full object-cover"
-                                onerror="this.style.display='none';"
-                        />
-                    </div>
-                </a>
-
-                <h3 class="text-lg font-semibold text-gray-800 mb-1">책 제목</h3>
-                <p class="text-sm text-gray-700 mb-1">작가</p>
-
-                <p class="text-base text-gray-900 font-bold mb-3">₩15,000</p>
-
-                <a href="/book" class="ink-btn-primary w-full text-center">자세히 보기</a>
-            </div>
-
-            <!-- 도서 카드 5 (할인 없음) -->
-            <div class="ink-card-white p-4 flex flex-col items-center text-center">
-                <a href="/book" class="ink-card-white p-4 flex flex-col items-center text-center h-full mb-6">
-                    <div class="w-[200px] h-full bg-gray-100 rounded-md overflow-hidden mb-1">
-                        <img
-                                src="/img.jpg"
-                                alt="책 표지"
-                                class="w-full h-full object-cover"
-                                onerror="this.style.display='none';"
-                        />
-                    </div>
-                </a>
-
-                <h3 class="text-lg font-semibold text-gray-800 mb-1">책 제목</h3>
-                <p class="text-sm text-gray-700 mb-1">작가</p>
-
-                <p class="text-base text-gray-900 font-bold mb-3">₩15,000</p>
-
-                <a href="/book" class="ink-btn-primary w-full text-center">자세히 보기</a>
-            </div>
         </div>
     </section>
 
     <!-- 세 번째 section : 추천도서 -->
     <section class="py-16">
-        <h2 class="text-2xl font-bold mb-6 text-gray-800 text-center">🎯 추천도서</h2>
+        <h2 class="text-2xl font-bold mb-6 text-gray-800 text-center">📚 베스트셀러</h2>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
 
-            <!-- 도서 카드 시작 -->
-            <div class="ink-card-white p-4 flex flex-col items-center text-center">
-                <a href="/book" class="ink-card-white p-4 flex flex-col items-center text-center h-full mb-6">
-                    <div class="w-[200px] h-full bg-gray-100 rounded-md overflow-hidden mb-1">
-                        <img
-                                src="https://image.aladin.co.kr/product/36401/67/cover200/k012039783_1.jpg"
-                                alt="책 표지"
-                                class="w-full h-full object-cover"
-                                onerror="this.style.display='none';"
-                        />
+            <!-- 동적으로 도서 목록 렌더링 -->
+            <div th:each="book : ${recommendBooks}" class="ink-card-white p-4 flex flex-col items-center text-center">
+                <a th:href="@{/books/{id}(id=${book.id})}" class="ink-card-white p-4 flex flex-col items-center text-center h-full mb-6">
+                    <div class="w-[200px] h-[280px] bg-gray-100 rounded-md overflow-hidden mb-1">
+                        <img th:src="${book.thumbnailUrl}" alt="책 표지"
+                             class="w-full h-full object-cover"
+                             onerror="this.style.display='none';"/>
                     </div>
                 </a>
 
-                <h3 class="text-lg font-semibold text-gray-800 mb-1">룬의 아이들 - 블러디드 8</h3>
-                <p class="text-sm text-gray-700 mb-1">전민희 (지은이)</p>
+                <h3 class="text-lg font-semibold text-gray-800 mb-1" th:text="${book.title}">책 제목</h3>
+                <p class="text-sm text-gray-700 mb-1" th:text="${book.authorNames()}">작가</p>
 
                 <div class="mb-3 flex items-baseline justify-center gap-2">
-                    <span class="text-gray-400 line-through text-sm">₩17,000</span>
-                    <span class="text-base text-gray-900 font-bold">₩15,300</span>
-                    <span class="bg-red-100 text-red-600 text-xs font-bold px-2 py-0.5 rounded-md">10%</span>
+                <span class="text-gray-400 line-through text-sm"
+                      th:text="'₩' + ${#numbers.formatDecimal(book.originalPrice(), 0, 'COMMA', 0, 'POINT')}">₩00,000</span>
+                    <span class="text-base text-gray-900 font-bold"
+                          th:text="'₩' + ${#numbers.formatDecimal(book.salePrice(), 0, 'COMMA', 0, 'POINT')}">₩00,000</span>
+                    <span class="bg-red-100 text-red-600 text-xs font-bold px-2 py-0.5 rounded-md"
+                          th:text="${book.discountRate()} + '%'">0%</span>
                 </div>
 
-                <a href="/book" class="ink-btn-primary w-full text-center">자세히 보기</a>
-            </div>
-            <!-- 도서 카드 끝 -->
-
-            <!-- 도서 카드 2 -->
-            <div class="min-w-[250px] ink-card-white p-4 flex flex-col items-center text-center">
-                <a href="/book" class="ink-card-white p-4 flex flex-col items-center text-center h-full mb-6">
-                    <div class="w-[200px] h-full bg-gray-100 rounded-md overflow-hidden mb-1">
-                        <img
-                                src="https://image.aladin.co.kr/product/36401/67/cover200/k012039783_1.jpg"
-                                alt="책 표지"
-                                class="w-full h-full object-cover"
-                                onerror="this.style.display='none';"
-                        />
-                    </div>
-                </a>
-
-                <h3 class="text-lg font-semibold text-gray-800 mb-1">룬의 아이들 8</h3>
-                <p class="text-sm text-gray-700 mb-1">전민희</p>
-                <div class="mb-3 flex items-baseline justify-center gap-2">
-                    <span class="text-gray-400 line-through text-sm">₩17,000</span>
-                    <span class="text-base text-gray-900 font-bold">₩15,300</span>
-                    <span class="bg-red-100 text-red-600 text-xs font-bold px-2 py-0.5 rounded-md">10%</span>
-                </div>
-                <a href="/book" class="ink-btn-primary w-full text-center">자세히 보기</a>
+                <a th:href="@{/books/{id}(id=${book.id})}" class="ink-btn-primary w-full text-center">자세히 보기</a>
             </div>
 
-            <!-- 도서 카드 3 -->
-            <div class="ink-card-white p-4 flex flex-col items-center text-center">
-                <a href="/book" class="ink-card-white p-4 flex flex-col items-center text-center h-full mb-6">
-                    <div class="w-[200px] h-full bg-gray-100 rounded-md overflow-hidden mb-1">
-                        <img
-                                src="/img.jpg"
-                                alt="책 표지"
-                                class="w-full h-full object-cover"
-                                onerror="this.style.display='none';"
-                        />
-                    </div>
-                </a>
-
-                <h3 class="text-lg font-semibold text-gray-800 mb-1">책 제목</h3>
-                <p class="text-sm text-gray-700 mb-1">작가</p>
-
-                <div class="mb-3 flex items-baseline justify-center gap-2">
-                    <span class="text-gray-400 line-through text-sm">₩00,000</span>
-                    <span class="text-base text-gray-900 font-bold">₩00,000</span>
-                    <span class="bg-red-100 text-red-600 text-xs font-bold px-2 py-0.5 rounded-md">0%</span>
-                </div>
-
-                <a href="/book" class="ink-btn-primary w-full text-center">자세히 보기</a>
-            </div>
-
-            <!-- 도서 카드 4 (할인 없음) -->
-            <div class="ink-card-white p-4 flex flex-col items-center text-center">
-                <a href="/book" class="ink-card-white p-4 flex flex-col items-center text-center h-full mb-6">
-                    <div class="w-[200px] h-full bg-gray-100 rounded-md overflow-hidden mb-1">
-                        <img
-                                src="/img.jpg"
-                                alt="책 표지"
-                                class="w-full h-full object-cover"
-                                onerror="this.style.display='none';"
-                        />
-                    </div>
-                </a>
-
-                <h3 class="text-lg font-semibold text-gray-800 mb-1">책 제목</h3>
-                <p class="text-sm text-gray-700 mb-1">작가</p>
-
-                <p class="text-base text-gray-900 font-bold mb-3">₩15,000</p>
-
-                <a href="/book" class="ink-btn-primary w-full text-center">자세히 보기</a>
-            </div>
-
-            <!-- 도서 카드 5 (할인 없음) -->
-            <div class="ink-card-white p-4 flex flex-col items-center text-center">
-                <a href="/book" class="ink-card-white p-4 flex flex-col items-center text-center h-full mb-6">
-                    <div class="w-[200px] h-full bg-gray-100 rounded-md overflow-hidden mb-1">
-                        <img
-                                src="/img.jpg"
-                                alt="책 표지"
-                                class="w-full h-full object-cover"
-                                onerror="this.style.display='none';"
-                        />
-                    </div>
-                </a>
-
-                <h3 class="text-lg font-semibold text-gray-800 mb-1">책 제목</h3>
-                <p class="text-sm text-gray-700 mb-1">작가</p>
-
-                <p class="text-base text-gray-900 font-bold mb-3">₩15,000</p>
-
-                <a href="/book" class="ink-btn-primary w-full text-center">자세히 보기</a>
-            </div>
         </div>
     </section>
 
