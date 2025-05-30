@@ -1,7 +1,5 @@
 package com.nhnacademy.front.shop.payment.client;
 import com.nhnacademy.front.common.dto.CommonResponse;
-import com.nhnacademy.front.shop.order.예시DTO.PointHistoryCreateRequest;
-import com.nhnacademy.front.shop.order.예시DTO.PointHistoryResponse;
 import com.nhnacademy.front.shop.payment.dto.PaymentConfirmRequest;
 import com.nhnacademy.front.shop.payment.dto.PaymentResponse;
 import org.springframework.cloud.openfeign.FeignClient;
@@ -14,10 +12,4 @@ public interface PaymentClient {
     // payment 결제 승인 요청
     @PostMapping("/payments/confirm")
     CommonResponse<PaymentResponse> confirmPayment(@RequestBody PaymentConfirmRequest request);
-
-    @PostMapping("/users/{userId}/points")
-    CommonResponse<PointHistoryResponse> createPointHistory(
-            @PathVariable long userId,
-            @RequestBody PointHistoryCreateRequest pointHistoryCreateRequest
-    );
 }

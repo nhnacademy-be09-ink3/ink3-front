@@ -2,12 +2,12 @@ package com.nhnacademy.front.shop.order.client;
 
 import com.nhnacademy.front.common.dto.CommonResponse;
 import com.nhnacademy.front.common.dto.PageResponse;
+import com.nhnacademy.front.shop.address.client.dto.AddressResponse;
+import com.nhnacademy.front.shop.cart.dto.CartResponse;
+import com.nhnacademy.front.shop.order.dto.OrderBookResponse;
 import com.nhnacademy.front.shop.order.dto.OrderFormCreateRequest;
 import com.nhnacademy.front.shop.order.dto.OrderResponse;
 import com.nhnacademy.front.shop.order.dto.PackagingResponse;
-import com.nhnacademy.front.shop.order.예시DTO.AddressResponse;
-import com.nhnacademy.front.shop.order.예시DTO.CartResponse;
-import com.nhnacademy.front.shop.order.예시DTO.CouponStoreResponse;
 import com.nhnacademy.front.shop.user.client.dto.UserResponse;
 import java.util.List;
 import org.springframework.cloud.openfeign.FeignClient;
@@ -27,6 +27,14 @@ public interface OrderClient {
             @RequestParam("page") int page,
             @RequestParam("size") int size);
 
+    @GetMapping("/order-books/orders/{orderId}")
+    CommonResponse<PageResponse<OrderBookResponse>> getOrderBookListByOrderId(
+            @PathVariable("orderId") long orderId,
+            @RequestParam("page") int page,
+            @RequestParam("size") int size);
+
+
+
     @GetMapping("/packagings/activate")
     CommonResponse<PageResponse<PackagingResponse>> getPackagings(
             @RequestParam("page") int page,
@@ -40,10 +48,6 @@ public interface OrderClient {
             @PathVariable Long userId,
             @RequestParam("page") int page,
             @RequestParam("size") int size);
-
-
-    @GetMapping("/stores/users/{userId}/unused")
-    CommonResponse<List<CouponStoreResponse>> getUnusedCoupons(@PathVariable("userId") Long userId);
 
     @GetMapping("/users/{userId}")
     CommonResponse<UserResponse> getUser(@PathVariable Long userId);

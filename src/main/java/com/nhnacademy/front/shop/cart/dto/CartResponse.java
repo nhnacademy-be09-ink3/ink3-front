@@ -9,7 +9,6 @@ public record CartResponse(
     int saleBookPrice,
     int bookDiscountRate,
     String thumbnailUrl,
-
     int quantity
 ) {
 }

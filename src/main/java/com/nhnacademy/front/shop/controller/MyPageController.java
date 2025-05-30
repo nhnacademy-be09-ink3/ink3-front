@@ -1,12 +1,16 @@
 package com.nhnacademy.front.shop.controller;
 
 import com.nhnacademy.front.auth.service.AuthService;
+import com.nhnacademy.front.common.dto.CommonResponse;
 import com.nhnacademy.front.common.dto.PageResponse;
 import com.nhnacademy.front.shop.address.client.dto.AddressCreateRequest;
 import com.nhnacademy.front.shop.address.client.dto.AddressUpdateRequest;
 import com.nhnacademy.front.shop.address.service.AddressService;
+import com.nhnacademy.front.shop.book.client.BookClient;
+import com.nhnacademy.front.shop.book.client.dto.BookResponse;
 import com.nhnacademy.front.shop.like.client.dto.LikeResponse;
 import com.nhnacademy.front.shop.like.service.LikeService;
+import com.nhnacademy.front.shop.order.dto.OrderBookResponse;
 import com.nhnacademy.front.shop.order.dto.OrderResponse;
 import com.nhnacademy.front.shop.order.service.OrderService;
 import com.nhnacademy.front.shop.point.client.dto.PointHistoryResponse;
@@ -42,6 +46,7 @@ public class MyPageController {
     private final PointService pointService;
     private final LikeService likeService;
     private final OrderService orderService;
+    private final BookClient bookClient;
 
     @GetMapping("/register")
     public String getRegister() {
@@ -80,19 +85,26 @@ public class MyPageController {
 
     @GetMapping("/me/orders")
     public String getMeOrders(@RequestParam(defaultValue = "0") int page,
-                              @RequestParam(defaultValue = "10") int size,
+                              @RequestParam(defaultValue = "7") int size,
                               Model model) {
         PageResponse<OrderResponse> orderResponse = orderService.getOrders(page, size);
+        PageUtil.PageInfo pageInfo = PageUtil.calculatePageRange(
+                orderResponse.page(), orderResponse.totalPages(), 5);
+        PageResponse<OrderBookResponse> orderBookList = orderService.getOrderBookList(
+                orderResponse.content().getFirst().getId(), page, size);
+
+        // 대표 도서 정보
+        long bookId = orderBookList.content().getFirst().getBookId();
+        CommonResponse<BookResponse> bookDetail = bookClient.getBookDetail(bookId);
+
+        //TODO 결제 정보 추가
 
         model.addAttribute("currentPage", "orders");
         model.addAttribute("user", userService.getCurrentUserDetail());
-        model.addAttribute("orderList", orderResponse.content());
-        model.addAttribute("page", orderResponse.page());
-        model.addAttribute("size", orderResponse.size());
-        model.addAttribute("totalPages", orderResponse.totalPages());
-        model.addAttribute("hasNext", orderResponse.hasNext());
-        model.addAttribute("hasPrevious", orderResponse.hasPrevious());
-
+        model.addAttribute("orderList", orderResponse);
+        model.addAttribute("orderBookList", orderBookList);
+        model.addAttribute("bookDetail", bookDetail);
+        model.addAttribute("pageInfo", pageInfo);
         return "user/me-orders";
     }
 
