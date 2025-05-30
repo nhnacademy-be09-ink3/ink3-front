@@ -15,11 +15,11 @@
 </head>
 <body class="bg-gray-100">
 <div th:replace="~{layout/fragments/header :: headerFragment}"></div>
-<main class="container max-w-screen-xl mx-auto px-4 py-8">
+<main class="container max-w-[1600px] mx-auto px-4 py-8">
     <div class="flex flex-col lg:flex-row gap-10">
 
         <!-- 왼쪽: 입력 -->
-        <div class="flex-1 bg-white p-8 rounded-xl shadow">
+        <div class="w-full lg:w-[70%] bg-white p-8 rounded-xl shadow">
             <!-- 주문 상품 목록 -->
             <section class="mb-8">
                 <h2 class="text-2xl font-semibold mb-4">주문 상품</h2>
@@ -41,7 +41,7 @@
                     </div>
 
                     <!-- 정가 -->
-                    <div class="min-w-[100px]">
+                    <div class="min-w-[70px]">
                         <div class="text-gray-500 text-xs">정가</div>
                         <div th:text="${#numbers.formatInteger(item.originalBookPrice, 0, 'COMMA') + '원'}">정가</div>
                     </div>
@@ -53,7 +53,7 @@
                     </div>
 
                     <!-- 할인금액 -->
-                    <div class="min-w-[140px]">
+                    <div class="min-w-[90px]">
                         <div class="text-gray-500 text-xs">할인금액</div>
                         <div class="text-red-600 font-semibold"
                              th:text="${#numbers.formatInteger(item.saleBookPrice, 0, 'COMMA') + '원'}">
@@ -65,7 +65,7 @@
                         </div>                    </div>
 
                     <!-- 합계 -->
-                    <div class="min-w-[100px] text-right">
+                    <div class="min-w-[90px] text-right">
                         <div class="text-gray-500 text-xs">합계</div>
                         <div class="text-base font-bold text-gray-900"
                              th:text="${#numbers.formatInteger(item.saleBookPrice * item.quantity, 0, 'COMMA') + '원'}">
@@ -73,29 +73,35 @@
                         </div>
                     </div>
 
-                    <!-- 포장지 선택 -->
-                    <div class="flex-1 min-w-[100px]">
-                        <label class="block mb-1 text-sm font-medium text-gray-700">포장지 선택</label>
-                        <select class="packaging-select ink-input-field w-full">
-                            <option th:each="p : ${packagings}"
-                                    th:value="${p.id}"
-                                    th:text="${p.name + ' (' + #numbers.formatInteger(p.price, 0, 'COMMA') + '원)'}"
-                                    th:attr="data-price=${p.price}"
-                                    th:disabled="${!p.isAvailable}">
-                            </option>
-                        </select>
+                    <!-- 포장지 + 쿠폰 선택 (세로 배치) -->
+                    <div class="w-full flex flex-col gap-4 mt-4">
+
+                        <!-- 포장지 선택 -->
+                        <div class="flex items-center gap-2">
+                            <label class="text-sm font-medium text-gray-700 whitespace-nowrap w-[90px]">포장지 선택</label>
+                            <select class="packaging-select ink-input-field w-full sm:w-[240px]">
+                                <option th:each="p : ${packagings}"
+                                        th:value="${p.id}"
+                                        th:text="${p.name + ' (' + #numbers.formatInteger(p.price, 0, 'COMMA') + '원)'}"
+                                        th:attr="data-price=${p.price}"
+                                        th:disabled="${!p.isAvailable}">
+                                </option>
+                            </select>
+                        </div>
+
+                        <!-- 쿠폰 선택 -->
+                        <div class="flex items-center gap-2">
+                            <label class="text-sm font-medium text-gray-700 whitespace-nowrap w-[90px]">쿠폰 선택</label>
+                            <select class="ink-input-field w-full sm:w-[240px]" name="couponId">
+                                <option selected disabled>쿠폰을 선택하세요</option>
+                                <option value="1">신규가입 5% 쿠폰</option>
+                                <option value="2">10,000원 이상 2,000원 할인</option>
+                                <option value="3">전 카테고리 3% 할인</option>
+                            </select>
+                        </div>
+
                     </div>
 
-                    <!-- 쿠폰 적용 -->
-                    <div class="flex-1 min-w-[100px]">
-                        <label class="block mb-1 text-sm font-medium text-gray-700">쿠폰 선택</label>
-                        <select class="ink-input-field w-full" name="couponId">
-                            <option selected disabled>쿠폰을 선택하세요</option>
-                            <option value="1">신규가입 5% 쿠폰 (발급일: 2025-05-01)</option>
-                            <option value="2">10,000원 이상 구매시 2,000원 할인 쿠폰 (발급일: 2025-05-10)</option>
-                            <option value="3">전 카테고리 3% 할인 쿠폰 (발급일: 2025-05-20)</option>
-                        </select>
-                    </div>
                 </div>
 
 
@@ -104,10 +110,9 @@
 
             <!-- 주문자 정보 -->
             <section class="mb-8">
-                <h2 class="text-2xl font-semibold mt-10 mb-4">주문자 정보</h2>
-
-                <!-- 버튼 추가 -->
-                <div class="flex justify-end mb-2">
+                <!-- 주문자 정보 제목 + 버튼 한 줄 배치 -->
+                <div class="flex justify-between items-center mt-10 mb-4">
+                    <h2 class="text-2xl font-semibold">주문자 정보</h2>
                     <button type="button" id="loadMyInfoBtn" class="ink-btn-primary text-sm px-4 py-2">
                         내 정보 가져오기
                     </button>
@@ -202,9 +207,35 @@
 
                         <!-- 희망 배송일 -->
                         <div>
-                            <label class="block mb-1 text-sm font-medium text-gray-700">희망 배송일</label>
-                            <input type="date" class="ink-input-field w-full">
+                            <label class="block mb-2 text-sm font-medium text-gray-700">희망 배송일</label>
+
+                            <!-- 기본 배송일 안내 -->
+                            <div class="bg-blue-50 border border-blue-200 text-blue-800 px-4 py-2 rounded-md text-sm mb-4">
+                                기본 배송 예정일은 <strong id="defaultDeliveryDate">2025-06-02</strong> 입니다.
+                            </div>
+
+                            <!-- 배송일 지정 스위치 -->
+                            <div class="flex items-center gap-4 mb-4">
+                                <label for="enablePreferredDate" class="inline-flex items-center cursor-pointer">
+                                    <span class="mr-3 text-sm text-gray-700">배송일 지정</span>
+                                    <div class="relative">
+                                        <input type="checkbox" id="enablePreferredDate" class="sr-only peer">
+                                        <div class="w-11 h-6 bg-gray-300 rounded-full peer peer-checked:bg-indigo-500 transition-all"></div>
+                                        <div class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow peer-checked:translate-x-full transition-transform"></div>
+                                    </div>
+                                </label>
+                            </div>
+
+                            <!-- 날짜 선택 input -->
+                            <div>
+                                <input type="date" id="preferredDeliveryDateInput"
+                                       class="ink-input-field w-full sm:w-[250px] bg-white text-gray-800 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                                       disabled
+                                       min="2025-06-02"
+                                >
+                            </div>
                         </div>
+
                     </div>
                 </section>
 
@@ -264,7 +295,7 @@
             </section>
 
 
-            <!-- 쿠폰 및 포인트 -->
+            <!-- 포인트 -->
             <section>
                 <h2 class="text-2xl font-semibold mt-10 mb-4">포인트</h2>
 
@@ -306,7 +337,7 @@
         </div>
 
         <!-- 오른쪽: 요약 -->
-        <div class="w-full lg:w-[35%]">
+        <div class="w-full lg:w-[30%]">
             <div class="sticky top-6 bg-white p-6 rounded-xl shadow min-h-[75vh] flex flex-col justify-between">
                 <div>
                     <h2 class="text-xl font-bold border-b pb-2 mb-4">주문 요약</h2>
@@ -371,10 +402,29 @@
 </html>
 
 
-
 <script>
     document.addEventListener("DOMContentLoaded", () => {
-        // 1. 주소록 관련 --------------------------
+        // 희망 배송일 체크박스 제어
+        const checkbox = document.getElementById("enablePreferredDate");
+        const dateInput = document.getElementById("preferredDeliveryDateInput");
+
+        checkbox?.addEventListener("change", () => {
+            dateInput.disabled = !checkbox.checked;
+        });
+
+        const defaultDate = new Date();
+        defaultDate.setDate(defaultDate.getDate() + 2);
+        const formattedDefaultDate = defaultDate.toISOString().split('T')[0];
+
+        document.getElementById("defaultDeliveryDate").textContent = formattedDefaultDate;
+        dateInput.min = formattedDefaultDate;
+        dateInput.value = formattedDefaultDate;
+
+        window.getPreferredDeliveryDate = function () {
+            return checkbox?.checked ? dateInput?.value : null;
+        };
+
+        // 주소록 라디오
         const modal = document.getElementById("addressModal");
         const closeBtn = document.getElementById("closeAddressModal");
         const addressTypeRadios = document.querySelectorAll('input[name="addressType"]');
@@ -383,7 +433,7 @@
             radio.addEventListener("change", (e) => {
                 if (e.target.value === "book") {
                     modal.classList.remove("hidden");
-                } else if (e.target.value === "search") {
+                } else {
                     document.getElementById("recipientPhone").value = "";
                     document.getElementById("postalCode").value = "";
                     document.getElementById("defaultAddress").value = "";
@@ -408,23 +458,17 @@
             });
         });
 
-
-        // 2. 내 정보 불러오기 --------------------------
+        // 내 정보 가져오기
         const myInfoBtn = document.getElementById("loadMyInfoBtn");
         if (myInfoBtn) {
             myInfoBtn.addEventListener("click", () => {
-                const name = document.getElementById("userName")?.value || "";
-                const phone = document.getElementById("userPhone")?.value || "";
-                const email = document.getElementById("userEmail")?.value || "";
-
-                // 주문자 정보 input에 채우기
-                document.getElementById("ordererName").value = name;
-                document.getElementById("ordererPhone").value = phone;
-                document.getElementById("ordererEmail").value = email;
+                document.getElementById("ordererName").value = document.getElementById("userName")?.value || "";
+                document.getElementById("ordererPhone").value = document.getElementById("userPhone")?.value || "";
+                document.getElementById("ordererEmail").value = document.getElementById("userEmail")?.value || "";
             });
         }
 
-        // 3. 결제 금액 요약 계산 --------------------------
+        // 결제 금액 계산
         const PRODUCT_TOTAL_EL = document.querySelector('[data-role="product-total"]');
         const PACKAGING_TOTAL_EL = document.querySelector('[data-role="packaging-total"]');
         const FINAL_TOTAL_EL = document.querySelector('[data-role="final-total"]');
@@ -467,15 +511,12 @@
             POINT_USED_EL.textContent = formatCurrency(usedPoint);
         }
 
-        // 초기 계산
         updateSummary();
 
-        // 포장지 선택 시 다시 계산
         document.querySelectorAll('select.packaging-select').forEach(select => {
             select.addEventListener('change', updateSummary);
         });
 
-        // 포인트 적용 버튼 클릭
         APPLY_BTN?.addEventListener('click', () => {
             const maxPoint = parseInt(POINT_INPUT.getAttribute('max') || '0', 10);
             const entered = parseInt(POINT_INPUT.value || '0', 10);
@@ -493,7 +534,6 @@
             updateSummary();
         });
 
-        // 전체 사용 체크박스 클릭
         USE_ALL_CHECK?.addEventListener('change', (e) => {
             const maxPoint = parseInt(POINT_INPUT.getAttribute('max') || '0', 10);
             if (e.target.checked) {
@@ -506,21 +546,52 @@
 
             updateSummary();
         });
+
+        // 전화번호 자동 하이픈 적용
+        function autoHyphenPhone(el) {
+            el.addEventListener("input", function (e) {
+                let number = e.target.value.replace(/[^0-9]/g, "");
+                let result = "";
+
+                if (number.startsWith("02") && number.length > 2) {
+                    result += number.substr(0, 2);
+                    if (number.length >= 6) {
+                        result += "-" + number.substr(2, 4) + "-" + number.substr(6);
+                    } else if (number.length > 2) {
+                        result += "-" + number.substr(2);
+                    }
+                } else {
+                    result += number.substr(0, 3);
+                    if (number.length >= 7) {
+                        result += "-" + number.substr(3, 4) + "-" + number.substr(7);
+                    } else if (number.length > 3) {
+                        result += "-" + number.substr(3);
+                    }
+                }
+
+                e.target.value = result;
+            });
+        }
+
+        ["ordererPhone", "recipientPhone"].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) autoHyphenPhone(el);
+        });
     });
+
+    // 다음 주소 API
     function execDaumPostcode() {
         new daum.Postcode({
             oncomplete: function (data) {
                 let addr = '';
                 let extraAddr = '';
 
-                // 기본 주소 설정
                 if (data.userSelectedType === 'R') {
                     addr = data.roadAddress;
                 } else {
                     addr = data.jibunAddress;
                 }
 
-                // 참고 주소 설정
                 if (data.userSelectedType === 'R') {
                     if (data.bname !== '' && /[동|로|가]$/g.test(data.bname)) {
                         extraAddr += data.bname;
@@ -533,30 +604,38 @@
                     }
                 }
 
-                // 입력란에 값 설정
                 document.getElementById("postalCode").value = data.zonecode;
                 document.getElementById("defaultAddress").value = addr;
                 document.getElementById("extraAddress").value = extraAddr;
-
-                // 상세 주소 입력창에 포커스
                 document.getElementById("detailAddress").focus();
             }
         }).open();
     }
 
+    // 주문 제출
     function submitOrderForm() {
-        const ordererName = document.getElementById("ordererName").value;
-        const ordererPhone = document.getElementById("ordererPhone").value;
+        const ordererName = document.getElementById("ordererName").value.trim();
+        const ordererPhone = document.getElementById("ordererPhone").value.trim();
+        const ordererEmail = document.getElementById("ordererEmail").value.trim();
+        const recipientName = document.getElementById("recipientName").value.trim();
+        const recipientPhone = document.getElementById("recipientPhone").value.trim();
+        const postalCode = document.getElementById("postalCode").value.trim();
+        const defaultAddress = document.getElementById("defaultAddress").value.trim();
+        const detailAddress = document.getElementById("detailAddress").value.trim();
+
+        if (!ordererName || !ordererPhone || !ordererEmail) {
+            alert("주문자 정보를 모두 입력해주세요.");
+            return;
+        }
+        if (!recipientName || !recipientPhone || !postalCode || !defaultAddress || !detailAddress) {
+            alert("배송지 정보를 모두 입력해주세요.");
+            return;
+        }
+
+        // 이후 기존 내용 유지
         const userId = parseInt(document.getElementById("userId").value, 10);
-
-        const recipientName = document.querySelector("input[placeholder='홍길동']").value;
-        const recipientPhone = document.querySelector("input[placeholder='010-9876-5432']").value;
-        const preferredDate = document.querySelector("input[type='date']").value;
-        const postalCode = document.getElementById("postalCode").value;
-        const defaultAddress = document.getElementById("defaultAddress").value;
-        const detailAddress = document.getElementById("detailAddress").value;
+        const preferredDate = window.getPreferredDeliveryDate();
         const extraAddress = document.getElementById("extraAddress").value;
-
         const orderItems = [];
         document.querySelectorAll(".cart-item").forEach(item => {
             const bookId = parseInt(item.dataset.bookId);
@@ -566,27 +645,17 @@
             const couponIdEl = item.querySelector("select[name='couponId']");
             const couponId = couponIdEl && !couponIdEl.disabled ? parseInt(couponIdEl.value) : null;
 
-            orderItems.push({
-                bookId,
-                packagingId,
-                couponStoreId: couponId,
-                price,
-                quantity
-            });
+            orderItems.push({ bookId, packagingId, couponStoreId: couponId, price, quantity });
         });
 
         const usedPoint = parseInt(document.querySelector("input[name='usedPoint']").value || "0", 10);
-        const discountAmount = 1000; // 임시 할인값
+        const discountAmount = 1000;
         const usedPointAmount = usedPoint;
         const paymentAmountText = document.querySelector('[data-role="final-total"]').textContent.trim();
-        const paymentAmount = parseInt(paymentAmountText.replace(/[^0-9]/g, ''), 10); // "45,000원" → 45000
+        const paymentAmount = parseInt(paymentAmountText.replace(/[^0-9]/g, ''), 10);
 
         const orderFormCreateRequest = {
-            orderCreateRequest: {
-                userId,
-                ordererName,
-                ordererPhone
-            },
+            orderCreateRequest: { userId, ordererName, ordererPhone },
             shipmentCreateRequest: {
                 preferredDeliveryDate: preferredDate,
                 recipientName,
@@ -606,9 +675,7 @@
 
         fetch("/payments", {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify(orderFormCreateRequest)
         })
             .then(response => {
@@ -627,6 +694,4 @@
 
         return false;
     }
-
-
 </script>

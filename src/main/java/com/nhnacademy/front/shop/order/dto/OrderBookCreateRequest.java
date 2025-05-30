@@ -1,4 +1,4 @@
-package com.nhnacademy.front.shop.orderBook.dto;
+package com.nhnacademy.front.shop.order.dto;
 
 import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotNull;

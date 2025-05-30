@@ -12,6 +12,7 @@ import com.nhnacademy.front.shop.like.client.dto.LikeResponse;
 import com.nhnacademy.front.shop.like.service.LikeService;
 import com.nhnacademy.front.shop.order.dto.OrderBookResponse;
 import com.nhnacademy.front.shop.order.dto.OrderResponse;
+import com.nhnacademy.front.shop.order.dto.OrderSummaryResponse;
 import com.nhnacademy.front.shop.order.service.OrderService;
 import com.nhnacademy.front.shop.point.client.dto.PointHistoryResponse;
 import com.nhnacademy.front.shop.point.service.PointService;
@@ -85,25 +86,32 @@ public class MyPageController {
 
     @GetMapping("/me/orders")
     public String getMeOrders(@RequestParam(defaultValue = "0") int page,
-                              @RequestParam(defaultValue = "7") int size,
                               Model model) {
-        PageResponse<OrderResponse> orderResponse = orderService.getOrders(page, size);
+        PageResponse<OrderResponse> orderResponse = orderService.getOrders(page, 7);
         PageUtil.PageInfo pageInfo = PageUtil.calculatePageRange(
                 orderResponse.page(), orderResponse.totalPages(), 5);
-        PageResponse<OrderBookResponse> orderBookList = orderService.getOrderBookList(
-                orderResponse.content().getFirst().getId(), page, size);
 
         // 대표 도서 정보
-        long bookId = orderBookList.content().getFirst().getBookId();
-        CommonResponse<BookResponse> bookDetail = bookClient.getBookDetail(bookId);
+        List<OrderSummaryResponse> orderSummaries = orderResponse.content().stream()
+                .map(order -> {
+                    PageResponse<OrderBookResponse> orderBooks = orderService.getOrderBookList(order.getId(), 0, 1);
+                    BookResponse book = null;
+                    int totalBooks = 0;
+
+                    if (!orderBooks.content().isEmpty()) {
+                        long bookId = orderBooks.content().getFirst().getBookId();
+                        book = bookClient.getBookDetail(bookId).data();
+                        totalBooks = Math.toIntExact(orderBooks.totalElements());
+                    }
+
+                    return new OrderSummaryResponse(order, book, totalBooks);
+                }).toList();
 
         //TODO 결제 정보 추가
-
         model.addAttribute("currentPage", "orders");
         model.addAttribute("user", userService.getCurrentUserDetail());
-        model.addAttribute("orderList", orderResponse);
-        model.addAttribute("orderBookList", orderBookList);
-        model.addAttribute("bookDetail", bookDetail);
+        model.addAttribute("orderList", orderSummaries);
+        model.addAttribute("orderResponseList", orderResponse);
         model.addAttribute("pageInfo", pageInfo);
         return "user/me-orders";
     }

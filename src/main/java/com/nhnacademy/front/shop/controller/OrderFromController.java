@@ -50,7 +50,7 @@ public class OrderFromController {
         model.addAttribute("user", currentUser);
         model.addAttribute("addressList", addresses.content());
         model.addAttribute("packagings", packagingList.content());
-        return "/order/orderPage";
+        return "order/order-form";
     }
 
 
@@ -63,6 +63,6 @@ public class OrderFromController {
         PageResponse<PackagingResponse> packagingList = orderService.getPackagingList(0, 100);
 
         model.addAttribute("packagings", packagingList.content());
-        return "/order/orderPage";
+        return "order/order-form";
     }
 }

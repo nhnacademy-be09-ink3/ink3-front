@@ -288,6 +288,9 @@
   .top-6 {
     top: calc(var(--spacing) * 6);
   }
+  .left-0 {
+    left: calc(var(--spacing) * 0);
+  }
   .left-0\.5 {
     left: calc(var(--spacing) * 0.5);
   }
@@ -482,6 +485,9 @@
   }
   .h-\[190px\] {
     height: 190px;
+  }
+  .h-\[280px\] {
+    height: 280px;
   }
   .h-auto {
     height: auto;
@@ -962,6 +968,9 @@
   }
   .border-red-300 {
     border-color: var(--color-red-300);
+  }
+  .bg-black {
+    background-color: var(--color-black);
   }
   .bg-black\/10 {
     background-color: color-mix(in srgb, #000 10%, transparent);

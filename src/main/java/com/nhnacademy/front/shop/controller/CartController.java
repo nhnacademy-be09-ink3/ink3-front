@@ -1,5 +1,6 @@
 package com.nhnacademy.front.shop.controller;
 
+import com.nhnacademy.front.shop.book.client.dto.BookResponse;
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
@@ -22,7 +23,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nhnacademy.front.common.dto.CommonResponse;
-import com.nhnacademy.front.shop.book.dto.BookResponse;
 import com.nhnacademy.front.shop.cart.client.CartClient;
 import com.nhnacademy.front.shop.cart.dto.CartBookResponse;
 import com.nhnacademy.front.shop.cart.dto.CartResponse;

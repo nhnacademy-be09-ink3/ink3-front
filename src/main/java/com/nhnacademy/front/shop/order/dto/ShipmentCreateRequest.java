@@ -1,4 +1,4 @@
-package com.nhnacademy.front.shop.shipment.dto;
+package com.nhnacademy.front.shop.order.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
