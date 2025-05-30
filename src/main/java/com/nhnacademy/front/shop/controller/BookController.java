@@ -26,6 +26,7 @@ public class BookController {
         return "book/book-detail";
     }
 
+
     @GetMapping("/book-register")
     public String getBookRegister() {
         return "book/book-register";
