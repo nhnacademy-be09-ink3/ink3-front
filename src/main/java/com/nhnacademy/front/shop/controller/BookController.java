@@ -14,7 +14,7 @@ import com.nhnacademy.front.shop.book.client.BookClient;
 import com.nhnacademy.front.shop.book.dto.BookResponse;
 import com.nhnacademy.front.shop.book.dto.MainBookResponse;
 import com.nhnacademy.front.shop.review.client.ReviewClient;
-import com.nhnacademy.front.shop.review.dto.ReviewResponse;
+import com.nhnacademy.front.shop.review.dto.ReviewListResponse;
 import com.nhnacademy.front.util.PageUtil;
 
 import lombok.RequiredArgsConstructor;
@@ -30,7 +30,7 @@ public class BookController {
     @GetMapping("/books/{bookId}")
     public String getBookDetail(@PageableDefault(size = 5) Pageable pageable, @PathVariable Long bookId, Model model) {
         CommonResponse<BookResponse> response = bookClient.getBookDetail(bookId);
-        PageResponse<ReviewResponse> reviews = reviewClient.getReviewsByBookId(pageable, bookId);
+        PageResponse<ReviewListResponse> reviews = reviewClient.getReviewsByBookId(pageable, bookId);
         model.addAttribute("reviews", reviews.content());
         model.addAttribute("page", reviews.page());
         model.addAttribute("size", reviews.size());
