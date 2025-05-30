@@ -27,70 +27,68 @@
             <div class="w-3/4 flex flex-col space-y-4">
                 <h1 class="text-2xl font-bold text-gray-900 border-b pb-3">주문 내역</h1>
 
-                <div th:if="${#lists.isEmpty(orderResponseList.content)}" class="text-gray-500 text-center py-20 bg-white rounded-xl shadow">
+                <div th:if="${#lists.isEmpty(orderList)}" class="text-gray-500 text-center py-20 bg-white rounded-xl shadow">
                     주문 내역이 없습니다.
                 </div>
 
-                <!-- 주문이 있을 경우 -->
-                <div th:if="${!#lists.isEmpty(orderResponseList.content)}" class="space-y-4">
-                    <div th:each="summary : ${orderResponseList.content}" class="bg-white rounded-xl shadow border border-gray-300">
+                <div th:if="${!#lists.isEmpty(orderList)}" class="space-y-4">
+                    <div th:each="summary : ${orderList}" class="bg-white rounded-xl shadow border border-gray-300">
                         <!-- 주문 상단 정보 -->
                         <div class="p-4 flex justify-between items-start border-b">
                             <div>
                                 <div class="text-sm text-gray-600 mb-2">
                                     <span class="font-semibold text-gray-800">주문번호:</span>
-                                    <span th:text="${summary.orderUUID}">UUID</span>
+                                    <span th:text="${summary.order.orderUUID}">UUID</span>
                                 </div>
                             </div>
-                            <div th:switch="${summary.status.name()}">
-                                <span th:case="'CONFIRMED'" class="px-3 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800" th:text="${summary.status.label}">대기</span>
-                                <span th:case="'SHIPPING'" class="px-3 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800" th:text="${summary.status.label}">배송중</span>
-                                <span th:case="'DELIVERED'" class="px-3 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800" th:text="${summary.status.label}">배송완료</span>
-                                <span th:case="'REFUNDED'" class="px-3 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800" th:text="${summary.status.label}">반품완료</span>
-                                <span th:case="'CANCELLED'" class="px-3 py-1 text-xs font-semibold rounded-full bg-gray-200 text-gray-700" th:text="${summary.status.label}">취소</span>
+                            <div th:switch="${summary.order.status.name()}">
+                                <span th:case="'CONFIRMED'" class="px-3 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800" th:text="${summary.order.status.label}">대기</span>
+                                <span th:case="'SHIPPING'" class="px-3 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800" th:text="${summary.order.status.label}">배송중</span>
+                                <span th:case="'DELIVERED'" class="px-3 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800" th:text="${summary.order.status.label}">배송완료</span>
+                                <span th:case="'REFUNDED'" class="px-3 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800" th:text="${summary.order.status.label}">반품완료</span>
+                                <span th:case="'CANCELLED'" class="px-3 py-1 text-xs font-semibold rounded-full bg-gray-200 text-gray-700" th:text="${summary.order.status.label}">취소</span>
                             </div>
                         </div>
 
                         <!-- 대표 도서 정보 -->
                         <div class="p-4 flex gap-4">
-                            <img th:src="${summary.representativeThumbnailUrl}"
+                            <img th:src="${summary.book.thumbnailUrl}"
                                  alt="도서 썸네일"
                                  style="width: 80px; height: 112px; object-fit: cover; border-radius: 6px; border: 1px solid #ddd;" />
                             <div class="flex-1 grid grid-cols-2 gap-2 text-sm text-gray-700">
                                 <div>
-                                    <p class="text-base font-semibold text-gray-900 mb-1" th:text="${summary.representativeBookName}">도서명</p>
-                                    <p class="text-gray-600 mb-1" th:if="${summary.bookTypeCount > 1}" th:text="'외 ' + (${summary.bookTypeCount} - 1) + '종'">외 2종</p>
+                                    <p class="text-base font-semibold text-gray-900 mb-1" th:text="${summary.book.title}">도서명</p>
+                                    <p class="text-gray-600 mb-1" th:if="${summary.totalBooks > 1}" th:text="'외 ' + (${summary.totalBooks} - 1) + '종'">외 2종</p>
                                 </div>
                                 <div>
                                     <p class="text-gray-500">주문일시</p>
-                                    <p th:text="${#temporals.format(summary.orderedAt, 'yyyy-MM-dd HH:mm')}">2025-05-26 15:00</p>
+                                    <p th:text="${#temporals.format(summary.order.orderedAt, 'yyyy-MM-dd HH:mm')}">2025-05-26 15:00</p>
                                     <p class="text-gray-500 mt-2">주문자</p>
-                                    <p th:text="${summary.ordererName + ' (' + summary.ordererPhone + ')'}">홍길동 (010-1234-5678)</p>
+                                    <p th:text="${summary.order.ordererName + ' (' + summary.order.ordererPhone + ')'}">홍길동 (010-1234-5678)</p>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- 하단 버튼 + 결제 금액 -->
                         <div class="flex justify-between items-center p-4 border-t bg-gray-50">
                             <!-- 왼쪽 버튼들 -->
                             <div class="flex gap-2">
-                                <a th:href="@{'/orders/' + ${summary.id}}"
+                                <a th:href="@{'/orders/' + ${summary.order.id}}"
                                    class="px-3 py-1.5 border border-green-600 text-green-600 rounded hover:bg-green-100 text-sm">
                                     주문 상세
                                 </a>
-                                <a th:href="@{'/orders/' + ${summary.id} + '/shipment'}"
+                                <a th:href="@{'/orders/' + ${summary.order.id} + '/shipment'}"
                                    class="px-3 py-1.5 border border-green-600 text-green-600 rounded hover:bg-green-100 text-sm">
                                     배송 정보
                                 </a>
-                                <a th:href="@{'/orders/' + ${summary.id} + '/review'}"
+                                <a th:href="@{'/orders/' + ${summary.order.id} + '/review'}"
                                    class="px-3 py-1.5 border border-green-600 text-green-600 rounded hover:bg-green-100 text-sm">
                                     리뷰 작성
                                 </a>
                             </div>
 
-                            <!-- 결제 금액 -->
+                            <!-- 오른쪽 결제 금액 -->
                             <div class="text-red-400 font-semibold text-sm">
-                                결제 금액 <span th:text="${#numbers.formatInteger(summary.paymentAmount, 3, 'COMMA') + '원'}">29,800원</span>
+                                결제 금액 <span>29,800원</span>
                             </div>
                         </div>
                     </div>
@@ -99,24 +97,42 @@
                 <!-- 페이지네이션 -->
                 <ul class="flex justify-center gap-1 text-gray-900 mt-6 end">
                     <li>
-                        <a th:href="@{/me/orders(page=${orderResponseList.hasPrevious()} ? ${orderResponseList.page() - 1} : ${orderResponseList.page()})}"
+                        <a th:href="@{/me/points(page=${orderResponseList.hasPrevious()} ? ${orderResponseList.page() - 1} : ${orderResponseList.page()})}"
                            class="ink-page-item-arrow"
                            aria-label="Previous page">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="size-4" viewBox="0 0 20 20" fill="currentColor">
-                                <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+                            <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    class="size-4"
+                                    viewBox="0 0 20 20"
+                                    fill="currentColor"
+                            >
+                                <path
+                                        fill-rule="evenodd"
+                                        d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
+                                        clip-rule="evenodd"
+                                />
                             </svg>
                         </a>
                     </li>
                     <li th:each="i : ${#numbers.sequence(pageInfo.startPage(), pageInfo.endPage())}">
-                        <a th:href="@{/me/orders(page=${i})}"
+                        <a th:href="@{/me/points(page=${i})}"
                            th:class="${i == orderResponseList.page()} ? 'ink-page-item-current' : 'ink-page-item'"
                            th:text="${i + 1}"></a>
                     </li>
                     <li>
-                        <a th:href="@{/me/orders(page=${orderResponseList.hasNext()} ? ${orderResponseList.page() + 1} : ${orderResponseList.page()})}"
+                        <a th:href="@{/me/points(page=${orderResponseList.hasNext()} ? ${orderResponseList.page() + 1} : ${orderResponseList.page()})}"
                            class="ink-page-item-arrow" aria-label="Next page">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="size-4" viewBox="0 0 20 20" fill="currentColor">
-                                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                            <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    class="size-4"
+                                    viewBox="0 0 20 20"
+                                    fill="currentColor"
+                            >
+                                <path
+                                        fill-rule="evenodd"
+                                        d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                                        clip-rule="evenodd"
+                                />
                             </svg>
                         </a>
                     </li>
@@ -125,6 +141,7 @@
         </div>
     </div>
 </main>
+
 <div th:replace="~{layout/fragments/footer :: footerFragment}"></div>
 </body>
 </html>
