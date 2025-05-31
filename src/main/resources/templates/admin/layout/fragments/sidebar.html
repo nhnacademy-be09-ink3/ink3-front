@@ -1,0 +1,65 @@
+<aside th:fragment="sidebarFragment"
+       class="sidebar bg-gray-800 text-white w-64 p-6 space-y-4 md:block flex-shrink-0 shadow-lg">
+    <div class="text-xl font-semibold mb-6">메뉴</div>
+    <nav>
+        <ul class="space-y-2">
+            <li>
+                <button type="button" onclick="toggleMenu('users-submenu')"
+                        class="w-full text-left flex justify-between items-center px-3 py-2 rounded-md hover:bg-gray-700">
+                    <span>회원 관리</span>
+                    <svg id="icon-users-submenu" class="w-4 h-4 transition-transform" fill="none"
+                         viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                </button>
+                <ul id="users-submenu" class="pl-4 mt-1 space-y-1 hidden">
+                    <li>
+                        <a th:href="@{/admin/users}"
+                           class="block px-3 py-2 rounded-md hover:bg-gray-700 text-sm">
+                            회원 목록
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <li>
+                <button type="button" onclick="toggleMenu('orders-submenu')"
+                        class="w-full text-left flex justify-between items-center px-3 py-2 rounded-md hover:bg-gray-700">
+                    <span>도서 관리</span>
+                    <svg id="icon-orders-submenu" class="w-4 h-4 transition-transform" fill="none"
+                         viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                </button>
+                <ul id="orders-submenu" class="pl-4 mt-1 space-y-1 hidden">
+                    <li>
+                        <a href="/admin/orders"
+                           class="block px-3 py-2 rounded-md hover:bg-gray-700 text-sm">
+                            도서 등록
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/admin/orders/refund"
+                           class="block px-3 py-2 rounded-md hover:bg-gray-700 text-sm">
+                            도서 목록
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <li>
+                <a href="/admin/products"
+                   class="block px-3 py-2 rounded-md hover:bg-gray-700">
+                    상품 관리
+                </a>
+            </li>
+        </ul>
+        <script>
+            function toggleMenu(id) {
+                const menu = document.getElementById(id);
+                const icon = document.getElementById("icon-" + id);
+
+                menu.classList.toggle("hidden");
+                icon.classList.toggle("rotate-180");
+            }
+        </script>
+    </nav>
+</aside>
