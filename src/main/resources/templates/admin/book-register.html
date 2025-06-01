@@ -16,37 +16,6 @@
         label { display: block; margin-bottom: 6px; font-weight: bold; color: #374151; }
         input, textarea { width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; }
     </style>
-    <script>
-        // 자동완성 목록 예시 (백엔드에서 fetch 해와도 됨)
-        const publishers = ["문학과지성사", "민음사", "열린책들"];
-        const authorsList = [
-            '김영하', '한강', '정유정', '조남주', '김훈',
-            '이외수', '공지영', '박완서', '황석영', '신경숙',
-            '생텍쥐페리', '어니스트 헤밍웨이', '조지 오웰', '무라카미 하루키'
-        ];
-        // 카테고리 데이터 (다중 깊이 로직에서 사용)
-        const categories = [
-            { id: 1, name: "IT/컴퓨터", parentId: null },
-            { id: 2, name: "소설", parentId: null },
-            { id: 3, name: "경제/경영", parentId: null },
-            { id: 4, name: "인문", parentId: null },
-            { id: 101, name: "프로그래밍", parentId: 1 },
-            { id: 102, name: "네트워크", parentId: 1 },
-            { id: 103, name: "OS", parentId: 1 },
-            { id: 201, name: "한국 소설", parentId: 2 },
-            { id: 202, name: "영미 소설", parentId: 2 },
-            { id: 203, name: "추리/미스터리", parentId: 2 },
-            { id: 301, name: "마케팅", parentId: 3 },
-            { id: 302, name: "투자/재테크", parentId: 3 },
-            { id: 401, name: "역사", parentId: 4 },
-            { id: 402, name: "철학", parentId: 4 },
-            { id: 1011, name: "웹 개발", parentId: 101 },
-            { id: 1012, name: "앱 개발", parentId: 101 },
-            { id: 10111, name: "프론트엔드", parentId: 1011 },
-            { id: 10112, name: "백엔드", parentId: 1011 },
-        ];
-        const tags = ["명작", "프랑스", "고전"];
-    </script>
 </head>
 <body class="bg-gray-100">
 <div th:replace="~{layout/fragments/header :: headerFragment}"></div>
