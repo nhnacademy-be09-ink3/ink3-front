@@ -29,5 +29,5 @@ public interface PublisherClient {
                                                       @RequestBody PublisherUpdateRequest request);
 
     @DeleteMapping("/pubs/{publisherId}")
-    Void deletePublisher(@PathVariable Long publisherId);
+    CommonResponse<Void> deletePublisher(@PathVariable Long publisherId);
 }

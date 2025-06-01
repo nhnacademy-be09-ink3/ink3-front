@@ -25,13 +25,13 @@ public class AuthorController {
     private final AuthorClient authorClient;
 
     @PostMapping("/admin/authors")
-    public String createPublisher(@ModelAttribute AuthorCreateRequest request) {
+    public String createAuthor(@ModelAttribute AuthorCreateRequest request) {
         authorClient.createAuthor(request);
         return "redirect:/admin/authors";
     }
 
     @GetMapping("/admin/authors")
-    public String getPublishers(@RequestParam(required = false, defaultValue = "0") int page,
+    public String getAuthors(@RequestParam(required = false, defaultValue = "0") int page,
                                 Model model) {
         CommonResponse<PageResponse<AuthorResponse>> response = authorClient.getAuthors(10, page);
         PageResponse<AuthorResponse> authors = response.data();
@@ -47,14 +47,14 @@ public class AuthorController {
     }
 
     @PutMapping("/admin/authors/{authorId}")
-    public String updateTag(@PathVariable Long authorId,
+    public String updateAuthor(@PathVariable Long authorId,
                             @ModelAttribute AuthorUpdateRequest request) {
         authorClient.updateAuthor(authorId, request);
         return "redirect:/admin/authors";
     }
 
     @DeleteMapping("/admin/authors/{authorId}")
-    public String deleteTag(@PathVariable Long authorId) {
+    public String deleteAuthor(@PathVariable Long authorId) {
         authorClient.deleteAuthor(authorId);
         return "redirect:/admin/authors";
     }
