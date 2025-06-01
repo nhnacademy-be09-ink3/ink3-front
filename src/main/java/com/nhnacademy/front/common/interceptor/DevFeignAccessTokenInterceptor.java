@@ -39,7 +39,6 @@ public class DevFeignAccessTokenInterceptor implements RequestInterceptor {
             UserType userType = UserType.valueOf(
                     decodedAccessToken.getClaim("userType").asString().toUpperCase()
             );
-
             template.header("X-User-Id", String.valueOf(id));
             template.header("X-User-Role", userType.name());
         }

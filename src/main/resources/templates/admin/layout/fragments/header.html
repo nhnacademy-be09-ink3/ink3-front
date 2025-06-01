@@ -14,11 +14,11 @@
                         <circle cx="12" cy="7" r="4"></circle>
                     </svg>
                 </a>
-                <div th:if="${isLoggedIn}">
+                <div th:if="${loginUser != null}">
                     <a th:href="@{/admin/logout}"
                        class="ink-btn-primary">로그아웃</a>
                 </div>
-                <div th:unless="${isLoggedIn}">
+                <div th:unless="${loginUser != null}">
                     <a th:href="@{/admin/login}"
                        class="ink-btn-primary">로그인</a>
                 </div>
