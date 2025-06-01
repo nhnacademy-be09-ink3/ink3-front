@@ -1,0 +1,117 @@
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ink3</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/output.css(v=${#dates.createNow().getTime()})}">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+
+<div th:replace="~{layout/fragments/header :: headerFragment}"></div>
+
+<main class="container mx-auto px-4 py-8">
+    <h2 class="text-2xl font-bold mb-6 text-center">베스트셀러</h2>
+
+    <div class="space-y-6">
+        <div th:each="book, iterStat : ${bookList}"
+             class="bg-white rounded-xl shadow p-6 flex gap-6 items-start w-full max-w-5xl mx-auto">
+
+            <div class="w-[120px] h-[180px] shrink-0 rounded-md overflow-hidden bg-gray-100 flex items-center justify-center">
+                <img th:src="${book.thumbnailUrl}" alt="thumbnail"
+                     class="max-h-full max-w-full object-contain"/>
+            </div>
+
+            <div class="flex flex-col justify-between w-full min-h-[180px]">
+                <div class="mb-3">
+                    <h3 class="text-lg font-bold text-gray-900 mb-1" th:text="${book.title}">도서 제목</h3>
+                    <p class="text-sm text-gray-600 mb-2"
+                       th:text="${#strings.arrayJoin(book.authorNames.toArray(), ', ')}">작가명</p>
+
+                    <div>
+                        <p class="text-sm line-through text-gray-400"
+                           th:text="${#numbers.formatDecimal(book.originalPrice(), 0, 'COMMA', 0, 'POINT')} + '원'">
+                            정가</p>
+                        <p class="text-red-500 font-bold text-lg"
+                           th:text="${#numbers.formatDecimal(book.salePrice(), 0, 'COMMA', 0, 'POINT')} + '원'">할인가</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex flex-col items-center gap-2">
+                <div class="flex flex-col w-full mb-2">
+                    <label for="quantity-${book.id}" class="text-sm text-gray-700 mb-1">수량</label>
+                    <input type="number" id="quantity-${book.id}" name="quantity" min="1" value="1"
+                           class="w-14 px-2 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+
+                <form th:action="@{/carts}" method="post" th:if="${isLoggedIn}" class="w-full">
+                    <input type="hidden" name="bookId" th:value="${book.id}"/>
+                    <input type="hidden" name="quantity" th:value="1"/>
+                    <button type="submit"
+                            class="w-32 bg-gray-300 text-gray-800 text-sm py-2 rounded-md hover:bg-gray-400 transition">
+                        장바구니에 넣기
+                    </button>
+                </form>
+
+                <form th:action="@{/guest-carts}" method="post" th:unless="${isLoggedIn}" class="w-full">
+                    <input type="hidden" name="bookId" th:value="${book.id}"/>
+                    <input type="hidden" name="quantity" th:value="1"/>
+                    <button type="submit"
+                            class="w-32 bg-ink-primary text-white text-sm px-4 py-2 rounded-md hover:bg-gray-400 transition">
+                        장바구니에 넣기
+                    </button>
+                </form>
+
+                <a th:href="@{/books/{id}(id=${book.id})}"
+                   class="w-32 bg-ink-primary text-white text-sm px-4 py-2 rounded-md hover:bg-ink-primary-hover transition text-center">
+                    자세히 보기
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <ul class="flex justify-center gap-1 text-gray-900 mt-6">
+        <!-- 이전 페이지 -->
+        <li>
+            <a th:href="@{/books/bestseller(page=${bookPage.hasPrevious()} ? ${bookPage.page() - 1} : ${bookPage.page()})}"
+               class="ink-page-item-arrow"
+               aria-label="Previous page">
+                <svg xmlns="http://www.w3.org/2000/svg" class="size-4" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd"
+                          d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
+                          clip-rule="evenodd"/>
+                </svg>
+            </a>
+        </li>
+
+        <!-- 페이지 번호 -->
+        <li th:each="i : ${#numbers.sequence(pageInfo.startPage(), pageInfo.endPage())}">
+            <a th:href="@{/books/bestseller(page=${i})}"
+               th:class="${i == bookPage.page()} ? 'ink-page-item-current' : 'ink-page-item'"
+               th:text="${i + 1}"></a>
+        </li>
+
+        <!-- 다음 페이지 -->
+        <li>
+            <a th:href="@{/books/bestseller(page=${bookPage.hasNext()} ? ${bookPage.page() + 1} : ${bookPage.page()})}"
+               class="ink-page-item-arrow" aria-label="Next page">
+                <svg xmlns="http://www.w3.org/2000/svg" class="size-4" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd"
+                          d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                          clip-rule="evenodd"/>
+                </svg>
+            </a>
+        </li>
+    </ul>
+</main>
+
+<div th:replace="~{layout/fragments/footer :: footerFragment}"></div>
+
+</body>
+</html>

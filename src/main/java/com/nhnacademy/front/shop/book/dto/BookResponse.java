@@ -21,5 +21,4 @@ public record BookResponse(
         List<String> categoryNames,
         List<String> authorNames,
         List<String> tagNames
-) {
-}
+) {}
