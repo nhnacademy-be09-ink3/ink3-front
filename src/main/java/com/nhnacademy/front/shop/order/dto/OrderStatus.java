@@ -11,7 +11,8 @@ public enum OrderStatus {
     SHIPPING("배송중"),
     DELIVERED("배송완료"),
     REFUNDED("반품완료"),
-    CANCELLED("주문취소");
+    CANCELLED("주문취소"),
+    FAILED("결제실패");
 
     private final String label;
 
@@ -19,7 +20,7 @@ public enum OrderStatus {
     @JsonCreator
     public static OrderStatus getStatus(String str) {
         for (OrderStatus status : OrderStatus.values()) {
-            if (str.toUpperCase().equals(status.name())) {
+            if (status.label.equals(str)) {
                 return status;
             }
         }

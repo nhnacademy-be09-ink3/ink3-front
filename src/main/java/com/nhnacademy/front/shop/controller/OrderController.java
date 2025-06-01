@@ -7,6 +7,7 @@ import com.nhnacademy.front.shop.order.dto.ShipmentResponse;
 import com.nhnacademy.front.shop.order.service.OrderService;
 import com.nhnacademy.front.shop.payment.dto.PaymentResponse;
 import com.nhnacademy.front.shop.payment.dto.PaymentType;
+import com.nhnacademy.front.shop.payment.service.PaymentService;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/orders")
 public class OrderController {
     private final OrderService orderService;
+    private final PaymentService paymentService;
 
     // 주문 상세 페이지
     @GetMapping("/{orderId}")
@@ -27,22 +29,12 @@ public class OrderController {
         OrderResponse orderResponse = orderService.getOrder(orderId);
         PageResponse<OrderBookResponse> orderBookList = orderService.getOrderBookList(orderId, 0, 100);
         ShipmentResponse shipment = orderService.getShipment(orderId);
-
-        //TODO : 실제 결제 정보로 수정
-        PaymentResponse paymentResponseTest = new PaymentResponse(
-                1L,
-                orderId,
-                500,
-                2000,
-                29000,
-                PaymentType.TOSS,
-                LocalDateTime.now(),
-                LocalDateTime.now());
+        PaymentResponse paymentResponse = paymentService.getPayment(orderId);
 
         model.addAttribute("shipment", shipment);
         model.addAttribute("order", orderResponse);
         model.addAttribute("orderBookList", orderBookList);
-        model.addAttribute("paymentResponseTest", paymentResponseTest);
+        model.addAttribute("paymentResponse", paymentResponse);
         return "order/order-details";
     }
 }

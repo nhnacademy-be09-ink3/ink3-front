@@ -6,12 +6,11 @@ import com.nhnacademy.front.shop.address.client.dto.AddressCreateRequest;
 import com.nhnacademy.front.shop.address.client.dto.AddressUpdateRequest;
 import com.nhnacademy.front.shop.address.service.AddressService;
 import com.nhnacademy.front.shop.book.client.BookClient;
-import com.nhnacademy.front.shop.book.client.dto.BookResponse;
 import com.nhnacademy.front.shop.like.client.dto.LikeResponse;
 import com.nhnacademy.front.shop.like.service.LikeService;
 import com.nhnacademy.front.shop.order.dto.OrderBookResponse;
 import com.nhnacademy.front.shop.order.dto.OrderResponse;
-import com.nhnacademy.front.shop.order.dto.OrderSummaryResponse;
+import com.nhnacademy.front.shop.order.dto.OrderWithDetailsResponse;
 import com.nhnacademy.front.shop.order.service.OrderService;
 import com.nhnacademy.front.shop.point.client.dto.PointHistoryResponse;
 import com.nhnacademy.front.shop.point.service.PointService;
@@ -82,39 +81,22 @@ public class MyPageController {
         authService.logout(accessToken, httpServletResponse);
         return "redirect:/";
     }
+
     @GetMapping("/me/orders")
     public String getMeOrders(@RequestParam(defaultValue = "0") int page,
                               Model model) {
-        PageResponse<OrderResponse> orderResponse = orderService.getOrders(page, 7);
+        PageResponse<OrderWithDetailsResponse> orderResponse = orderService.getOrders(page, 7);
         PageUtil.PageInfo pageInfo = PageUtil.calculatePageRange(
                 orderResponse.page(), orderResponse.totalPages(), 5);
 
-        // 대표 도서 정보
-        List<OrderSummaryResponse> orderSummaries = orderResponse.content().stream()
-                .map(order -> {
-                    PageResponse<OrderBookResponse> orderBooks = orderService.getOrderBookList(order.getId(), 0, 1);
-                    BookResponse book = null;
-                    int totalBooks = 0;
-
-                    if (!orderBooks.content().isEmpty()) {
-                        long bookId = orderBooks.content().getFirst().getBookId();
-                        book = bookClient.getBookDetail(bookId).data();
-                        totalBooks = Math.toIntExact(orderBooks.totalElements());
-                    }
-
-                    return new OrderSummaryResponse(order, book, totalBooks);
-                }).toList();
-
-        //TODO 결제 정보 추가
         model.addAttribute("currentPage", "orders");
         model.addAttribute("user", userService.getCurrentUserDetail());
-        model.addAttribute("orderList", orderSummaries);
         model.addAttribute("orderResponseList", orderResponse);
         model.addAttribute("pageInfo", pageInfo);
         return "user/me-orders";
     }
 
-    @GetMapping("/me/addresses")
+        @GetMapping("/me/addresses")
     public String getMeAddresses(Model model) {
         model.addAttribute("currentPage", "addresses");
         model.addAttribute("user", userService.getCurrentUserDetail());

@@ -1,3 +1,12 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8" />
+    <title>결제하기</title>
+    <script src="https://js.tosspayments.com/v1/payment"></script>
+</head>
+<body>
+
 <script th:inline="javascript">
     const clientKey = "test_ck_ALnQvDd2VJ2jvnEdDeLnVMj7X41m";
     const tossPayments = TossPayments(clientKey);
@@ -38,3 +47,6 @@
             });
     };
 </script>
+
+</body>
+</html>

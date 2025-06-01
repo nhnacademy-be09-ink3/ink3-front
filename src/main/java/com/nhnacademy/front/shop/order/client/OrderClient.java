@@ -5,6 +5,7 @@ import com.nhnacademy.front.common.dto.PageResponse;
 import com.nhnacademy.front.shop.order.dto.OrderBookResponse;
 import com.nhnacademy.front.shop.order.dto.OrderFormCreateRequest;
 import com.nhnacademy.front.shop.order.dto.OrderResponse;
+import com.nhnacademy.front.shop.order.dto.OrderWithDetailsResponse;
 import com.nhnacademy.front.shop.order.dto.PackagingResponse;
 import com.nhnacademy.front.shop.order.dto.ShipmentResponse;
 import org.springframework.cloud.openfeign.FeignClient;
@@ -26,7 +27,7 @@ public interface OrderClient {
     CommonResponse<ShipmentResponse> getShipment(@PathVariable("orderId") long orderId);
 
     @GetMapping("/orders/me")
-    CommonResponse<PageResponse<OrderResponse>> getOrderListByUser(
+    CommonResponse<PageResponse<OrderWithDetailsResponse>> getOrderListByUser(
             @RequestParam("page") int page,
             @RequestParam("size") int size);
 

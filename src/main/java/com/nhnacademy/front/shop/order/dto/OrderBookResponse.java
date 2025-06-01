@@ -16,6 +16,7 @@ public class OrderBookResponse {
     private Long couponId;
     private String bookName;
     private Integer bookSalePrice;
+    private String thumbnailUrl;
     private String packagingName;
     private Integer packagingPrice;
     private String couponName;

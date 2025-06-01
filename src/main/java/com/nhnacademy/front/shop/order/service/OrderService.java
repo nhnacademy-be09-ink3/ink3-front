@@ -5,18 +5,23 @@ import com.nhnacademy.front.common.dto.PageResponse;
 import com.nhnacademy.front.shop.order.client.OrderClient;
 import com.nhnacademy.front.shop.order.dto.OrderBookResponse;
 import com.nhnacademy.front.shop.order.dto.OrderResponse;
+import com.nhnacademy.front.shop.order.dto.OrderWithDetailsResponse;
 import com.nhnacademy.front.shop.order.dto.PackagingResponse;
 import com.nhnacademy.front.shop.order.dto.ShipmentResponse;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class OrderService {
     private final OrderClient orderClient;
     // 사용자의 주문 list가져오기
-    public PageResponse<OrderResponse> getOrders(Integer page, Integer size) {
-        CommonResponse<PageResponse<OrderResponse>> orderListByUser = orderClient.getOrderListByUser(page, size);
+    public PageResponse<OrderWithDetailsResponse> getOrders(Integer page, Integer size) {
+        CommonResponse<PageResponse<OrderWithDetailsResponse>> orderListByUser = orderClient.getOrderListByUser(page, size);
         return orderListByUser.data();
     }
 
@@ -41,5 +46,17 @@ public class OrderService {
     public PageResponse<OrderBookResponse> getOrderBookList(long orderId, Integer page, Integer size) {
         CommonResponse<PageResponse<OrderBookResponse>> orderBookListByOrderId = orderClient.getOrderBookListByOrderId(orderId, page, size);
         return orderBookListByOrderId.data();
+    }
+
+
+    // 회원/비회원 구분
+    public boolean isLoggedIn(HttpServletRequest request) {
+        if (request.getCookies() == null) return false;
+        for (Cookie cookie : request.getCookies()) {
+            if ("accessToken".equals(cookie.getName())) {
+                return true;
+            }
+        }
+        return false;
     }
 }

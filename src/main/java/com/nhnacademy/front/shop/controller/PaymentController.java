@@ -77,6 +77,7 @@ public class PaymentController {
         );
         CommonResponse<PaymentResponse> paymentResponseCommonResponse = paymentClient.confirmPayment(paymentConfirmRequest);
         PaymentResponse paymentResponse = paymentResponseCommonResponse.data();
+        model.addAttribute("paymentResponse", paymentResponse);
 
         // 성공 화면으로 이동
         return "payment/payment-success";
