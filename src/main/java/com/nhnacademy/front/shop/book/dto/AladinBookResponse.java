@@ -1,4 +1,4 @@
-package com.nhnacademy.front.shop.book.client.dto;
+package com.nhnacademy.front.shop.book.dto;
 
 public record AladinBookResponse(
         String title,

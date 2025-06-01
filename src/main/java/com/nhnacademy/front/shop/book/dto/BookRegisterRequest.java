@@ -1,4 +1,4 @@
-package com.nhnacademy.front.shop.book.client.dto;
+package com.nhnacademy.front.shop.book.dto;
 
 import java.util.List;
 
