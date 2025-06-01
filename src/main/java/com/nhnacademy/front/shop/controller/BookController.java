@@ -132,9 +132,9 @@ public class BookController {
         return "book/list/recommend-books";
     }
 
-    @GetMapping("/book-register")
+    @GetMapping("/admin/book-register")
     public String getBookRegister() {
-        return "book/book-register";
+        return "admin/book-register";
     }
 
     @GetMapping("/books/category")
