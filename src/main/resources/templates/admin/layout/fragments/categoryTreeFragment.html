@@ -6,9 +6,12 @@
     <li th:each="category : ${categoryTree}">
       <div class="flex items-center space-x-2">
         <span th:text="${prefix + '├── ' + category.name}" class="text-gray-800 font-medium"></span>
-        <div class="ml-auto space-x-2">
-          <button class="ink-btn-secondary text-sm">수정</button>
-          <button class="ink-btn-danger text-sm">삭제</button>
+        <!-- 최하위 카테고리일 때만 삭제 버튼 보이기 -->
+        <div class="ml-auto space-x-2" th:if="${#lists.isEmpty(category.children)}">
+          <form th:action="@{/admin/categories/{id}(id=${category.id})}" method="post" class="inline">
+            <input type="hidden" name="_method" value="delete"/>
+            <button type="submit" class="bg-red-500 px-2 py-1 text-white rounded-xl hover:bg-red-400">삭제</button>
+          </form>
         </div>
       </div>
 
@@ -21,3 +24,10 @@
 </th:block>
 </body>
 </html>
+
+
+<!-- 삭제 버튼 -->
+<form th:action="@{/admin/pubs/{id}(id=${publisher.id})}" method="post" class="inline">
+  <input type="hidden" name="_method" value="delete"/>
+  <button type="submit" class="bg-red-500 px-2 py-1 text-white rounded-xl hover:bg-red-400">삭제</button>
+</form>

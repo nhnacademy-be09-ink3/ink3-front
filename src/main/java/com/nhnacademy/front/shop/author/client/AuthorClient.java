@@ -29,5 +29,5 @@ public interface AuthorClient {
                                                 @RequestBody AuthorUpdateRequest request);
 
     @DeleteMapping("/authors/{authorId}")
-    Void deleteAuthor(@PathVariable Long authorId);
+    CommonResponse<Void> deleteAuthor(@PathVariable Long authorId);
 }
