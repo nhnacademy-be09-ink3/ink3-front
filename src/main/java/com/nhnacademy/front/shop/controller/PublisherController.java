@@ -49,14 +49,14 @@ public class PublisherController {
     }
 
     @PutMapping("/admin/pubs/{publisherId}")
-    public String updateTag(@PathVariable Long publisherId,
+    public String updatePublisher(@PathVariable Long publisherId,
                             @ModelAttribute PublisherUpdateRequest request) {
         publisherClient.updatePublisher(publisherId, request);
         return "redirect:/admin/pubs";
     }
 
     @DeleteMapping("/admin/pubs/{publisherId}")
-    public String deleteTag(@PathVariable Long publisherId) {
+    public String deletePublisher(@PathVariable Long publisherId) {
         publisherClient.deletePublisher(publisherId);
         return "redirect:/admin/pubs";
     }
