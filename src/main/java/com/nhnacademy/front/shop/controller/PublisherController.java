@@ -50,7 +50,7 @@ public class PublisherController {
 
     @PutMapping("/admin/pubs/{publisherId}")
     public String updatePublisher(@PathVariable Long publisherId,
-                            @ModelAttribute PublisherUpdateRequest request) {
+                                  @ModelAttribute PublisherUpdateRequest request) {
         publisherClient.updatePublisher(publisherId, request);
         return "redirect:/admin/pubs";
     }
