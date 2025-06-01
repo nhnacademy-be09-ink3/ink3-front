@@ -28,14 +28,25 @@ public class BookController {
     private final ReviewClient reviewClient;
 
     @GetMapping("/books/{bookId}")
-    public String getBookDetail(@PageableDefault(size = 5) Pageable pageable, @PathVariable Long bookId, Model model) {
-        CommonResponse<BookResponse> response = bookClient.getBookDetail(bookId);
-        PageResponse<ReviewListResponse> reviews = reviewClient.getReviewsByBookId(pageable, bookId);
-        model.addAttribute("reviews", reviews.content());
-        model.addAttribute("page", reviews.page());
-        model.addAttribute("size", reviews.size());
-        model.addAttribute("bookId", bookId);
-        model.addAttribute("book", response.data());
+    public String getBookDetail(@PathVariable Long bookId,
+        @RequestParam(defaultValue = "0") int  page,
+        @RequestParam(defaultValue = "10") int  size,
+        Model model) {
+
+        CommonResponse<BookResponse> books = bookClient.getBookDetail(bookId);
+
+        PageResponse<ReviewListResponse> reviews =
+            reviewClient.getReviewsByBookId(bookId, page, size);
+
+        PageUtil.PageInfo pageInfo = PageUtil.calculatePageRange(
+            reviews.page(), reviews.totalPages(), 5);
+
+        model.addAttribute("book",      books.data());
+        model.addAttribute("reviews",   reviews.content());
+        model.addAttribute("reviewPage", reviews);
+        model.addAttribute("pageInfo",  pageInfo);
+        model.addAttribute("bookId",    bookId);
+
         return "book/book-detail";
     }
 
