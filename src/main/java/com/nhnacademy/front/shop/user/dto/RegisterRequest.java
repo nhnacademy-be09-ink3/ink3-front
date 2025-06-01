@@ -8,6 +8,8 @@ public record RegisterRequest(
         String password,
         String email,
         String phone,
-        LocalDate birthday
+        LocalDate birthday,
+        String provider,
+        String providerId
 ) {
 }

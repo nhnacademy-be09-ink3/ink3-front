@@ -39,7 +39,7 @@ public class CookieUtil {
                 .secure(true)
                 .path("/")
                 .maxAge(Duration.ofMillis(accessToken.expiresAt() - now))
-                .sameSite("Strict")
+                .sameSite("Lax")
                 .build();
 
         ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", refreshToken.token())
@@ -47,7 +47,7 @@ public class CookieUtil {
                 .secure(true)
                 .path("/")
                 .maxAge(Duration.ofMillis(refreshToken.expiresAt() - now))
-                .sameSite("Strict")
+                .sameSite("Lax")
                 .build();
 
         response.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString());
@@ -60,7 +60,7 @@ public class CookieUtil {
                 .secure(true)
                 .path("/")
                 .maxAge(0)
-                .sameSite("Strict")
+                .sameSite("Lax")
                 .build();
 
         ResponseCookie expiredRefresh = ResponseCookie.from("refreshToken", "")
@@ -68,7 +68,7 @@ public class CookieUtil {
                 .secure(true)
                 .path("/")
                 .maxAge(0)
-                .sameSite("Strict")
+                .sameSite("Lax")
                 .build();
 
         response.addHeader(HttpHeaders.SET_COOKIE, expiredAccess.toString());

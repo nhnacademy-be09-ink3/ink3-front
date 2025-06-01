@@ -1,6 +1,7 @@
 package com.nhnacademy.front.shop.user.client;
 
 import com.nhnacademy.front.common.dto.CommonResponse;
+import com.nhnacademy.front.shop.user.client.dto.SocialUserCreateRequest;
 import com.nhnacademy.front.shop.user.client.dto.UserCreateRequest;
 import com.nhnacademy.front.shop.user.client.dto.UserDetailResponse;
 import com.nhnacademy.front.shop.user.client.dto.UserPasswordUpdateRequest;
@@ -31,6 +32,9 @@ public interface UserClient {
 
     @PostMapping
     CommonResponse<UserResponse> createUser(@RequestBody UserCreateRequest request);
+
+    @PostMapping("/social")
+    CommonResponse<UserResponse> createSocialUser(@RequestBody SocialUserCreateRequest request);
 
     @PutMapping("/me")
     CommonResponse<UserResponse> updateCurrentUser(@RequestBody UserUpdateRequest request);
