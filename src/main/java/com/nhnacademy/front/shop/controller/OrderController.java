@@ -23,6 +23,7 @@ public class OrderController {
     private final OrderService orderService;
     private final PaymentService paymentService;
 
+    //TODO 쿠폰 적용해야함.
     // 주문 상세 페이지
     @GetMapping("/{orderId}")
     public String getOrderDetails(@PathVariable long orderId, Model model) {
@@ -34,7 +35,7 @@ public class OrderController {
         model.addAttribute("shipment", shipment);
         model.addAttribute("order", orderResponse);
         model.addAttribute("orderBookList", orderBookList);
-        model.addAttribute("paymentResponse", paymentResponse);
+        model.addAttribute( "paymentResponse", paymentResponse);
         return "order/order-details";
     }
 }

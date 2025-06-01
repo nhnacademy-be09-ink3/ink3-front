@@ -20,7 +20,8 @@
     const orderId = [[${orderId}]];
     const orderName = [[${orderName}]];
     const customerName = [[${customerName}]];
-    const failUrl = [[${tossFailURL}]];
+    const failUrl = [[${tossFailURL}]]
+        + `?orderId=` + realOrderId;
     const successUrl = [[${tossSuccessURL}]]
         + '?realOrderId=' + realOrderId
         + '&usedPointAmount=' + usedPointAmount

@@ -17,4 +17,6 @@ public interface PaymentClient {
     @GetMapping("/payments/{orderId}")
     CommonResponse<PaymentResponse> getPayment(@PathVariable("orderId") long orderId);
 
+    @PostMapping("/payments/{orderId}/fail")
+    CommonResponse<Void> dealWithPaymentFail(@PathVariable("orderId") long orderId);
 }

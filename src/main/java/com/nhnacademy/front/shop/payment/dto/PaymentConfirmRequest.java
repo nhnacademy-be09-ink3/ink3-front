@@ -1,5 +1,8 @@
 package com.nhnacademy.front.shop.payment.dto;
 
+import lombok.Builder;
+
+@Builder
 public record PaymentConfirmRequest(
         Long userId,
         Long orderId,

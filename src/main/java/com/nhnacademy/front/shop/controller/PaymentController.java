@@ -4,11 +4,11 @@ import com.nhnacademy.front.common.dto.CommonResponse;
 import com.nhnacademy.front.shop.order.client.OrderClient;
 import com.nhnacademy.front.shop.order.dto.OrderFormCreateRequest;
 import com.nhnacademy.front.shop.order.dto.OrderResponse;
-import com.nhnacademy.front.shop.payment.client.PaymentClient;
 import com.nhnacademy.front.shop.payment.dto.PaymentConfirmRequest;
 import com.nhnacademy.front.shop.payment.dto.PaymentResponse;
 import com.nhnacademy.front.shop.payment.dto.PaymentType;
 import com.nhnacademy.front.shop.payment.dto.TossUrlProperty;
+import com.nhnacademy.front.shop.payment.service.PaymentService;
 import com.nhnacademy.front.shop.user.client.dto.UserResponse;
 import com.nhnacademy.front.shop.user.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -24,9 +24,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Controller
 @RequestMapping("/payments")
 public class PaymentController {
-    private final PaymentClient paymentClient;
+    private final PaymentService paymentService;
     private final OrderClient orderClient;
     private final UserService userService;
+    //TODO 확장성을 위해서 TossUrlProperty 수정해야함.
     private final TossUrlProperty tossUrlProperty;
 
     @PostMapping
@@ -36,7 +37,6 @@ public class PaymentController {
         UserResponse currentUser = userService.getCurrentUser();
         CommonResponse<OrderResponse> commonOrderResponse = orderClient.createOrder(orderFormCreateRequest);
         OrderResponse orderResponse = commonOrderResponse.data();
-
         //TODO 주문명 수정 필요
         String orderName = "임시 주문 명칭";
 
@@ -53,7 +53,7 @@ public class PaymentController {
         return "payment/toss-payment";
     }
 
-
+    //TODO  :  민감한 정보이기 때문에 레디스 사용
     @GetMapping("/success")
     public String paymentSuccess(
             Model model,
@@ -65,29 +65,25 @@ public class PaymentController {
             @RequestParam("discountAmount") int discountAmount,
             @RequestParam("usedPointAmount") int usedPointAmount
     ) {
-        PaymentConfirmRequest paymentConfirmRequest = new PaymentConfirmRequest(
-                userId,
-                orderId,
-                paymentKey,
-                orderUUID,
-                discountAmount,
-                usedPointAmount,
-                amount,
-                PaymentType.TOSS
-        );
-        CommonResponse<PaymentResponse> paymentResponseCommonResponse = paymentClient.confirmPayment(paymentConfirmRequest);
-        PaymentResponse paymentResponse = paymentResponseCommonResponse.data();
+        PaymentConfirmRequest paymentConfirmRequest = PaymentConfirmRequest.builder()
+                .userId(userId)
+                .orderId(orderId)
+                .paymentKey(paymentKey)
+                .orderUUID(orderUUID)
+                .discountAmount(discountAmount)
+                .usedPointAmount(usedPointAmount)
+                .amount(amount)
+                .paymentType(PaymentType.TOSS)
+                .build();
+        PaymentResponse paymentResponse = paymentService.confirmPayment(paymentConfirmRequest);
         model.addAttribute("paymentResponse", paymentResponse);
-
-        // 성공 화면으로 이동
         return "payment/payment-success";
     }
 
 
     @GetMapping("/fail")
-    public String paymentFail(){
-        //TODO 실패했을 때 SHOP Server에 되돌리는 요청해야함
-
+    public String paymentFail(@RequestParam long orderId){
+        paymentService.dealWithPaymentFail(orderId);
         return "payment/payment-fail";
     }
 }
