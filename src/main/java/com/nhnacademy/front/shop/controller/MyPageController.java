@@ -1,5 +1,6 @@
 package com.nhnacademy.front.shop.controller;
 
+import com.nhnacademy.front.auth.client.dto.OAuth2UserInfo;
 import com.nhnacademy.front.auth.service.AuthService;
 import com.nhnacademy.front.common.dto.PageResponse;
 import com.nhnacademy.front.shop.address.client.dto.AddressCreateRequest;
@@ -48,7 +49,8 @@ public class MyPageController {
     private final BookClient bookClient;
 
     @GetMapping("/register")
-    public String getRegister() {
+    public String getRegister(@ModelAttribute OAuth2UserInfo userInfo, Model model) {
+        model.addAttribute("userInfo", userInfo);
         return "user/register";
     }
 
