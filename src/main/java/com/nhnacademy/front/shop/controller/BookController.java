@@ -35,7 +35,6 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.nhnacademy.front.common.dto.CommonResponse;
 import com.nhnacademy.front.common.dto.PageResponse;
-import com.nhnacademy.front.shop.book.client.BookClient;
 import com.nhnacademy.front.shop.book.dto.MainBookResponse;
 import com.nhnacademy.front.shop.review.client.ReviewClient;
 import com.nhnacademy.front.shop.review.dto.ReviewListResponse;
