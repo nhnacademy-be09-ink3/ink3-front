@@ -40,7 +40,7 @@
 
             <!-- 동적으로 도서 목록 렌더링 -->
             <div th:each="book : ${bestSeller}"
-                 class="ink-card-white p-4 flex flex-col items-center text-center h-[460px] justify-between">
+                 class="ink-card-white p-4 flex flex-col items-center text-center h-[500px] justify-between">
                 <a th:href="@{/books/{id}(id=${book.id})}"
                    class="ink-card-white p-4 flex flex-col items-center text-center h-full mb-6">
                     <div class="w-[200px] h-[280px] bg-gray-100 rounded-md overflow-hidden mb-1">
@@ -82,7 +82,7 @@
 
             <!-- 동적으로 도서 목록 렌더링 -->
             <div th:each="book : ${newBooks}"
-                 class="ink-card-white p-4 flex flex-col items-center text-center h-[460px] justify-between">
+                 class="ink-card-white p-4 flex flex-col items-center text-center h-[500px] justify-between">
                 <a th:href="@{/books/{id}(id=${book.id})}"
                    class="ink-card-white p-4 flex flex-col items-center text-center h-full mb-6">
                     <div class="w-[200px] h-[280px] bg-gray-100 rounded-md overflow-hidden mb-1">
@@ -124,7 +124,7 @@
 
             <!-- 동적으로 도서 목록 렌더링 -->
             <div th:each="book : ${recommendBooks}"
-                 class="ink-card-white p-4 flex flex-col items-center text-center h-[460px] justify-between">
+                 class="ink-card-white p-4 flex flex-col items-center text-center h-[500px] justify-between">
                 <a th:href="@{/books/{id}(id=${book.id})}"
                    class="ink-card-white p-4 flex flex-col items-center text-center h-full mb-6">
                     <div class="w-[200px] h-[280px] bg-gray-100 rounded-md overflow-hidden mb-1">
