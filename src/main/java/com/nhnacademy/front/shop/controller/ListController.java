@@ -3,7 +3,7 @@ package com.nhnacademy.front.shop.controller;
 import com.nhnacademy.front.common.dto.CommonResponse;
 import com.nhnacademy.front.common.dto.PageResponse;
 import com.nhnacademy.front.shop.book.client.BookClient;
-import com.nhnacademy.front.shop.book.client.dto.BookResponse;
+import com.nhnacademy.front.shop.book.dto.BookResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
