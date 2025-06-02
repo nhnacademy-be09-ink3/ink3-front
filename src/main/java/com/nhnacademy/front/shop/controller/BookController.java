@@ -1,15 +1,20 @@
 package com.nhnacademy.front.shop.controller;
 
-import com.nhnacademy.front.common.dto.CommonResponse;
-import com.nhnacademy.front.shop.book.client.BookClient;
-import com.nhnacademy.front.shop.book.client.dto.BookResponse;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import com.nhnacademy.front.common.dto.CommonResponse;
+import com.nhnacademy.front.common.dto.PageResponse;
+import com.nhnacademy.front.shop.book.client.BookClient;
+import com.nhnacademy.front.shop.book.dto.BookResponse;
+import com.nhnacademy.front.shop.book.dto.MainBookResponse;
+import com.nhnacademy.front.util.PageUtil;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.PathVariable;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -23,6 +28,54 @@ public class BookController {
         CommonResponse<BookResponse> response = bookClient.getBookDetail(bookId);
         model.addAttribute("book", response.data());
         return "book/book-detail";
+    }
+
+    @GetMapping("/books/bestseller")
+    public String getBestsellerBooks(@RequestParam(defaultValue = "0") int page, Model model) {
+        CommonResponse<PageResponse<MainBookResponse>> response = bookClient.getAllBestsellerBooks(page, 10);
+        PageResponse<MainBookResponse> pageData = response.data();
+
+        PageUtil.PageInfo pageInfo = PageUtil.calculatePageRange(
+            pageData.page(), pageData.totalPages(), 5
+        );
+
+        model.addAttribute("bookList", pageData.content());
+        model.addAttribute("bookPage", pageData);
+        model.addAttribute("pageInfo", pageInfo);
+
+        return "book/list/bestseller-books";
+    }
+
+    @GetMapping("/books/new")
+    public String getNewBooks(@RequestParam(defaultValue = "0") int page, Model model) {
+        CommonResponse<PageResponse<MainBookResponse>> response = bookClient.getAllNewBooks(page, 10);
+        PageResponse<MainBookResponse> pageData = response.data();
+
+        PageUtil.PageInfo pageInfo = PageUtil.calculatePageRange(
+            pageData.page(), pageData.totalPages(), 5
+        );
+
+        model.addAttribute("bookList", pageData.content());
+        model.addAttribute("bookPage", pageData);
+        model.addAttribute("pageInfo", pageInfo);
+
+        return "book/list/new-books";
+    }
+
+    @GetMapping("/books/recommend")
+    public String getRecommendBooks(@RequestParam(defaultValue = "0") int page, Model model) {
+        CommonResponse<PageResponse<MainBookResponse>> response = bookClient.getAllRecommendedBooks(page, 10);
+        PageResponse<MainBookResponse> pageData = response.data();
+
+        PageUtil.PageInfo pageInfo = PageUtil.calculatePageRange(
+            pageData.page(), pageData.totalPages(), 5
+        );
+
+        model.addAttribute("bookList", pageData.content());
+        model.addAttribute("bookPage", pageData);
+        model.addAttribute("pageInfo", pageInfo);
+
+        return "book/list/recommend-books";
     }
 
     @GetMapping("/book-register")

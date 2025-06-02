@@ -1,16 +1,19 @@
+<script th:inline="javascript">
+    const contextPath = /*[[@{/}]]*/ '';
+</script>
 <nav th:fragment="navFragment">
     <ul class="flex space-x-6">
         <li class="nav-item">
             <a th:href="@{#}" class="text-gray-700 hover:text-ink-primary transition-colors category-item">카테고리</a>
         </li>
         <li class="nav-item">
-            <a th:href="@{#}" class="text-gray-700 hover:text-ink-primary transition-colors category-item">베스트셀러</a>
+            <a th:href="@{/books/bestseller}" class="text-gray-700 hover:text-ink-primary transition-colors category-item">베스트셀러</a>
         </li>
         <li class="nav-item">
-            <a th:href="@{#}" class="text-gray-700 hover:text-ink-primary transition-colors category-item">신간</a>
+            <a th:href="@{/books/new}" class="text-gray-700 hover:text-ink-primary transition-colors category-item">신간</a>
         </li>
         <li class="nav-item">
-            <a th:href="@{#}" class="text-gray-700 hover:text-ink-primary transition-colors category-item">추천도서</a>
+            <a th:href="@{/books/recommend}" class="text-gray-700 hover:text-ink-primary transition-colors category-item">추천도서</a>
         </li>
         <li class="nav-item">
             <a th:href="@{/component}"

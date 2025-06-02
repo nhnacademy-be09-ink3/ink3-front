@@ -1,6 +1,6 @@
 package com.nhnacademy.front.shop.like.client.dto;
 
-import com.nhnacademy.front.shop.book.controller.client.dto.BookStatus;
+import com.nhnacademy.front.shop.book.dto.BookStatus;
 
 public record LikeResponse(
         Long id,

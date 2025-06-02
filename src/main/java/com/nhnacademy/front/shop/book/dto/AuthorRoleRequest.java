@@ -1,4 +1,4 @@
-package com.nhnacademy.front.shop.book.client.dto;
+package com.nhnacademy.front.shop.book.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
