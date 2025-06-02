@@ -446,12 +446,12 @@
         const editBtn = e.target.closest('.edit-button');
         if (editBtn) {
             e.preventDefault();
+
             showConfirmModal('리뷰를 수정하시겠습니까?', () => {
-                const reviewId = editBtn.dataset.reviewId;
-                const form = document.getElementById('edit-form-' + reviewId);
-                if (!form) return;
-                form.classList.toggle('hidden');
-                editBtn.textContent = form.classList.contains('hidden') ? '리뷰 수정' : '닫기';
+                const form = editBtn.closest('form');
+                if (form) {
+                    form.submit();
+                }
             });
             return;
         }
@@ -494,6 +494,16 @@
 
         form.classList.toggle('hidden');
         btn.textContent = form.classList.contains('hidden') ? '리뷰 수정' : '닫기';
+    });
+
+    document.addEventListener('submit', function (e) {
+        const form = e.target;
+        if (form.classList.contains('review-edit-form')) {
+            const imageInput = form.querySelector('input[type="file"][name="images"]');
+            if (imageInput && imageInput.files.length === 0) {
+                imageInput.removeAttribute('name');
+            }
+        }
     });
 
     document.addEventListener("DOMContentLoaded", function () {
