@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.auth0.jwt.JWT;
@@ -46,11 +47,11 @@ import lombok.extern.slf4j.Slf4j;
 @Controller
 public class BookController {
     private final BookClient bookClient;
-    private final ReviewClient reviewClient;
     private final CategoryClient categoryClient;
     private final AuthorClient authorClient;
     private final PublisherClient publisherClient;
     private final TagClient tagClient;
+    private final ReviewClient reviewClient;
 
     @GetMapping("/books/{bookId}")
     public String getBookDetail(@PathVariable Long bookId,
@@ -90,7 +91,7 @@ public class BookController {
         PageResponse<MainBookResponse> pageData = response.data();
 
         PageUtil.PageInfo pageInfo = PageUtil.calculatePageRange(
-            pageData.page(), pageData.totalPages(), 5
+                pageData.page(), pageData.totalPages(), 5
         );
 
         model.addAttribute("bookList", pageData.content());
@@ -106,7 +107,7 @@ public class BookController {
         PageResponse<MainBookResponse> pageData = response.data();
 
         PageUtil.PageInfo pageInfo = PageUtil.calculatePageRange(
-            pageData.page(), pageData.totalPages(), 5
+                pageData.page(), pageData.totalPages(), 5
         );
 
         model.addAttribute("bookList", pageData.content());
@@ -122,7 +123,7 @@ public class BookController {
         PageResponse<MainBookResponse> pageData = response.data();
 
         PageUtil.PageInfo pageInfo = PageUtil.calculatePageRange(
-            pageData.page(), pageData.totalPages(), 5
+                pageData.page(), pageData.totalPages(), 5
         );
 
         model.addAttribute("bookList", pageData.content());
@@ -139,12 +140,18 @@ public class BookController {
         CommonResponse<PageResponse<CategoryResponse>> categories = categoryClient.getCategories();
         CommonResponse<PageResponse<TagResponse>> tags = tagClient.getTags(0, 0);
 
-        model.addAttribute("authors", authors.data());
+        model.addAttribute("authors", authors.data().content());
         model.addAttribute("publishers", publishers.data());
         model.addAttribute("categories", categories.data().content());
         model.addAttribute("tags", tags.data());
 
         return "admin/book-register";
+    }
+
+    @PostMapping("/admin/book-register")
+    public String registerBook(@ModelAttribute BookCreateRequest request) {
+        bookClient.createBook(request);
+        return "redirect:/admin/book-register";
     }
 
     @GetMapping("/books/category")
