@@ -7,6 +7,9 @@ import com.nhnacademy.front.shop.order.dto.OrderBookResponse;
 import com.nhnacademy.front.shop.order.dto.OrderResponse;
 import com.nhnacademy.front.shop.order.dto.OrderWithDetailsResponse;
 import com.nhnacademy.front.shop.order.dto.PackagingResponse;
+import com.nhnacademy.front.shop.order.dto.RefundCreateRequest;
+import com.nhnacademy.front.shop.order.dto.RefundPolicyResponse;
+import com.nhnacademy.front.shop.order.dto.RefundResponse;
 import com.nhnacademy.front.shop.order.dto.ShipmentResponse;
 import com.nhnacademy.front.shop.order.dto.ShippingPolicyResponse;
 import jakarta.servlet.http.Cookie;
@@ -56,6 +59,16 @@ public class OrderService {
         return activeShippingPolicy.data();
     }
 
+    // 활성화된 반품 정책 가져오기
+    public RefundPolicyResponse getActivateRefundPolicy(){
+        CommonResponse<RefundPolicyResponse> activateRefundPolicy = orderClient.getActivateRefundPolicy();
+        return activateRefundPolicy.data();
+    }
+
+    public RefundResponse createRefund(RefundCreateRequest request){
+        CommonResponse<RefundResponse> refund = orderClient.createRefund(request);
+        return refund.data();
+    }
 
     // 회원/비회원 구분
     public boolean isLoggedIn(HttpServletRequest request) {

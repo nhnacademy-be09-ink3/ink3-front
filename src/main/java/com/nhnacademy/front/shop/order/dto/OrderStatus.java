@@ -18,12 +18,11 @@ public enum OrderStatus {
 
 
     @JsonCreator
-    public static OrderStatus getStatus(String str) {
-        for (OrderStatus status : OrderStatus.values()) {
-            if (status.label.equals(str)) {
-                return status;
-            }
+    public static OrderStatus from(String value) {
+        try {
+            return OrderStatus.valueOf(value); // name 기준 매핑
+        } catch (IllegalArgumentException e) {
+            return CONFIRMED; // 잘못된 값이 들어왔을 경우에만 fallback
         }
-        return CONFIRMED;
     }
 }
