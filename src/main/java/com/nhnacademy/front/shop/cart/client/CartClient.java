@@ -1,6 +1,6 @@
 package com.nhnacademy.front.shop.cart.client;
 
-import com.nhnacademy.front.shop.book.client.dto.BookResponse;
+import com.nhnacademy.front.shop.book.dto.BookResponse;
 import java.util.List;
 
 import org.springframework.cloud.openfeign.FeignClient;

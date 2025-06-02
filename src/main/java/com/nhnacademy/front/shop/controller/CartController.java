@@ -1,6 +1,6 @@
 package com.nhnacademy.front.shop.controller;
 
-import com.nhnacademy.front.shop.book.client.dto.BookResponse;
+import com.nhnacademy.front.shop.book.dto.BookResponse;
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;

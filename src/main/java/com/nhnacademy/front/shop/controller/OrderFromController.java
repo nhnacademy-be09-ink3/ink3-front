@@ -5,7 +5,7 @@ import com.nhnacademy.front.common.dto.PageResponse;
 import com.nhnacademy.front.shop.address.client.dto.AddressResponse;
 import com.nhnacademy.front.shop.address.service.AddressService;
 import com.nhnacademy.front.shop.book.client.BookClient;
-import com.nhnacademy.front.shop.book.client.dto.BookResponse;
+import com.nhnacademy.front.shop.book.dto.BookResponse;
 import com.nhnacademy.front.shop.cart.client.CartClient;
 import com.nhnacademy.front.shop.cart.dto.CartResponse;
 import com.nhnacademy.front.shop.order.dto.PackagingResponse;
