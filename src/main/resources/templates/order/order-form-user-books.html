@@ -413,6 +413,7 @@
 
 
 <script>
+
     document.addEventListener("DOMContentLoaded", () => {
         // 희망 배송일 체크박스 제어
         const checkbox = document.getElementById("enablePreferredDate");
@@ -707,7 +708,9 @@
             paymentAmount: finalAmount
         };
 
-        fetch("/payments", {
+        const contextPath = /*[[@{/}]]*/ '';
+
+        fetch(`${contextPath}/payments` ,{
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(orderFormCreateRequest)
@@ -721,10 +724,15 @@
                 document.write(html);
                 document.close();
             })
-            .catch(error => {
-                console.error("에러 발생:", error);
-                alert("결제 요청 중 문제가 발생했습니다.");
-            });
+            .then(response => {
+                if (!response.ok) {
+                    return response.text().then(errMsg => {
+                        console.error("서버 오류 응답:", errMsg);
+                        throw new Error(errMsg); // catch로 넘김
+                    });
+                }
+                return response.text();
+            })
 
         return false;
     }
