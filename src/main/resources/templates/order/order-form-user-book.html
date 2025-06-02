@@ -408,7 +408,7 @@
 </html>
 
 
-<script>
+<script th:inline="javascript">
     document.addEventListener("DOMContentLoaded", () => {
         // 희망 배송일 설정
         const checkbox = document.getElementById("enablePreferredDate");
@@ -677,7 +677,7 @@
 
         const contextPath = /*[[@{/}]]*/ '';
 
-        fetch(`${contextPath}/payments`, {
+        fetch(`${contextPath}payments`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(orderFormCreateRequest)
