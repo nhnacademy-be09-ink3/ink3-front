@@ -311,6 +311,12 @@
   .left-0 {
     left: calc(var(--spacing) * 0);
   }
+  .left-\[100\%\] {
+    left: 100%;
+  }
+  .left-\[160px\] {
+    left: 160px;
+  }
   .left-0\.5 {
     left: calc(var(--spacing) * 0.5);
   }
@@ -1558,6 +1564,48 @@
     --tw-outline-style: none;
     outline-style: none;
   }
+  .group-hover\:visible {
+    &:is(:where(.group):hover *) {
+      @media (hover: hover) {
+        visibility: visible;
+      }
+    }
+  }
+  .group-hover\:opacity-100 {
+    &:is(:where(.group):hover *) {
+      @media (hover: hover) {
+        opacity: 100%;
+      }
+    }
+  }
+  .group-hover\/global\:visible {
+    &:is(:where(.group\/global):hover *) {
+      @media (hover: hover) {
+        visibility: visible;
+      }
+    }
+  }
+  .group-hover\/global\:opacity-100 {
+    &:is(:where(.group\/global):hover *) {
+      @media (hover: hover) {
+        opacity: 100%;
+      }
+    }
+  }
+  .group-hover\/korea\:visible {
+    &:is(:where(.group\/korea):hover *) {
+      @media (hover: hover) {
+        visibility: visible;
+      }
+    }
+  }
+  .group-hover\/korea\:opacity-100 {
+    &:is(:where(.group\/korea):hover *) {
+      @media (hover: hover) {
+        opacity: 100%;
+      }
+    }
+  }
   .group-hover\:pointer-events-auto {
     &:is(:where(.group):hover *) {
       @media (hover: hover) {
@@ -2374,6 +2422,11 @@
   syntax: "*";
   inherits: false;
   initial-value: 1;
+}
+@property --tw-outline-style {
+  syntax: "*";
+  inherits: false;
+  initial-value: solid;
 }
 @layer properties {
   @supports ((-webkit-hyphens: none) and (not (margin-trim: inline))) or ((-moz-orient: inline) and (not (color:rgb(from red r g b)))) {

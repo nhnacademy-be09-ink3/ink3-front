@@ -18,20 +18,11 @@
     <div th:replace="~{admin/layout/fragments/sidebar :: sidebarFragment}"></div>
 
     <main class="main-content-area flex-1 p-6 bg-gray-100 overflow-y-auto">
-<!--        <div class="bg-white p-6 rounded-lg shadow-md mb-6 h-full">-->
-
-<!--        </div>-->
 
         <div class="w-8/12 mx-auto flex flex-col space-y-6">
             <div class="w-3/4 flex flex-col space-y-4">
                 <div class="ink-card-white p-6">
                     <h1 class="text-xl font-semibold text-gray-800 mb-6">태그 관리</h1>
-
-<!--                    <div class="flex items-center space-x-2 mb-6">-->
-<!--                        <input type="text" id="tagName" placeholder="새 태그 이름" required-->
-<!--                               class="ink-input-field w-full max-w-xs">-->
-<!--                        <button type="button" class="ink-btn-primary" onclick="submitTag()">등록</button>-->
-<!--                    </div>-->
 
                     <form th:action="@{/admin/tags}" method="post" class="flex items-center space-x-2 mb-6">
                         <input type="text" name="name" placeholder="새 태그 이름" required

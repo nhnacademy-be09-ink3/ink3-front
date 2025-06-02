@@ -91,10 +91,11 @@
         fetch('https://ink3.shop/dev/gateway/shop/categories')
             .then(res => res.json())
             .then(data => {
-                const flatList = data.data.content;
-                const tree = buildCategoryTree(flatList);
-                const container = document.getElementById('category-menu');
-                renderCategoryMenu(tree, container);
+                const tree = buildCategoryTree(data.data.content);
+                // ROOT 노드 제거 후 그 자식들만 표시
+                const rootNode = tree.find(cat => cat.name === 'ROOT');
+                const filteredTree = rootNode?.children || [];
+                renderCategoryMenu(filteredTree, document.getElementById('category-menu'));
             })
             .catch(err => console.error('카테고리 불러오기 실패:', err));
 
@@ -263,7 +264,7 @@
         const renderCategoryMenu = (categories, container) => {
             categories.forEach(cat => {
                 const li = document.createElement('li');
-                li.className = 'relative group inline-block';
+                li.className = 'relative group w-max';
                 li.innerHTML = `
                     <button type="button"
                         onclick="goToCategory('${cat.name}')"
@@ -274,7 +275,12 @@
 
                 if (cat.children.length > 0) {
                     const subUl = document.createElement('ul');
-                    subUl.className = 'absolute top-0 left-full ml-2 invisible opacity-0 pointer-events-none transition-opacity delay-75 duration-200 bg-white shadow-md rounded px-1 py-1 z-50';
+                    subUl.className = `
+                        absolute top-0 left-full
+                        ml-2 z-50 px-1 py-1 rounded bg-white shadow-md
+                        invisible opacity-0 pointer-events-none transition-opacity duration-200
+                        min-w-max
+                    `;
                     renderCategoryMenu(cat.children, subUl);
                     li.appendChild(subUl);
                 }

@@ -118,7 +118,10 @@
             .then(res => res.json())
             .then(data => {
                 const tree = buildCategoryTree(data.data.content);
-                renderCategoryMenu(tree, document.getElementById('category-menu'));
+                // ROOT 노드 제거 후 그 자식들만 표시
+                const rootNode = tree.find(cat => cat.name === 'ROOT');
+                const filteredTree = rootNode?.children || [];
+                renderCategoryMenu(filteredTree, document.getElementById('category-menu'));
             })
             .catch(err => console.error('카테고리 불러오기 실패:', err));
 
@@ -142,39 +145,49 @@
         const renderCategoryMenu = (categories, container) => {
             categories.forEach(cat => {
                 const li = document.createElement('li');
-                li.className = 'relative group inline-block';
+                li.className = 'relative group w-max';
                 li.innerHTML = `
-          <button type="button"
-            onclick="goToCategory('${cat.name}')"
-            class="text-left font-medium text-gray-700 hover:text-ink-primary transition-colors cursor-pointer whitespace-nowrap px-2 py-1 w-max">
-            ${cat.name}
-          </button>`;
+                    <button type="button"
+                        onclick="goToCategory('${cat.name}')"
+                        class="text-left font-medium text-gray-700 hover:text-ink-primary transition-colors cursor-pointer whitespace-nowrap px-2 py-1 w-max">
+                        ${cat.name}
+                    </button>
+                `;
+
                 if (cat.children.length > 0) {
                     const subUl = document.createElement('ul');
-                    subUl.className = 'absolute top-0 left-full ml-2 invisible opacity-0 pointer-events-none transition-opacity delay-75 duration-200 bg-white shadow-md rounded px-1 py-1 z-50';
+                    subUl.className = `
+                        absolute top-0 left-full
+                        ml-2 z-50 px-1 py-1 rounded bg-white shadow-md
+                        invisible opacity-0 pointer-events-none transition-opacity duration-200
+                        min-w-max
+                    `;
                     renderCategoryMenu(cat.children, subUl);
                     li.appendChild(subUl);
                 }
+
                 container.appendChild(li);
             });
+
             applyHoverDelay();
         };
-
         const applyHoverDelay = () => {
             document.querySelectorAll('#category-menu li.group').forEach(group => {
                 const submenu = group.querySelector('ul');
                 if (!submenu) return;
+
                 let timeout;
                 group.addEventListener('mouseenter', () => {
                     clearTimeout(timeout);
                     submenu.classList.remove('invisible', 'opacity-0', 'pointer-events-none');
                     submenu.classList.add('visible', 'opacity-100', 'pointer-events-auto');
                 });
+
                 group.addEventListener('mouseleave', () => {
                     timeout = setTimeout(() => {
                         submenu.classList.remove('visible', 'opacity-100', 'pointer-events-auto');
                         submenu.classList.add('invisible', 'opacity-0', 'pointer-events-none');
-                    }, 100);
+                    }, 100); // 딜레이는 필요 시 조정
                 });
             });
         };
