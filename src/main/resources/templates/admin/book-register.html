@@ -27,10 +27,6 @@
         .author-input-group {
             @apply flex items-center space-x-4 mb-3;
         }
-
-        .category-select-group {
-            @apply flex items-center space-x-4 mb-3;
-        }
     </style>
     <script>
         $(document).ready(function() {
@@ -99,43 +95,25 @@
                            class="ink-input-field w-full">
                 </div>
 
-                <div class="ink-input-group">
-                    <label>카테고리</label>
-                    <div id="categories-container">
-                        <div class="category-select-group">
-                            <select class="js-category-select category-level" data-level="1">
-                                <option value="">1차 카테고리 선택</option>
-                                <th:block th:each="topCategory : ${categories.content}">
-                                    <option th:value="${topCategory.id}" th:text="${topCategory.name}"></option>
-                                </th:block>
-                            </select>
-                            <select class="js-category-select category-level" data-level="2" disabled>
-                                <option value="">2차 카테고리 선택</option>
-                            </select>
-                            <select class="js-category-select category-level" data-level="3" disabled>
-                                <option value="">3차 카테고리 선택</option>
-                            </select>
-                            <input type="hidden" name="categoryIds">
-                            <button type="button" onclick="addCategoryField()" class="ink-btn-primary">+</button>
-                        </div>
-                    </div>
-                    <p class="text-sm text-gray-500">최상위 카테고리부터 하위 카테고리 순으로 선택하세요.</p>
-                    <button type="button" onclick="addCategoryField()" class="ink-btn-primary mt-2">카테고리 추가</button>
+                <!-- 카테고리 -->
+<!--                <div class="grid grid-cols-1 gap-2">-->
+<!--                    <label class="text-gray-700 font-medium">카테고리</label>-->
+<!--                    <div id="categorySelectorsContainer" class="ink-input-field w-full">-->
+<!--                    </div>-->
+<!--                    <input type="hidden" id="selectedCategoryId" name="selectedCategoryId">-->
+<!--                </div>-->
+
+                <!-- 카테고리 -->
+                <div class="grid grid-cols-1 gap-2">
+                    <label class="text-gray-700 font-medium">카테고리</label>
+                    <div id="categorySelectorsContainer" class="space-y-2"></div>
+                    <button type="button" id="addCategoryBtn" class="ink-btn-primary w-fit">카테고리 추가</button>
                 </div>
 
                 <div class="ink-input-group">
-                    <label>작가</label>
-                    <div id="authors-container">
-                        <div class="author-input-group">
-                            <select name="authorIds" class="js-select w-1/3">
-                                <option value="">작가 선택</option>
-                                <th:block th:each="author : ${authors.content}">
-                                    <option th:value="${author.id}" th:text="${author.name}"></option>
-                                </th:block>
-                            </select>
-                            <input type="text" name="authorRoles" placeholder="역할 (지은이, 옮긴이 등)" class="ink-input-field w-1/3">
-                            <button type="button" onclick="addAuthorField()" class="ink-btn-primary">+</button>
-                        </div>
+                    <label class="text-gray-700 font-medium">작가</label>
+                    <div id="authors-container" class="space-y-4">
+                        <!-- 작가 필드들이 들어갈 영역 -->
                     </div>
                     <button type="button" onclick="addAuthorField()" class="ink-btn-primary mt-2">작가 추가</button>
                 </div>
@@ -174,116 +152,174 @@
 
             </form>
         </div>
-    </main>
-</div>
-<script th:inline="javascript">
-    const contextPath = /*[[@{/}]]*/ '';
+        <script th:inline="javascript">
+            /*<![CDATA[*/
+            const contextPath = /*[[@{/}]]*/ '';
+            const rawCategories = /*[[${categories}]]*/ [];
 
-    function addAuthorField() {
-        const container = document.getElementById('authors-container');
-        const newAuthorGroup = document.createElement('div');
-        newAuthorGroup.classList.add('author-input-group');
-        newAuthorGroup.innerHTML = `
-            <select name="authorIds" class="js-category-select w-1/2">
-                <option value="">작가 선택</option>
-                <th:block th:each="author : ${authors}">
-                    <option th:value="${author.id}" th:text="${author.name}"></option>
-                </th:block>
-            </select>
-            <input type="text" name="authorRoles" placeholder="역할 (지은이, 옮긴이 등)" class="ink-input-field w-1/3">
-            <button type="button" onclick="removeAuthorField(this)" class="ink-btn-danger">-</button>
-        `;
-        container.appendChild(newAuthorGroup);
-    }
+            const categories = rawCategories.map(c => ({
+                id:        c.id,
+                name:      c.name,
+                parentId:  c.parentId
+            }));
 
-    function removeAuthorField(button) {
-        const authorGroup = button.parentNode;
-        document.getElementById('authors-container').removeChild(authorGroup);
-    }
+            function addAuthorField() {
+                const container = document.getElementById('authors-container');
+                const groupId = authorGroupId++;
 
-    function addCategoryField() {
-        const container = document.getElementById('categories-container');
-        const newCategoryGroup = document.createElement('div');
-        newCategoryGroup.classList.add('category-select-group');
-        newCategoryGroup.innerHTML = `
-            <select class="js-category-select category-level" data-level="1">
-                <option value="">1차 카테고리 선택</option>
-                <th:block th:each="topCategory : ${categories}">
-                    <option th:value="${categories.id}" th:text="${categories.name}"></option>
-                </th:block>
-            </select>
-            <select class="js-category-select category-level" data-level="2" disabled>
-                <option value="">2차 카테고리 선택</option>
-            </select>
-            <select class="js-category-select category-level" data-level="3" disabled>
-                <option value="">3차 카테고리 선택</option>
-            </select>
-            <input type="hidden" name="categoryIds">
-            <button type="button" onclick="removeCategoryField(this)" class="ink-btn-danger">-</button>
-        `;
-        container.appendChild(newCategoryGroup);
-        initializeCategoryDropdowns(); // 새로운 카테고리 그룹에 이벤트 리스너 다시 등록
-    }
+                const wrapper = document.createElement('div');
+                wrapper.className = 'bg-gray-50 border border-gray-200 rounded-lg p-4 flex flex-col justify-between';
+                wrapper.id = `author-group-${groupId}`;
 
-    function removeCategoryField(button) {
-        const categoryGroup = button.parentNode;
-        document.getElementById('categories-container').removeChild(categoryGroup);
-    }
+                const innerBox = document.createElement('div');
+                innerBox.className = 'bg-white rounded-md p-4 space-y-2 shadow-inner';
 
-    function initializeCategoryDropdowns() {
-        document.querySelectorAll('.category-level').forEach(select => {
-            select.addEventListener('change', async (event) => {
-                const selectedCategoryId = event.target.value;
-                const level = parseInt(event.target.dataset.level);
-                const nextLevel = level + 1;
-                const nextSelect = event.target.parentNode.querySelector(`select[data-level="${nextLevel}"]`);
+                // 셀렉트 박스
+                const select = document.createElement('select');
+                select.name = 'authorIds';
+                select.className = 'ink-input-field w-full';
+                const defaultOption = document.createElement('option');
+                defaultOption.value = '';
+                defaultOption.textContent = '작가 선택';
+                select.appendChild(defaultOption);
 
-                // 다음 레벨 드롭다운 초기화 및 활성화
-                if (nextSelect) {
-                    nextSelect.innerHTML = '<option value="">선택하세요</option>';
-                    nextSelect.disabled = true;
+                const authors = /*[[${authors.content}]]*/ [];
+                authors.forEach(author => {
+                    const opt = document.createElement('option');
+                    opt.value = author.id;
+                    opt.textContent = author.name;
+                    select.appendChild(opt);
+                });
 
-                    if (selectedCategoryId) {
-                        try {
-                            const response = await fetch(`/api/categories/${selectedCategoryId}/children`);
-                            if (response.ok) {
-                                const children = await response.json();
-                                children.forEach(child => {
-                                    const option = document.createElement('option');
-                                    option.value = child.id;
-                                    option.textContent = child.name;
-                                    nextSelect.appendChild(option);
-                                });
-                                nextSelect.disabled = false;
-                            } else {
-                                console.error('하위 카테고리 로딩 실패');
-                            }
-                        } catch (error) {
-                            console.error('하위 카테고리 로딩 중 오류:', error);
-                        }
-                    }
+                // 역할 입력
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.name = 'authorRoles';
+                input.placeholder = '역할 (지은이, 옮긴이 등)';
+                input.className = 'ink-input-field w-full';
+
+                // 삭제 버튼
+                const removeBtn = document.createElement('button');
+                removeBtn.type = 'button';
+                removeBtn.className = 'text-sm text-red-600 hover:text-red-800 mt-4 self-end';
+                removeBtn.textContent = '삭제';
+                removeBtn.onclick = () => {
+                    container.removeChild(wrapper);
+                };
+
+                innerBox.appendChild(select);
+                innerBox.appendChild(input);
+                wrapper.appendChild(innerBox);
+                wrapper.appendChild(removeBtn);
+
+                container.appendChild(wrapper);
+            }
+
+            let groupId = 0; // 각 카테고리 선택 그룹을 구분하기 위한 고유 ID
+
+            const container = document.getElementById('categorySelectorsContainer');
+            const addBtn = document.getElementById('addCategoryBtn');
+
+            function renderCategoryDropdown(parentId, level, group) {
+                // 하위 드롭다운 제거
+                let nextLevel = level;
+                while (document.getElementById(`group-${group}-level-${nextLevel}`)) {
+                    document.getElementById(`group-${group}-level-${nextLevel}`).parentElement.remove();
+                    nextLevel++;
                 }
 
-                // 선택된 전체 카테고리 ID 업데이트 (히든 필드)
-                updateSelectedCategories(event.target.parentNode);
-            });
-        });
-    }
+                const children = categories.filter(cat => cat.parentId === parentId);
+                if (children.length > 0) {
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'w-full';
+                    const select = document.createElement('select');
+                    select.id = `group-${group}-level-${level}`;
+                    select.dataset.level = level;
+                    select.dataset.group = group;
+                    select.className = 'shadow rounded-md px-4 py-2 text-gray-700 leading-tight border border-gray-200 focus:outline-2 focus:outline-ink-primary w-full';
 
-    function updateSelectedCategories(categoryGroup) {
-        const selects = categoryGroup.querySelectorAll('.category-level');
-        let selectedIds = [];
-        selects.forEach(select => {
-            if (select.value) {
-                selectedIds.push(select.value);
+                    const defaultOption = document.createElement('option');
+                    defaultOption.value = '';
+                    defaultOption.textContent = `-- 레벨 ${level} 선택 --`;
+                    select.appendChild(defaultOption);
+
+                    children.forEach(cat => {
+                        const option = document.createElement('option');
+                        option.value = cat.id;
+                        option.textContent = cat.name;
+                        select.appendChild(option);
+                    });
+
+                    select.addEventListener('change', function () {
+                        const selectedValue = this.value ? parseInt(this.value) : null;
+                        const currentLevel = parseInt(this.dataset.level);
+                        const groupId = this.dataset.group;
+
+                        if (selectedValue) {
+                            updateHiddenInput(groupId, selectedValue);
+                            renderCategoryDropdown(selectedValue, currentLevel + 1, groupId);
+                        } else {
+                            removeHiddenInput(groupId);
+                            let next = currentLevel + 1;
+                            while (document.getElementById(`group-${groupId}-level-${next}`)) {
+                                document.getElementById(`group-${groupId}-level-${next}`).parentElement.remove();
+                                next++;
+                            }
+                        }
+                    });
+
+                    wrapper.appendChild(select);
+
+                    const groupContainer = document.getElementById(`category-group-${group}`);
+                    if (groupContainer) {
+                        groupContainer.appendChild(wrapper);
+                    }
+                }
             }
-        });
-        categoryGroup.querySelector('input[name="categoryIds"]').value = selectedIds.join(',');
-    }
 
-    document.addEventListener('DOMContentLoaded', () => {
-        initializeCategoryDropdowns();
-    });
-</script>
+            function updateHiddenInput(group, value) {
+                let hidden = document.getElementById(`selectedCategoryId-${group}`);
+                if (!hidden) {
+                    hidden = document.createElement('input');
+                    hidden.type = 'hidden';
+                    hidden.name = 'selectedCategoryIds[]';
+                    hidden.id = `selectedCategoryId-${group}`;
+                    document.getElementById(`category-group-${group}`).appendChild(hidden);
+                }
+                hidden.value = value;
+            }
+
+            function removeHiddenInput(group) {
+                const el = document.getElementById(`selectedCategoryId-${group}`);
+                if (el) el.remove();
+            }
+
+            function removeCategoryGroup(group) {
+                const groupEl = document.getElementById(`category-group-${group}`);
+                if (groupEl) groupEl.remove();
+            }
+
+            addBtn.addEventListener('click', () => {
+                const group = groupId++;
+
+                const groupWrapper = document.createElement('div');
+                groupWrapper.id = `category-group-${group}`;
+                groupWrapper.className = 'border border-gray-200 rounded-lg p-4 bg-white flex flex-col justify-between';
+
+                // 삭제 버튼
+                const removeBtn = document.createElement('button');
+                removeBtn.type = 'button';
+                removeBtn.innerHTML = '❌';
+                removeBtn.className = 'text-sm text-red-600 hover:text-red-800 mt-4 self-end';
+                removeBtn.addEventListener('click', () => removeCategoryGroup(group));
+                groupWrapper.appendChild(removeBtn);
+
+                container.appendChild(groupWrapper);
+                renderCategoryDropdown(null, 1, group);
+            });
+            /*]]>*/
+        </script>
+    </main>
+</div>
 </body>
 </html>
