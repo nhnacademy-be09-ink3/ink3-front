@@ -6,8 +6,13 @@ import com.nhnacademy.front.common.dto.PageResponse;
 import com.nhnacademy.front.shop.address.client.dto.AddressCreateRequest;
 import com.nhnacademy.front.shop.address.client.dto.AddressUpdateRequest;
 import com.nhnacademy.front.shop.address.service.AddressService;
+import com.nhnacademy.front.shop.book.client.BookClient;
 import com.nhnacademy.front.shop.like.client.dto.LikeResponse;
 import com.nhnacademy.front.shop.like.service.LikeService;
+import com.nhnacademy.front.shop.order.dto.OrderBookResponse;
+import com.nhnacademy.front.shop.order.dto.OrderResponse;
+import com.nhnacademy.front.shop.order.dto.OrderWithDetailsResponse;
+import com.nhnacademy.front.shop.order.service.OrderService;
 import com.nhnacademy.front.shop.point.client.dto.PointHistoryResponse;
 import com.nhnacademy.front.shop.point.service.PointService;
 import com.nhnacademy.front.shop.user.client.dto.UserPasswordUpdateRequest;
@@ -17,6 +22,7 @@ import com.nhnacademy.front.shop.user.service.UserService;
 import com.nhnacademy.front.util.PageUtil;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
@@ -39,6 +45,8 @@ public class MyPageController {
     private final AddressService addressService;
     private final PointService pointService;
     private final LikeService likeService;
+    private final OrderService orderService;
+    private final BookClient bookClient;
 
     @GetMapping("/register")
     public String getRegister(@ModelAttribute OAuth2UserInfo userInfo, Model model) {
@@ -77,13 +85,20 @@ public class MyPageController {
     }
 
     @GetMapping("/me/orders")
-    public String getMeOrders(Model model) {
+    public String getMeOrders(@RequestParam(defaultValue = "0") int page,
+                              Model model) {
+        PageResponse<OrderWithDetailsResponse> orderResponse = orderService.getOrders(page, 7);
+        PageUtil.PageInfo pageInfo = PageUtil.calculatePageRange(
+                orderResponse.page(), orderResponse.totalPages(), 5);
+
         model.addAttribute("currentPage", "orders");
         model.addAttribute("user", userService.getCurrentUserDetail());
+        model.addAttribute("orderResponseList", orderResponse);
+        model.addAttribute("pageInfo", pageInfo);
         return "user/me-orders";
     }
 
-    @GetMapping("/me/addresses")
+        @GetMapping("/me/addresses")
     public String getMeAddresses(Model model) {
         model.addAttribute("currentPage", "addresses");
         model.addAttribute("user", userService.getCurrentUserDetail());

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8" />
+    <title>결제하기</title>
+    <script src="https://js.tosspayments.com/v1/payment"></script>
+</head>
+<body>
+
+<script th:inline="javascript">
+    const orderType = [[${orderType}]];
+    const redirectMap = {
+        MEMBER_CART: "/order-form/from-cart",
+        MEMBER_BOOK: "/order-form/from-book",
+        GUEST_CART: "/order-form/from-cart",
+        GUEST_BOOK: "/order-form/from-book"
+    };
+    const returnUrl = redirectMap[orderType];
+
+
+    const clientKey = "test_ck_ALnQvDd2VJ2jvnEdDeLnVMj7X41m";
+    const tossPayments = TossPayments(clientKey);
+
+    const amount = [[${amount}]];
+    const discountAmount = [[${discountAmount}]];
+    const usedPointAmount = [[${usedPointAmount}]];
+    const realOrderId = [[${realOrderId}]];
+    const userId = [[${userId}]];
+
+    const orderId = [[${orderId}]];
+    const orderName = [[${orderName}]];
+    const customerName = [[${customerName}]];
+    const failUrl = [[${tossFailURL}]]
+        + `?orderId=` + realOrderId;
+    const successUrl = [[${tossSuccessURL}]]
+        + '?realOrderId=' + realOrderId
+        + '&usedPointAmount=' + usedPointAmount
+        + '&discountAmount=' + discountAmount
+        + '&userId=' + userId;
+
+    // 페이지가 로드되자마자 실행
+    window.onload = function () {
+        tossPayments
+            .requestPayment("카드", {
+                amount: amount,
+                orderId: orderId,
+                orderName: orderName,
+                customerName: customerName,
+                successUrl: successUrl,
+                failUrl: failUrl
+            })
+            .catch(function (error) {
+                if (error.code === "USER_CANCEL") {
+                    alert("결제를 취소했습니다.");
+                    fetch("/payments/cancel", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            orderId: realOrderId,
+                            returnUrl: returnUrl
+                        })
+                    })
+                        .then(response => response.text())
+                        .then(redirectUrl => {
+                            window.location.href = redirectUrl;
+                        });
+                } else {
+                    console.error("결제 오류:", error);
+                }
+            });
+    };
+</script>
+
+</body>
+</html>

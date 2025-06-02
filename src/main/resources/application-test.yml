@@ -12,3 +12,8 @@ feign:
     gateway: test
     auth: test
     shop: test
+
+toss:
+  url:
+    success: http://localhost:8080/payments/success
+    fail: http://localhost:8080/payments/fail
