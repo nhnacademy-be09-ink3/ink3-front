@@ -39,7 +39,7 @@
                         <tr class="hover:bg-gray-50 transition-colors duration-200" th:each="book, stat : ${bookList}">
                             <td class="py-3 px-4 text-sm text-gray-700" th:text="${stat.count}"></td>
                             <td class="py-3 px-4 text-sm text-gray-700" th:text="${book.title}"></td>
-                            <td class="py-3 px-4 text-sm text-gray-700" th:text="${book.author.join(', ') || '저자 없음'}"></td>">
+                            <td class="py-3 px-4 text-sm text-gray-700">-</td>
                             <td class="py-3 px-4 text-sm text-gray-700">-</td>
                             <td class="py-3 px-4 text-sm text-gray-700">-</td>
                             <td class="py-3 px-4 text-sm text-gray-700">
