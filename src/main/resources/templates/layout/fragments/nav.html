@@ -1,7 +1,11 @@
 <nav th:fragment="navFragment">
     <ul class="flex space-x-6 relative z-50">
-        <li class="nav-item relative group">
-            <span class="text-gray-700 hover:text-ink-primary transition-colors cursor-pointer">카테고리</span>
+        <li class="nav-item relative group" id="category-nav-item">
+
+            <button id="main-category-button"
+                    class="text-gray-700 hover:text-ink-primary transition-colors cursor-pointer">
+                카테고리
+            </button>
             <ul id="nav-category-menu"
                 class="absolute left-0 top-full mt-2 bg-white rounded shadow-lg invisible opacity-0 transition-opacity duration-200 z-50 min-w-max py-1 px-1 whitespace-nowrap">
             </ul>
@@ -19,13 +23,25 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
+            let topLevelCategories = [];
+
             fetch('https://ink3.shop/dev/gateway/shop/categories')
                 .then(res => res.json())
                 .then(data => {
                     const tree = buildCategoryTree(data.data.content);
-                    renderNavCategoryMenu(tree, document.getElementById('nav-category-menu'));
+                    const rootNode = tree.find(cat => cat.name === 'ROOT');
+                    const filteredTree = rootNode?.children || tree.filter(cat => cat.name !== 'ROOT');
+                    topLevelCategories = filteredTree;
+                    renderNavCategoryMenu(filteredTree, document.getElementById('nav-category-menu'));
                     applyHoverDelay();
                 });
+
+
+            document.getElementById('main-category-button').addEventListener('click', () => {
+                if (topLevelCategories.length > 0) {
+                    goToCategory(topLevelCategories[0].name);
+                }
+            });
 
             function buildCategoryTree(flatList) {
                 const map = {}, roots = [];
@@ -53,7 +69,7 @@
                         const subUl = document.createElement('ul');
                         subUl.className = `
               absolute top-0 left-full ml-2 bg-white shadow-md rounded px-1 py-1 z-50
-              invisible opacity-0 pointer-events-none transition-opacity duration-200 min-w-max whitespace-nowrap
+              invisible opacity-0 pointer-events-none transition-opacity duration-300 min-w-max whitespace-nowrap
             `;
                         li.appendChild(subUl);
                         renderNavCategoryMenu(cat.children, subUl);
@@ -70,7 +86,7 @@
                             closeTimer = setTimeout(() => {
                                 subUl.classList.remove('visible', 'opacity-100', 'pointer-events-auto');
                                 subUl.classList.add('invisible', 'opacity-0', 'pointer-events-none');
-                            }, 300);
+                            }, 500);
                         });
 
                         subUl.addEventListener('mouseenter', () => clearTimeout(closeTimer));
@@ -78,7 +94,7 @@
                             closeTimer = setTimeout(() => {
                                 subUl.classList.remove('visible', 'opacity-100', 'pointer-events-auto');
                                 subUl.classList.add('invisible', 'opacity-0', 'pointer-events-none');
-                            }, 300);
+                            }, 500);
                         });
                     }
 
@@ -87,6 +103,7 @@
             }
 
             function applyHoverDelay() {
+                const parent = document.getElementById('category-nav-item');
                 const root = document.getElementById('nav-category-menu');
                 let closeTimer;
 
@@ -103,7 +120,6 @@
                     }, 500);
                 };
 
-                const parent = root.parentElement;
                 parent.addEventListener('mouseenter', showMenu);
                 parent.addEventListener('mouseleave', hideMenu);
                 root.addEventListener('mouseenter', showMenu);
