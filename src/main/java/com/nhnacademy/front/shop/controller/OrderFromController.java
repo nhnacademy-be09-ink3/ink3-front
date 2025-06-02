@@ -5,7 +5,7 @@ import com.nhnacademy.front.common.dto.PageResponse;
 import com.nhnacademy.front.shop.address.client.dto.AddressResponse;
 import com.nhnacademy.front.shop.address.service.AddressService;
 import com.nhnacademy.front.shop.book.client.BookClient;
-import com.nhnacademy.front.shop.book.dto.BookResponse;
+import com.nhnacademy.front.shop.book.dto.MainBookResponse;
 import com.nhnacademy.front.shop.cart.client.CartClient;
 import com.nhnacademy.front.shop.cart.dto.CartResponse;
 import com.nhnacademy.front.shop.order.dto.PackagingResponse;
@@ -101,7 +101,7 @@ public class OrderFromController {
 
     // 상품 정보
     private void addBookInfo(Model model, long bookId, int quantity) {
-        CommonResponse<BookResponse> bookDetailResponse = bookClient.getBookDetail(bookId);
+        CommonResponse<MainBookResponse> bookDetailResponse = bookClient.getBookDetail(bookId);
         model.addAttribute("book", bookDetailResponse.data());
         model.addAttribute("quantity", quantity);
     }
