@@ -218,15 +218,15 @@
                                 <dl class="space-y-0.5 text-ml text-gray-700">
                                     <div class="flex justify-between items-center">
                                         <dt class="text-left w-full">주문 금액</dt>
-                                        <dd class="text-right w-full" th:text="${#numbers.formatInteger(orderPrices, 3, 'COMMA')} + ' 원'">0 원</dd>
+                                        <dd class="text-right w-full" th:text="${orderPrices != 0 ? #numbers.formatInteger(orderPrices, 3, 'COMMA') + ' 원' : '0 원'}"></dd>
                                     </div>
                                     <div class="flex justify-between items-center">
                                         <dt class="text-left w-full">할인 금액</dt>
-                                        <dd class="text-right w-full" th:text="'- ' + ${#numbers.formatInteger(discountPrices, 3, 'COMMA')} + ' 원'">0 원</dd>
+                                        <dd class="text-right w-full" th:text="${discountPrices != 0 ? #numbers.formatInteger(discountPrices, 3, 'COMMA') + ' 원' : '0 원'}"></dd>
                                     </div>
                                     <div class="flex justify-between items-center !text-base font-medium">
                                         <dt class="text-left w-full">총 주문 금액</dt>
-                                        <dd class="text-right w-full" th:text="${#numbers.formatInteger(totalPrice, 3, 'COMMA')} + ' 원'">0 원</dd>
+                                        <dd class="text-right w-full" th:text="${totalPrice != 0 ? #numbers.formatInteger(totalPrice, 3, 'COMMA') + ' 원' : '0 원'}"></dd>
                                     </div>
                                 </dl>
 

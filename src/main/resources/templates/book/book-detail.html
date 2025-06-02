@@ -15,6 +15,11 @@
 <body class="bg-gray-100">
 <div th:replace="~{layout/fragments/header :: headerFragment}"></div>
 
+<script th:inline="javascript">
+    const contextPath = /*[[@{/}]]*/ '';
+    const isLoggedIn = /*[[${isLoggedIn}]]*/ false;
+</script>
+
 <main class="container mx-auto px-4 py-8">
     <section class="text-gray-600 body-font overflow-hidden">
         <div class="bg-white rounded-lg shadow-md container px-5 py-24 mx-auto pl-16">
@@ -332,7 +337,7 @@
                                   class="text-sm text-gray-600 ml-2">선택된 파일 없음</span>
 
                             <button type="submit"
-                                    class="px-3 py-1 ink-btn-primary text-white rounded hover:bg-yellow-500">
+                                    class="edit-button px-3 py-1 ink-btn-primary text-white rounded hover:bg-yellow-500">
                                 수정
                             </button>
                         </form>
@@ -387,7 +392,79 @@
         </div>
     </section>
 </main>
+
+<div id="confirm-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-lg shadow-lg p-6 max-w-sm w-full text-center">
+        <p id="confirm-message" class="text-gray-800 text-lg font-semibold mb-6">정말로 진행하시겠습니까?</p>
+        <div class="flex justify-center gap-4">
+            <button id="confirm-yes" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">확인</button>
+            <button id="confirm-no" class="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400">취소</button>
+        </div>
+    </div>
+</div>
+
+<!--<div id="cart-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">-->
+<!--    <div class="bg-white rounded-lg shadow-lg p-6 max-w-sm w-full text-center">-->
+<!--        <p class="text-gray-800 text-lg font-semibold mb-6">장바구니에 상품을 담았습니다.<br>계속 쇼핑하시겠습니까?</p>-->
+<!--        <div class="flex justify-center gap-4">-->
+<!--            <button id="continue-shopping" class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600">쇼핑 계속하기</button>-->
+<!--            <a id="go-to-cart" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">장바구니 가기</a>-->
+<!--        </div>-->
+<!--    </div>-->
+<!--</div>-->
+
 <script>
+    function showConfirmModal(message, onConfirm) {
+        const modal = document.getElementById('confirm-modal');
+        const messageElem = document.getElementById('confirm-message');
+        const yesBtn = document.getElementById('confirm-yes');
+        const noBtn = document.getElementById('confirm-no');
+
+        messageElem.textContent = message;
+        modal.classList.remove('hidden');
+
+        function closeModal() {
+            modal.classList.add('hidden');
+            yesBtn.removeEventListener('click', confirmHandler);
+            noBtn.removeEventListener('click', cancelHandler);
+        }
+
+        function confirmHandler() {
+            onConfirm();
+            closeModal();
+        }
+
+        function cancelHandler() {
+            closeModal();
+        }
+
+        yesBtn.addEventListener('click', confirmHandler);
+        noBtn.addEventListener('click', cancelHandler);
+    }
+
+    document.addEventListener('click', function (e) {
+        const editBtn = e.target.closest('.edit-button');
+        if (editBtn) {
+            e.preventDefault();
+            showConfirmModal('리뷰를 수정하시겠습니까?', () => {
+                const reviewId = editBtn.dataset.reviewId;
+                const form = document.getElementById('edit-form-' + reviewId);
+                if (!form) return;
+                form.classList.toggle('hidden');
+                editBtn.textContent = form.classList.contains('hidden') ? '리뷰 수정' : '닫기';
+            });
+            return;
+        }
+
+        const deleteBtn = e.target.closest('form button[type="submit"]');
+        if (deleteBtn && deleteBtn.closest('form').action.includes('/delete')) {
+            e.preventDefault();
+            showConfirmModal('리뷰를 삭제하시겠습니까?', () => {
+                deleteBtn.closest('form').submit();
+            });
+        }
+    });
+
     function showTab(tabName) {
         const bookTab = document.getElementById('tab-content-book');
         const reviewTab = document.getElementById('tab-content-review');
@@ -409,19 +486,17 @@
 
     document.addEventListener('click', function (e) {
         const btn = e.target.closest('.toggle-edit');
-        if (!btn) return;                     // toggle-edit 버튼이 아니면 무시
+        if (!btn) return;
 
         const reviewId = btn.dataset.reviewId;
         const form = document.getElementById('edit-form-' + reviewId);
         if (!form) return;
 
-        form.classList.toggle('hidden');      // 폼 보이기/숨기기
+        form.classList.toggle('hidden');
         btn.textContent = form.classList.contains('hidden') ? '리뷰 수정' : '닫기';
     });
 
-    /* === ② DOMContentLoaded 블록에서 잘못 들어간 if … 부분 삭제 === */
     document.addEventListener("DOMContentLoaded", function () {
-        /* 탭 전환 버튼 리스너만 남겨두면 됩니다 */
         const btnBook = document.getElementById('tab-book-info');
         const btnReview = document.getElementById('tab-reviews');
         btnBook && btnBook.addEventListener('click', () => showTab('book'));
