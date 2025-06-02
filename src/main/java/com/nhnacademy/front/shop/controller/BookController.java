@@ -133,7 +133,17 @@ public class BookController {
     }
 
     @GetMapping("/admin/book-register")
-    public String getBookRegister() {
+    public String getBookRegister(Model model) {
+        CommonResponse<PageResponse<AuthorResponse>> authors = authorClient.getAuthors(0, 0);
+        CommonResponse<PageResponse<PublisherResponse>> publishers = publisherClient.getPublishers(0, 0);
+        CommonResponse<PageResponse<CategoryResponse>> categories = categoryClient.getCategories();
+        CommonResponse<PageResponse<TagResponse>> tags = tagClient.getTags(0, 0);
+
+        model.addAttribute("authors", authors.data());
+        model.addAttribute("publishers", publishers.data());
+        model.addAttribute("categories", categories.data());
+        model.addAttribute("tags", tags.data());
+
         return "admin/book-register";
     }
 
