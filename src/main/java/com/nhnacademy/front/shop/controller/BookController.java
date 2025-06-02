@@ -65,7 +65,7 @@ public class BookController {
 
         model.addAttribute("authors", authors.data());
         model.addAttribute("publishers", publishers.data());
-        model.addAttribute("categories", categories.data());
+        model.addAttribute("categories", categories.data().content());
         model.addAttribute("tags", tags.data());
 
         return "admin/book-register";
