@@ -46,35 +46,21 @@
                         </span>
                     </div>
                     <div class="flex mb-4">
-                        <span class="flex items-center">
-                            <!-- 별점 -->
-                            <svg fill="currentColor" stroke="currentColor" stroke-linecap="round"
-                                 stroke-linejoin="round" stroke-width="2" class="w-4 h-4 text-green-500"
-                                 viewBox="0 0 24 24">
-                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
-                            </svg>
-                            <svg fill="currentColor" stroke="currentColor" stroke-linecap="round"
-                                 stroke-linejoin="round" stroke-width="2" class="w-4 h-4 text-green-500"
-                                 viewBox="0 0 24 24">
-                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
-                            </svg>
-                            <svg fill="currentColor" stroke="currentColor" stroke-linecap="round"
-                                 stroke-linejoin="round" stroke-width="2" class="w-4 h-4 text-green-500"
-                                 viewBox="0 0 24 24">
-                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
-                            </svg>
-                            <svg fill="currentColor" stroke="currentColor" stroke-linecap="round"
-                                 stroke-linejoin="round" stroke-width="2" class="w-4 h-4 text-green-500"
-                                 viewBox="0 0 24 24">
-                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
-                            </svg>
-                            <svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                                 stroke-width="2" class="w-4 h-4 text-green-500" viewBox="0 0 24 24">
-                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
-                            </svg>
-                            <!-- 리뷰 개수 -->
-                            <span class="text-gray-600 ml-3">리뷰 10개</span>
-                        </span>
+                        <div class="flex items-center space-x-2">
+                            <div class="flex">
+                                <th:block th:each="i : ${#numbers.sequence(1, 5)}">
+                                    <svg th:class="'w-5 h-5 ' + (${book.averageRating} >= ${i} ? 'text-yellow-400' : (${book.averageRating} >= ${i - 0.5} ? 'text-yellow-300' : 'text-gray-300'))"
+                                         fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M10 15l-5.878 3.09 1.122-6.545L.489 6.91l6.565-.955L10 0l2.946 5.955 6.565.955-4.755 4.635 1.122 6.545z"/>
+                                    </svg>
+                                </th:block>
+                            </div>
+
+                            <span class="text-yellow-600 font-bold text-base"
+                                  th:text="${#numbers.formatDecimal(book.averageRating, 1, 1)} + ' / 5.0'"></span>
+
+                            <span class="text-sm text-gray-500 ml-2" th:text="'(' + ${reviews.size()} + '개 리뷰)'"></span>
+                        </div>
                     </div>
                     <!-- 책 소개 -->
                     <p class="leading-relaxed" th:text="${book.description}"></p>

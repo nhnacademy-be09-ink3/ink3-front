@@ -20,5 +20,6 @@ public record BookResponse(
         String thumbnailUrl,
         List<String> categoryNames,
         List<String> authorNames,
-        List<String> tagNames
+        List<String> tagNames,
+        double averageRating
 ) {}
