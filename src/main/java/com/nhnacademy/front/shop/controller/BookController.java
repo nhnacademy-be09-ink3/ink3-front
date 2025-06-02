@@ -36,7 +36,7 @@ public class BookController {
         PageResponse<MainBookResponse> pageData = response.data();
 
         PageUtil.PageInfo pageInfo = PageUtil.calculatePageRange(
-                pageData.page(), pageData.totalPages(), 5
+            pageData.page(), pageData.totalPages(), 5
         );
 
         model.addAttribute("bookList", pageData.content());
@@ -52,7 +52,7 @@ public class BookController {
         PageResponse<MainBookResponse> pageData = response.data();
 
         PageUtil.PageInfo pageInfo = PageUtil.calculatePageRange(
-                pageData.page(), pageData.totalPages(), 5
+            pageData.page(), pageData.totalPages(), 5
         );
 
         model.addAttribute("bookList", pageData.content());
@@ -68,7 +68,7 @@ public class BookController {
         PageResponse<MainBookResponse> pageData = response.data();
 
         PageUtil.PageInfo pageInfo = PageUtil.calculatePageRange(
-                pageData.page(), pageData.totalPages(), 5
+            pageData.page(), pageData.totalPages(), 5
         );
 
         model.addAttribute("bookList", pageData.content());
