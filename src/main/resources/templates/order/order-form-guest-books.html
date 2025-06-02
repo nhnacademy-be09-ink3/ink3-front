@@ -197,8 +197,14 @@
                         <!-- 배송비 -->
                         <div class="flex justify-between">
                             <span>배송비</span>
-                            <span>3,000원</span>
+                            <span><span data-role="shipping-fee">3,000원</span></span>
                         </div>
+                        <script th:inline="javascript">
+                            const SHIPPING_POLICY = {
+                                threshold: [[${activeShippingPolicy.threshold}]],
+                                fee: [[${activeShippingPolicy.fee}]]
+                            };
+                        </script>
 
                         <!-- 포장지 비용 -->
                         <div class="flex justify-between">
@@ -258,8 +264,6 @@
         const PACKAGING_TOTAL_EL = document.querySelector('[data-role="packaging-total"]');
         const FINAL_TOTAL_EL = document.querySelector('[data-role="final-total"]');
 
-        const SHIPPING_FEE = 3000;
-
         function formatCurrency(num) {
             return new Intl.NumberFormat('ko-KR').format(num) + '원';
         }
@@ -279,11 +283,18 @@
                 packagingTotal += packagingPrice;
             });
 
-            const finalTotal = productTotal + SHIPPING_FEE + packagingTotal;
+            const shippingFee = ( productTotal ) >= SHIPPING_POLICY.threshold ? 0 : SHIPPING_POLICY.fee;
+            const paymentAmount = productTotal + shippingFee + packagingTotal;
+            const finalTotal = paymentAmount < 0 ? 0 : paymentAmount;
 
             PRODUCT_TOTAL_EL.textContent = formatCurrency(productTotal);
             PACKAGING_TOTAL_EL.textContent = formatCurrency(packagingTotal);
             FINAL_TOTAL_EL.textContent = formatCurrency(finalTotal < 0 ? 0 : finalTotal);
+
+            const shippingFeeEl = document.querySelector('[data-role="shipping-fee"]');
+            if (shippingFeeEl) {
+                shippingFeeEl.textContent = formatCurrency(shippingFee);
+            }
         }
 
         updateSummary();
@@ -392,13 +403,24 @@
             const couponId = couponIdEl && !couponIdEl.disabled ? parseInt(couponIdEl.value) : null;
 
             orderItems.push({ bookId, packagingId, couponStoreId: couponId, price, quantity });
+
+            productTotal += price * quantity;
+
+            const selectedOption = item.querySelector("select.packaging-select")?.selectedOptions[0];
+            const packagingPrice = parseInt(selectedOption?.dataset.price || '0', 10);
+            packagingTotal += packagingPrice;
         });
 
-        const usedPoint = parseInt(document.querySelector("input[name='usedPoint']").value || "0", 10);
         const discountAmount = 1000;
+        const usedPoint = parseInt(document.querySelector("input[name='usedPoint']").value || "0", 10);
         const usedPointAmount = usedPoint;
-        const paymentAmountText = document.querySelector('[data-role="final-total"]').textContent.trim();
-        const paymentAmount = parseInt(paymentAmountText.replace(/[^0-9]/g, ''), 10);
+
+        const baseAmount = productTotal + packagingTotal;
+        const shippingFee = ( baseAmount ) >= SHIPPING_POLICY.threshold ? 0 : SHIPPING_POLICY.fee;
+
+        const paymentAmount = baseAmount + shippingFee - discountAmount - usedPoint;
+        const finalAmount = paymentAmount < 0 ? 0 : paymentAmount;
+
 
         const orderFormCreateRequest = {
             orderCreateRequest: { userId, ordererName, ordererPhone },
@@ -410,13 +432,13 @@
                 defaultAddress,
                 detailAddress,
                 extraAddress,
-                shippingFee: 3000,
+                shippingFee: shippingFee,
                 shippingCode: null
             },
             createRequestList: orderItems,
             discountAmount,
             usedPointAmount,
-            paymentAmount
+            paymentAmount: finalAmount
         };
 
         fetch("/payments", {

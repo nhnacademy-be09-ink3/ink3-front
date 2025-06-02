@@ -366,8 +366,14 @@
                         <!-- 배송비 -->
                         <div class="flex justify-between">
                             <span>배송비</span>
-                            <span>3,000원</span>
+                            <span><span data-role="shipping-fee">3,000원</span></span>
                         </div>
+                        <script th:inline="javascript">
+                            const SHIPPING_POLICY = {
+                                threshold: [[${activeShippingPolicy.threshold}]],
+                                fee: [[${activeShippingPolicy.fee}]]
+                            };
+                        </script>
 
                         <!-- 포장지 비용 -->
                         <div class="flex justify-between">
@@ -465,6 +471,8 @@
         });
 
         // 결제 금액 계산
+        let SHIPPING_FEE = SHIPPING_POLICY.fee;
+        const SHIPPING_THRESHOLD = SHIPPING_POLICY.threshold;
         const PRODUCT_TOTAL_EL = document.querySelector('[data-role="product-total"]');
         const PACKAGING_TOTAL_EL = document.querySelector('[data-role="packaging-total"]');
         const FINAL_TOTAL_EL = document.querySelector('[data-role="final-total"]');
@@ -472,10 +480,8 @@
         const POINT_USED_EL = document.querySelector('[data-role="point-used"]');
         const APPLY_BTN = document.getElementById('applyPointBtn');
         const USE_ALL_CHECK = document.getElementById('useAllPointChk');
-
         let usedPoint = 0;
         const DISCOUNT = 1000;
-        const SHIPPING_FEE = 3000;
 
         function formatCurrency(num) {
             return new Intl.NumberFormat('ko-KR').format(num) + '원';
@@ -493,12 +499,21 @@
             const maxPoint = parseInt(POINT_INPUT.getAttribute('max') || '0', 10);
             if (usedPoint > maxPoint) usedPoint = maxPoint;
 
-            const finalTotal = productTotal - DISCOUNT + SHIPPING_FEE + packagingPrice - usedPoint;
+            const baseAmount = productTotal + packagingPrice;
+            const shippingFee = ( baseAmount ) >= SHIPPING_POLICY.threshold ? 0 : SHIPPING_POLICY.fee;
+
+            const paymentAmount = baseAmount + shippingFee - DISCOUNT - usedPoint;
+            const finalTotal = paymentAmount < 0 ? 0 : paymentAmount;
 
             PRODUCT_TOTAL_EL.textContent = formatCurrency(productTotal);
             PACKAGING_TOTAL_EL.textContent = formatCurrency(packagingPrice);
             FINAL_TOTAL_EL.textContent = formatCurrency(finalTotal < 0 ? 0 : finalTotal);
             POINT_USED_EL.textContent = formatCurrency(usedPoint);
+
+            const shippingFeeEl = document.querySelector('[data-role="shipping-fee"]');
+            if (shippingFeeEl) {
+                shippingFeeEl.textContent = formatCurrency(shippingFee);
+            }
         }
 
         updateSummary();
@@ -632,6 +647,9 @@
         const paymentAmountText = document.querySelector('[data-role="final-total"]').textContent.trim();
         const paymentAmount = parseInt(paymentAmountText.replace(/[^0-9]/g, ''), 10);
 
+        const shippingFeeText = document.querySelector('[data-role="shipping-fee"]').textContent.trim();
+        const shippingFee = parseInt(shippingFeeText.replace(/[^0-9]/g, ''), 10);
+
         const orderFormCreateRequest = {
             orderCreateRequest: { userId, ordererName, ordererPhone },
             shipmentCreateRequest: {
@@ -642,7 +660,7 @@
                 defaultAddress,
                 detailAddress,
                 extraAddress,
-                shippingFee: 3000,
+                shippingFee: shippingFee,
                 shippingCode: null
             },
             createRequestList: [{

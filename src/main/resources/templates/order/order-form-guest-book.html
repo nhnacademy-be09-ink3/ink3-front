@@ -200,8 +200,14 @@
                         <!-- 배송비 -->
                         <div class="flex justify-between">
                             <span>배송비</span>
-                            <span>3,000원</span>
+                            <span><span data-role="shipping-fee">3,000원</span></span>
                         </div>
+                        <script th:inline="javascript">
+                            const SHIPPING_POLICY = {
+                                threshold: [[${activeShippingPolicy.threshold}]],
+                                fee: [[${activeShippingPolicy.fee}]]
+                            };
+                        </script>
 
                         <!-- 포장지 비용 -->
                         <div class="flex justify-between">
@@ -257,36 +263,40 @@
         };
 
         // 결제 금액 계산
+        let SHIPPING_FEE = SHIPPING_POLICY.fee;
+        const SHIPPING_THRESHOLD = SHIPPING_POLICY.threshold;
         const PRODUCT_TOTAL_EL = document.querySelector('[data-role="product-total"]');
         const PACKAGING_TOTAL_EL = document.querySelector('[data-role="packaging-total"]');
         const FINAL_TOTAL_EL = document.querySelector('[data-role="final-total"]');
 
-        const SHIPPING_FEE = 3000;
 
         function formatCurrency(num) {
             return new Intl.NumberFormat('ko-KR').format(num) + '원';
         }
 
         function updateSummary() {
-            let productTotal = 0;
-            let packagingTotal = 0;
+            const item = document.querySelector('.cart-item');
+            const price = parseInt(item.dataset.price || '0', 10);
+            const quantity = parseInt(item.dataset.quantity || '0', 10);
+            const productTotal = price * quantity;
 
-            document.querySelectorAll('.cart-item').forEach(item => {
-                const price = parseInt(item.dataset.price || '0', 10);
-                const quantity = parseInt(item.dataset.quantity || '0', 10);
-                productTotal += price * quantity;
+            const selectEl = item.querySelector('select.packaging-select');
+            const packagingPrice = parseInt(selectEl?.selectedOptions[0]?.dataset.price || '0', 10);
 
-                const selectEl = item.querySelector('select.packaging-select');
-                const selectedOption = selectEl?.selectedOptions[0];
-                const packagingPrice = parseInt(selectedOption?.dataset.price || '0', 10);
-                packagingTotal += packagingPrice;
-            });
+            const baseAmount = productTotal + packagingPrice;
+            const shippingFee = ( baseAmount ) >= SHIPPING_POLICY.threshold ? 0 : SHIPPING_POLICY.fee;
 
-            const finalTotal = productTotal + SHIPPING_FEE + packagingTotal;
+            const paymentAmount = baseAmount + shippingFee;
+            const finalTotal = paymentAmount < 0 ? 0 : paymentAmount;
 
             PRODUCT_TOTAL_EL.textContent = formatCurrency(productTotal);
-            PACKAGING_TOTAL_EL.textContent = formatCurrency(packagingTotal);
+            PACKAGING_TOTAL_EL.textContent = formatCurrency(packagingPrice);
             FINAL_TOTAL_EL.textContent = formatCurrency(finalTotal < 0 ? 0 : finalTotal);
+
+            const shippingFeeEl = document.querySelector('[data-role="shipping-fee"]');
+            if (shippingFeeEl) {
+                shippingFeeEl.textContent = formatCurrency(shippingFee);
+            }
         }
 
         updateSummary();
@@ -413,7 +423,7 @@
                 defaultAddress,
                 detailAddress,
                 extraAddress,
-                shippingFee: 3000,
+                shippingFee: SHIPPING_FEE,
                 shippingCode: null
             },
             createRequestList: orderItems,

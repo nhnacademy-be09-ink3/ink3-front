@@ -370,8 +370,14 @@
                         <!-- 배송비 -->
                         <div class="flex justify-between">
                             <span>배송비</span>
-                            <span>3,000원</span>
+                            <span><span data-role="shipping-fee">3,000원</span></span>
                         </div>
+                        <script th:inline="javascript">
+                            const SHIPPING_POLICY = {
+                                threshold: [[${activeShippingPolicy.threshold}]],
+                                fee: [[${activeShippingPolicy.fee}]]
+                            };
+                        </script>
 
                         <!-- 포장지 비용 -->
                         <div class="flex justify-between">
@@ -475,7 +481,10 @@
             });
         }
 
+
         // 결제 금액 계산
+        let SHIPPING_FEE = SHIPPING_POLICY.fee;
+        const SHIPPING_THRESHOLD = SHIPPING_POLICY.threshold;
         const PRODUCT_TOTAL_EL = document.querySelector('[data-role="product-total"]');
         const PACKAGING_TOTAL_EL = document.querySelector('[data-role="packaging-total"]');
         const FINAL_TOTAL_EL = document.querySelector('[data-role="final-total"]');
@@ -484,9 +493,7 @@
         const APPLY_BTN = document.getElementById('applyPointBtn');
         const USE_ALL_CHECK = document.getElementById('useAllPointChk');
         let usedPoint = 0;
-
         const DISCOUNT = 1000;
-        const SHIPPING_FEE = 3000;
 
         function formatCurrency(num) {
             return new Intl.NumberFormat('ko-KR').format(num) + '원';
@@ -510,12 +517,19 @@
             const maxPoint = parseInt(POINT_INPUT.getAttribute('max') || '0', 10);
             if (usedPoint > maxPoint) usedPoint = maxPoint;
 
-            const finalTotal = productTotal - DISCOUNT + SHIPPING_FEE + packagingTotal - usedPoint;
+            const shippingFee = ( productTotal ) >= SHIPPING_POLICY.threshold ? 0 : SHIPPING_POLICY.fee;
+            const paymentAmount = productTotal + shippingFee - DISCOUNT - usedPoint + packagingTotal;
+            const finalTotal = paymentAmount < 0 ? 0 : paymentAmount;
 
             PRODUCT_TOTAL_EL.textContent = formatCurrency(productTotal);
             PACKAGING_TOTAL_EL.textContent = formatCurrency(packagingTotal);
             FINAL_TOTAL_EL.textContent = formatCurrency(finalTotal < 0 ? 0 : finalTotal);
             POINT_USED_EL.textContent = formatCurrency(usedPoint);
+
+            const shippingFeeEl = document.querySelector('[data-role="shipping-fee"]');
+            if (shippingFeeEl) {
+                shippingFeeEl.textContent = formatCurrency(shippingFee);
+            }
         }
 
         updateSummary();
@@ -629,6 +643,7 @@
         const postalCode = document.getElementById("postalCode").value.trim();
         const defaultAddress = document.getElementById("defaultAddress").value.trim();
         const detailAddress = document.getElementById("detailAddress").value.trim();
+        const extraAddress = document.getElementById("extraAddress").value.trim();
 
         if (!ordererName || !ordererPhone || !ordererEmail) {
             alert("주문자 정보를 모두 입력해주세요.");
@@ -639,11 +654,13 @@
             return;
         }
 
-        // 이후 기존 내용 유지
         const userId = parseInt(document.getElementById("userId").value, 10);
         const preferredDate = window.getPreferredDeliveryDate();
-        const extraAddress = document.getElementById("extraAddress").value;
         const orderItems = [];
+
+        let productTotal = 0;
+        let packagingTotal = 0;
+
         document.querySelectorAll(".cart-item").forEach(item => {
             const bookId = parseInt(item.dataset.bookId);
             const price = parseInt(item.dataset.price);
@@ -653,13 +670,23 @@
             const couponId = couponIdEl && !couponIdEl.disabled ? parseInt(couponIdEl.value) : null;
 
             orderItems.push({ bookId, packagingId, couponStoreId: couponId, price, quantity });
+
+            productTotal += price * quantity;
+
+            const selectedOption = item.querySelector("select.packaging-select")?.selectedOptions[0];
+            const packagingPrice = parseInt(selectedOption?.dataset.price || '0', 10);
+            packagingTotal += packagingPrice;
         });
 
-        const usedPoint = parseInt(document.querySelector("input[name='usedPoint']").value || "0", 10);
         const discountAmount = 1000;
+        const usedPoint = parseInt(document.querySelector("input[name='usedPoint']").value || "0", 10);
         const usedPointAmount = usedPoint;
-        const paymentAmountText = document.querySelector('[data-role="final-total"]').textContent.trim();
-        const paymentAmount = parseInt(paymentAmountText.replace(/[^0-9]/g, ''), 10);
+
+        const baseAmount = productTotal + packagingTotal;
+        const shippingFee = ( baseAmount ) >= SHIPPING_POLICY.threshold ? 0 : SHIPPING_POLICY.fee;
+
+        const paymentAmount = baseAmount + shippingFee - discountAmount - usedPoint;
+        const finalAmount = paymentAmount < 0 ? 0 : paymentAmount;
 
         const orderFormCreateRequest = {
             orderCreateRequest: { userId, ordererName, ordererPhone },
@@ -671,13 +698,13 @@
                 defaultAddress,
                 detailAddress,
                 extraAddress,
-                shippingFee: 3000,
+                shippingFee: shippingFee,
                 shippingCode: null
             },
             createRequestList: orderItems,
             discountAmount,
             usedPointAmount,
-            paymentAmount
+            paymentAmount: finalAmount
         };
 
         fetch("/payments", {
@@ -701,4 +728,5 @@
 
         return false;
     }
+
 </script>

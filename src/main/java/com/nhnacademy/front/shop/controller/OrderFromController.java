@@ -9,6 +9,7 @@ import com.nhnacademy.front.shop.book.client.dto.BookResponse;
 import com.nhnacademy.front.shop.cart.client.CartClient;
 import com.nhnacademy.front.shop.cart.dto.CartResponse;
 import com.nhnacademy.front.shop.order.dto.PackagingResponse;
+import com.nhnacademy.front.shop.order.dto.ShippingPolicyResponse;
 import com.nhnacademy.front.shop.order.service.OrderService;
 import com.nhnacademy.front.shop.user.client.dto.UserResponse;
 import com.nhnacademy.front.shop.user.service.UserService;
@@ -41,6 +42,7 @@ public class OrderFromController {
     @GetMapping("/from-cart")
     public String getUserOrderFromCarts(Model model, HttpServletRequest request) {
         addPackagingList(model);
+        addShippingPolicy(model);
 
         if(orderService.isLoggedIn(request)){
             addUserInfo(model);
@@ -51,8 +53,18 @@ public class OrderFromController {
             return "order/order-form-user-books";
         }else {
             //TODO 쿠키값에서 꺼내서 사용해야함. (임시 데이터)
-            CommonResponse<List<CartResponse>> cartResponse = cartClient.getCarts();
-            List<CartResponse> testCart = cartResponse.data();
+            List<CartResponse> testCart = List.of(
+                    new CartResponse(
+                            1L,             // cartId
+                            null,           // userId (비회원이므로 null)
+                            101L,           // bookId
+                            "자바의 정석",     // bookTitle
+                            30000,          // originalBookPrice
+                            27000,          // saleBookPrice
+                            10,            // bookDiscountRate
+                            "/images/java.jpg", // thumbnailUrl
+                            1              // quantity
+                    ));
             model.addAttribute("cart", testCart);
             return "order/order-form-guest-books";
         }
@@ -67,6 +79,7 @@ public class OrderFromController {
     ) {
         addBookInfo(model, bookId, quantity);
         addPackagingList(model);
+        addShippingPolicy(model);
 
         if(orderService.isLoggedIn(request)) {
             addUserInfo(model);
@@ -75,6 +88,8 @@ public class OrderFromController {
             return "order/order-form-guest-book";
         }
     }
+
+
 
     // 사용자 정보 입력
     private void addUserInfo(Model model) {
@@ -95,5 +110,11 @@ public class OrderFromController {
     private void addPackagingList(Model model) {
         PageResponse<PackagingResponse> packagingList = orderService.getPackagingList(0, 100);
         model.addAttribute("packagings", packagingList.content());
+    }
+
+    // 배송 정책 가져오기
+    private void addShippingPolicy(Model model) {
+        ShippingPolicyResponse activeShippingPolicy = orderService.getActiveShippingPolicy();
+        model.addAttribute("activeShippingPolicy", activeShippingPolicy);
     }
 }

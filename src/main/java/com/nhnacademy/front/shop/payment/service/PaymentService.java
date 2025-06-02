@@ -25,4 +25,8 @@ public class PaymentService {
     public void dealWithPaymentFail(long orderId) {
         paymentClient.dealWithPaymentFail(orderId);
     }
+
+    public void dealWithPaymentCancel(long orderId) {
+        paymentClient.dealWithPaymentCancel(orderId);
+    }
 }

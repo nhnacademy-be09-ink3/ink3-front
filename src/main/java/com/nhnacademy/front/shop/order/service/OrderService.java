@@ -8,6 +8,7 @@ import com.nhnacademy.front.shop.order.dto.OrderResponse;
 import com.nhnacademy.front.shop.order.dto.OrderWithDetailsResponse;
 import com.nhnacademy.front.shop.order.dto.PackagingResponse;
 import com.nhnacademy.front.shop.order.dto.ShipmentResponse;
+import com.nhnacademy.front.shop.order.dto.ShippingPolicyResponse;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -43,9 +44,16 @@ public class OrderService {
         return packagingsResponse.data();
     }
 
+    // 주문에 대한 도서 리시트 가져오기
     public PageResponse<OrderBookResponse> getOrderBookList(long orderId, Integer page, Integer size) {
         CommonResponse<PageResponse<OrderBookResponse>> orderBookListByOrderId = orderClient.getOrderBookListByOrderId(orderId, page, size);
         return orderBookListByOrderId.data();
+    }
+
+    // 활성화된 배송 정책 가져오기
+    public ShippingPolicyResponse getActiveShippingPolicy(){
+        CommonResponse<ShippingPolicyResponse> activeShippingPolicy = orderClient.getActiveShippingPolicy();
+        return activeShippingPolicy.data();
     }
 
 

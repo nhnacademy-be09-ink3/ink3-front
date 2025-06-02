@@ -8,6 +8,7 @@ import com.nhnacademy.front.shop.order.dto.OrderResponse;
 import com.nhnacademy.front.shop.order.dto.OrderWithDetailsResponse;
 import com.nhnacademy.front.shop.order.dto.PackagingResponse;
 import com.nhnacademy.front.shop.order.dto.ShipmentResponse;
+import com.nhnacademy.front.shop.order.dto.ShippingPolicyResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -42,4 +43,7 @@ public interface OrderClient {
             @RequestParam("page") int page,
             @RequestParam("size") int size
     );
+
+    @GetMapping("/shipping-policies/activate")
+    CommonResponse<ShippingPolicyResponse> getActiveShippingPolicy();
 }
