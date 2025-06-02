@@ -707,7 +707,11 @@
             paymentAmount: finalAmount
         };
 
-        fetch("/payments", {
+        const basePath = window.location.pathname.split('/')[1]; // 'dev'
+        const contextPrefix = basePath && basePath !== 'payments' ? '/' + basePath : '';
+        const fullPath = contextPrefix + "/payments";
+
+        fetch(fullPath, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(orderFormCreateRequest)
@@ -722,7 +726,7 @@
                 document.close();
             })
             .catch(error => {
-                console.error("에러 발생:", error);
+                console.error("에러 발생:{}", error);
                 alert("결제 요청 중 문제가 발생했습니다.");
             });
 
