@@ -5,6 +5,7 @@ import com.nhnacademy.front.common.dto.PageResponse;
 import com.nhnacademy.front.shop.author.client.AuthorClient;
 import com.nhnacademy.front.shop.author.client.dto.AuthorResponse;
 import com.nhnacademy.front.shop.book.client.BookClient;
+import com.nhnacademy.front.shop.book.client.dto.BookCreateRequest;
 import com.nhnacademy.front.shop.book.client.dto.BookResponse;
 import com.nhnacademy.front.shop.category.client.CategoryClient;
 import com.nhnacademy.front.shop.category.client.dto.CategoryResponse;
@@ -18,7 +19,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 @Slf4j
@@ -63,12 +66,18 @@ public class BookController {
         CommonResponse<PageResponse<CategoryResponse>> categories = categoryClient.getCategories();
         CommonResponse<PageResponse<TagResponse>> tags = tagClient.getTags(0, 0);
 
-        model.addAttribute("authors", authors.data());
+        model.addAttribute("authors", authors.data().content());
         model.addAttribute("publishers", publishers.data());
         model.addAttribute("categories", categories.data().content());
         model.addAttribute("tags", tags.data());
 
         return "admin/book-register";
+    }
+
+    @PostMapping("/admin/book-register")
+    public String registerBook(@ModelAttribute BookCreateRequest request) {
+        bookClient.createBook(request);
+        return "redirect:/admin/book-register";
     }
 
     @GetMapping("/books/category")

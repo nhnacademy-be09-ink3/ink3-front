@@ -44,7 +44,7 @@
     <main class="main-content-area flex-1 p-6 bg-gray-100 overflow-y-auto">
         <div class="bg-white w-3/5 px-10 py-12 rounded-md shadow-md max-w-3xl mx-auto">
             <h1 class="text-3xl font-bold text-gray-800 mb-8 text-center">도서 등록</h1>
-            <form th:action="@{/admin/books}" method="post" enctype="multipart/form-data" class="space-y-8">
+            <form th:action="@{/admin/book-register}" method="post" class="space-y-8">
 
                 <!-- 공통 스타일: label + input 그룹 -->
                 <div class="grid grid-cols-1 gap-2">
@@ -141,9 +141,15 @@
                     <input type="checkbox" id="isPackable" name="isPackable" class="w-5 h-5" style="accent-color: #86ef7d;">
                 </div>
 
-                <div class="ink-input-group">
-                    <label for="coverImage">표지 이미지</label>
-                    <input type="file" id="coverImage" name="coverImage" class="ink-input-field w-full">
+<!--                <div class="ink-input-group">-->
+<!--                    <label for="coverImage">표지 이미지</label>-->
+<!--                    <input type="file" id="coverImage" name="coverImage" class="ink-input-field w-full">-->
+<!--                </div>-->
+                <div class="grid grid-cols-1 gap-2">
+                    <label for="thumbnailUrl" class="text-gray-700 font-medium">책 이미지 URL</label>
+                    <input type="text" id="thumbnailUrl" name="thumbnailUrl"
+                           placeholder="예: https://example.com/image.jpg"
+                           class="ink-input-field w-full">
                 </div>
 
                 <div class="flex justify-end">
@@ -155,6 +161,7 @@
         <script th:inline="javascript">
             /*<![CDATA[*/
             const contextPath = /*[[@{/}]]*/ '';
+            const authors = /*[[${authors}]]*/ [];
             const rawCategories = /*[[${categories}]]*/ [];
 
             const categories = rawCategories.map(c => ({
@@ -163,16 +170,15 @@
                 parentId:  c.parentId
             }));
 
+            let authorGroupId = 0;
+
             function addAuthorField() {
                 const container = document.getElementById('authors-container');
                 const groupId = authorGroupId++;
 
                 const wrapper = document.createElement('div');
-                wrapper.className = 'bg-gray-50 border border-gray-200 rounded-lg p-4 flex flex-col justify-between';
+                wrapper.className = 'bg-white border border-gray-200 rounded-lg p-4 flex flex-col justify-between';
                 wrapper.id = `author-group-${groupId}`;
-
-                const innerBox = document.createElement('div');
-                innerBox.className = 'bg-white rounded-md p-4 space-y-2 shadow-inner';
 
                 // 셀렉트 박스
                 const select = document.createElement('select');
@@ -183,7 +189,6 @@
                 defaultOption.textContent = '작가 선택';
                 select.appendChild(defaultOption);
 
-                const authors = /*[[${authors.content}]]*/ [];
                 authors.forEach(author => {
                     const opt = document.createElement('option');
                     opt.value = author.id;
@@ -202,14 +207,13 @@
                 const removeBtn = document.createElement('button');
                 removeBtn.type = 'button';
                 removeBtn.className = 'text-sm text-red-600 hover:text-red-800 mt-4 self-end';
-                removeBtn.textContent = '삭제';
+                removeBtn.textContent = '❌';
                 removeBtn.onclick = () => {
                     container.removeChild(wrapper);
                 };
 
-                innerBox.appendChild(select);
-                innerBox.appendChild(input);
-                wrapper.appendChild(innerBox);
+                wrapper.appendChild(select);
+                wrapper.appendChild(input);
                 wrapper.appendChild(removeBtn);
 
                 container.appendChild(wrapper);
@@ -312,8 +316,8 @@
                 removeBtn.innerHTML = '❌';
                 removeBtn.className = 'text-sm text-red-600 hover:text-red-800 mt-4 self-end';
                 removeBtn.addEventListener('click', () => removeCategoryGroup(group));
-                groupWrapper.appendChild(removeBtn);
 
+                groupWrapper.appendChild(removeBtn);
                 container.appendChild(groupWrapper);
                 renderCategoryDropdown(null, 1, group);
             });
