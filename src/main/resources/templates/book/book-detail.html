@@ -83,12 +83,14 @@
                         <span class="flex items-center">
                             <span class="text-md text-gray-600 mb-1">태그</span>
                             <span class="text-gray-800 flex ml-3 pl-3 py-2 border-l-2 border-gray-200 space-x-2s">
-                                <th:block th:each="tag, iterStat : ${book.tagNames}">
-                                    <span th:text="${tag}"></span><th:block th:if="${!iterStat.last}">, </th:block>
+                                <th:block th:if="${book.tagNames != null and !#lists.isEmpty(book.tagNames)}">
+                                    <th:block th:each="tag, iterStat : ${book.tagNames}">
+                                        <span th:text="${tag}"></span><th:block th:if="${!iterStat.last}">, </th:block>
+                                    </th:block>
                                 </th:block>
-                                <span th:unless="${#lists.size(book.tagNames) > 0}">
+                                <th:block th:if="${book.tagNames == null or #lists.isEmpty(book.tagNames)}">
                                     태그 미설정
-                                </span>
+                                </th:block>
                             </span>
                         </span>
                     </div>
