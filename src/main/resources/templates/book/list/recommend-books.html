@@ -20,7 +20,11 @@
 
     <div class="space-y-6">
         <div th:each="book, iterStat : ${bookList}"
-             class="bg-white rounded-xl shadow p-6 flex gap-6 items-start w-full max-w-5xl mx-auto">
+             class="bg-white rounded-xl shadow p-6 flex gap-6 items-center w-full max-w-5xl mx-auto">
+
+            <div class="w-10 h-full flex items-center justify-center text-2xl font-bold text-gray-500">
+                <span th:text="${bookPage.page * bookPage.size + iterStat.index + 1}">1</span>
+            </div>
 
             <div class="w-[120px] h-[180px] shrink-0 rounded-md overflow-hidden bg-gray-100 flex items-center justify-center">
                 <img th:src="${book.thumbnailUrl}" alt="thumbnail"
