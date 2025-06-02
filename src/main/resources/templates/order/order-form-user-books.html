@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ink3</title>
-    <base th:href="@{/}" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/output.css(v=${#dates.createNow().getTime()})}">
     <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
@@ -414,6 +413,7 @@
 
 
 <script>
+
     document.addEventListener("DOMContentLoaded", () => {
         // 희망 배송일 체크박스 제어
         const checkbox = document.getElementById("enablePreferredDate");
@@ -708,7 +708,9 @@
             paymentAmount: finalAmount
         };
 
-     fetch("payments" ,{
+        const contextPath = /*[[@{/}]]*/ '';
+
+        fetch(`${contextPath}/payments` ,{
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(orderFormCreateRequest)
