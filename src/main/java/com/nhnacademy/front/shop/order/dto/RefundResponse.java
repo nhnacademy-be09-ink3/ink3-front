@@ -14,6 +14,7 @@ public class RefundResponse {
     private Long orderId;
     private String reason;
     private String details;
-    private Integer RefundShippingFee;
+    private Integer refundShippingFee;
     private LocalDateTime createdAt;
+    private Boolean approved;
 }

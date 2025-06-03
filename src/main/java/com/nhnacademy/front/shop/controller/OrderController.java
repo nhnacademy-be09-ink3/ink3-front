@@ -23,14 +23,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 @RequiredArgsConstructor
 @Controller
-@RequestMapping("/orders")
 public class OrderController {
     private final OrderService orderService;
     private final PaymentService paymentService;
 
     //TODO 쿠폰 적용해야함.
     // 주문 상세 페이지
-    @GetMapping("/{orderId}")
+    @GetMapping("/orders/{orderId}")
     public String getOrderDetails(@PathVariable long orderId, Model model) {
         OrderResponse orderResponse = orderService.getOrder(orderId);
         PageResponse<OrderBookResponse> orderBookList = orderService.getOrderBookList(orderId, 0, 100);
@@ -47,7 +46,7 @@ public class OrderController {
     }
 
     // 주문 반품
-    @PostMapping
+    @PostMapping("/refunds")
     public String createRefund(Model model, @RequestBody RefundCreateRequest request){
         RefundResponse refund = orderService.createRefund(request);
         model.addAttribute("refund", refund);
