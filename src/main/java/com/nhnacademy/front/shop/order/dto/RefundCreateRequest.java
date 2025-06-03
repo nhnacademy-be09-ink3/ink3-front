@@ -2,6 +2,7 @@ package com.nhnacademy.front.shop.order.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -20,4 +21,8 @@ public class RefundCreateRequest {
     @NotBlank
     @Length(max = 255)
     private String details;
+    @NotNull
+    private Integer RefundShippingFee;
+    @NotNull
+    private LocalDateTime createdAt;
 }

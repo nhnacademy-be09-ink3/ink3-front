@@ -1,5 +1,6 @@
 package com.nhnacademy.front.shop.order.dto;
 
+import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -13,4 +14,6 @@ public class RefundResponse {
     private Long orderId;
     private String reason;
     private String details;
+    private Integer RefundShippingFee;
+    private LocalDateTime createdAt;
 }

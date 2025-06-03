@@ -16,4 +16,5 @@ public class RefundPolicyResponse {
     private Integer defectReturnDeadLine;
     private Boolean isAvailable;
     private LocalDateTime createdAt;
+    private Integer refundShippingFee;
 }
