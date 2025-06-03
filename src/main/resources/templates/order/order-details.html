@@ -443,6 +443,10 @@
             return;
         }
 
+
+        const now = new Date().toISOString();
+        const refundShippingFee = [[${activateRefundPolicy.refundShippingFee}]];
+
         const contextPath = /*[[@{/}]]*/ '';
         fetch(`${contextPath}orders`, {
             method: "POST",
@@ -450,7 +454,9 @@
             body: JSON.stringify({
                 orderId: orderId,
                 reason: type,
-                details: details
+                details: details,
+                refundShippingFee: refundShippingFee,
+                createdAt: now
             })
         })
             .then(response => {
