@@ -54,7 +54,7 @@
                            class="w-14 px-2 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
 
-                <form th:action="@{/carts}" method="post" th:if="${isLoggedIn}" class="w-full">
+                <form th:action="@{/carts}" method="post" th:if="${loginUser != null}" class="w-full">
                     <input type="hidden" name="bookId" th:value="${book.id}"/>
                     <input type="hidden" name="quantity" th:value="1"/>
                     <button type="submit"
@@ -63,7 +63,7 @@
                     </button>
                 </form>
 
-                <form th:action="@{/guest-carts}" method="post" th:unless="${isLoggedIn}" class="w-full">
+                <form th:action="@{/guest-carts}" method="post" th:unless="${loginUser != null}" class="w-full">
                     <input type="hidden" name="bookId" th:value="${book.id}"/>
                     <input type="hidden" name="quantity" th:value="1"/>
                     <button type="submit"
