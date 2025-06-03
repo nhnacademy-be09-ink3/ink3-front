@@ -445,18 +445,19 @@
 
 
         const now = new Date().toISOString();
-        const refundShippingFee = [[${activateRefundPolicy.refundShippingFee}]];
-
+        const refundFee = [[${refundPolicy.refundShippingFee}]];
+        console.log("반품 택배비 : " + refundFee);
         const contextPath = /*[[@{/}]]*/ '';
-        fetch(`${contextPath}orders`, {
+        fetch(`${contextPath}refunds`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                 orderId: orderId,
                 reason: type,
                 details: details,
-                refundShippingFee: refundShippingFee,
-                createdAt: now
+                refundShippingFee: refundFee,
+                createdAt: now,
+                approved: false
             })
         })
             .then(response => {
@@ -470,6 +471,8 @@
             })
             .catch(error => {
                 console.error("반품 요청 실패:", error);
+                console.error("상태 코드:", error.status);
+                console.error("에러 메시지:", error.message  );
                 alert("반품 요청 중 오류가 발생했습니다.");
             });
     }

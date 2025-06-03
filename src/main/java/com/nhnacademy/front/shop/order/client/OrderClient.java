@@ -50,6 +50,8 @@ public interface OrderClient {
     @PostMapping("/refunds")
     CommonResponse<RefundResponse> createRefund(RefundCreateRequest request);
 
+    @PostMapping("/refunds/{orderId}")
+    CommonResponse<Void> approveRefund(@PathVariable("orderId") String orderId);
 
 
     @GetMapping("/shipping-policies/activate")
