@@ -17,17 +17,17 @@ import org.springframework.web.bind.annotation.RequestParam;
 @FeignClient(name = "publisherClient", url = "${feign.url.shop}")
 public interface PublisherClient {
 
-    @PostMapping("/publishers")
+    @PostMapping("/pubs")
     CommonResponse<PublisherResponse> createPublisher(@RequestBody PublisherCreateRequest request);
 
-    @GetMapping("/publishers")
+    @GetMapping("/pubs")
     CommonResponse<PageResponse<PublisherResponse>> getPublishers(@RequestParam int size,
                                                                   @RequestParam int page);
 
-    @PutMapping("/publishers/{publisherId}")
+    @PutMapping("/pubs/{publisherId}")
     CommonResponse<PublisherResponse> updatePublisher(@PathVariable Long publisherId,
                                                       @RequestBody PublisherUpdateRequest request);
 
-    @DeleteMapping("/publishers/{publisherId}")
+    @DeleteMapping("/pubs/{publisherId}")
     Void deletePublisher(@PathVariable Long publisherId);
 }

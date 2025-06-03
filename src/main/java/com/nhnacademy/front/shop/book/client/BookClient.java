@@ -13,17 +13,16 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.nhnacademy.front.common.dto.CommonResponse;
 import com.nhnacademy.front.common.dto.PageResponse;
 import com.nhnacademy.front.shop.book.dto.BookCreateRequest;
-import com.nhnacademy.front.shop.book.dto.BookResponse;
 import com.nhnacademy.front.shop.book.dto.MainBookResponse;
 
 @FeignClient(name = "bookClient", url = "${feign.url.shop}")
 public interface BookClient {
 
     @PostMapping("/books")
-    CommonResponse<BookResponse> createBook(@RequestBody BookCreateRequest request);
+    CommonResponse<MainBookResponse> createBook(@RequestBody BookCreateRequest request);
 
     @GetMapping("/books")
-    CommonResponse<PageResponse<BookResponse>> getBooks();
+    CommonResponse<PageResponse<MainBookResponse>> getBooks();
 
     @GetMapping("/books/bestseller")
     CommonResponse<PageResponse<MainBookResponse>> getTop5BestsellerBooks();
@@ -44,5 +43,5 @@ public interface BookClient {
     CommonResponse<PageResponse<MainBookResponse>> getAllRecommendedBooks(@RequestParam int page, @RequestParam int size);
 
     @GetMapping("/books/{bookId}")
-    CommonResponse<BookResponse> getBookDetail(@PathVariable Long bookId);
+    CommonResponse<MainBookResponse> getBookDetail(@PathVariable Long bookId);
 }
