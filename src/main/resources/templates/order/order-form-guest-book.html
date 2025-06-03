@@ -432,25 +432,44 @@
             paymentAmount
         };
 
+        const tossPayments = TossPayments("test_ck_ALnQvDd2VJ2jvnEdDeLnVMj7X41m");
         const contextPath = /*[[@{/}]]*/ '';
 
         fetch(`${contextPath}payments`, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: {"Content-Type": "application/json"},
             body: JSON.stringify(orderFormCreateRequest)
         })
-            .then(response => {
-                if (!response.ok) throw new Error("결제 요청 실패");
-                return response.text();
-            })
-            .then(html => {
-                document.open();
-                document.write(html);
-                document.close();
+            .then(response => response.json())
+            .then(data => {
+                return tossPayments.requestPayment("카드", {
+                    amount: data.amount,
+                    orderId: data.orderId,
+                    orderName: data.orderName,
+                    customerName: data.customerName,
+                    successUrl: data.successUrl,
+                    failUrl: data.failUrl
+                });
             })
             .catch(error => {
-                console.error("에러 발생:", error);
-                alert("결제 요청 중 문제가 발생했습니다.");
+                if (error.code) {
+                    console.error("🚫 TossPayments 오류 코드:", error.code);
+                }
+                if (error.message) {
+                    console.error("📝 오류 메시지:", error.message);
+                }
+                if (error.stack) {
+                    console.error("🧱 스택 트레이스:", error.stack);
+                }
+
+                console.groupEnd();
+
+                if (error.code === "USER_CANCEL") {
+                    alert("결제를 취소했습니다.");
+                } else {
+                    alert("결제 중 오류가 발생했습니다.");
+                }
+
             });
 
         return false;

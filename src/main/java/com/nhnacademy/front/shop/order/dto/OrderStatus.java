@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum OrderStatus {
+    CREATED("결제대기"),
     CONFIRMED("대기"),
     SHIPPING("배송중"),
     DELIVERED("배송완료"),
@@ -22,7 +23,7 @@ public enum OrderStatus {
         try {
             return OrderStatus.valueOf(value); // name 기준 매핑
         } catch (IllegalArgumentException e) {
-            return CONFIRMED; // 잘못된 값이 들어왔을 경우에만 fallback
+            return CREATED; // 잘못된 값이 들어왔을 경우에만 fallback
         }
     }
 }
