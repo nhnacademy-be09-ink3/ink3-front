@@ -186,6 +186,19 @@
                                                     <span class="text-red-500"
                                                           th:text="'(' + ${cart.bookDiscountRate} + '% 할인)'">0%</span>
                                                 </div>
+
+                                                <div class="mt-2 flex items-center gap-2">
+                                                    <select class="border px-2 py-1.5 rounded text-sm text-gray-700 w-40">
+                                                        <option selected disabled>쿠폰 선택</option>
+                                                        <option>5% 할인 쿠폰</option>
+                                                        <option>10% 할인 쿠폰</option>
+                                                        <option>배송비 무료</option>
+                                                    </select>
+                                                    <button type="button"
+                                                            class="ink-btn-primary text-white px-2 py-1 text-xs rounded hover:bg-green-600">
+                                                        적용
+                                                    </button>
+                                                </div>
                                             </div>
                                         </div>
                                     </td>
@@ -253,7 +266,9 @@
     </div>
 </div>
 
-<script>
+<script th:inline="javascript">
+    const contextPath = /*[[@{/}]]*/ '';
+
     document.addEventListener('DOMContentLoaded', () => {
         const selectAll = document.getElementById('selectAll');
         const checkboxes = document.querySelectorAll('.guest-cart-checkbox');
@@ -340,8 +355,7 @@
                     return;
                 }
 
-                //TODO: 수정해야함
-                fetch('/dev/carts/update-quantity', {
+                fetch(`${contextPath}carts/update-quantity`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded'

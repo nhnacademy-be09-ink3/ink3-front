@@ -370,6 +370,9 @@
   .mt-16 {
     margin-top: calc(var(--spacing) * 16);
   }
+  .mt-\[-16px\] {
+    margin-top: -16px;
+  }
   .mt-auto {
     margin-top: auto;
   }

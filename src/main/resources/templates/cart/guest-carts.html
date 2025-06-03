@@ -169,7 +169,7 @@
                                         <div class="cart-item-info">
                                             <img th:src="${cart.book.thumbnailUrl}" class="cart-image"/>
                                             <div class="product-details">
-                                                <h3 class="product-title" th:text="${cart.book.bookTitle}">도서 제목</h3>
+                                                <h3 class="product-title font-semibold text-lg" th:text="${cart.book.bookTitle}">도서 제목</h3>
                                                 <div class="price-info">
                                                     <span class="line-through" th:text="${#numbers.formatInteger(cart.book.originalBookPrice, 3, 'COMMA') + '원'}"></span>
                                                     <span class="font-semibold" th:text="${#numbers.formatInteger(cart.book.saleBookPrice, 3, 'COMMA') + '원'}"></span>
@@ -191,6 +191,9 @@
                                 </tr>
                                 </tbody>
                             </table>
+                        </div>
+                        <div class="mt-8 text-center text-gray-600 text-ml" th:if="${#lists.isEmpty(guestCarts)}">
+                            장바구니가 비어 있습니다.
                         </div>
                         <div class="mt-8 flex justify-end border-t border-gray-100 pt-8">
                             <div class="w-screen max-w-lg space-y-4">
