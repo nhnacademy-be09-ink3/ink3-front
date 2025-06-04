@@ -300,9 +300,9 @@
 
                         <!-- 이미지 -->
                         <div class="flex flex-wrap gap-2 mt-2" th:if="${review.images != null}">
-                            <img th:each="url : ${review.images}"
-                                 th:src="@{${url.imageUrl}}"
-                                 class="w-36 h-36 object-cover rounded"/>
+                            <img th:each="img : ${rv.images}"
+                                 th:src="${img.imageUrl}"
+                                 class="w-28 h-28 object-cover rounded">
                         </div>
 
                         <!-- 본인 리뷰일 때만 수정/삭제 가능 -->
