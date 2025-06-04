@@ -31,7 +31,8 @@
     <script>
         function goToCategory(name) {
             const encoded = encodeURIComponent(name);
-            location.href = `/books/category?name=${encoded}`;
+            const prefix = location.pathname.includes('/dev/') ? '/dev' : '';
+            location.href = `${prefix}/books/category?name=${encoded}`;
         }
 
         document.addEventListener('DOMContentLoaded', () => {
