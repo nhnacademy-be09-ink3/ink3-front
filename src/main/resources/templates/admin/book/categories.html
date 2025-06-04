@@ -33,9 +33,6 @@
     <div th:replace="~{admin/layout/fragments/sidebar :: sidebarFragment}"></div>
 
     <main class="main-content-area flex-1 p-6 bg-gray-100 overflow-y-auto">
-        <!--        <div class="bg-white p-6 rounded-lg shadow-md mb-6 h-full">-->
-
-        <!--        </div>-->
         <div class="w-8/12 mx-auto flex flex-col space-y-6">
             <div class="w-3/4 flex flex-col space-y-4">
                 <div class="ink-card-white p-6">
@@ -56,7 +53,7 @@
 
                     <h2 class="text-lg font-semibold text-gray-700 mb-4">카테고리 목록</h2>
                     <div class="bg-gray-100 rounded-xl shadow p-4">
-                        <div th:replace="admin/layout/fragments/categoryTreeFragment :: categoryTree(${categoryTree}, '')"></div>
+                        <div th:replace="admin/layout/fragments/categoryTreeFragment :: categoryTree(${categoryTree[0].children()}, '')"></div>
                     </div>
 
                 </div>

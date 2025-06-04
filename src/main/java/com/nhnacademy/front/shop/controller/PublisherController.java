@@ -45,7 +45,7 @@ public class PublisherController {
         model.addAttribute("publishers", publishers);
         model.addAttribute("pageInfo", pageInfo);
 
-        return "admin/publishers";
+        return "admin/book/publishers";
     }
 
     @PutMapping("/admin/pubs/{publisherId}")
