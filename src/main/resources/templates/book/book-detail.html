@@ -34,8 +34,8 @@
                     <div class="flex mb-4">
                         <span class="flex items-center">
                             <span class="text-gray-600">
-                            <th:block th:each="author, iterStat : ${book.authorNames}">
-                                <span th:text="${author}"></span><th:block th:if="${!iterStat.last}">, </th:block>
+                            <th:block th:each="author, iterStat : ${book.authors}">
+                                <span th:text="${author.authorName}"></span><th:block th:if="${!iterStat.last}">, </th:block>
                             </th:block>
                         </span>
                             <span class="flex ml-3 pl-3 py-2 border-l-2 border-gray-200 space-x-2s"
@@ -70,8 +70,8 @@
                         <span class="flex items-center">
                             <span class="text-md text-gray-600 mb-1">카테고리</span>
                             <span class="text-gray-800 flex ml-3 pl-3 py-2 border-l-2 border-gray-200 flex-col">
-                                <th:block th:each="category, iterStat : ${book.categoryNames}">
-                                    <span th:text="${category}"></span>
+                                <th:block th:each="category, iterStat : ${book.categories}">
+                                    <span th:text="${category.name}"></span>
                                     <br th:if="${!iterStat.last}"/>
                                 </th:block>
                             </span>
@@ -83,12 +83,12 @@
                         <span class="flex items-center">
                             <span class="text-md text-gray-600 mb-1">태그</span>
                             <span class="text-gray-800 flex ml-3 pl-3 py-2 border-l-2 border-gray-200 space-x-2s">
-                                <th:block th:if="${book.tagNames != null and !#lists.isEmpty(book.tagNames)}">
-                                    <th:block th:each="tag, iterStat : ${book.tagNames}">
-                                        <span th:text="${tag}"></span><th:block th:if="${!iterStat.last}">, </th:block>
+                                <th:block th:if="${book.tags != null and !#lists.isEmpty(book.tags)}">
+                                    <th:block th:each="tag, iterStat : ${book.tags}">
+                                        <span th:text="${tag.name}"></span><th:block th:if="${!iterStat.last}">, </th:block>
                                     </th:block>
                                 </th:block>
-                                <th:block th:if="${book.tagNames == null or #lists.isEmpty(book.tagNames)}">
+                                <th:block th:if="${book.tags == null or #lists.isEmpty(book.tags)}">
                                     태그 미설정
                                 </th:block>
                             </span>
