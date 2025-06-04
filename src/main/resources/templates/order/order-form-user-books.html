@@ -6,6 +6,7 @@
     <title>ink3</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/output.css(v=${#dates.createNow().getTime()})}">
+    <script src="https://js.tosspayments.com/v1/payment"></script>
     <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
     <style>
         body {
@@ -670,7 +671,7 @@
             const couponIdEl = item.querySelector("select[name='couponId']");
             const couponId = couponIdEl && !couponIdEl.disabled ? parseInt(couponIdEl.value) : null;
 
-            orderItems.push({ bookId, packagingId, couponStoreId: couponId, price, quantity });
+            orderItems.push({bookId, packagingId, couponStoreId: couponId, price, quantity});
 
             productTotal += price * quantity;
 
@@ -684,13 +685,13 @@
         const usedPointAmount = usedPoint;
 
         const baseAmount = productTotal + packagingTotal;
-        const shippingFee = ( baseAmount ) >= SHIPPING_POLICY.threshold ? 0 : SHIPPING_POLICY.fee;
+        const shippingFee = (baseAmount) >= SHIPPING_POLICY.threshold ? 0 : SHIPPING_POLICY.fee;
 
         const paymentAmount = baseAmount + shippingFee - discountAmount - usedPoint;
         const finalAmount = paymentAmount < 0 ? 0 : paymentAmount;
 
         const orderFormCreateRequest = {
-            orderCreateRequest: { userId, ordererName, ordererPhone },
+            orderCreateRequest: {userId, ordererName, ordererPhone},
             shipmentCreateRequest: {
                 preferredDeliveryDate: preferredDate,
                 recipientName,
@@ -708,31 +709,45 @@
             paymentAmount: finalAmount
         };
 
+        const tossPayments = TossPayments("test_ck_ALnQvDd2VJ2jvnEdDeLnVMj7X41m");
         const contextPath = /*[[@{/}]]*/ '';
 
-        fetch(`${contextPath}payments` ,{
+        fetch(`${contextPath}payments`, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: {"Content-Type": "application/json"},
             body: JSON.stringify(orderFormCreateRequest)
         })
-            .then(response => {
-                if (!response.ok) throw new Error("결제 요청 실패");
-                return response.text();
+            .then(response => response.json())
+            .then(data => {
+                return tossPayments.requestPayment("카드", {
+                    amount: data.amount,
+                    orderId: data.orderId,
+                    orderName: data.orderName,
+                    customerName: data.customerName,
+                    successUrl: data.successUrl,
+                    failUrl: data.failUrl
+                });
             })
-            .then(html => {
-                document.open();
-                document.write(html);
-                document.close();
-            })
-            .then(response => {
-                if (!response.ok) {
-                    return response.text().then(errMsg => {
-                        console.error("서버 오류 응답:", errMsg);
-                        throw new Error(errMsg); // catch로 넘김
-                    });
+            .catch(error => {
+                if (error.code) {
+                    console.error("🚫 TossPayments 오류 코드:", error.code);
                 }
-                return response.text();
-            })
+                if (error.message) {
+                    console.error("📝 오류 메시지:", error.message);
+                }
+                if (error.stack) {
+                    console.error("🧱 스택 트레이스:", error.stack);
+                }
+
+                console.groupEnd();
+
+                if (error.code === "USER_CANCEL") {
+                    alert("결제를 취소했습니다.");
+                } else {
+                    alert("결제 중 오류가 발생했습니다.");
+                }
+
+            });
 
         return false;
     }

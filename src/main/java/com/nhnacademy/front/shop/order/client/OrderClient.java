@@ -7,6 +7,9 @@ import com.nhnacademy.front.shop.order.dto.OrderFormCreateRequest;
 import com.nhnacademy.front.shop.order.dto.OrderResponse;
 import com.nhnacademy.front.shop.order.dto.OrderWithDetailsResponse;
 import com.nhnacademy.front.shop.order.dto.PackagingResponse;
+import com.nhnacademy.front.shop.order.dto.RefundCreateRequest;
+import com.nhnacademy.front.shop.order.dto.RefundPolicyResponse;
+import com.nhnacademy.front.shop.order.dto.RefundResponse;
 import com.nhnacademy.front.shop.order.dto.ShipmentResponse;
 import com.nhnacademy.front.shop.order.dto.ShippingPolicyResponse;
 import org.springframework.cloud.openfeign.FeignClient;
@@ -44,6 +47,16 @@ public interface OrderClient {
             @RequestParam("size") int size
     );
 
+    @PostMapping("/refunds")
+    CommonResponse<RefundResponse> createRefund(RefundCreateRequest request);
+
+    @PostMapping("/refunds/{orderId}")
+    CommonResponse<Void> approveRefund(@PathVariable("orderId") String orderId);
+
+
     @GetMapping("/shipping-policies/activate")
     CommonResponse<ShippingPolicyResponse> getActiveShippingPolicy();
+
+    @GetMapping("/refund-policies/activate")
+    CommonResponse<RefundPolicyResponse> getActivateRefundPolicy();
 }

@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ink3</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/output.css(v=${#dates.createNow().getTime()})}">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+<div th:replace="~{admin/layout/fragments/header :: headerFragment}"></div>
+<div class="flex flex-1 min-h-[calc(100vh-64px)]">
+    <div th:replace="~{admin/layout/fragments/sidebar :: sidebarFragment}"></div>
+
+    <main class="main-content-area flex-1 p-6 bg-gray-100 overflow-y-auto">
+        <div class="max-w-7xl mx-auto space-y-6">
+            <h1 class="text-2xl font-bold text-gray-800 border-b pb-3">반품 승인 요청 목록</h1>
+
+            <div th:if="${#lists.isEmpty(refunds.content)}" class="text-center text-gray-500 py-10 bg-white rounded shadow">
+                현재 처리할 반품 요청이 없습니다.
+            </div>
+
+            <div th:if="${!#lists.isEmpty(refunds.content)}" class="overflow-x-auto">
+                <table class="min-w-full text-sm text-left text-gray-700 bg-white rounded shadow border">
+                    <thead class="bg-gray-100 text-gray-700 text-xs uppercase border-b">
+                    <tr>
+                        <th class="px-4 py-3">#</th>
+                        <th class="px-4 py-3">주문 ID</th>
+                        <th class="px-4 py-3">사유</th>
+                        <th class="px-4 py-3">상세 내용</th>
+                        <th class="px-4 py-3">반품 배송비</th>
+                        <th class="px-4 py-3">신청일</th>
+                        <th class="px-4 py-3 text-center">승인</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="refund, iStat : ${refunds.content}" class="border-t hover:bg-gray-50">
+                        <td class="px-4 py-2" th:text="${iStat.index + 1}">1</td>
+                        <td class="px-4 py-2" th:text="${refund.orderId}">1001</td>
+                        <td class="px-4 py-2" th:text="${refund.reason}">파손</td>
+                        <td class="px-4 py-2" th:text="${refund.details}">상품 상자가 찢어짐</td>
+                        <td class="px-4 py-2" th:text="${refund.refundShippingFee + '원'}">3000원</td>
+                        <td class="px-4 py-2" th:text="${#temporals.format(refund.createdAt, 'yyyy-MM-dd HH:mm')}">2025-06-03 14:00</td>
+                        <td class="px-4 py-2 text-center">
+                            <div th:if="${refund.approved}">
+                                <button type="button"
+                                        class="px-3 py-1 bg-gray-400 text-white text-xs font-semibold rounded cursor-not-allowed"
+                                        disabled>
+                                    승인 완료
+                                </button>
+                            </div>
+                            <div th:if="${!refund.approved}">
+                                <form th:action="@{'/admin-order/refunds/' + ${refund.orderId}}" method="post"
+                                      onsubmit="return confirmApprove(this);">
+                                    <button type="submit"
+                                            class="px-3 py-1 bg-green-600 text-white text-xs font-semibold rounded hover:bg-green-700">
+                                        승인
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+    <!-- 승인 확인 모달 -->
+    <div id="approveModal" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg shadow-lg p-6 max-w-sm w-full space-y-4">
+            <h2 class="text-lg font-semibold text-gray-800">반품 승인 확인</h2>
+            <p class="text-sm text-gray-600">해당 반품 요청을 정말 승인하시겠습니까?</p>
+            <div class="flex justify-end space-x-2">
+                <button onclick="closeModal()"
+                        class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400 text-sm">취소</button>
+                <button id="confirmBtn"
+                        class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 text-sm">승인</button>
+            </div>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>
+
+
+<script>
+    let pendingForm = null;
+
+    function confirmApprove(form) {
+        pendingForm = form;
+        document.getElementById("approveModal").classList.remove("hidden");
+        return false; // 폼 자동 제출 방지
+    }
+
+    function closeModal() {
+        document.getElementById("approveModal").classList.add("hidden");
+        pendingForm = null;
+    }
+
+    document.getElementById("confirmBtn").addEventListener("click", function () {
+        if (pendingForm) {
+            pendingForm.submit();
+        }
+    });
+</script>

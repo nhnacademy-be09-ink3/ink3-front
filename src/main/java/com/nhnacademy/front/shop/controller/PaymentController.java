@@ -4,7 +4,6 @@ import com.nhnacademy.front.common.dto.CommonResponse;
 import com.nhnacademy.front.shop.order.client.OrderClient;
 import com.nhnacademy.front.shop.order.dto.OrderFormCreateRequest;
 import com.nhnacademy.front.shop.order.dto.OrderResponse;
-import com.nhnacademy.front.shop.order.dto.OrderType;
 import com.nhnacademy.front.shop.order.service.OrderService;
 import com.nhnacademy.front.shop.payment.dto.PaymentConfirmRequest;
 import com.nhnacademy.front.shop.payment.dto.PaymentResponse;
@@ -13,7 +12,6 @@ import com.nhnacademy.front.shop.payment.dto.TossUrlProperty;
 import com.nhnacademy.front.shop.payment.service.PaymentService;
 import com.nhnacademy.front.shop.user.client.dto.UserResponse;
 import com.nhnacademy.front.shop.user.service.UserService;
-import jakarta.servlet.http.HttpServletRequest;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -38,43 +36,35 @@ public class PaymentController {
     private final OrderService orderService;
 
     @PostMapping
-    public String getPaymentPage(
-            Model model,
-            HttpServletRequest request,
-            @RequestBody OrderFormCreateRequest orderFormCreateRequest) {
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> getPaymentPage(
+            @RequestBody OrderFormCreateRequest orderFormCreateRequest
+    ) {
         UserResponse currentUser = userService.getCurrentUser();
         CommonResponse<OrderResponse> commonOrderResponse = orderClient.createOrder(orderFormCreateRequest);
         OrderResponse orderResponse = commonOrderResponse.data();
-        //TODO 주문명 수정 필요
-        String orderName = "임시 주문 명칭";
+        String orderUUID = orderResponse.getOrderUUID();
+        String orderName = "도서 " + orderFormCreateRequest.createRequestList().size() + "종 외";
+        String customerName = orderFormCreateRequest.orderCreateRequest().getOrdererName();
 
-        OrderType orderType;
-        if (orderService.isLoggedIn(request)) {
-            if(orderFormCreateRequest.createRequestList().size()>1){
-                orderType = OrderType.MEMBER_CART;
-            }else{
-                orderType = OrderType.MEMBER_BOOK;
-            }
-        }else{
-            if(orderFormCreateRequest.createRequestList().size()>1){
-                orderType = OrderType.GUEST_CART;
-            }else{
-                orderType = OrderType.GUEST_BOOK;
-            }
-        }
+        String successUrl = tossUrlProperty.getSuccessURL()
+                + "?realOrderId=" + orderResponse.getId()
+                + "&usedPointAmount=" + orderFormCreateRequest.usedPointAmount()
+                + "&discountAmount=" + orderFormCreateRequest.discountAmount()
+                + "&userId=" + currentUser.id();
 
-        model.addAttribute("orderType", orderType);
-        model.addAttribute("usedPointAmount", orderFormCreateRequest.usedPointAmount());
-        model.addAttribute("discountAmount", orderFormCreateRequest.discountAmount());
-        model.addAttribute("amount", orderFormCreateRequest.paymentAmount());
-        model.addAttribute("orderId", orderResponse.getOrderUUID());
-        model.addAttribute("userId", currentUser.id());
-        model.addAttribute("realOrderId", orderResponse.getId());
-        model.addAttribute("orderName", orderName);
-        model.addAttribute("customerName", orderFormCreateRequest.orderCreateRequest().getOrdererName());
-        model.addAttribute("tossSuccessURL", tossUrlProperty.getSuccessURL());
-        model.addAttribute("tossFailURL", tossUrlProperty.getFailURL());
-        return "payment/toss-payment";
+        String failUrl = tossUrlProperty.getFailURL()
+                + "?orderId=" + orderResponse.getId();
+
+        Map<String, Object> response = Map.of(
+                "orderId", orderUUID,
+                "orderName", orderName,
+                "customerName", customerName,
+                "amount", orderFormCreateRequest.paymentAmount(),
+                "successUrl", successUrl,
+                "failUrl", failUrl
+        );
+        return ResponseEntity.ok(response);
     }
 
     //TODO  :  민감한 정보이기 때문에 레디스 사용
@@ -111,11 +101,8 @@ public class PaymentController {
     }
 
     @PostMapping("/cancel")
-    @ResponseBody
-    public ResponseEntity<String> paymentCancel(@RequestBody Map<String, String> body) {
-        long orderId = Long.parseLong(body.get("orderId"));
-        String returnUrl = body.get("returnUrl");
+    public String paymentCancel(@RequestParam long orderId) {
         paymentService.dealWithPaymentCancel(orderId);
-        return ResponseEntity.ok(returnUrl);
+        return "order/order-cancel";
     }
 }
