@@ -8,6 +8,7 @@ import com.nhnacademy.front.shop.book.dto.BookResponse;
 import com.nhnacademy.front.shop.book.dto.BookStatus;
 import com.nhnacademy.front.shop.book.dto.BookUpdateForm;
 import com.nhnacademy.front.shop.book.dto.BookUpdateRequest;
+import com.nhnacademy.front.shop.book.dto.BookCreateRequest;
 import com.nhnacademy.front.shop.category.client.CategoryClient;
 import com.nhnacademy.front.shop.category.client.dto.CategoryResponse;
 import com.nhnacademy.front.shop.publisher.client.PublisherClient;
@@ -26,6 +27,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.auth0.jwt.JWT;
@@ -57,7 +59,7 @@ public class BookController {
         @RequestParam(defaultValue = "0") int  page,
         @RequestParam(defaultValue = "10") int  size,
         Model model, @CookieValue(name = "accessToken", required = false) String accessToken) {
-        CommonResponse<BookResponse> books = bookClient.getBookAllField(bookId);
+        CommonResponse<BookResponse> books = bookClient.getBookDetail(bookId);
         PageResponse<ReviewListResponse> reviews =
             reviewClient.getReviewsByBookId(bookId, page, size);
 
@@ -90,7 +92,7 @@ public class BookController {
         PageResponse<MainBookResponse> pageData = response.data();
 
         PageUtil.PageInfo pageInfo = PageUtil.calculatePageRange(
-            pageData.page(), pageData.totalPages(), 5
+                pageData.page(), pageData.totalPages(), 5
         );
 
         model.addAttribute("bookList", pageData.content());
@@ -106,7 +108,7 @@ public class BookController {
         PageResponse<MainBookResponse> pageData = response.data();
 
         PageUtil.PageInfo pageInfo = PageUtil.calculatePageRange(
-            pageData.page(), pageData.totalPages(), 5
+                pageData.page(), pageData.totalPages(), 5
         );
 
         model.addAttribute("bookList", pageData.content());
@@ -122,7 +124,7 @@ public class BookController {
         PageResponse<MainBookResponse> pageData = response.data();
 
         PageUtil.PageInfo pageInfo = PageUtil.calculatePageRange(
-            pageData.page(), pageData.totalPages(), 5
+                pageData.page(), pageData.totalPages(), 5
         );
 
         model.addAttribute("bookList", pageData.content());
@@ -132,9 +134,25 @@ public class BookController {
         return "book/list/recommend-books";
     }
 
-    @GetMapping("/book-register")
-    public String getBookRegister() {
-        return "book/book-register";
+    @GetMapping("/admin/book-register")
+    public String getBookRegister(Model model) {
+        CommonResponse<PageResponse<AuthorResponse>> authors = authorClient.getAuthors(0, 0);
+        CommonResponse<PageResponse<PublisherResponse>> publishers = publisherClient.getPublishers(0, 0);
+        CommonResponse<PageResponse<CategoryResponse>> categories = categoryClient.getCategories();
+        CommonResponse<PageResponse<TagResponse>> tags = tagClient.getTags(0, 0);
+
+        model.addAttribute("authors", authors.data().content());
+        model.addAttribute("publishers", publishers.data());
+        model.addAttribute("categories", categories.data().content());
+        model.addAttribute("tags", tags.data());
+
+        return "admin/book-register";
+    }
+
+    @PostMapping("/admin/book-register")
+    public String registerBook(@ModelAttribute BookCreateRequest request) {
+        bookClient.createBook(request);
+        return "redirect:/admin/book-register";
     }
 
     @GetMapping("/books/category")
@@ -150,7 +168,7 @@ public class BookController {
 
     @GetMapping("/admin/book-edit/{book-id}")
     public String getBookEdit(@PathVariable(name="book-id") Long bookId, Model model) {
-        CommonResponse<BookResponse> response = bookClient.getBookAllField(bookId);
+        CommonResponse<BookResponse> response = bookClient.getBookDetail(bookId);
         CommonResponse<PageResponse<AuthorResponse>> authorList = authorClient.getAuthors(5, 0);
         CommonResponse<PageResponse<PublisherResponse>> publisherList = publisherClient.getPublishers(5, 0);
         CommonResponse<PageResponse<CategoryResponse>> categoryList = categoryClient.getCategories();

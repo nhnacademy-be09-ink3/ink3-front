@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ink3</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/output.css(v=${#dates.createNow().getTime()})}">
+    <script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .form-section { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 6px; font-weight: bold; color: #374151; }
+        input, textarea { width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; }
+    </style>
+</head>
+<body class="bg-gray-100">
+<div th:replace="~{admin/layout/fragments/header :: headerFragment}"></div>
+<div class="flex flex-1 min-h-[calc(100vh-64px)]">
+    <div th:replace="~{admin/layout/fragments/sidebar :: sidebarFragment}"></div>
+
+    <main class="main-content-area flex-1 p-6 bg-gray-100 overflow-y-auto">
+        <div class="bg-white w-3/5 px-10 py-12 rounded-md shadow-md max-w-3xl mx-auto">
+            <h1 class="text-3xl font-bold text-gray-800 mb-10 text-center">도서 등록</h1>
+            <form th:action="@{/books}" method="post" enctype="multipart/form-data" class="space-y-6">
+
+                <!-- 공통 스타일: label + input 그룹 -->
+                <div class="grid grid-cols-1 gap-2">
+                    <label for="isbn" class="text-gray-700 font-medium">ISBN</label>
+                    <input type="text" id="isbn" name="isbn" required
+                           class="ink-input-field w-full">
+                </div>
+
+                <div class="grid grid-cols-1 gap-2">
+                    <label for="title" class="text-gray-700 font-medium">제목</label>
+                    <input type="text" id="title" name="title" required
+                           class="ink-input-field w-full">
+                </div>
+
+                <div class="grid grid-cols-1 gap-2">
+                    <label for="contents" class="text-gray-700 font-medium">책 목차</label>
+                    <textarea id="contents" name="contents" rows="5"
+                              class="ink-input-field w-full"></textarea>
+                </div>
+
+                <div class="grid grid-cols-1 gap-2">
+                    <label for="description" class="text-gray-700 font-medium">책 소개</label>
+                    <textarea id="description" name="description" rows="5"
+                              class="ink-input-field w-full"></textarea>
+                </div>
+
+                <div class="grid grid-cols-1 gap-2">
+                    <label for="publishedAt" class="text-gray-700 font-medium">출간일</label>
+                    <input type="date" id="publishedAt" name="publishedAt"
+                           class="ink-input-field w-full">
+                </div>
+
+                <div class="grid grid-cols-1 gap-2">
+                    <label for="originalPrice" class="text-gray-700 font-medium">정가 (원)</label>
+                    <input type="number" id="originalPrice" name="originalPrice" required min="0"
+                           class="ink-input-field w-full">
+                </div>
+
+                <div class="grid grid-cols-1 gap-2">
+                    <label for="salePrice" class="text-gray-700 font-medium">판매가 (원)</label>
+                    <input type="number" id="salePrice" name="salePrice" required min="0"
+                           class="ink-input-field w-full">
+                </div>
+
+                <div class="grid grid-cols-1 gap-2">
+                    <label for="quantity" class="text-gray-700 font-medium">수량 (개)</label>
+                    <input type="number" id="quantity" name="quantity" required min="1"
+                           class="ink-input-field w-full">
+                </div>
+
+                <!--            <div class="form-section">-->
+                <!--                <label for="publisher">출판사</label>-->
+                <!--                <input type="text" id="publisher" name="publisher">-->
+                <!--            </div>-->
+
+                <!-- 보여줄 Tagify용 input -->
+                <label for="publisher">출판사</label>
+                <input id="publisher" class="ink-input-field"/>
+
+                <!-- 실제 서버에 전송될 hidden input -->
+                <input type="hidden" id="publisherId" name="publisherId" />
+
+                <!--            &lt;!&ndash; 출판사 선택 &ndash;&gt;-->
+                <!--            <div class="grid grid-cols-1 gap-2">-->
+                <!--                <label for="publisherId" class="text-gray-700 font-medium">출판사 선택</label>-->
+                <!--                <select id="publisherId" name="publisherId"-->
+                <!--                        class="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"-->
+                <!--                        required>-->
+                <!--                    <option value="">출판사를 선택하세요</option>-->
+                <!--                    &lt;!&ndash; 여기에 JavaScript로 출판사 목록이 삽입됨 &ndash;&gt;-->
+                <!--                </select>-->
+                <!--            </div>-->
+
+                <!-- 카테고리 -->
+                <div class="grid grid-cols-1 gap-2">
+                    <label class="text-gray-700 font-medium">카테고리</label>
+                    <div id="categorySelectorsContainer" class="ink-input-field w-full">
+                    </div>
+                    <input type="hidden" id="selectedCategoryId" name="selectedCategoryId">
+                </div>
+
+                <!-- 작가 -->
+                <div class="space-y-4 p-6 bg-gray-50 rounded-lg border border-gray-300">
+                    <h3 class="text-lg font-semibold text-gray-800">작가 정보</h3>
+
+                    <!-- 작가 추가 폼 -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <div class="relative">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">작가 선택</label>
+                            <select id="authorSelect" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white">
+                                <option value="">-- 작가를 선택하세요 --</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">역할</label>
+                            <input
+                                    type="text"
+                                    id="authorRoleInput"
+                                    placeholder="예: 지은이, 옮긴이, 그림 등"
+                                    class="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            />
+                        </div>
+                        <div class="flex items-end">
+                            <button type="button" id="addAuthorBtn" class="ink-btn-primary h-10 bg-gray-300 text-gray-800 hover:bg-gray-400">
+                                추가
+                            </button>
+                        </div>
+
+
+                    </div>
+
+                    <!-- 선택된 작가 목록 -->
+                    <div id="selectedAuthorsSection" class="hidden space-y-3">
+                        <h4 class="font-medium text-gray-700">선택된 작가</h4>
+                        <div id="selectedAuthorsList" class="space-y-2">
+                            <!-- 선택된 작가들이 여기에 표시됩니다 -->
+                        </div>
+                    </div>
+
+                    <!-- 결과 미리보기 -->
+                    <div id="authorPreviewSection" class="hidden p-4 bg-blue-50 rounded-lg">
+                        <h4 class="font-medium text-blue-800 mb-2">작가 정보 미리보기</h4>
+                        <p id="authorPreviewText" class="text-blue-700"></p>
+                    </div>
+
+                    <!-- 숨겨진 input으로 작가 정보 전송 -->
+                    <input type="hidden" id="authorsData" name="authors">
+                </div>
+
+                <!-- 태그 -->
+                <div class="form-section">
+                    <label for="tags">태그</label>
+                    <input type="text" id="tags" name="tags" class="ink-input-field">
+                </div>
+
+                <div class="grid grid-cols-2 gap-2 items-center">
+                    <label for="isPackable" class="text-gray-700 font-medium">포장 가능</label>
+                    <input type="checkbox" id="isPackable" name="isPackable" class="w-5 h-5" style="accent-color: #86ef7d;">
+                </div>
+
+
+                <div class="grid grid-cols-1 gap-2">
+                    <label for="thumbnailUrl" class="text-gray-700 font-medium">책 이미지 URL</label>
+                    <input type="text" id="thumbnailUrl" name="thumbnailUrl"
+                           placeholder="예: https://example.com/image.jpg"
+                           class="ink-input-field w-full">
+                </div>
+
+                <!-- 버튼 -->
+                <div class="flex justify-end space-x-4 pt-4">
+                    <a href="/books" class="ink-btn-primary bg-gray-300 text-gray-800 hover:bg-gray-400">목록으로</a>
+                    <button type="submit" class="ink-btn-primary bg-gray-300 text-gray-800 hover:bg-gray-400">
+                        등록하기
+                    </button>
+                </div>
+            </form>
+        </div>
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                fetch('/publishers')
+                    .then(res => res.json())
+                    .then(response => {
+                        const publishers = response.data.map(p => ({
+                            value: p.id,        // 실제 전송할 값 (id)
+                            name: p.name        // 보여줄 이름
+                        }));
+
+                        // Tagify 초기화
+                        const input = document.querySelector('#publisher');
+                        const tagify = new Tagify(input, {
+                            whitelist: publishers,
+                            maxTags: 1,
+                            enforceWhitelist: true,
+                            dropdown: {
+                                enabled: 0,
+                                maxItems: 10,
+                                closeOnSelect: true
+                            },
+                            templates: {
+                                tag: function(tagData) {
+                                    return `<tag title='${tagData.name}' contenteditable='false'
+                      spellcheck='false' class='tagify__tag'>
+                    <x title='remove tag' class='tagify__tag__removeBtn'></x>
+                    <div>
+                        <span class='tagify__tag-text'>${tagData.name}</span>
+                    </div>
+                  </tag>`;
+                                },
+                                dropdownItem: function(tagData) {
+                                    return `<div class='tagify__dropdown__item' tabindex="0" role="option">
+                    ${tagData.name}
+                  </div>`;
+                                }
+                            }
+                        });
+
+                        // 선택 시 ID를 hidden input에 저장
+                        tagify.on('add', e => {
+                            document.querySelector('#publisherId').value = e.detail.data.value;
+                        });
+
+                        // 제거 시 hidden input도 비우기
+                        tagify.on('remove', () => {
+                            document.querySelector('#publisherId').value = '';
+                        });
+                    });
+            });
+        </script>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                // Tagify 초기화
+                if (document.querySelector('#publisher')) {
+                    new Tagify(document.querySelector('#publisher'), {
+                        whitelist: publishers,
+                        maxTags: 1,
+                        enforceWhitelist: true, // 화이트리스트에 있는 것만 추가 가능
+                        dropdown: {
+                            enabled: 0, // 드롭다운 활성화
+                            maxItems: 10,
+                            closeOnSelect: true
+                        }
+                    });
+                }
+
+                if (document.querySelector('#tags')) {
+                    new Tagify(document.querySelector('#tags'), {
+                        whitelist: tags,
+                        enforceWhitelist: true, // 화이트리스트에 있는 것만 추가 가능
+                        dropdown: {
+                            enabled: 0, // 드롭다운 활성화
+                            maxItems: 15,
+                            closeOnSelect: false
+                        }
+                    });
+                }
+
+                // --- 다중 깊이 계층형 카테고리 선택 로직 ---
+                const categorySelectorsContainer = document.getElementById('categorySelectorsContainer');
+                const selectedCategoryIdInput = document.getElementById('selectedCategoryId');
+
+                function renderCategoryDropdown(parentId, level) {
+                    // 현재 레벨 이후의 모든 하위 드롭다운 제거
+                    let nextLevelToRemove = level;
+                    let dropdownToRemove;
+                    while ((dropdownToRemove = document.getElementById(`category-level-${nextLevelToRemove}`))) {
+                        dropdownToRemove.parentElement.remove(); // wrapper div 제거
+                        nextLevelToRemove++;
+                    }
+
+                    const children = categories.filter(cat => cat.parentId === parentId);
+
+                    if (children.length > 0) {
+                        const wrapperDiv = document.createElement('div');
+                        // 각 select가 너무 길어지는 것을 방지하기 위해 flex-shrink와 min-width 추가 고려 가능
+                        wrapperDiv.className = 'w-full md:w-auto md:flex-1 md:min-w-[150px] mb-2 md:mb-0 category-select-wrapper';
+
+                        const selectEl = document.createElement('select');
+                        selectEl.id = `category-level-${level}`;
+                        selectEl.dataset.level = level; // 현재 레벨 저장
+                        selectEl.className = 'ink-input-field w-full';
+
+                        const defaultOption = document.createElement('option');
+                        defaultOption.value = "";
+                        defaultOption.textContent = `-- 레벨 ${level} 선택 --`;
+                        selectEl.appendChild(defaultOption);
+
+                        children.forEach(cat => {
+                            const option = document.createElement('option');
+                            option.value = cat.id;
+                            option.textContent = cat.name;
+                            selectEl.appendChild(option);
+                        });
+
+                        selectEl.addEventListener('change', function() {
+                            const selectedValue = this.value ? parseInt(this.value) : null;
+                            const currentLevel = parseInt(this.dataset.level);
+
+                            if (selectedValue) {
+                                selectedCategoryIdInput.value = selectedValue; // 현재 선택된 ID를 최종 선택으로 우선 설정
+                                renderCategoryDropdown(selectedValue, currentLevel + 1); // 다음 레벨 렌더링
+                            } else {
+                                // "-- 선택 --"을 선택한 경우, 이 드롭다운의 부모가 최종 선택이 됨
+                                // (단, 이 드롭다운이 최상위가 아닌 경우)
+                                if (currentLevel > 1) {
+                                    const parentDropdown = document.getElementById(`category-level-${currentLevel - 1}`);
+                                    selectedCategoryIdInput.value = parentDropdown ? parentDropdown.value : "";
+                                } else {
+                                    selectedCategoryIdInput.value = ""; // 최상위에서 "-- 선택 --" 시, 선택 없음
+                                }
+                                // 현재 레벨 이후 드롭다운 제거 (이미 renderCategoryDropdown 시작 시 처리하지만, 명시적으로 여기서도 호출)
+                                let nextLevelToRemoveOnChange = currentLevel + 1;
+                                let dropdownToRemoveOnChange;
+                                while ((dropdownToRemoveOnChange = document.getElementById(`category-level-${nextLevelToRemoveOnChange}`))) {
+                                    dropdownToRemoveOnChange.parentElement.remove();
+                                    nextLevelToRemoveOnChange++;
+                                }
+                            }
+                        });
+                        wrapperDiv.appendChild(selectEl);
+                        categorySelectorsContainer.appendChild(wrapperDiv);
+                    }
+                }
+
+                // 페이지 로드 시 최상위 카테고리(들) 렌더링 (parentId: null, level: 1)
+                if (categorySelectorsContainer && selectedCategoryIdInput) { // 요소들이 존재하는지 확인
+                    renderCategoryDropdown(null, 1);
+                }
+                // --- 다중 깊이 계층형 카테고리 선택 로직 끝 ---
+
+                let selectedAuthors = [];
+
+                // DOM 요소들
+                const authorSelect = document.getElementById('authorSelect');
+                const authorRoleInput = document.getElementById('authorRoleInput');
+                const addAuthorBtn = document.getElementById('addAuthorBtn');
+                const selectedAuthorsSection = document.getElementById('selectedAuthorsSection');
+                const selectedAuthorsList = document.getElementById('selectedAuthorsList');
+                const authorPreviewSection = document.getElementById('authorPreviewSection');
+                const authorPreviewText = document.getElementById('authorPreviewText');
+                const authorsDataInput = document.getElementById('authorsData');
+
+                // 작가 목록을 select에 추가
+                function initializeAuthorSelect() {
+                    authorsList.forEach(author => {
+                        const option = document.createElement('option');
+                        option.value = author;
+                        option.textContent = author;
+                        authorSelect.appendChild(option);
+                    });
+                }
+
+                // 작가 추가 버튼 클릭 이벤트
+                addAuthorBtn.addEventListener('click', function() {
+                    const selectedAuthor = authorSelect.value;
+                    const role = authorRoleInput.value.trim() || '지은이'; // 역할이 비어있으면 기본값
+
+                    if (!selectedAuthor) {
+                        alert('작가를 선택해주세요.');
+                        return;
+                    }
+
+                    // 이미 추가된 작가인지 확인
+                    if (selectedAuthors.some(author => author.name === selectedAuthor)) {
+                        alert('이미 추가된 작가입니다.');
+                        return;
+                    }
+
+                    // 작가 추가
+                    selectedAuthors.push({
+                        name: selectedAuthor,
+                        role: role,
+                        id: Date.now() + Math.random()
+                    });
+
+                    // 폼 초기화
+                    authorSelect.value = '';
+                    authorRoleInput.value = '';
+
+                    // 화면 업데이트
+                    updateSelectedAuthorsDisplay();
+                });
+
+                // Enter 키로 추가 가능하도록
+                authorRoleInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        addAuthorBtn.click();
+                    }
+                });
+
+                // 작가 제거 함수
+                function removeAuthor(authorId) {
+                    selectedAuthors = selectedAuthors.filter(author => author.id !== authorId);
+                    updateSelectedAuthorsDisplay();
+                }
+
+                // 선택된 작가 목록 화면 업데이트
+                function updateSelectedAuthorsDisplay() {
+                    if (selectedAuthors.length > 0) {
+                        selectedAuthorsSection.classList.remove('hidden');
+                        authorPreviewSection.classList.remove('hidden');
+
+                        selectedAuthorsList.innerHTML = '';
+                        selectedAuthors.forEach(author => {
+                            const div = document.createElement('div');
+                            div.className = 'flex items-center justify-between p-3 bg-white rounded-lg border';
+                            div.innerHTML =
+                                '<div class="flex items-center gap-3">' +
+                                '<span class="font-medium text-gray-800">' + author.name + '</span>' +
+                                '<span class="px-2 py-1 bg-gray-100 text-gray-700 rounded text-sm">' + author.role + '</span>' +
+                                '</div>' +
+                                '<button type="button" class="remove-author-btn p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded" data-author-id="' + author.id + '">' +
+                                '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">' +
+                                '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>' +
+                                '</svg>' +
+                                '</button>';
+
+                            // 삭제 버튼 이벤트 리스너 추가
+                            const removeButton = div.querySelector('.remove-author-btn');
+                            removeButton.addEventListener('click', function() {
+                                removeAuthor(parseInt(this.dataset.authorId));
+                            });
+
+                            selectedAuthorsList.appendChild(div);
+                        });
+
+                        // 숨겨진 input에 데이터 설정
+                        authorsDataInput.value = JSON.stringify(selectedAuthors);
+                    } else {
+                        selectedAuthorsSection.classList.add('hidden');
+                        authorPreviewSection.classList.add('hidden');
+                        authorsDataInput.value = '';
+                    }
+                }
+
+                // 초기화
+                initializeAuthorSelect()
+
+
+                // 폼 제출 로직 (기존 로직을 여기에 통합하거나 수정합니다)
+                // const bookForm = document.getElementById('bookForm');
+                // if (bookForm) {
+                //     bookForm.addEventListener('submit', function(e) {
+                //         e.preventDefault(); // 실제 서버 전송 방지 (테스트용)
+                //
+                //         const formData = new FormData(bookForm);
+                //         const data = {};
+                //
+                //         // FormData의 모든 키와 값을 data 객체로 옮김
+                //         for (let [key, value] of formData.entries()) {
+                //             // Tagify 같은 특별한 처리가 필요한 필드는 여기서 조정 가능
+                //             // 예: publisher, tags는 Tagify 인스턴스에서 직접 값을 가져와야 할 수 있음
+                //             if (key === 'publisher' && document.querySelector('#publisher')._tagify) { // Tagify 인스턴스 존재 확인
+                //                 try {
+                //                     const publisherTagifyValue = JSON.parse(value); // Tagify 값은 JSON 문자열
+                //                     data[key] = publisherTagifyValue.length > 0 ? publisherTagifyValue[0].value : "";
+                //                 } catch (err) {
+                //                     data[key] = value; // 파싱 실패 시 원본 값 사용
+                //                 }
+                //             } else if (key === 'tags' && document.querySelector('#tags')._tagify) {
+                //                 try {
+                //                     const tagsTagifyValue = JSON.parse(value);
+                //                     data[key] = tagsTagifyValue.map(tag => tag.value); // 태그는 배열로
+                //                 } catch (err) {
+                //                     data[key] = value.split(',').map(s => s.trim()); // 파싱 실패 시 쉼표로 구분된 문자열로 가정
+                //                 }
+                //             } else if (key === 'isPackable') { // 체크박스 값 처리
+                //                 data[key] = document.getElementById('isPackable').checked;
+                //             }
+                //             // name="parentCategory"와 name="childCategory"는 UI용. 실제 전송은 name="selectedCategoryId" 사용
+                //             else if (key !== 'parentCategory' && key !== 'childCategory') {
+                //                 data[key] = value;
+                //             }
+                //         }
+                //
+                //         // selectedCategoryId가 비어있다면, 그리고 parentCategory만 있고 childCategory가 없는 경우 parentCategory를 쓸수도 있음.
+                //         // 현재는 selectedCategoryId (즉, childCategory의 값)만 사용.
+                //         // 만약 selectedCategoryIdInput.value가 비어있고, childCategorySelect.options.length <= 1 (즉, 하위 카테고리가 로드되지 않았거나 없음)
+                //         // 이면서 parentCategorySelect.value가 있다면, parentCategorySelect.value를 categoryId로 사용할 수 있습니다. (정책에 따라)
+                //         // data.categoryId = selectedCategoryIdInput.value; // 이미 formData.get('selectedCategoryId')로 들어감.
+                //
+                //         if (!data.selectedCategoryId && data.parentCategory && childCategorySelect.options.length <=1 ) {
+                //             // console.log("하위 카테고리가 없거나 선택되지 않았습니다. 상위 카테고리 ID를 대신 사용할 수 있습니다: " + data.parentCategory);
+                //             // 필요시: data.selectedCategoryId = data.parentCategory;
+                //         }
+                //
+                //         // 'authors' 필드를 요구사항에 맞게 파싱 (예: "이름:역할" 문자열을 객체 배열로)
+                //         if (data.authors && typeof data.authors === 'string') {
+                //             data.authors = data.authors.split(',')
+                //                 .map(a => a.trim())
+                //                 .filter(a => a) // 빈 문자열 제거
+                //                 .map(a => {
+                //                     const parts = a.split(':');
+                //                     return {
+                //                         name: parts[0] ? parts[0].trim() : '',
+                //                         role: parts[1] ? parts[1].trim() : '저자' // 역할 없으면 기본 '저자'
+                //                     };
+                //                 }).filter(author => author.name); // 이름이 없는 항목 최종 제거
+                //         }
+                //
+                //
+                //         console.log('제출할 도서 정보 (FormData 기반):', data);
+                //         // 실제 서버 전송 로직:
+                //         // fetch(bookForm.action, {
+                //         //     method: 'POST',
+                //         //     // enctype="multipart/form-data"의 경우 FormData 객체를 직접 body에 전달
+                //         //     // body: new FormData(bookForm) // 만약 JSON으로 보내고 싶다면 위 data 객체를 JSON.stringify
+                //         //     body: JSON.stringify(data), headers: {'Content-Type': 'application/json'}
+                //         // })
+                //         // .then(response => response.json())
+                //         // .then(result => {
+                //         //     console.log('Success:', result);
+                //         //     alert('도서가 성공적으로 등록되었습니다.');
+                //         //     // bookForm.reset(); // 폼 초기화
+                //         //     // window.location.href = '/admin/books'; // 목록 페이지로 이동
+                //         // })
+                //         // .catch(error => {
+                //         //     console.error('Error:', error);
+                //         //     alert('도서 등록 중 오류가 발생했습니다.');
+                //         // });
+                //         alert('도서 정보가 콘솔에 출력되었습니다. (실제 전송 로직은 주석 처리됨)');
+                //     });
+                // }
+            });
+
+
+        </script>
+    </main>
+</div>
+</body>
+</html>

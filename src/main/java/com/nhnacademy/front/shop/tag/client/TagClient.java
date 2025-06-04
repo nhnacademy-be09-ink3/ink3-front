@@ -29,5 +29,5 @@ public interface TagClient {
                                           @RequestBody TagUpdateRequest request);
 
     @DeleteMapping("/tags/{tagId}")
-    CommonResponse<TagResponse> deleteTag(@PathVariable Long tagId);
+    CommonResponse<Void> deleteTag(@PathVariable Long tagId);
 }

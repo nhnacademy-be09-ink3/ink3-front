@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ink3</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/output.css(v=${#dates.createNow().getTime()})}">
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Select2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <!-- Select2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .ink-input-group {
+            @apply grid grid-cols-1 gap-2 mb-6;
+        }
+
+        .ink-input-group label {
+            @apply text-gray-700 font-medium block mb-2;
+        }
+
+        .author-input-group {
+            @apply flex items-center space-x-4 mb-3;
+        }
+    </style>
+    <script>
+        $(document).ready(function() {
+            $('.js-select').select2({
+                allowClear: true
+            });
+        });
+    </script>
+</head>
+<body class="bg-gray-100">
+<div th:replace="~{admin/layout/fragments/header :: headerFragment}"></div>
+<div class="flex flex-1 min-h-[calc(100vh-64px)]">
+    <div th:replace="~{admin/layout/fragments/sidebar :: sidebarFragment}"></div>
+
+    <main class="main-content-area flex-1 p-6 bg-gray-100 overflow-y-auto">
+        <div class="bg-white w-3/5 px-10 py-12 rounded-md shadow-md max-w-3xl mx-auto">
+            <h1 class="text-3xl font-bold text-gray-800 mb-8 text-center">도서 등록</h1>
+            <form id="bookRegisterForm" class="space-y-8">
+
+                <!-- 공통 스타일: label + input 그룹 -->
+                <div class="grid grid-cols-1 gap-2">
+                    <label for="isbn" class="text-gray-700 font-medium">ISBN</label>
+                    <input type="text" id="isbn" name="isbn" required
+                           class="ink-input-field w-full">
+                </div>
+
+                <div class="grid grid-cols-1 gap-2">
+                    <label for="title" class="text-gray-700 font-medium">제목</label>
+                    <input type="text" id="title" name="title" required
+                           class="ink-input-field w-full">
+                </div>
+
+                <div class="grid grid-cols-1 gap-2">
+                    <label for="contents" class="text-gray-700 font-medium">책 목차</label>
+                    <textarea id="contents" name="contents" rows="5"
+                              class="ink-input-field w-full"></textarea>
+                </div>
+
+                <div class="grid grid-cols-1 gap-2">
+                    <label for="description" class="text-gray-700 font-medium">책 소개</label>
+                    <textarea id="description" name="description" rows="5"
+                              class="ink-input-field w-full"></textarea>
+                </div>
+
+                <div class="grid grid-cols-1 gap-2">
+                    <label for="publishedAt" class="text-gray-700 font-medium">출간일</label>
+                    <input type="date" id="publishedAt" name="publishedAt"
+                           class="ink-input-field w-full">
+                </div>
+
+                <div class="grid grid-cols-1 gap-2">
+                    <label for="originalPrice" class="text-gray-700 font-medium">정가 (원)</label>
+                    <input type="number" id="originalPrice" name="originalPrice" required min="0"
+                           class="ink-input-field w-full">
+                </div>
+
+                <div class="grid grid-cols-1 gap-2">
+                    <label for="salePrice" class="text-gray-700 font-medium">판매가 (원)</label>
+                    <input type="number" id="salePrice" name="salePrice" required min="0"
+                           class="ink-input-field w-full">
+                </div>
+
+                <div class="grid grid-cols-1 gap-2">
+                    <label for="quantity" class="text-gray-700 font-medium">수량 (개)</label>
+                    <input type="number" id="quantity" name="quantity" required min="1"
+                           class="ink-input-field w-full">
+                </div>
+
+                <!-- 카테고리 -->
+                <div class="grid grid-cols-1 gap-2">
+                    <label class="text-gray-700 font-medium">카테고리</label>
+                    <div id="categorySelectorsContainer" class="space-y-2"></div>
+                    <button type="button" id="addCategoryBtn" class="ink-btn-primary w-fit">카테고리 추가</button>
+                </div>
+
+                <div class="ink-input-group">
+                    <label class="text-gray-700 font-medium">작가</label>
+                    <div id="authors-container" class="space-y-4">
+                    </div>
+                    <button type="button" onclick="addAuthorField()" class="ink-btn-primary mt-2">작가 추가</button>
+                </div>
+
+                <div class="ink-input-group">
+                    <label for="publisherId">출판사</label>
+                    <select id="publisherId" name="publisherId" class="js-select w-full">
+                        <option value="">출판사 선택</option>
+                        <th:block th:each="publisher : ${publishers.content}">
+                            <option th:value="${publisher.id}" th:text="${publisher.name}"></option>
+                        </th:block>
+                    </select>
+                </div>
+
+                <div class="ink-input-group">
+                    <label for="tags">태그</label>
+                    <select id="tags" name="tagIds" class="js-select w-full" multiple>
+                        <option th:each="tag : ${tags.content}" th:value="${tag.id}" th:text="${tag.name}"></option>
+                    </select>
+                    <p class="text-sm text-gray-500">Ctrl 키를 누른 채로 선택하여 여러 태그를 선택할 수 있습니다.</p>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2 items-center">
+                    <label for="isPackable" class="text-gray-700 font-medium">포장 가능</label>
+                    <input type="hidden" name="isPackable" value="false">
+                    <input type="checkbox" id="isPackable" name="isPackable" value="true" class="w-5 h-5" style="accent-color: #86ef7d;">
+                </div>
+
+                <label for="status" class="text-gray-700 font-medium">도서 상태</label>
+                <select id="status" name="status" class="ink-input-field w-1/3" required>
+                    <option value="">-- 상태 선택 --</option>
+                    <option value="AVAILABLE">판매 중</option>
+                    <option value="OUT_OF_STOCK">수량 부족</option>
+                    <option value="SOLD_OUT">판매 종료</option>
+                    <option value="DELETED">삭제</option>
+                </select>
+
+<!--                <div class="ink-input-group">-->
+<!--                    <label for="coverImage">표지 이미지</label>-->
+<!--                    <input type="file" id="coverImage" name="coverImage" class="ink-input-field w-full">-->
+<!--                </div>-->
+                <div class="grid grid-cols-1 gap-2">
+                    <label for="thumbnailUrl" class="text-gray-700 font-medium">책 이미지 URL</label>
+                    <input type="text" id="thumbnailUrl" name="thumbnailUrl"
+                           placeholder="예: https://example.com/image.jpg"
+                           class="ink-input-field w-full">
+                </div>
+
+                <div class="flex justify-end">
+                    <button type="submit" class="ink-btn-primary">등록</button>
+                </div>
+
+            </form>
+        </div>
+        <script th:inline="javascript">
+            /*<![CDATA[*/
+            const contextPath = /*[[@{/}]]*/ '';
+            const authors = /*[[${authors}]]*/ [];
+            const rawCategories = /*[[${categories}]]*/ [];
+            const ROOT_ID = 15;
+
+            const categories = rawCategories.map(c => ({
+                id:        c.id,
+                name:      c.name,
+                parentId:  c.parentId
+            }));
+
+            let authorGroupId = 0;
+
+            function addAuthorField() {
+                const container = document.getElementById('authors-container');
+                const groupId = authorGroupId++;
+
+                const wrapper = document.createElement('div');
+                wrapper.className = 'bg-white border border-gray-200 rounded-lg p-4 flex flex-col justify-between';
+                wrapper.id = `author-group-${groupId}`;
+
+                // 셀렉트 박스
+                const select = document.createElement('select');
+                select.name = 'authorIds';
+                select.className = 'ink-input-field w-full';
+                const defaultOption = document.createElement('option');
+                defaultOption.value = '';
+                defaultOption.textContent = '작가 선택';
+                select.appendChild(defaultOption);
+
+                authors.forEach(author => {
+                    const opt = document.createElement('option');
+                    opt.value = author.id;
+                    opt.textContent = author.name;
+                    select.appendChild(opt);
+                });
+
+                // 역할 입력
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.name = 'authorRoles';
+                input.placeholder = '역할 (지은이, 옮긴이 등)';
+                input.className = 'ink-input-field w-full';
+
+                // 삭제 버튼
+                const removeBtn = document.createElement('button');
+                removeBtn.type = 'button';
+                removeBtn.className = 'text-sm text-red-600 hover:text-red-800 mt-4 self-end';
+                removeBtn.textContent = '❌';
+                removeBtn.onclick = () => {
+                    container.removeChild(wrapper);
+                };
+
+                wrapper.appendChild(select);
+                wrapper.appendChild(input);
+                wrapper.appendChild(removeBtn);
+
+                container.appendChild(wrapper);
+            }
+
+            let groupId = 0; // 각 카테고리 선택 그룹을 구분하기 위한 고유 ID
+
+            const container = document.getElementById('categorySelectorsContainer');
+            const addBtn = document.getElementById('addCategoryBtn');
+
+            function renderCategoryDropdown(parentId, level, group) {
+                // 하위 드롭다운 제거
+                let nextLevel = level;
+                while (document.getElementById(`group-${group}-level-${nextLevel}`)) {
+                    document.getElementById(`group-${group}-level-${nextLevel}`).parentElement.remove();
+                    nextLevel++;
+                }
+
+                const children = categories.filter(cat => cat.parentId === parentId);
+                if (children.length > 0) {
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'w-full';
+                    const select = document.createElement('select');
+                    select.id = `group-${group}-level-${level}`;
+                    select.dataset.level = level;
+                    select.dataset.group = group;
+                    select.className = 'shadow rounded-md px-4 py-2 text-gray-700 leading-tight border border-gray-200 focus:outline-2 focus:outline-ink-primary w-full';
+
+                    const defaultOption = document.createElement('option');
+                    defaultOption.value = '';
+                    defaultOption.textContent = `-- 레벨 ${level} 선택 --`;
+                    select.appendChild(defaultOption);
+
+                    children.forEach(cat => {
+                        const option = document.createElement('option');
+                        option.value = cat.id;
+                        option.textContent = cat.name;
+                        select.appendChild(option);
+                    });
+
+                    select.addEventListener('change', function () {
+                        const selectedValue = this.value ? parseInt(this.value) : null;
+                        const currentLevel = parseInt(this.dataset.level);
+                        const groupId = this.dataset.group;
+
+                        if (selectedValue) {
+                            updateHiddenInput(groupId, selectedValue);
+                            renderCategoryDropdown(selectedValue, currentLevel + 1, groupId);
+                        } else {
+                            removeHiddenInput(groupId);
+                            let next = currentLevel + 1;
+                            while (document.getElementById(`group-${groupId}-level-${next}`)) {
+                                document.getElementById(`group-${groupId}-level-${next}`).parentElement.remove();
+                                next++;
+                            }
+                        }
+                    });
+
+                    wrapper.appendChild(select);
+
+                    const groupContainer = document.getElementById(`category-group-${group}`);
+                    if (groupContainer) {
+                        groupContainer.appendChild(wrapper);
+                    }
+                }
+            }
+
+            function updateHiddenInput(group, value) {
+                let hidden = document.getElementById(`categoryId-${group}`);
+                if (!hidden) {
+                    hidden = document.createElement('input');
+                    hidden.type = 'hidden';
+                    hidden.name = 'categoryIds';
+                    hidden.id = `categoryId-${group}`;
+                    document.getElementById(`category-group-${group}`).appendChild(hidden);
+                }
+                hidden.value = value;
+            }
+
+            function removeHiddenInput(group) {
+                const el = document.getElementById(`categoryId-${group}`);
+                if (el) el.remove();
+            }
+
+            function removeCategoryGroup(group) {
+                const groupEl = document.getElementById(`category-group-${group}`);
+                if (groupEl) groupEl.remove();
+            }
+
+            addBtn.addEventListener('click', () => {
+                const group = groupId++;
+
+                const groupWrapper = document.createElement('div');
+                groupWrapper.id = `category-group-${group}`;
+                groupWrapper.className = 'border border-gray-200 rounded-lg p-4 bg-white flex flex-col justify-between';
+
+                // 삭제 버튼
+                const removeBtn = document.createElement('button');
+                removeBtn.type = 'button';
+                removeBtn.innerHTML = '❌';
+                removeBtn.className = 'text-sm text-red-600 hover:text-red-800 mt-4 self-end';
+                removeBtn.addEventListener('click', () => removeCategoryGroup(group));
+
+                groupWrapper.appendChild(removeBtn);
+                container.appendChild(groupWrapper);
+                renderCategoryDropdown(ROOT_ID, 1, group);   // ROOT_ID = 15
+            });
+            /*]]>*/
+        </script>
+        <script>
+            document.getElementById("bookRegisterForm").addEventListener("submit", async function (e) {
+                e.preventDefault();
+
+                // 작가 정보 수집
+                const authors = [];
+                document.querySelectorAll("#authors-container > div").forEach(wrapper => {
+                    const authorId = wrapper.querySelector("select[name='authorIds']").value;
+                    const role = wrapper.querySelector("input[name='authorRoles']").value;
+                    if (authorId && role) {
+                        authors.push({ authorId: Number(authorId), role });
+                    }
+                });
+
+                // 카테고리 수집
+                const categoryIds = [...document.querySelectorAll("select[name='categoryIds']")]
+                    .map(select => Number(select.value));
+
+                // 태그 수집 (멀티셀렉트)
+                const tagIds = [...document.querySelector("#tags").selectedOptions]
+                    .map(opt => Number(opt.value));
+
+                // 전체 form 데이터 수집
+                const payload = {
+                    isbn: document.querySelector("#isbn").value,
+                    title: document.querySelector("#title").value,
+                    contents: document.querySelector("#contents").value,
+                    description: document.querySelector("#description").value,
+                    publishedAt: document.querySelector("#publishedAt").value,
+                    originalPrice: Number(document.querySelector("#originalPrice").value),
+                    salePrice: Number(document.querySelector("#salePrice").value),
+                    quantity: Number(document.querySelector("#quantity").value),
+                    status: document.querySelector("#status").value,
+                    isPackable: document.querySelector("#isPackable").checked,
+                    thumbnailUrl: document.querySelector("#thumbnailUrl").value,
+                    publisherId: Number(document.querySelector("#publisherId").value),
+                    categoryIds,
+                    tagIds,
+                    authors
+                };
+
+                console.log(JSON.stringify(payload, null, 2));
+
+                try {
+                    const response = await fetch("/admin/book-register", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (response.ok) {
+                        alert("등록 성공!");
+                        location.href = "/admin/books";
+                    } else {
+                        const errorText = await response.text();
+                        alert("등록 실패: " + errorText);
+                    }
+                } catch (error) {
+                    alert("에러 발생: " + error.message);
+                }
+            });
+        </script>
+
+    </main>
+</div>
+</body>
+</html>
