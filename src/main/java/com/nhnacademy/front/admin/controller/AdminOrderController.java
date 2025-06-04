@@ -32,8 +32,9 @@ public class AdminOrderController {
     }
 
     @PostMapping("/refunds/{orderId}")
-    public String approveRefund(@PathVariable long orderId, Model model) {
-        adminOrderService.approveRefund(orderId);
+    public String approveRefund(@PathVariable Long orderId,
+                                @RequestParam Long userId) {
+        adminOrderService.approveRefund(orderId, userId);
         return "redirect:/admin-order/refunds";
     }
 

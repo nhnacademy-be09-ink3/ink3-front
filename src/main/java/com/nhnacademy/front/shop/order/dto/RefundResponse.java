@@ -17,4 +17,5 @@ public class RefundResponse {
     private Integer refundShippingFee;
     private LocalDateTime createdAt;
     private Boolean approved;
+    private Long userId;
 }
