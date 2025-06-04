@@ -5,7 +5,6 @@ import com.nhnacademy.front.shop.tag.client.dto.TagResponse;
 import java.time.LocalDate;
 import java.util.List;
 
-
 public record BookResponse(
         Long id,
         String isbn,
