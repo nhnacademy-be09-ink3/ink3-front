@@ -17,8 +17,10 @@ public interface AdminOrderClient {
             @RequestParam("page") int page,
             @RequestParam("size") int size);
 
-    @PostMapping("/refunds/{orderId}")
-    CommonResponse<Void> approveRefund(@PathVariable("orderId") long orderId);
+    @PostMapping("/refunds/{orderId}/users/{userId}")
+    CommonResponse<Void> approveRefund(
+            @PathVariable("orderId") long orderId,
+            @PathVariable("userId") long userId);
 
 /*
     @GetMapping("/refunds")
