@@ -292,7 +292,10 @@
                         onclick="addToCart(${book.id}, document.getElementById('qty-${book.id}').value)">
                         카트에 담기
                     </button>
-                    <button class="ink-btn-primary text-sm px-4 py-2 w-full mb-2">바로구매</button>
+                    <button class="ink-btn-primary text-sm px-4 py-2 w-full mb-2"
+                            onclick="orderNow(${book.id}, document.getElementById('qty-${book.id}').value)">
+                        바로구매
+                    </button>
                 </div>
             </div>
         `;
@@ -352,6 +355,14 @@
         if (input.value === '' || parseInt(input.value) < 1) {
             input.value = 1;
         }
+    }
+    function orderNow(bookId, quantity) {
+        const url = `/order-form/from-book/${bookId}?quantity=${quantity}`;
+        const form = document.createElement('form');
+        form.method = 'get';
+        form.action = url;
+        document.body.appendChild(form);
+        form.submit();
     }
 
     function addToCart(bookId, quantity) {
