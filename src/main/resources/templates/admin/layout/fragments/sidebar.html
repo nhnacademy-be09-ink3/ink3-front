@@ -4,22 +4,10 @@
     <nav>
         <ul class="space-y-2">
             <li>
-                <button type="button" onclick="toggleMenu('users-submenu')"
-                        class="w-full text-left flex justify-between items-center px-3 py-2 rounded-md hover:bg-gray-700">
-                    <span>회원 관리</span>
-                    <svg id="icon-users-submenu" class="w-4 h-4 transition-transform" fill="none"
-                         viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                    </svg>
-                </button>
-                <ul id="users-submenu" class="pl-4 mt-1 space-y-1 hidden">
-                    <li>
-                        <a th:href="@{/admin/users}"
-                           class="block px-3 py-2 rounded-md hover:bg-gray-700 text-sm">
-                            회원 목록
-                        </a>
-                    </li>
-                </ul>
+                <a th:href="@{/admin/users}"
+                   class="block px-3 py-2 rounded-md hover:bg-gray-700">
+                    회원 관리
+                </a>
             </li>
             <li>
                 <button type="button" onclick="toggleMenu('orders-submenu')"
