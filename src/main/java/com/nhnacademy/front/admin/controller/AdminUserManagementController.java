@@ -13,11 +13,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 @RequiredArgsConstructor
 @Controller
-@RequestMapping("/admin/users")
+@RequestMapping("/admin")
 public class AdminUserManagementController {
     private final UserService userService;
 
-    @GetMapping
+    @GetMapping("/user")
     public String getUserManagement(
             @RequestParam(required = false) String keyword,
             @RequestParam(required = false, defaultValue = "0") Integer page,
@@ -30,5 +30,16 @@ public class AdminUserManagementController {
         model.addAttribute("users", users);
         model.addAttribute("pageInfo", pageInfo);
         return "admin/user/user-management";
+    }
+
+    @GetMapping("/membership")
+    public String getMembershipManagement() {
+//        PageResponse<UserListItemDto> users = userService.getUsersForManagement(keyword, page, 10);
+//        PageUtil.PageInfo pageInfo = PageUtil.calculatePageRange(
+//                users.page(), users.totalPages(), 10
+//        );
+//        model.addAttribute("users", users);
+//        model.addAttribute("pageInfo", pageInfo);
+        return "admin/user/membership-management";
     }
 }

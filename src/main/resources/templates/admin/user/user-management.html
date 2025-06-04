@@ -190,7 +190,7 @@
 
             <ul class="flex justify-center gap-1 text-gray-900 mt-6 end">
                 <li>
-                    <a th:href="@{/admin/users(page=${users.hasPrevious()} ? ${users.page() - 1} : ${users.page()})}"
+                    <a th:href="@{/admin/user(page=${users.hasPrevious()} ? ${users.page() - 1} : ${users.page()})}"
                        class="ink-page-item-arrow"
                        aria-label="Previous page">
                         <svg
@@ -208,12 +208,12 @@
                     </a>
                 </li>
                 <li th:each="i : ${#numbers.sequence(pageInfo.startPage(), pageInfo.endPage())}">
-                    <a th:href="@{/admin/users(page=${i})}"
+                    <a th:href="@{/admin/user(page=${i})}"
                        th:class="${i == users.page()} ? 'ink-page-item-current' : 'ink-page-item'"
                        th:text="${i + 1}"></a>
                 </li>
                 <li>
-                    <a th:href="@{/admin/users(page=${users.hasNext()} ? ${users.page() + 1} : ${users.page()})}"
+                    <a th:href="@{/admin/user(page=${users.hasNext()} ? ${users.page() + 1} : ${users.page()})}"
                        class="ink-page-item-arrow" aria-label="Next page">
                         <svg
                                 xmlns="http://www.w3.org/2000/svg"
@@ -236,10 +236,7 @@
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
                          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                          class="mr-2">
-                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-                        <line x1="16" y1="2" x2="16" y2="6"/>
-                        <line x1="8" y1="2" x2="8" y2="6"/>
-                        <line x1="3" y1="10" x2="21" y2="10"/>
+                        <path d="M3 3v18h18M8 17v-5m4 5v-9m4 9V7"/>
                     </svg>
                     통계
                 </h2>
