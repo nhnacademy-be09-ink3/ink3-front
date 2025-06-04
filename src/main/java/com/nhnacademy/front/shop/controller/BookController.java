@@ -8,6 +8,8 @@ import com.nhnacademy.front.shop.book.dto.BookResponse;
 import com.nhnacademy.front.shop.book.dto.BookStatus;
 import com.nhnacademy.front.shop.book.dto.BookUpdateForm;
 import com.nhnacademy.front.shop.book.dto.BookUpdateRequest;
+import com.nhnacademy.front.shop.book.client.BookClient;
+import com.nhnacademy.front.shop.book.dto.BookCreateRequest;
 import com.nhnacademy.front.shop.category.client.CategoryClient;
 import com.nhnacademy.front.shop.category.client.dto.CategoryResponse;
 import com.nhnacademy.front.shop.publisher.client.PublisherClient;
@@ -58,7 +60,7 @@ public class BookController {
         @RequestParam(defaultValue = "0") int  page,
         @RequestParam(defaultValue = "10") int  size,
         Model model, @CookieValue(name = "accessToken", required = false) String accessToken) {
-        CommonResponse<MainBookResponse> books = bookClient.getBookDetail(bookId);
+        CommonResponse<BookResponse> books = bookClient.getBookDetail(bookId);
         PageResponse<ReviewListResponse> reviews =
             reviewClient.getReviewsByBookId(bookId, page, size);
 

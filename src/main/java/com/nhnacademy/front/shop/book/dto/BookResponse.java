@@ -22,5 +22,7 @@ public record BookResponse(
         String thumbnailUrl,
         List<CategoryResponse> categories,
         List<AuthorDto> authors,
-        List<TagResponse> tags
-) {}
+        List<TagResponse> tags,
+        double averageRating
+) {
+}
