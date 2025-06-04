@@ -1,9 +1,7 @@
 package com.nhnacademy.front.shop.book.client;
 
-import java.util.List;
-
+import com.nhnacademy.front.shop.book.dto.BookResponse;
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,10 +17,10 @@ import com.nhnacademy.front.shop.book.dto.MainBookResponse;
 public interface BookClient {
 
     @PostMapping("/books")
-    CommonResponse<MainBookResponse> createBook(@RequestBody BookCreateRequest request);
+    CommonResponse<BookResponse> createBook(@RequestBody BookCreateRequest request);
 
     @GetMapping("/books")
-    CommonResponse<PageResponse<MainBookResponse>> getBooks();
+    CommonResponse<PageResponse<BookResponse>> getBooks();
 
     @GetMapping("/books/bestseller")
     CommonResponse<PageResponse<MainBookResponse>> getTop5BestsellerBooks();
@@ -43,5 +41,6 @@ public interface BookClient {
     CommonResponse<PageResponse<MainBookResponse>> getAllRecommendedBooks(@RequestParam int page, @RequestParam int size);
 
     @GetMapping("/books/{bookId}")
-    CommonResponse<MainBookResponse> getBookDetail(@PathVariable Long bookId);
+    CommonResponse<BookResponse> getBookDetail(@PathVariable Long bookId);
+
 }

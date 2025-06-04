@@ -1,4 +1,4 @@
-package com.nhnacademy.front.shop.book.client.dto;
+package com.nhnacademy.front.shop.book.dto;
 
 import com.nhnacademy.front.shop.category.client.dto.CategoryResponse;
 import com.nhnacademy.front.shop.tag.client.dto.TagResponse;
