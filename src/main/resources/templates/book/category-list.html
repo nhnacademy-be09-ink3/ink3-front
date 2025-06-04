@@ -74,7 +74,7 @@
 
     function orderNow(bookId, quantity) {
         const form = document.createElement('form');
-        form.method = 'get'; // GET 방식
+        form.method = 'get';
         form.action = `/order-form/from-book/${bookId}`;
 
         const input = document.createElement('input');
