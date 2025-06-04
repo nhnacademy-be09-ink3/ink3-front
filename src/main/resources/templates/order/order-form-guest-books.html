@@ -444,7 +444,7 @@
         const tossPayments = TossPayments("test_ck_ALnQvDd2VJ2jvnEdDeLnVMj7X41m");
         const contextPath = /*[[@{/}]]*/ '';
 
-        fetch(`${contextPath}payments`, {
+        fetch(`${contextPath}guest/payments`, {
             method: "POST",
             headers: {"Content-Type": "application/json"},
             body: JSON.stringify(orderFormCreateRequest)
