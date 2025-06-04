@@ -11,16 +11,12 @@ import org.springframework.stereotype.Service;
 @Service
 public class AdminOrderService {
     private final AdminOrderClient adminOrderClient;
-    private final ConfigServerHealthIndicator clientConfigServerHealthIndicator;
 
     public PageResponse<RefundResponse> getRefunds(int page, int size) {
         CommonResponse<PageResponse<RefundResponse>> refunds = adminOrderClient.getRefunds(page, size);
         return refunds.data();
     }
-
-    public void approveRefund(long orderId) {
-        adminOrderClient.approveRefund(orderId);
+    public void approveRefund(long orderId, long userId) {
+        adminOrderClient.approveRefund(orderId , userId);
     }
-
-
 }
