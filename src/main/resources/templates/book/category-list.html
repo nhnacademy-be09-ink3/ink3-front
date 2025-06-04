@@ -208,9 +208,6 @@
                 paginationEl.appendChild(createBtn('>', endPage + 1));
             }
         };
-
-
-
         // ✅ 추천 도서 렌더링
 
         const renderRecommended = () => {
@@ -281,6 +278,7 @@
             currentPage = 1;
             fetchBooks();
         });
+
 
         const renderCategoryMenu = (categories, container) => {
             categories.forEach(cat => {
