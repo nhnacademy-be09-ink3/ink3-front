@@ -1,11 +1,31 @@
 package com.nhnacademy.front.shop.controller;
 
-import com.nhnacademy.front.shop.book.dto.BookRegisterRequest;
+import com.nhnacademy.front.shop.author.client.AuthorClient;
+import com.nhnacademy.front.shop.author.client.dto.AuthorResponse;
+import com.nhnacademy.front.shop.book.dto.AuthorDto;
+import com.nhnacademy.front.shop.book.dto.AuthorRoleRequest;
+import com.nhnacademy.front.shop.book.dto.BookResponse;
+import com.nhnacademy.front.shop.book.dto.BookStatus;
+import com.nhnacademy.front.shop.book.dto.BookUpdateForm;
+import com.nhnacademy.front.shop.book.dto.BookUpdateRequest;
+import com.nhnacademy.front.shop.category.client.CategoryClient;
+import com.nhnacademy.front.shop.category.client.dto.CategoryResponse;
+import com.nhnacademy.front.shop.publisher.client.PublisherClient;
+import com.nhnacademy.front.shop.publisher.client.dto.PublisherResponse;
+import com.nhnacademy.front.shop.tag.client.TagClient;
+import com.nhnacademy.front.shop.tag.client.dto.TagResponse;
+import jakarta.validation.Valid;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.auth0.jwt.JWT;
@@ -27,6 +47,10 @@ import lombok.extern.slf4j.Slf4j;
 public class BookController {
     private final BookClient bookClient;
     private final ReviewClient reviewClient;
+    private final CategoryClient categoryClient;
+    private final AuthorClient authorClient;
+    private final PublisherClient publisherClient;
+    private final TagClient tagClient;
 
     @GetMapping("/books/{bookId}")
     public String getBookDetail(@PathVariable Long bookId,
@@ -122,5 +146,59 @@ public class BookController {
     @GetMapping("/books/search")
     public String getSearchList() {
         return "book/search-list";
+    }
+
+    @GetMapping("/admin/book-edit/{book-id}")
+    public String getBookEdit(@PathVariable(name="book-id") Long bookId, Model model) {
+        CommonResponse<BookResponse> response = bookClient.getBookAllField(bookId);
+        CommonResponse<PageResponse<AuthorResponse>> authorList = authorClient.getAuthors(5, 0);
+        CommonResponse<PageResponse<PublisherResponse>> publisherList = publisherClient.getPublishers(5, 0);
+        CommonResponse<PageResponse<CategoryResponse>> categoryList = categoryClient.getCategories();
+        CommonResponse<PageResponse<TagResponse>> tagList = tagClient.getTags(5, 0);
+        List<Long> selectedTagIds = response.data().tags().stream()
+                .map(TagResponse::id)
+                .toList();
+        List<AuthorDto> initialAuthors = response.data().authors();
+        List<Long> selectedCategoryIds = response.data().categories().stream()
+                .map(CategoryResponse::id)
+                .toList();
+
+
+        model.addAttribute("book", response.data());
+        model.addAttribute("authors", authorList.data().content());
+        model.addAttribute("publishers", publisherList.data().content());
+        model.addAttribute("categories", categoryList.data().content());
+        model.addAttribute("tags", tagList.data().content());
+        model.addAttribute("selectedTagIds", selectedTagIds);
+        model.addAttribute("initialAuthors", initialAuthors);
+        model.addAttribute("selectedCategoryIds", selectedCategoryIds);
+        model.addAttribute("statuses", Arrays.asList(BookStatus.values()));
+        return "book/book-edit";
+    }
+
+
+    @PutMapping("/admin/books/{bookId}")
+    public String updateBook(
+            @PathVariable("bookId") Long bookId,
+            @ModelAttribute("book") @Valid BookUpdateForm bookForm,
+            BindingResult bindingResult
+    ) {
+
+        List<AuthorRoleRequest> authorRequests = new ArrayList<>();
+        for (int i = 0; i < bookForm.getAuthorIds().size(); i++) {
+            Long aId = bookForm.getAuthorIds().get(i);
+            String role = bookForm.getAuthorRoles().get(i);
+            authorRequests.add(new AuthorRoleRequest(aId, role));
+        }
+        BookUpdateRequest request = new BookUpdateRequest(
+                bookForm, authorRequests
+        );
+        if (bindingResult.hasErrors()) {
+            log.debug("bindingResult: {}", bindingResult);
+            return "redirect:/admin/book-edit/" + bookId;
+        }
+        bookClient.updateBook(bookId, request);
+
+        return "redirect:/admin/book-edit/" + bookId;
     }
 }
