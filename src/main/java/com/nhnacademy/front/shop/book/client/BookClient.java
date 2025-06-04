@@ -2,7 +2,6 @@ package com.nhnacademy.front.shop.book.client;
 
 import com.nhnacademy.front.shop.book.dto.BookResponse;
 import com.nhnacademy.front.shop.book.dto.BookUpdateRequest;
-import com.nhnacademy.front.shop.book.dto.BookResponse;
 
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
