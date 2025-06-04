@@ -1,0 +1,18 @@
+package com.nhnacademy.front.shop.coupon.coupon.client.dto;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+public record CouponResponse(
+        Long couponId,
+        Long policyId,
+        String name,
+        LocalDateTime issuableFrom,
+        LocalDateTime expiresAt,
+        LocalDateTime createdAt,
+        List<BookInfo> books,
+        List<CategoryInfo> categories
+) {
+    public record BookInfo(Long originId, Long id, String title) {}
+    public record CategoryInfo(Long originId, Long id, String name) {}
+}
