@@ -8,7 +8,6 @@ import com.nhnacademy.front.shop.book.dto.BookResponse;
 import com.nhnacademy.front.shop.book.dto.BookStatus;
 import com.nhnacademy.front.shop.book.dto.BookUpdateForm;
 import com.nhnacademy.front.shop.book.dto.BookUpdateRequest;
-import com.nhnacademy.front.shop.book.client.BookClient;
 import com.nhnacademy.front.shop.book.dto.BookCreateRequest;
 import com.nhnacademy.front.shop.category.client.CategoryClient;
 import com.nhnacademy.front.shop.category.client.dto.CategoryResponse;
@@ -35,6 +34,7 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.nhnacademy.front.common.dto.CommonResponse;
 import com.nhnacademy.front.common.dto.PageResponse;
+import com.nhnacademy.front.shop.book.client.BookClient;
 import com.nhnacademy.front.shop.book.dto.MainBookResponse;
 import com.nhnacademy.front.shop.review.client.ReviewClient;
 import com.nhnacademy.front.shop.review.dto.ReviewListResponse;
@@ -48,11 +48,11 @@ import lombok.extern.slf4j.Slf4j;
 @Controller
 public class BookController {
     private final BookClient bookClient;
+    private final ReviewClient reviewClient;
     private final CategoryClient categoryClient;
     private final AuthorClient authorClient;
     private final PublisherClient publisherClient;
     private final TagClient tagClient;
-    private final ReviewClient reviewClient;
 
     @GetMapping("/books/{bookId}")
     public String getBookDetail(@PathVariable Long bookId,

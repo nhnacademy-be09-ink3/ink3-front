@@ -24,5 +24,4 @@ public record BookResponse(
         List<AuthorDto> authors,
         List<TagResponse> tags,
         double averageRating
-) {
-}
+) {}
