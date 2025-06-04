@@ -57,7 +57,7 @@ public class BookController {
         @RequestParam(defaultValue = "0") int  page,
         @RequestParam(defaultValue = "10") int  size,
         Model model, @CookieValue(name = "accessToken", required = false) String accessToken) {
-        CommonResponse<MainBookResponse> books = bookClient.getBookDetail(bookId);
+        CommonResponse<BookResponse> books = bookClient.getBookAllField(bookId);
         PageResponse<ReviewListResponse> reviews =
             reviewClient.getReviewsByBookId(bookId, page, size);
 
