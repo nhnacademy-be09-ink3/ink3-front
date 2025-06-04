@@ -1,12 +1,12 @@
 package com.nhnacademy.front.shop.book.client;
 
-import java.util.List;
-
+import com.nhnacademy.front.shop.book.dto.BookResponse;
+import com.nhnacademy.front.shop.book.dto.BookUpdateRequest;
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -44,4 +44,10 @@ public interface BookClient {
 
     @GetMapping("/books/{bookId}")
     CommonResponse<MainBookResponse> getBookDetail(@PathVariable Long bookId);
+
+    @GetMapping("/books/{bookId}")
+    CommonResponse<BookResponse> getBookAllField(@PathVariable Long bookId);
+
+    @PutMapping("/books/{bookId}")
+    CommonResponse<BookResponse> updateBook(@PathVariable Long bookId, @RequestBody BookUpdateRequest request);
 }
