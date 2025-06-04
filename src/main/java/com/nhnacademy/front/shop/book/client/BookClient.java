@@ -46,9 +46,6 @@ public interface BookClient {
     @GetMapping("/books/{bookId}")
     CommonResponse<BookResponse> getBookDetail(@PathVariable Long bookId);
 
-    @GetMapping("/books/{bookId}")
-    CommonResponse<BookResponse> getBookAllField(@PathVariable Long bookId);
-
     @PutMapping("/books/{bookId}")
     CommonResponse<BookResponse> updateBook(@PathVariable Long bookId, @RequestBody BookUpdateRequest request);
 }

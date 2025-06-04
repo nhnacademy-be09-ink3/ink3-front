@@ -168,7 +168,7 @@ public class BookController {
 
     @GetMapping("/admin/book-edit/{book-id}")
     public String getBookEdit(@PathVariable(name="book-id") Long bookId, Model model) {
-        CommonResponse<BookResponse> response = bookClient.getBookAllField(bookId);
+        CommonResponse<BookResponse> response = bookClient.getBookDetail(bookId);
         CommonResponse<PageResponse<AuthorResponse>> authorList = authorClient.getAuthors(5, 0);
         CommonResponse<PageResponse<PublisherResponse>> publisherList = publisherClient.getPublishers(5, 0);
         CommonResponse<PageResponse<CategoryResponse>> categoryList = categoryClient.getCategories();
