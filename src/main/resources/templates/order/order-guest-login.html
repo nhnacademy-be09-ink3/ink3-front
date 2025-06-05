@@ -17,6 +17,11 @@
 <main class="container mx-auto px-4 py-8 min-h-[calc(100vh-72px-64px)] flex justify-center items-center">
     <div class="ink-card-white p-8 w-full max-w-md h-auto flex-none space-y-3">
         <h2 class="text-2xl font-semibold text-gray-800 mb-6 text-center">비회원 주문조회</h2>
+        <!-- 에러 메시지 표시 -->
+        <div th:if="${orderNotFound}" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4 text-sm" role="alert">
+            <strong class="font-bold">조회 실패:</strong>
+            <span class="block sm:inline">입력한 정보와 일치하는 주문을 찾을 수 없습니다.</span>
+        </div>
         <P class="my-6">비회원 주문시 입력했던 이메일과 비밀번호를 입력해주세요.</P>
         <form method="post" th:action="@{/guest/orders}">
             <div>
@@ -36,3 +41,4 @@
 <div th:replace="~{layout/fragments/footer :: footerFragment}"></div>
 </body>
 </html>
+

@@ -11,7 +11,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Getter
-public class GuestCreateRequest {
+public class GuestRequest {
+    @NotNull
+    private Long orderId;
     @Email
     @NotBlank
     private String email;

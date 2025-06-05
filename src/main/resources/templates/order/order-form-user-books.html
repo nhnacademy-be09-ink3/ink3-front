@@ -517,15 +517,22 @@
             });
 
             const maxPoint = parseInt(POINT_INPUT.getAttribute('max') || '0', 10);
-            if (usedPoint > maxPoint) usedPoint = maxPoint;
+            const shippingFee = productTotal >= SHIPPING_POLICY.threshold ? 0 : SHIPPING_POLICY.fee;
+            const paymentAmountBeforePoint = productTotal + shippingFee - DISCOUNT + packagingTotal;
 
-            const shippingFee = ( productTotal ) >= SHIPPING_POLICY.threshold ? 0 : SHIPPING_POLICY.fee;
-            const paymentAmount = productTotal + shippingFee - DISCOUNT - usedPoint + packagingTotal;
+            const maxUsablePoint = Math.min(maxPoint, paymentAmountBeforePoint);
+            if (usedPoint > maxUsablePoint) {
+                usedPoint = maxUsablePoint;
+                POINT_INPUT.value = usedPoint;
+                USE_ALL_CHECK.checked = true;
+            }
+
+            const paymentAmount = paymentAmountBeforePoint - usedPoint;
             const finalTotal = paymentAmount < 0 ? 0 : paymentAmount;
 
             PRODUCT_TOTAL_EL.textContent = formatCurrency(productTotal);
             PACKAGING_TOTAL_EL.textContent = formatCurrency(packagingTotal);
-            FINAL_TOTAL_EL.textContent = formatCurrency(finalTotal < 0 ? 0 : finalTotal);
+            FINAL_TOTAL_EL.textContent = formatCurrency(finalTotal);
             POINT_USED_EL.textContent = formatCurrency(usedPoint);
 
             const shippingFeeEl = document.querySelector('[data-role="shipping-fee"]');
@@ -559,9 +566,27 @@
 
         USE_ALL_CHECK?.addEventListener('change', (e) => {
             const maxPoint = parseInt(POINT_INPUT.getAttribute('max') || '0', 10);
+
+            let productTotal = 0;
+            let packagingTotal = 0;
+
+            document.querySelectorAll('.cart-item').forEach(item => {
+                const price = parseInt(item.dataset.price || '0', 10);
+                const quantity = parseInt(item.dataset.quantity || '0', 10);
+                productTotal += price * quantity;
+
+                const selectedOption = item.querySelector("select.packaging-select")?.selectedOptions[0];
+                const packagingPrice = parseInt(selectedOption?.dataset.price || '0', 10);
+                packagingTotal += packagingPrice;
+            });
+
+            const shippingFee = productTotal >= SHIPPING_POLICY.threshold ? 0 : SHIPPING_POLICY.fee;
+            const paymentAmountBeforePoint = productTotal + shippingFee - DISCOUNT + packagingTotal;
+            const maxUsablePoint = Math.min(maxPoint, paymentAmountBeforePoint);
+
             if (e.target.checked) {
-                usedPoint = maxPoint;
-                POINT_INPUT.value = maxPoint;
+                usedPoint = maxUsablePoint;
+                POINT_INPUT.value = maxUsablePoint;
             } else {
                 usedPoint = 0;
                 POINT_INPUT.value = '';
@@ -569,6 +594,7 @@
 
             updateSummary();
         });
+
 
         // 전화번호 자동 하이픈 적용
         function autoHyphenPhone(el) {
@@ -684,10 +710,9 @@
         const usedPoint = parseInt(document.querySelector("input[name='usedPoint']").value || "0", 10);
         const usedPointAmount = usedPoint;
 
-        const baseAmount = productTotal + packagingTotal;
-        const shippingFee = (baseAmount) >= SHIPPING_POLICY.threshold ? 0 : SHIPPING_POLICY.fee;
+        const shippingFee = (productTotal) >= SHIPPING_POLICY.threshold ? 0 : SHIPPING_POLICY.fee;
 
-        const paymentAmount = baseAmount + shippingFee - discountAmount - usedPoint;
+        const paymentAmount = productTotal + shippingFee - discountAmount - usedPoint + packagingTotal;
         const finalAmount = paymentAmount < 0 ? 0 : paymentAmount;
 
         const orderFormCreateRequest = {

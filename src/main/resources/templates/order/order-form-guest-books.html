@@ -6,6 +6,7 @@
     <title>ink3</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/output.css(v=${#dates.createNow().getTime()})}">
+    <script src="https://js.tosspayments.com/v1/payment"></script>
     <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
     <style>
         body {
@@ -16,6 +17,14 @@
 <body class="bg-gray-100">
 <div th:replace="~{layout/fragments/header :: headerFragment}"></div>
 <main class="container max-w-[1600px] mx-auto px-4 py-8">
+    <!-- 비회원 안내 메시지 -->
+    <div class="bg-yellow-50 border-l-4 border-yellow-400 text-yellow-800 p-4 rounded mb-6">
+        <p class="font-medium">비회원 주문 안내</p>
+        <p class="text-sm mt-1">
+            로그인 없이 주문을 진행하고 있습니다. <strong class="text-yellow-700">주문 확인은 이메일과 주문번호</strong>로만 가능합니다.<br>
+            ※ 비회원 주문의 경우 교환/반품이 어려울 수 있습니다.
+        </p>
+    </div>
     <div class="flex flex-col lg:flex-row gap-10">
 
         <!-- 왼쪽: 입력 -->
@@ -26,24 +35,24 @@
                 <!-- 주문 상품 카드: 가로 정렬 -->
                 <div th:each="item : ${cart}"
                      class="cart-item bg-white p-4 rounded-xl shadow text-sm flex items-center gap-6 mb-4"
-                     th:attr="data-book-id=${item.bookId}, data-price=${item.saleBookPrice}, data-quantity=${item.quantity}">
+                     th:attr="data-book-id=${item.bookId}, data-price=${item.book.saleBookPrice}, data-quantity=${item.quantity}">
 
                     <!-- 이미지 -->
                     <div class="w-16 flex-shrink-0">
-                        <img th:src="${item.thumbnailUrl}" alt="도서 이미지"
+                        <img th:src="${item.book.thumbnailUrl}" alt="도서 이미지"
                              class="w-full h-auto rounded border border-gray-200">
                     </div>
 
                     <!-- 상품명 -->
                     <div class="min-w-[130px]">
                         <div class="text-gray-500 text-xs">상품명</div>
-                        <div class="font-medium text-gray-800" th:text="${item.bookTitle}">도서 제목</div>
+                        <div class="font-medium text-gray-800" th:text="${item.book.bookTitle}">도서 제목</div>
                     </div>
 
                     <!-- 정가 -->
                     <div class="min-w-[70px]">
                         <div class="text-gray-500 text-xs">정가</div>
-                        <div th:text="${#numbers.formatInteger(item.originalBookPrice, 0, 'COMMA') + '원'}">정가</div>
+                        <div th:text="${#numbers.formatInteger(item.book.originalBookPrice, 0, 'COMMA') + '원'}">정가</div>
                     </div>
 
                     <!-- 수량 -->
@@ -56,19 +65,19 @@
                     <div class="min-w-[90px]">
                         <div class="text-gray-500 text-xs">할인금액</div>
                         <div class="text-red-600 font-semibold"
-                             th:text="${#numbers.formatInteger(item.saleBookPrice, 0, 'COMMA') + '원'}">
+                             th:text="${#numbers.formatInteger(item.book.saleBookPrice, 0, 'COMMA') + '원'}">
                             할인금액
                         </div>
                         <div class="text-xs text-red-500"
-                             th:if="${item.bookDiscountRate != null}"
-                             th:text="|(${item.bookDiscountRate}% ↓)|">
+                             th:if="${item.book.bookDiscountRate != null}"
+                             th:text="|(${item.book.bookDiscountRate}% ↓)|">
                         </div>                    </div>
 
                     <!-- 합계 -->
                     <div class="min-w-[90px] text-right">
                         <div class="text-gray-500 text-xs">합계</div>
                         <div class="text-base font-bold text-gray-900"
-                             th:text="${#numbers.formatInteger(item.saleBookPrice * item.quantity, 0, 'COMMA') + '원'}">
+                             th:text="${#numbers.formatInteger(item.book.saleBookPrice * item.quantity, 0, 'COMMA') + '원'}">
                             합계
                         </div>
                     </div>
@@ -87,6 +96,32 @@
                     </div>
                 </div>
             </section>
+
+            <!-- 주문자 정보 -->
+            <section class="mb-8">
+                <h2 class="text-2xl font-semibold mt-10 mb-4">주문자 정보</h2>
+                <div class="bg-gray-50 p-4 rounded-lg shadow space-y-6 text-sm">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block mb-1 text-sm font-medium text-gray-700">이름</label>
+                            <input type="text" class="ink-input-field w-full" id="ordererName" placeholder="홍길동">
+                        </div>
+                        <div>
+                            <label class="block mb-1 text-sm font-medium text-gray-700">연락처</label>
+                            <input type="text" class="ink-input-field w-full" id="ordererPhone" placeholder="010-9876-5432">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block mb-1 text-sm font-medium text-gray-700">이메일</label>
+                        <input type="email" class="ink-input-field w-full" id="ordererEmail"
+                               placeholder="example@email.com">
+                        <small class="text-gray-500 text-xs mt-1 block">
+                               ※ 주문 확인 메일이 발송되며, 이후 <strong>주문 조회 시 인증용</strong>으로 사용됩니다.
+                        </small>
+                    </div>
+                </div>
+            </section>
+
 
             <!-- 배송지 정보 -->
             <section class="mb-8">
@@ -175,14 +210,14 @@
 
         <!-- 오른쪽: 요약 -->
         <div class="w-full lg:w-[30%]">
-            <div class="sticky top-6 bg-white p-6 rounded-xl shadow min-h-[75vh] flex flex-col justify-between">
+            <div class="sticky top-6 bg-white p-6 rounded-xl shadow min-h-[75vh] flex flex-col justify-between border border-gray-200">
                 <div>
                     <h2 class="text-xl font-bold border-b pb-2 mb-4">주문 요약</h2>
                     <div class="space-y-2 text-sm mb-6">
                         <!-- 상품별 요약 반복 렌더링 -->
                         <div th:each="item : ${cart}" class="flex justify-between">
-                            <span th:text="${item.bookTitle}">도서명</span>
-                            <span th:text="${item.quantity + '개 / ' + (#numbers.formatInteger(item.saleBookPrice * item.quantity, 0, 'COMMA') + '원')}">0개 / 0원</span>
+                            <span th:text="${item.book.bookTitle}">도서명</span>
+                            <span th:text="${item.quantity + '개 / ' + (#numbers.formatInteger(item.book.saleBookPrice * item.quantity, 0, 'COMMA') + '원')}">0개 / 0원</span>
                         </div>
                     </div>
 
@@ -219,7 +254,9 @@
                         </div>
                     </div>
                 </div>
-
+                <div class="text-xs text-gray-500 text-center mt-4">
+                      ※ 주문 후 <strong>이메일과 주문번호</strong>로 확인하실 수 있습니다.
+                </div>
                 <button type="button" onclick="submitOrderForm()" class="ink-btn-primary mt-8 w-full text-base py-2">
                     결제하기
                 </button>
@@ -390,10 +427,13 @@
         }
 
         // 이후 기존 내용 유지
-        const userId = parseInt(document.getElementById("userId").value, 10);
         const preferredDate = window.getPreferredDeliveryDate();
         const extraAddress = document.getElementById("extraAddress").value;
         const orderItems = [];
+
+        let productTotal = 0;
+        let packagingTotal = 0;
+
         document.querySelectorAll(".cart-item").forEach(item => {
             const bookId = parseInt(item.dataset.bookId);
             const price = parseInt(item.dataset.price);
@@ -411,19 +451,14 @@
             packagingTotal += packagingPrice;
         });
 
-        const discountAmount = 1000;
-        const usedPoint = parseInt(document.querySelector("input[name='usedPoint']").value || "0", 10);
-        const usedPointAmount = usedPoint;
-
-        const baseAmount = productTotal + packagingTotal;
-        const shippingFee = ( baseAmount ) >= SHIPPING_POLICY.threshold ? 0 : SHIPPING_POLICY.fee;
-
-        const paymentAmount = baseAmount + shippingFee - discountAmount - usedPoint;
+        const shippingFee = ( productTotal ) >= SHIPPING_POLICY.threshold ? 0 : SHIPPING_POLICY.fee;
+        const paymentAmount = productTotal + shippingFee + packagingTotal;
         const finalAmount = paymentAmount < 0 ? 0 : paymentAmount;
 
 
-        const orderFormCreateRequest = {
-            orderCreateRequest: { userId, ordererName, ordererPhone },
+        const guestOrderFormCreateRequest = {
+            guestCreateRequest: {email: ordererEmail},
+            guestOrderCreateRequest: { ordererName, ordererPhone },
             shipmentCreateRequest: {
                 preferredDeliveryDate: preferredDate,
                 recipientName,
@@ -436,8 +471,6 @@
                 shippingCode: null
             },
             createRequestList: orderItems,
-            discountAmount,
-            usedPointAmount,
             paymentAmount: finalAmount
         };
 
@@ -447,11 +480,11 @@
         fetch(`${contextPath}guest/payments`, {
             method: "POST",
             headers: {"Content-Type": "application/json"},
-            body: JSON.stringify(orderFormCreateRequest)
+            body: JSON.stringify(guestOrderFormCreateRequest)
         })
             .then(response => response.json())
             .then(data => {
-                return tossPayments.requestPayment("카드", {
+                tossPayments.requestPayment("카드", {
                     amount: data.amount,
                     orderId: data.orderId,
                     orderName: data.orderName,

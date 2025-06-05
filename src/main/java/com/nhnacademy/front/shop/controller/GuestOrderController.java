@@ -1,19 +1,14 @@
 package com.nhnacademy.front.shop.controller;
 
-import com.nhnacademy.front.common.dto.CommonResponse;
 import com.nhnacademy.front.common.dto.PageResponse;
-import com.nhnacademy.front.shop.guest.dto.GuestCreateRequest;
-import com.nhnacademy.front.shop.guest.dto.GuestOrderCreateRequest;
 import com.nhnacademy.front.shop.guest.dto.GuestOrderDetailsResponse;
 import com.nhnacademy.front.shop.guest.dto.GuestOrderFormCreateRequest;
 import com.nhnacademy.front.shop.guest.dto.GuestOrderResponse;
 import com.nhnacademy.front.shop.guest.dto.GuestPaymentConfirmRequest;
+import com.nhnacademy.front.shop.guest.dto.GuestRequest;
 import com.nhnacademy.front.shop.guest.service.GuestPaymentService;
 import com.nhnacademy.front.shop.order.dto.OrderBookResponse;
-import com.nhnacademy.front.shop.order.dto.OrderFormCreateRequest;
-import com.nhnacademy.front.shop.order.dto.OrderResponse;
 import com.nhnacademy.front.shop.guest.service.GuestOrderService;
-import com.nhnacademy.front.shop.payment.dto.PaymentConfirmRequest;
 import com.nhnacademy.front.shop.payment.dto.PaymentResponse;
 import com.nhnacademy.front.shop.payment.dto.PaymentType;
 import com.nhnacademy.front.shop.payment.dto.TossUrlProperty;
@@ -23,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -47,24 +43,22 @@ public class GuestOrderController {
     @PostMapping("/orders")
     public String getGuestOrders(
             Model model,
-            @RequestBody GuestCreateRequest guestCreateRequest
+            @ModelAttribute GuestRequest guestRequest
     ) {
         try {
-            // 비교 (주문 상세 값 가져오기)
-            GuestOrderResponse guestOrder = guestOrderService.getGuestOrder(guestCreateRequest);
-
             // 배송 정보 및 주문 정보 및 상품 상세 등 정보를 가져와야함.
             GuestOrderDetailsResponse guestOrderDetails =
-                    guestOrderService.getGuestOrderDetails(guestOrder.orderId());
+                    guestOrderService.getGuestOrderDetails(guestRequest.getOrderId(), guestRequest.getEmail());
             PageResponse<OrderBookResponse> orderBookList =
-                    guestOrderService.getOrderBookList(guestOrder.orderId(), 0, 100);
+                    guestOrderService.getOrderBookList(guestRequest.getOrderId(), 0, 100);
 
             model.addAttribute("orderBookList", orderBookList);
             model.addAttribute("guestOrderDetails", guestOrderDetails);
             return "order/order-guest-tracking";
         }catch (Exception e) {
             // 모달로 띄워주면 좋을 거 같음.
-            return "조회하는 주문 정보가 없습니다.";
+            model.addAttribute("orderNotFound", true);
+            return "order/order-guest-login";
         }
     }
 
@@ -80,11 +74,13 @@ public class GuestOrderController {
         String orderUUID = guestOrderResponse.orderUUID();
         String orderName = "도서 " + guestOrderFormCreateRequest.createRequestList().size() + "종 외";
         String customerName = guestOrderFormCreateRequest.guestOrderCreateRequest().getOrdererName();
+        String email = guestOrderFormCreateRequest.guestCreateRequest().getEmail();
 
-        String successUrl = tossUrlProperty.getSuccessURL()
-                + "?realOrderId=" + guestOrderResponse.orderId();
+        String successUrl = tossUrlProperty.getSuccessGuestURL()
+                + "?realOrderId=" + guestOrderResponse.orderId()
+                + "&email=" + email;
 
-        String failUrl = tossUrlProperty.getFailURL()
+        String failUrl = tossUrlProperty.getFailGuestURL()
                 + "?orderId=" + guestOrderResponse.orderUUID();
 
         Map<String, Object> response = Map.of(
@@ -100,13 +96,14 @@ public class GuestOrderController {
 
     // 결제 성공
     //TODO  :  민감한 정보이기 때문에 레디스 사용
-    @GetMapping("/success")
+    @GetMapping("/payments/success")
     public String paymentSuccess(
             Model model,
             @RequestParam("paymentKey") String paymentKey,
             @RequestParam("amount") int amount,
             @RequestParam("orderId") String orderUUID,
-            @RequestParam("realOrderId") long orderId
+            @RequestParam("realOrderId") long orderId,
+            @RequestParam("email") String email
     ) {
         GuestPaymentConfirmRequest guestPaymentConfirmRequest = GuestPaymentConfirmRequest.builder()
                 .orderId(orderId)
@@ -117,11 +114,12 @@ public class GuestOrderController {
                 .build();
         PaymentResponse paymentResponse = guestPaymentService.confirmPayment(guestPaymentConfirmRequest);
         model.addAttribute("paymentResponse", paymentResponse);
-        return "payment/payment-success";
+        model.addAttribute("email", email);
+        return "payment/payment-guest-success";
     }
 
     // 결제 실패
-    @GetMapping("/fail")
+    @GetMapping("/payments/fail")
     public String paymentFail(@RequestParam long orderId){
         guestPaymentService.dealWithPaymentFail(orderId);
         return "payment/payment-fail";
