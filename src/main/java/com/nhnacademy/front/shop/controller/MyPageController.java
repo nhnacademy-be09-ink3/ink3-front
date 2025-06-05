@@ -1,5 +1,8 @@
 package com.nhnacademy.front.shop.controller;
 
+import java.util.List;
+
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.CookieValue;
@@ -10,6 +13,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.nhnacademy.front.auth.client.dto.OAuth2UserInfo;
 import com.nhnacademy.front.auth.service.AuthService;
@@ -192,6 +197,35 @@ public class MyPageController {
 
         return "user/me-reviews";
     }
+
+    @PostMapping(value = "/me/reviews", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public String addReview(@RequestParam Long orderBookId,
+        @RequestParam String title,
+        @RequestParam String content,
+        @RequestParam int rating,
+        @RequestPart(value = "images", required = false) List<MultipartFile> images) {
+        reviewClient.addReview(orderBookId, title, content, rating, images);
+        return "redirect:/me/orders";
+    }
+
+    @PostMapping(value = "/me/reviews/{review-id}/update", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public String updateMyReview(@PathVariable("review-id") Long reviewId,
+        @RequestParam String title,
+        @RequestParam String content,
+        @RequestParam int rating,
+        @RequestPart(value = "images", required = false)
+        List<MultipartFile> images) {
+
+        reviewClient.updateReview(reviewId, title, content, rating, images);
+        return "redirect:/me/reviews";
+    }
+
+    @PostMapping("/me/reviews/{review-id}/delete")
+    public String deleteMyReview(@PathVariable("review-id") Long reviewId) {
+        reviewClient.deleteReview(reviewId);
+        return "redirect:/me/reviews";
+    }
+
 
     @PostMapping("/me/withdraw")
     public String postWithdraw(
