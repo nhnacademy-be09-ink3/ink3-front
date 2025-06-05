@@ -23,6 +23,8 @@ import com.nhnacademy.front.shop.address.client.dto.AddressCreateRequest;
 import com.nhnacademy.front.shop.address.client.dto.AddressUpdateRequest;
 import com.nhnacademy.front.shop.address.service.AddressService;
 import com.nhnacademy.front.shop.book.client.BookClient;
+import com.nhnacademy.front.shop.couponStore.client.dto.CouponStoreResponse;
+import com.nhnacademy.front.shop.couponStore.service.CouponStoreService;
 import com.nhnacademy.front.shop.like.client.dto.LikeResponse;
 import com.nhnacademy.front.shop.like.service.LikeService;
 import com.nhnacademy.front.shop.order.dto.OrderWithDetailsResponse;
@@ -52,6 +54,7 @@ public class MyPageController {
     private final PointService pointService;
     private final LikeService likeService;
     private final OrderService orderService;
+    private final CouponStoreService couponStoreService;
     private final BookClient bookClient;
     private final ReviewClient reviewClient;
 
@@ -153,11 +156,30 @@ public class MyPageController {
     }
 
     @GetMapping("/me/coupons")
-    public String getMeCoupons(Model model) {
+    public String getMeCoupons(@RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size,
+        @RequestParam(required = false) String status,
+        Model model) {
+        PageResponse<CouponStoreResponse> coupons;
+
+        if ("unused".equals(status)) {
+            coupons = couponStoreService.getCurrentUserUnusedCoupons(page, size, "issuedAt,desc");
+        } else if ("used".equals(status)) {
+            coupons = couponStoreService.getCurrentUserUsedOrExpiredCoupons(page, size, "usedAt,desc");
+        } else {
+            coupons = couponStoreService.getCurrentUserCoupons(page, size, "issuedAt,desc");
+        }
+
+        PageUtil.PageInfo pageInfo = PageUtil.calculatePageRange(coupons.page(), coupons.totalPages(), 5);
+
         model.addAttribute("currentPage", "coupons");
         model.addAttribute("user", userService.getCurrentUserDetail());
+        model.addAttribute("coupons", coupons);
+        model.addAttribute("pageInfo", pageInfo);
+        model.addAttribute("status", status);
         return "user/me-coupons";
     }
+
 
     @GetMapping("/me/likes")
     public String getMeLikes(@RequestParam(required = false, defaultValue = "0") int page, Model model) {
