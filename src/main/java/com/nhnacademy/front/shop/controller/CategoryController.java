@@ -30,7 +30,7 @@ public class CategoryController {
         model.addAttribute("categoryTree", categoryTree.data());
         model.addAttribute("categories", categories.data());
 
-        return "admin/categories";
+        return "admin/book/categories";
     }
 
     @PostMapping("/admin/categories")

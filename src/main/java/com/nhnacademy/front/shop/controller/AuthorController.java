@@ -43,7 +43,7 @@ public class AuthorController {
         model.addAttribute("authors", authors);
         model.addAttribute("pageInfo", pageInfo);
 
-        return "admin/authors";
+        return "admin/book/authors";
     }
 
     @PutMapping("/admin/authors/{authorId}")

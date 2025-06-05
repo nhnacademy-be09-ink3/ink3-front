@@ -46,7 +46,7 @@ public class TagController {
         model.addAttribute("tags", tags);
         model.addAttribute("pageInfo", pageInfo);
 
-        return "admin/tags";
+        return "admin/book/tags";
     }
 
     @PutMapping("/admin/tags/{tagId}")

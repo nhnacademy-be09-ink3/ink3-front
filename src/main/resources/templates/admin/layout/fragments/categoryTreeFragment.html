@@ -5,7 +5,7 @@
   <ul class="space-y-1">
     <li th:each="category : ${categoryTree}">
       <div class="flex items-center space-x-2 group">
-        <span th:if="${category.id != 15}" th:text="${prefix + '├── ' + category.name}" class="text-gray-800 font-medium"></span>
+        <span th:text="${prefix + '├── ' + category.name}" class="text-gray-800 font-medium"></span>
 
         <div th:if="${#lists.isEmpty(category.children)}" class="relative">
           <form th:action="@{/admin/categories/{id}(id=${category.id})}" method="post"
@@ -27,7 +27,6 @@
 </th:block>
 </body>
 </html>
-
 
 <!-- 삭제 버튼 -->
 <form th:action="@{/admin/pubs/{id}(id=${publisher.id})}" method="post" class="inline">
