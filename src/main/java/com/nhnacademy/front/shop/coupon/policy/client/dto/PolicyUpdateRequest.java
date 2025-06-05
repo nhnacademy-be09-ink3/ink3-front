@@ -14,11 +14,11 @@ public record PolicyUpdateRequest(
         @NotNull @Min(0)
         int minimumOrderAmount,
 
-        int discountValue,
+        Integer discountValue,
 
-        int discountPercentage,
+        Integer discountPercentage,
 
-        int maximumDiscountAmount
+        Integer maximumDiscountAmount
 
 ) {
 }
