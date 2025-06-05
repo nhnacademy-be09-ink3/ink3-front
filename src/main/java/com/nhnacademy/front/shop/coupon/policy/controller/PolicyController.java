@@ -3,6 +3,7 @@ package com.nhnacademy.front.shop.coupon.policy.controller;
 import com.nhnacademy.front.common.dto.CommonResponse;
 import com.nhnacademy.front.common.dto.PageResponse;
 import com.nhnacademy.front.shop.coupon.policy.client.CouponPolicyClient;
+import com.nhnacademy.front.shop.coupon.policy.client.dto.PolicyCreateRequest;
 import com.nhnacademy.front.shop.coupon.policy.client.dto.PolicyResponse;
 import com.nhnacademy.front.shop.coupon.policy.client.dto.PolicyUpdateRequest;
 import com.nhnacademy.front.util.PageUtil;
@@ -18,6 +19,20 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/admin")
 public class PolicyController {
     private final CouponPolicyClient couponPolicyClient;
+
+
+    @PostMapping("/policy-register")
+    public String createPolicy(@ModelAttribute PolicyCreateRequest req) {
+        couponPolicyClient.createPolicy(req);
+        return "redirect:/admin/policies";
+    }
+
+    @GetMapping("/policy-register")
+    public String policyRegister() {
+        return "admin/coupon/policy-register";
+    }
+
+
 
     // (1) 목록 + 단일 조회
     @GetMapping("/policies")

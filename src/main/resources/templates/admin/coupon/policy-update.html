@@ -72,23 +72,21 @@
                           class="space-y-6">
                         <input type="hidden" name="_method" value="put" />
 
-                        <!-- 1) 정책 식별 이름 입력 -->
+                        <!-- 1) 정책 식별 이름 -->
                         <div class="grid grid-cols-1 gap-2">
-                            <label for="policyName" class="text-gray-700 font-medium">
-                                정책 식별 이름
-                            </label>
+                            <label for="name" class="text-gray-700 font-medium">정책 식별 이름</label>
                             <input
                                     type="text"
-                                    id="policyName"
-                                    name="policyName"
+                                    id="name"
+                                    name="name"
                                     required
                                     class="ink-input-field w-full"
-                                    placeholder="예: SPRING_SALE2025"
                                     th:value="${policy.policyName}"
+                                    placeholder="예: SPRING_SALE2025"
                             />
                         </div>
 
-                        <!-- 2) 최소 주문 금액 입력 -->
+                        <!-- 2) 최소 주문 금액 -->
                         <div class="grid grid-cols-1 gap-2">
                             <label for="minimumOrderAmount" class="text-gray-700 font-medium">
                                 최소 주문 금액 (₩)
@@ -101,8 +99,8 @@
                                     class="ink-input-field w-full"
                                     min="0"
                                     step="1"
-                                    placeholder="예: 10000"
                                     th:value="${policy.minimumOrderAmount}"
+                                    placeholder="예: 10000"
                             />
                         </div>
 

@@ -18,13 +18,23 @@ public record PolicyCreateRequest(
         @NotNull
         DiscountType discountType,
 
-        @NotNull
         Integer discountValue,
 
-        @NotNull
         Integer discountPercentage,
 
-        @NotNull
         @Min(value = 0, message = "최대 할인 금액은 0 이상이어야 합니다.")
         Integer maximumDiscountAmount
-) {}
+) {
+        public PolicyCreateRequest {
+                if (discountValue == null) {
+                        discountValue = 0;
+                }
+                if (discountPercentage == null) {
+                        discountPercentage = 0;
+                }
+                // 최대 할인 금액은 넘겨준 값 그대로 사용하거나, 원한다면 비어 있으면 0으로 바꿀 수 있습니다.
+                if (maximumDiscountAmount == null) {
+                        maximumDiscountAmount = 0;
+                }
+        }
+}

@@ -92,11 +92,11 @@
                             th:each="policy, stat : ${policies.content()}">
                             <td class="py-3 px-4 text-sm text-gray-700" th:text="${stat.count}">1</td>
                             <td class="py-3 px-4 text-sm text-gray-700" th:text="${policy.policyName}">SPRING_SALE2025</td>
-                            <td class="py-3 px-4 text-sm text-gray-700" th:text="${policy.minimumOrderAmount}">10000</td>
+                            <td class="py-3 px-4 text-sm text-gray-700" th:text="${policy.minimumOrderAmount} +' ₩'">10000</td>
                             <td class="py-3 px-4 text-sm text-gray-700" th:text="${policy.discountType}">RATE</td>
-                            <td class="py-3 px-4 text-sm text-gray-700" th:text="${policy.discountValue} ?: '0'">0</td>
-                            <td class="py-3 px-4 text-sm text-gray-700" th:text="${policy.discountPercentage} ?: '0'">0</td>
-                            <td class="py-3 px-4 text-sm text-gray-700" th:text="${policy.maximumDiscountAmount} ?: '0'">0</td>
+                            <td class="py-3 px-4 text-sm text-gray-700" th:text="${policy.discountValue == 0}? '-' : ${policy.discountValue} + ' ₩'">-</td>
+                            <td class="py-3 px-4 text-sm text-gray-700" th:text="${policy.discountPercentage==0} ? '-' : ${policy.discountPercentage} + ' %'">-</td>
+                            <td class="py-3 px-4 text-sm text-gray-700" th:text="${policy.maximumDiscountAmount == 0} ? '-' : ${policy.maximumDiscountAmount} + ' ₩'"></td>
                             <td class="py-3 px-4 text-sm text-gray-700"
                                 th:text="${#temporals.format(policy.createdAt, 'yyyy-MM-dd')}">2025-06-05</td>
                             <td class="py-3 px-4 text-sm text-gray-700 space-x-2">
