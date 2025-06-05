@@ -28,6 +28,9 @@
             <div class="w-3/4 flex flex-col space-y-4">
                 <div class="ink-card-white p-6">
                     <h1 class="text-xl font-semibold text-gray-800 mb-6">리뷰</h1>
+                    <p class="text-sm text-gray-500 mb-4">
+                        3일이 지난 리뷰는 수정할 수 없습니다.
+                    </p>
 
                     <div class="space-y-6">
                         <div th:each="review : ${reviews.content()}"
@@ -56,11 +59,21 @@
                                      class="w-28 h-28 object-cover rounded">
                             </div>
 
-                            <button type="button"
-                                    class="toggle-edit px-3 py-1 ink-btn-primary text-white rounded hover:bg-yellow-500 mt-2"
-                                    th:attr="data-review-id=${review.id}">
-                               리뷰 수정
-                            </button>
+                            <th:block th:with="daysElapsed=${T(java.time.temporal.ChronoUnit).DAYS.between(review.createdAt, T(java.time.LocalDateTime).now())}">
+                                <button type="button"
+                                        th:if="${daysElapsed <= 3}"
+                                        class="toggle-edit px-3 py-1 ink-btn-primary text-white rounded hover:bg-yellow-500 mt-2"
+                                        th:attr="data-review-id=${review.id}">
+                                    리뷰 수정
+                                </button>
+
+                                <button type="button"
+                                        th:unless="${daysElapsed <= 3}"
+                                        class="px-3 py-1 bg-gray-300 text-gray-500 rounded cursor-not-allowed mt-2"
+                                        disabled>
+                                    수정 불가
+                                </button>
+                            </th:block>
 
                             <!-- 수정 폼 (리뷰 블록 안에 삽입) -->
                             <form th:id="'edit-form-' + ${review.id}"
