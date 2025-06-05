@@ -42,8 +42,23 @@
                             <td class="py-3 px-4 text-sm text-gray-700">-</td>
                             <td class="py-3 px-4 text-sm text-gray-700">-</td>
                             <td class="py-3 px-4 text-sm text-gray-700">-</td>
-                            <td class="py-3 px-4 text-sm text-gray-700">
-                                <a href="#" class="text-blue-500">수정</a> | <a href="#" class="text-red-500">삭제</a>
+                            <td class="py-3 px-4 text-sm text-gray-700 space-x-2">
+                                <!-- 수정 버튼 -->
+                                <form th:action="@{'/admin/book-edit/' + ${book.id}}" method="get" class="inline">
+                                    <button type="submit"
+                                            class="bg-ink-primary px-2 py-1 text-white rounded-xl hover:bg-ink-primary-hover">
+                                        수정
+                                    </button>
+                                </form>
+
+                                <!-- 삭제 버튼 -->
+                                <form th:action="@{'/admin/books/' + ${book.id}}" method="post" class="inline">
+                                    <input type="hidden" name="_method" value="delete"/>
+                                    <button type="submit"
+                                            class="bg-red-500 px-2 py-1 text-white rounded-xl hover:bg-red-400">
+                                        삭제
+                                    </button>
+                                </form>
                             </td>
                         </tr>
                         </tbody>

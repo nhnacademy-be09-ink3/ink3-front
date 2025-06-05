@@ -264,7 +264,6 @@
                 <span class="text-gray-700 text-sm font-bold">활성화 여부</span>
                 <label for="newIsActive"
                        class="relative block h-8 w-14 rounded-full bg-gray-300 transition-colors [-webkit-tap-highlight-color:_transparent] has-checked:bg-ink-primary">
-                    <input type="hidden" id="hiddenNewIsActive" name="isActive" value="false">
                     <input type="checkbox" id="newIsActive" class="peer sr-only"/>
                     <span class="absolute inset-y-0 start-0 m-1 size-6 rounded-full bg-white transition-[inset-inline-start] peer-checked:start-6"></span>
                 </label>
@@ -292,9 +291,6 @@
 </body>
 <script th:inline="javascript">
     const contextPath = /*[[@{/}]]*/ '';
-
-    const checkbox = document.getElementById('newIsActive');
-    const hiddenInput = document.getElementById('hiddenNewIsActive');
 
     async function setDefaultMembership() {
         const id = document.getElementById('id').value;
@@ -375,6 +371,7 @@
         const pointRate = button.getAttribute('data-point-rate');
         const isActive = button.getAttribute('data-is-active') === 'true';
         const isDefault = button.getAttribute('data-is-default') === 'true';
+        const checkbox = document.getElementById('newIsActive');
 
         document.getElementById('id').value = id;
         document.getElementById('newName').value = name;
@@ -382,7 +379,6 @@
         document.getElementById('newPointRate').value = pointRate;
 
         checkbox.checked = isActive;
-        hiddenInput.value = isActive ? 'true' : 'false';
 
         if (isDefault) {
             checkbox.onclick = () => false;
@@ -401,8 +397,37 @@
         });
     });
 
-    checkbox.addEventListener('change', () => {
-        hiddenInput.value = checkbox.checked ? 'true' : 'false';
+    document.getElementById('newIsActive').addEventListener('change', async function () {
+        const checkbox = this;
+        const id = document.getElementById('id').value;
+
+        const url = this.checked
+            ? `${contextPath}admin/membership/activate`
+            : `${contextPath}admin/membership/deactivate`;
+
+        checkbox.disabled = true;
+
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: new URLSearchParams({id}),
+                redirect: 'manual'
+            });
+
+            if (!response.ok) {
+                this.checked = !this.checked;
+                alert('맴버십 활성화에 실패하였습니다.');
+            }
+        } catch (error) {
+            this.checked = !this.checked;
+            alert('네트워크 또는 서버 오류가 발생했습니다.');
+        } finally {
+            checkbox.disabled = false;
+        }
     });
 </script>
 </html>
