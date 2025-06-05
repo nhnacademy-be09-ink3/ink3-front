@@ -1,5 +1,6 @@
 package com.nhnacademy.front.shop.book.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -14,13 +15,12 @@ public record BookCreateRequest(
         @NotBlank String title,
         @NotBlank String contents,
         @NotBlank String description,
-        @NotNull @PastOrPresent LocalDate publishedAt,
+        @NotNull @PastOrPresent @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd") LocalDate publishedAt,
         @NotNull @PositiveOrZero Integer originalPrice,
         @NotNull @PositiveOrZero Integer salePrice,
         @NotNull @PositiveOrZero Integer quantity,
         @NotNull BookStatus status,
         boolean isPackable,
-        @NotBlank String thumbnailUrl,
         @NotNull Long publisherId,
 
         @NotEmpty(message = "카테고리는 최소 1개 이상이어야 합니다.")
@@ -41,7 +41,6 @@ public record BookCreateRequest(
                         form.getQuantity(),
                         form.getStatus(),
                         form.isPackable(),
-                        form.getThumbnailUrl(),
                         form.getPublisherId(),
                         form.getSelectedCategoryIds(),
                         authorRequests,

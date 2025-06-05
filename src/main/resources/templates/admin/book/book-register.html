@@ -45,9 +45,9 @@
         <div class="bg-white w-3/5 px-10 py-12 rounded-md shadow-md max-w-3xl mx-auto">
             <h1 class="text-3xl font-bold text-gray-800 mb-8 text-center">도서 등록</h1>
             <form th:action="@{/admin/book-register}"
-                  method="post" class="space-y-8">
-<!--                  enctype="multipart/form-data"-->
-<!--                  class="space-y-8">-->
+                  method="post"
+                  enctype="multipart/form-data"
+                  class="space-y-8">
 
                 <!-- 공통 스타일: label + input 그룹 -->
                 <div class="grid grid-cols-1 gap-2">
@@ -131,14 +131,14 @@
                 </div>
 
                 <div class="grid grid-cols-2 gap-2 items-center">
-                    <label for="isPackable" class="text-gray-700 font-medium">포장 가능</label>
-                    <input type="checkbox" id="isPackable" name="isPackable" class="w-5 h-5" style="accent-color: #86ef7d;">
+                    <label for="packable" class="text-gray-700 font-medium">포장 가능</label>
+                    <input type="checkbox" id="packable" name="packable" class="w-5 h-5" style="accent-color: #86ef7d;">
                 </div>
 
                 <div class="grid grid-cols-1 gap-2">
                     <label for="status" class="text-gray-700 font-medium">도서 상태</label>
                     <select id="status" name="status" class="ink-input-field w-1/3" required>
-                        <option value="" disable>상태 선택</option>
+                        <option value="">상태 선택</option>
                         <option value="AVAILABLE">판매 중</option>
                         <option value="OUT_OF_STOCK">수량 부족</option>
                         <option value="SOLD_OUT">판매 종료</option>
@@ -146,15 +146,9 @@
                     </select>
                 </div>
 
-<!--                <div class="ink-input-group">-->
-<!--                    <label for="coverImage">표지 이미지</label>-->
-<!--                    <input type="file" id="coverImage" name="coverImage" class="ink-input-field w-full">-->
-<!--                </div>-->
-                <div class="grid grid-cols-1 gap-2">
-                    <label for="thumbnailUrl" class="text-gray-700 font-medium">책 이미지 URL</label>
-                    <input type="text" id="thumbnailUrl" name="thumbnailUrl"
-                           placeholder="예: https://example.com/image.jpg"
-                           class="ink-input-field w-full">
+                <div class="ink-input-group">
+                    <label for="coverImage">표지 이미지</label>
+                    <input type="file" id="coverImage" name="coverImage" class="ink-input-field w-full">
                 </div>
 
                 <div class="flex justify-end">

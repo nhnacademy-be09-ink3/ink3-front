@@ -1,5 +1,7 @@
 package com.nhnacademy.front.shop.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nhnacademy.front.shop.author.client.AuthorClient;
 import com.nhnacademy.front.shop.author.client.dto.AuthorResponse;
 import com.nhnacademy.front.shop.book.dto.AuthorDto;
@@ -20,6 +22,7 @@ import jakarta.validation.Valid;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -54,6 +57,7 @@ public class BookController {
     private final AuthorClient authorClient;
     private final PublisherClient publisherClient;
     private final TagClient tagClient;
+    private final ObjectMapper objectMapper;
 
     @GetMapping("/books/{bookId}")
     public String getBookDetail(@PathVariable Long bookId,
@@ -150,7 +154,7 @@ public class BookController {
         return "admin/book/book-register";
     }
 
-    @PostMapping("/admin/book-register")
+    @PostMapping(value = "/admin/book-register", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public String registerBook(@ModelAttribute @Valid BookCreateForm bookForm,
                                BindingResult bindingResult) {
         List<AuthorRoleRequest> authorRequests = new ArrayList<>();
@@ -165,8 +169,15 @@ public class BookController {
             log.debug("bindingResult: {}", bindingResult);
             return "redirect:/admin";
         }
+        try {
+            String jsonRequest = objectMapper.writeValueAsString(request);
 
-        bookClient.createBook(request);
+            bookClient.createBook(jsonRequest, bookForm.getCoverImage());
+        } catch (JsonProcessingException e) {
+            log.error("JSON 변환 실패", e);
+            return "redirect:/admin?error";
+        }
+
         return "redirect:/admin/book-register";
     }
 
