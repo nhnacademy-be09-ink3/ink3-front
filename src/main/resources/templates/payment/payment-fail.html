@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ink3</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/output.css}">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+<div th:replace="~{layout/fragments/header :: headerFragment}"></div>
+<main class="container mx-auto px-4 py-8">
+    <div class="bg-white p-10 rounded-xl shadow-md max-w-xl mx-auto">
+        <div class="text-red-500 text-4xl mb-4">❌</div>
+        <h1 class="text-2xl font-bold text-gray-800 mb-4">결제에 실패했습니다</h1>
+        <p class="text-gray-600 mb-6">
+            결제가 정상적으로 완료되지 않았습니다.<br>
+            네트워크 오류 또는 결제 취소 등 다양한 원인이 있을 수 있습니다.
+        </p>
+
+        <!-- 선택지 버튼 -->
+        <div class="flex flex-col sm:flex-row justify-center gap-4">
+            <a th:href="@{/orders/user}"  class="ink-btn-outline w-full sm:w-auto">주문서로 돌아가기</a>
+            <a th:href="@{/cart}" class="ink-btn-secondary w-full sm:w-auto">장바구니로 이동</a>
+        </div>
+    </div>
+</main>
+<div th:replace="~{layout/fragments/footer :: footerFragment}"></div>
+</body>
+</html>

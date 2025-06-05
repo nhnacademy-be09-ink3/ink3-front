@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ink3</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/output.css(v=${#dates.createNow().getTime()})}">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+<div th:replace="~{layout/fragments/header :: headerFragment}"></div>
+<main class="mx-auto max-w-[900px] px-4 py-10">
+
+    <!-- 주문 상태 진행 -->
+    <div class="mb-10">
+        <!-- 진행 바 -->
+        <div class="overflow-hidden rounded-full bg-gray-200 h-2 mb-4"
+             th:with="barWidthClass=
+         ${order.status.name() == 'CONFIRMED'} ? 'w-1/3' :
+         (${order.status.name() == 'DELIVERING'} ? 'w-2/3' :
+         (${order.status.name() == 'DELIVERED'} ? 'w-full' : ''))">
+            <div class="h-2 bg-blue-500 transition-all duration-500"
+                 th:classappend="${barWidthClass}">
+            </div>
+        </div>
+
+        <!-- 상태 텍스트 + 아이콘 -->
+        <ol class="grid grid-cols-3 text-sm font-semibold text-gray-600 text-center">
+            <li th:classappend="${order.status.name() == 'CONFIRMED'} ? ' text-blue-600' : ' text-gray-400'">
+                <div class="flex flex-col items-center gap-1">
+                    <svg class="size-7" xmlns="http://www.w3.org/2000/svg" fill="none"
+                         viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                              d="M12 6v6l4 2"/>
+                    </svg>
+                    대기
+                </div>
+            </li>
+
+            <li th:classappend="${order.status.name() == 'DELIVERING'} ? ' text-blue-600' : ' text-gray-400'">
+                <div class="flex flex-col items-center gap-1">
+                    <svg class="size-7" xmlns="http://www.w3.org/2000/svg" fill="none"
+                         viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                              d="M3 10h18M9 16h6"/>
+                    </svg>
+                    배송중
+                </div>
+            </li>
+
+            <li th:classappend="${order.status.name() == 'DELIVERED'} ? ' text-blue-600' : ' text-gray-400'">
+                <div class="flex flex-col items-center gap-1">
+                    <svg class="size-7" xmlns="http://www.w3.org/2000/svg" fill="none"
+                         viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                              d="M5 13l4 4L19 7"/>
+                    </svg>
+                    배송완료
+                </div>
+            </li>
+        </ol>
+
+    </div>
+
+    <section class="bg-white rounded-2xl shadow-md p-6 mb-8">
+        <h2 class="text-2xl font-semibold mb-6">주문 상세</h2>
+
+        <!-- 주문 정보 -->
+        <h2 class="text-xl font-semibold mt-4 mb-3">주문 정보</h2>
+        <table class="w-full text-sm text-left text-gray-700 border border-gray-200 mb-6">
+            <tbody class="divide-y divide-gray-200">
+            <tr>
+                <th class="bg-gray-50 px-6 py-3 w-1/4">주문번호</th>
+                <td class="px-6 py-3" th:text="${order.orderUUID}"></td>
+                <th class="bg-gray-50 px-6 py-3 w-1/4">주문일자</th>
+                <td class="px-6 py-3" th:text="${#temporals.format(order.orderedAt, 'yyyy-MM-dd HH:mm')}"></td>
+            </tr>
+            <tr>
+                <th class="bg-gray-50 px-6 py-3">주문자</th>
+                <td class="px-6 py-3" th:text="${order.ordererName}"></td>
+                <th class="bg-gray-50 px-6 py-3">연락처</th>
+                <td class="px-6 py-3" th:text="${order.ordererPhone}"></td>
+            </tr>
+            <tr>
+                <th class="bg-gray-50 px-6 py-3">주문 상태</th>
+                <td class="px-6 py-3" th:text="${order.status.label}"></td>
+                <td colspan="2"></td>
+            </tr>
+            </tbody>
+        </table>
+
+        <!-- 배송 정보 -->
+        <h2 class="text-xl font-semibold mt-8 mb-3">배송 정보</h2>
+        <table class="w-full text-sm text-left text-gray-700 border border-gray-200 mb-6">
+            <tbody class="divide-y divide-gray-200">
+            <tr>
+                <th class="bg-gray-50 px-6 py-3 w-1/4">수령인</th>
+                <td class="px-6 py-3" th:text="${shipment?.recipientName ?: '배송 정보 없음'}"></td>
+                <th class="bg-gray-50 px-6 py-3">연락처</th>
+                <td class="px-6 py-3" th:text="${shipment?.recipientPhone ?: ''}"></td>
+            </tr>
+            <tr>
+                <th class="bg-gray-50 px-6 py-3">주소</th>
+                <td colspan="3" class="px-6 py-3"
+                    th:if="${shipment != null}"
+                    th:text="|(${shipment.postalCode}) ${shipment.defaultAddress} ${shipment.detailAddress} ${shipment.extraAddress}|">
+                </td>
+                <td colspan="3" class="px-6 py-3" th:unless="${shipment != null}">
+                    배송 정보 없음
+                </td>
+            </tr>
+            <tr>
+                <th class="bg-gray-50 px-6 py-3">희망 배송일</th>
+                <td class="px-6 py-3" th:text="${shipment?.preferredDeliveryDate ?: '미지정'}"></td>
+                <th class="bg-gray-50 px-6 py-3">배송 상태</th>
+                <td class="px-6 py-3" th:text="${shipment?.shippingCode ?: '없음'}"></td>
+            </tr>
+            <tr>
+                <th class="bg-gray-50 px-6 py-3">배송비</th>
+                <td class="px-6 py-3" th:text="${shipment?.shippingFee} + '원'"></td>
+                <td colspan="2"></td>
+            </tr>
+            </tbody>
+        </table>
+
+        <!-- 주문 상품 목록 -->
+        <h3 class="text-xl font-semibold mt-8 mb-3">주문 상품</h3>
+        <div class="overflow-x-auto">
+            <table class="min-w-full text-sm text-left text-gray-700 border border-gray-200">
+                <thead class="bg-gray-50 text-gray-800">
+                <tr>
+                    <th class="px-4 py-3">도서명</th>
+                    <th class="px-4 py-3">수량</th>
+                    <th class="px-4 py-3">단가</th>
+                    <th class="px-4 py-3">포장</th>
+                    <th class="px-4 py-3">쿠폰</th>
+                    <th class="px-4 py-3">총액</th>
+                </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                <tr th:each="book : ${orderBookList.content}">
+                    <td class="px-4 py-3" th:text="${book.bookName}">도서명</td>
+                    <td class="px-4 py-3" th:text="${book.quantity}">1</td>
+                    <td class="px-4 py-3" th:text="${book.bookSalePrice} + '원'">15,000원</td>
+                    <td class="px-4 py-3" th:text="${book.packagingName} + ' (' + ${book.packagingPrice} + '원)'"></td>
+                    <td class="px-4 py-3" th:text="${book.couponName != null ? book.couponName : '-'}"></td>
+                    <td class="px-4 py-3" th:text="${book.price * book.quantity + book.packagingPrice} + '원'">합계</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+
+
+
+    <section class="bg-white rounded-2xl shadow-md p-6 mb-6">
+        <h2 class="text-2xl font-semibold mb-4">결제 내역</h2>
+
+        <div class="mb-4 space-y-1 text-sm text-gray-800">
+            <div class="flex justify-between">
+                <span>주문번호</span>
+                <span th:text="${paymentResponse.orderId}">123456</span>
+            </div>
+            <div class="flex justify-between">
+                <span>결제수단</span>
+                <span th:text="${paymentResponse.paymentType}">TOSS</span>
+            </div>
+            <div class="flex justify-between">
+                <span>요청일시</span>
+                <span th:text="${#temporals.format(paymentResponse.requestedAt, 'yyyy-MM-dd HH:mm')}">2025-05-31 09:14</span>
+            </div>
+            <div class="flex justify-between">
+                <span>승인일시</span>
+                <span th:text="${#temporals.format(paymentResponse.approvedAt, 'yyyy-MM-dd HH:mm')}">2025-05-31 09:15</span>
+            </div>
+        </div>
+
+        <div class="border-t border-dashed border-gray-400 my-2"></div>
+
+        <div class="mb-4 space-y-1 text-sm">
+            <div class="flex justify-between">
+                <span>상품금액</span>
+                <span th:text="${#numbers.formatInteger(paymentResponse.paymentAmount + paymentResponse.discountAmount + paymentResponse.usedPointAmount, 0)} + '원'">30,000원</span>
+            </div>
+            <div class="flex justify-between text-red-600">
+                <span>할인</span>
+                <span th:text="'-' + ${#numbers.formatInteger(paymentResponse.discountAmount, 0)} + '원'">-2,000원</span>
+            </div>
+            <div class="flex justify-between text-blue-600">
+                <span>포인트 사용</span>
+                <span th:text="'-' + ${#numbers.formatInteger(paymentResponse.usedPointAmount, 0)} + 'P'">-500P</span>
+            </div>
+        </div>
+
+        <div class="border-t border-dashed border-gray-400 my-2"></div>
+
+        <div class="flex justify-between font-bold text-base mt-2">
+            <span>총 결제금액</span>
+            <span th:text="${#numbers.formatInteger(paymentResponse.paymentAmount, 0)} + '원'">29,000원</span>
+        </div>
+    </section>
+
+
+    <!-- 버튼 -->
+    <div class="flex flex-col sm:flex-row gap-4 justify-end">
+        <button type="button"
+                class="px-6 py-2 text-white bg-red-500 rounded hover:bg-red-600 transition"
+                onclick="openCancelModal()">
+            주문 취소 요청
+        </button>
+        <button type="button"
+                class="px-6 py-2 text-white bg-red-500 rounded hover:bg-red-600 transition"
+                onclick="openRefundModal()">
+            반품 신청
+        </button>
+    </div>
+
+    <!-- 주문 취소 확인 모달 -->
+    <div id="cancelModal" class="hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+        <div class="bg-white rounded-xl shadow-lg p-8 w-[400px] text-center space-y-6">
+            <h2 class="text-lg font-semibold text-gray-800">주문 취소 확인</h2>
+            <p class="text-base text-gray-700 leading-relaxed">
+                정말로 주문을 취소하시겠습니까?<br>한 번 취소하면 되돌릴 수 없습니다.
+            </p>
+            <div class="flex justify-center gap-4">
+                <button onclick="closeCancelModal()" class="px-5 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400 transition">
+                    취소
+                </button>
+                <button onclick="submitCancel()" class="px-5 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition">
+                    확인
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 반품 불가 알림 모달 -->
+    <div id="refundBlockModal" class="hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
+        <div class="bg-white px-6 py-5 rounded-xl shadow-lg text-center w-[350px] space-y-3">
+            <h2 class="text-lg font-semibold text-red-600">반품 불가</h2>
+            <p id="refundBlockMessage" class="text-sm text-gray-700">이유 메시지 자리</p>
+        </div>
+    </div>
+
+    <!-- 반품 신청 모달 -->
+    <div id="refundModal" class="hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-10 z-50">
+        <div class="bg-white rounded-2xl shadow-xl max-w-[600px] w-full p-10 space-y-8">
+
+            <!-- 헤더 -->
+            <div class="flex items-center justify-between border-b pb-4">
+                <h2 class="text-2xl font-bold text-gray-900">반품 신청</h2>
+                <button onclick="closeRefundModal()" class="text-gray-500 hover:text-gray-700 text-xl">&times;</button>
+            </div>
+
+            <!-- 요약 정보 -->
+            <div class="grid grid-cols-3 gap-6 text-sm text-gray-800">
+                <div>
+                    <p class="text-gray-500">배송일</p>
+                    <p id="deliveredDateText" class="font-semibold text-gray-900">-</p>
+                </div>
+                <div>
+                    <p class="text-gray-500">경과일</p>
+                    <p><span id="elapsedDays" class="font-semibold text-gray-900">-</span>일</p>
+                </div>
+                <div>
+                    <p class="text-gray-500">주문 상태</p>
+                    <p class="font-semibold text-blue-600" th:text="${order.status.label}">-</p>
+                </div>
+            </div>
+
+            <!-- 안내 -->
+            <div class="bg-gray-50 border border-gray-300 rounded-lg p-6 space-y-2 text-sm">
+                <div class="flex justify-between">
+                    <span>일반 반품 가능 기한</span>
+                    <span class="text-blue-700 font-medium" th:text="${refundPolicy.returnDeadLine} + '일 이내'">7일 이내</span>
+                </div>
+                <div class="flex justify-between">
+                    <span>파손 반품 가능 기한</span>
+                    <span class="text-blue-700 font-medium" th:text="${refundPolicy.defectReturnDeadLine} + '일 이내'">30일 이내</span>
+                </div>
+            </div>
+
+            <!-- 유형 선택 -->
+            <div>
+                <label for="refundType" class="block text-sm font-semibold text-gray-800 mb-2">반품 유형 선택</label>
+                <select id="refundType" class="w-full border rounded px-4 py-2 text-sm"
+                        onchange="handleRefundTypeChange()">
+                    <option value="" disabled selected>선택해주세요</option>
+                    <option value="general">일반 반품</option>
+                    <option value="defect">파손 반품</option>
+                </select>
+            </div>
+
+            <!-- 사유 입력 영역 -->
+            <div id="refundReasonSection" class="hidden space-y-3">
+                <label for="refundDetails" class="block text-sm font-semibold text-gray-800">반품 사유</label>
+                <textarea id="refundDetails" rows="4" maxlength="255"
+                          placeholder="반품 사유를 입력해주세요 (최대 255자)"
+                          class="w-full border border-gray-300 rounded px-4 py-2 text-sm focus:ring-blue-500 focus:border-blue-500"></textarea>
+            </div>
+
+            <!-- 버튼 -->
+            <div class="flex justify-end pt-4 border-t">
+                <button onclick="closeRefundModal()" class="px-5 py-2 mr-3 text-gray-700 bg-gray-200 rounded hover:bg-gray-300 transition">
+                    닫기
+                </button>
+                <button onclick="submitRefund()" class="px-6 py-2 text-white bg-red-500 rounded hover:bg-red-600 transition font-semibold">
+                    반품 신청
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+
+
+
+</main>
+
+<div th:replace="~{layout/fragments/footer :: footerFragment}"></div>
+</body>
+</html>
+
+<script th:inline="javascript">
+    const deliveredAt = [[${#temporals.format(shipment.deliveredAt, 'yyyy-MM-dd')}]];
+    const returnDeadLine = [[${refundPolicy.returnDeadLine}]];
+    const defectReturnDeadLine = [[${refundPolicy.defectReturnDeadLine}]];
+    const orderId = [[${order.id}]];
+    const orderStatus = [[${order.status.name()}]];
+
+    function openCancelModal() {
+        if (orderStatus !== "CONFIRMED") {
+            showMessageModal("이미 배송이 시작된 주문은 취소할 수 없습니다.");
+            return;
+        }
+        document.getElementById("cancelModal").classList.remove("hidden");
+    }
+
+    function closeCancelModal() {
+        document.getElementById("cancelModal").classList.add("hidden");
+    }
+
+    const contextPath = /*[[@{/}]]*/ '';
+    function submitCancel() {
+        fetch(`${contextPath}payments/cancel?orderId=${orderId}`, {
+            method: "POST"
+        })
+            .then(response => {
+                if (!response.ok) {
+                    return response.text().then(errorText => {
+                        console.error("🚨 서버 오류 응답:", {
+                            status: response.status,
+                            statusText: response.statusText,
+                            url: response.url,
+                            body: errorText
+                        });
+                        throw new Error(`주문 취소 실패 (status: ${response.status})`);
+                    });
+                }
+                return response.text(); // HTML 문자열로 받기
+            })
+            .then(html => {
+                document.open();       // 현재 페이지 내용 초기화
+                document.write(html);  // 새 HTML 쓰기
+                document.close();
+            })
+            .catch(error => {
+                console.error("❌ 주문 취소 중 예외 발생:", error);
+                alert("오류 발생: " + error.message);
+            });
+    }
+
+
+
+    function openRefundModal() {
+        const today = new Date();
+        const deliveredDate = new Date(deliveredAt);
+        const diffDays = Math.floor((today - deliveredDate) / (1000 * 60 * 60 * 24));
+
+        if (orderStatus !== "DELIVERED") {
+            showRefundBlockMessage("배송이 완료된 주문만 반품 신청이 가능합니다.");
+            return;
+        }
+        if (diffDays > 30) {
+            showRefundBlockMessage("배송일로부터 30일이 지나 반품이 불가능합니다.");
+            return;
+        }
+
+        // 날짜 표시
+        document.getElementById("deliveredDateText").innerText = deliveredAt;
+        document.getElementById("elapsedDays").innerText = diffDays;
+
+        // 옵션 disable 설정
+        const generalOption = document.querySelector('#refundType option[value="general"]');
+        const defectOption = document.querySelector('#refundType option[value="defect"]');
+        generalOption.disabled = diffDays > returnDeadLine;
+        defectOption.disabled = diffDays > defectReturnDeadLine;
+
+        // 초기화
+        document.getElementById("refundType").value = "";
+        document.getElementById("refundReasonSection").classList.add("hidden");
+        document.getElementById("refundDetails").value = "";
+
+        document.getElementById("refundModal").classList.remove("hidden");
+    }
+
+    function showRefundBlockMessage(message) {
+        const modal = document.getElementById("refundBlockModal");
+        document.getElementById("refundBlockMessage").innerText = message;
+        modal.classList.remove("hidden");
+        setTimeout(() => modal.classList.add("hidden"), 3000);
+    }
+
+    function handleRefundTypeChange() {
+        const type = document.getElementById("refundType").value;
+        const section = document.getElementById("refundReasonSection");
+        if (type === "general" || type === "defect") {
+            section.classList.remove("hidden");
+        } else {
+            section.classList.add("hidden");
+        }
+    }
+
+    function closeRefundModal() {
+        document.getElementById("refundModal").classList.add("hidden");
+    }
+
+    function submitRefund() {
+        const type = document.getElementById("refundType").value;
+        const details = document.getElementById("refundDetails").value.trim();
+
+        if (!type) {
+            alert("반품 유형을 선택해주세요.");
+            return;
+        }
+        if (!details) {
+            alert("반품 사유를 입력해주세요.");
+            return;
+        }
+
+
+        const now = new Date().toISOString();
+        const refundFee = [[${refundPolicy.refundShippingFee}]];
+        console.log("반품 택배비 : " + refundFee);
+        const contextPath = /*[[@{/}]]*/ '';
+        fetch(`${contextPath}refunds`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                orderId: orderId,
+                reason: type,
+                details: details,
+                refundShippingFee: refundFee,
+                createdAt: now,
+                approved: false
+            })
+        })
+            .then(response => {
+                if (!response.ok) throw new Error("반품 요청 실패");
+                return response.text();
+            })
+            .then(html => {
+                document.open();
+                document.write(html);
+                document.close();
+            })
+            .catch(error => {
+                console.error("반품 요청 실패:", error);
+                console.error("상태 코드:", error.status);
+                console.error("에러 메시지:", error.message  );
+                alert("반품 요청 중 오류가 발생했습니다.");
+            });
+    }
+</script>
