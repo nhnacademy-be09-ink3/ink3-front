@@ -33,7 +33,6 @@ public class PaymentController {
     private final UserService userService;
     //TODO 확장성을 위해서 TossUrlProperty 수정해야함.
     private final TossUrlProperty tossUrlProperty;
-    private final OrderService orderService;
 
     @PostMapping
     @ResponseBody
