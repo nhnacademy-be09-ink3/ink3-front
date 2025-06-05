@@ -28,23 +28,25 @@ public class MembershipService {
     }
 
     public MembershipResponse updateMembership(MembershipUpdateFormRequest request) {
-        if (request.isActive()) {
-            membershipClient.activateMembership(request.id());
-        } else {
-            membershipClient.deactivateMembership(request.id());
-        }
-
         return membershipClient.updateMembership(
                 request.id(),
                 new MembershipUpdateRequest(request.name(), request.conditionAmount(), request.pointRate())
         ).data();
     }
 
-    public void setDefaultMembership(long id) {
-        membershipClient.setDefaultMembership(id);
+    public void activateMembership(long membershipId) {
+        membershipClient.activateMembership(membershipId);
     }
 
-    public void deleteMembership(long id) {
-        membershipClient.deleteMembership(id);
+    public void deactivateMembership(long membershipId) {
+        membershipClient.deactivateMembership(membershipId);
+    }
+
+    public void setDefaultMembership(long membershipId) {
+        membershipClient.setDefaultMembership(membershipId);
+    }
+
+    public void deleteMembership(long membershipId) {
+        membershipClient.deleteMembership(membershipId);
     }
 }

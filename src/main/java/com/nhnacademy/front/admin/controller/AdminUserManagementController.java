@@ -73,6 +73,18 @@ public class AdminUserManagementController {
         return "redirect:/admin/membership";
     }
 
+    @PostMapping("/membership/activate")
+    public String activateMembership(@RequestParam long id) {
+        membershipService.activateMembership(id);
+        return "redirect:/admin/membership";
+    }
+
+    @PostMapping("/membership/deactivate")
+    public String deactivate(@RequestParam long id) {
+        membershipService.deactivateMembership(id);
+        return "redirect:/admin/membership";
+    }
+
     @PostMapping("/membership/default")
     public String setDefaultMembership(@RequestParam long id) {
         membershipService.setDefaultMembership(id);
