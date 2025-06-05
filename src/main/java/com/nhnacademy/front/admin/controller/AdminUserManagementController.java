@@ -68,15 +68,13 @@ public class AdminUserManagementController {
     }
 
     @PostMapping("/membership/update")
-    public String updateMembership(@ModelAttribute MembershipUpdateFormRequest request) {
+    public void updateMembership(@ModelAttribute MembershipUpdateFormRequest request) {
         membershipService.updateMembership(request);
-        return "redirect:/admin/membership";
     }
 
     @PostMapping("/membership/activate")
-    public String activateMembership(@RequestParam long id) {
+    public void activateMembership(@RequestParam long id) {
         membershipService.activateMembership(id);
-        return "redirect:/admin/membership";
     }
 
     @PostMapping("/membership/deactivate")
