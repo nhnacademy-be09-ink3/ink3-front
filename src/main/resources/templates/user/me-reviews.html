@@ -30,31 +30,74 @@
                     <h1 class="text-xl font-semibold text-gray-800 mb-6">리뷰</h1>
 
                     <div class="space-y-6">
-                        <div th:each="rv : ${reviews.content()}"
+                        <div th:each="review : ${reviews.content()}"
                              class="border rounded-lg p-4 bg-white shadow">
                             <div class="flex justify-between items-start mb-2">
-                                <h3 class="text-lg font-semibold" th:text="${rv.title}">제목</h3>
+                                <h3 class="text-lg font-semibold" th:text="${review.title}">제목</h3>
                                 <span class="text-sm text-gray-500"
-                                      th:text="${#temporals.format(rv.createdAt, 'yyyy.MM.dd')}">2024.01.01</span>
+                                      th:text="${#temporals.format(review.createdAt, 'yyyy.MM.dd')}">2024.01.01</span>
                             </div>
 
                             <div class="flex items-center mb-2">
                                 <span class="text-yellow-400 mr-2"
-                                      th:each="i : ${#numbers.sequence(1, rv.rating)}">★</span>
+                                      th:each="i : ${#numbers.sequence(1, review.rating)}">★</span>
                                 <span class="text-gray-500 text-sm"
-                                      th:text="'(' + ${rv.rating} + '/5)'">(5/5)</span>
+                                      th:text="'(' + ${review.rating} + '/5)'">(5/5)</span>
                             </div>
 
                             <!-- 내용 -->
-                            <p class="text-gray-700 whitespace-pre-line" th:text="${rv.content}">내용</p>
+                            <p class="text-gray-700 whitespace-pre-line" th:text="${review.content}">내용</p>
 
                             <!-- 썸네일 이미지(있는 경우만) -->
                             <div class="flex flex-wrap gap-2 mt-3"
-                                 th:if="${rv.images != null && !rv.images.isEmpty()}">
-                                <img th:each="img : ${rv.images}"
+                                 th:if="${review.images != null && !review.images.isEmpty()}">
+                                <img th:each="img : ${review.images}"
                                      th:src="${img.imageUrl}"
                                      class="w-28 h-28 object-cover rounded">
                             </div>
+
+                            <button type="button"
+                                    class="toggle-edit px-3 py-1 ink-btn-primary text-white rounded hover:bg-yellow-500 mt-2"
+                                    th:attr="data-review-id=${review.id}">
+                               리뷰 수정
+                            </button>
+
+                            <!-- 수정 폼 (리뷰 블록 안에 삽입) -->
+                            <form th:id="'edit-form-' + ${review.id}"
+                                  th:action="@{'/me/reviews/' + ${review.id} + '/update'}"
+                                  method="post"
+                                  enctype="multipart/form-data"
+                                  class="review-edit-form hidden space-y-2 mt-4">
+
+                                <input type="text" name="title" th:value="${review.title}" required
+                                       class="w-full border rounded p-1 bg-white"/>
+
+                                <textarea name="content" required
+                                          class="w-full border rounded p-1 bg-white"
+                                          th:text="${review.content}"></textarea>
+
+                                <input type="number" name="rating" min="1" max="5" th:value="${review.rating}"
+                                       required class="w-20 border rounded p-1 bg-white"/>
+
+                                <label class="inline-block px-4 py-2 ink-btn-primary text-white rounded cursor-pointer hover:bg-yellow-500">
+                                    파일 선택
+                                    <input type="file" name="images" multiple class="hidden"/>
+                                </label>
+
+                                <button type="submit"
+                                        class="edit-button px-3 py-1 ink-btn-primary text-white rounded hover:bg-yellow-500">
+                                    수정 완료
+                                </button>
+                            </form>
+
+                            <form th:action="@{'/me/reviews/' + ${review.id} + '/delete'}" method="post">
+                                <input type="hidden" name="_method" value="post"/>
+                                <button type="submit"
+                                        class="px-3 py-1 ink-btn-primary text-white rounded hover:bg-red-500 mt-2">
+                                    삭제
+                                </button>
+                            </form>
+
                         </div>
                     </div>
 
@@ -96,7 +139,79 @@
             </div>
         </div>
     </div>
+
+    <div id="confirm-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg shadow-lg p-6 max-w-sm w-full text-center">
+            <p id="confirm-message" class="text-gray-800 text-lg font-semibold mb-6">정말로 진행하시겠습니까?</p>
+            <div class="flex justify-center gap-4">
+                <button id="confirm-yes" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">확인</button>
+                <button id="confirm-no" class="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400">취소
+                </button>
+            </div>
+        </div>
+    </div>
 </main>
 <div th:replace="~{layout/fragments/footer :: footerFragment}"></div>
+
+<script>
+    function showConfirmModal(message, onConfirm) {
+        const modal = document.getElementById('confirm-modal');
+        const messageElem = document.getElementById('confirm-message');
+        const yesBtn = document.getElementById('confirm-yes');
+        const noBtn = document.getElementById('confirm-no');
+
+        messageElem.textContent = message;
+        modal.classList.remove('hidden');
+
+        function closeModal() {
+            modal.classList.add('hidden');
+            yesBtn.removeEventListener('click', confirmHandler);
+            noBtn.removeEventListener('click', cancelHandler);
+        }
+
+        function confirmHandler() {
+            onConfirm();
+            closeModal();
+        }
+
+        function cancelHandler() {
+            closeModal();
+        }
+
+        yesBtn.addEventListener('click', confirmHandler);
+        noBtn.addEventListener('click', cancelHandler);
+    }
+
+    document.addEventListener('click', function (e) {
+        const deleteBtn = e.target.closest('form button[type="submit"]');
+        if (deleteBtn && deleteBtn.closest('form').action.includes('/me/reviews/') &&
+            deleteBtn.textContent.includes('삭제')) {
+            e.preventDefault();
+            showConfirmModal('리뷰를 삭제하시겠습니까?', () => {
+                deleteBtn.closest('form').submit();
+            });
+        }
+
+        if (deleteBtn && deleteBtn.closest('form').action.includes('/me/reviews/') &&
+            deleteBtn.textContent.includes('수정 완료')) {
+            e.preventDefault();
+            showConfirmModal('리뷰를 수정하시겠습니까?', () => {
+                deleteBtn.closest('form').submit();
+            });
+        }
+    });
+
+    document.addEventListener('click', function (e) {
+        const btn = e.target.closest('.toggle-edit');
+        if (!btn) return;
+
+        const reviewId = btn.dataset.reviewId;
+        const form = document.getElementById('edit-form-' + reviewId);
+        if (!form) return;
+
+        form.classList.toggle('hidden');
+        btn.textContent = form.classList.contains('hidden') ? '리뷰 수정' : '닫기';
+    });
+</script>
 </body>
 </html>

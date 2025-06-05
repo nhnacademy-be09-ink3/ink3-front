@@ -24,7 +24,10 @@ import jakarta.validation.Valid;
 public interface ReviewClient {
     @PostMapping(value = "/me/reviews", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     CommonResponse<ReviewResponse> addReview(
-        @RequestPart("review") @Valid MeReviewRequest request,
+        @RequestParam Long orderBookId,
+        @RequestParam String title,
+        @RequestParam String content,
+        @RequestParam int rating,
         @RequestPart(value = "images", required = false) List<MultipartFile> images);
 
     @PostMapping(value = "/me/reviews/{review-id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
