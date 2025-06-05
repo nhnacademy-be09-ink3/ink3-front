@@ -229,9 +229,6 @@
         // MeReviewRequest 형태에 맞춰 추가 필드 조작
         formData.append('orderBookId', orderBookId);
         formData.append('bookId', bookId);
-        formData.append('title', form.title.value);
-        formData.append('content', form.content.value);
-        formData.append('rating', form.rating.value);
 
         try {
             const response = await fetch(`${contextPath}me/reviews`, {
