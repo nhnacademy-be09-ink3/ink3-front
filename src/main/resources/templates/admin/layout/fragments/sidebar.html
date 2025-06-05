@@ -14,9 +14,21 @@
                 </button>
                 <ul id="users-submenu" class="pl-4 mt-1 space-y-1 hidden">
                     <li>
-                        <a th:href="@{/admin/users}"
+                        <a th:href="@{/admin/user}"
                            class="block px-3 py-2 rounded-md hover:bg-gray-700 text-sm">
                             회원 목록
+                        </a>
+                    </li>
+                    <li>
+                        <a th:href="@{/admin/membership}"
+                           class="block px-3 py-2 rounded-md hover:bg-gray-700 text-sm">
+                            맴버십
+                        </a>
+                    </li>
+                    <li>
+                        <a th:href="@{/admin/point-policy}"
+                           class="block px-3 py-2 rounded-md hover:bg-gray-700 text-sm">
+                            포인트 정책
                         </a>
                     </li>
                 </ul>

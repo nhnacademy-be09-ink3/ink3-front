@@ -1,21 +1,5 @@
 package com.nhnacademy.front.shop.controller;
 
-import java.util.List;
-
-import org.springframework.http.MediaType;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.CookieValue;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.multipart.MultipartFile;
-
 import com.nhnacademy.front.auth.client.dto.OAuth2UserInfo;
 import com.nhnacademy.front.auth.service.AuthService;
 import com.nhnacademy.front.common.dto.PageResponse;
@@ -29,8 +13,8 @@ import com.nhnacademy.front.shop.like.client.dto.LikeResponse;
 import com.nhnacademy.front.shop.like.service.LikeService;
 import com.nhnacademy.front.shop.order.dto.OrderWithDetailsResponse;
 import com.nhnacademy.front.shop.order.service.OrderService;
-import com.nhnacademy.front.shop.point.client.dto.PointHistoryResponse;
-import com.nhnacademy.front.shop.point.service.PointService;
+import com.nhnacademy.front.shop.point.history.client.dto.PointHistoryResponse;
+import com.nhnacademy.front.shop.point.history.service.PointService;
 import com.nhnacademy.front.shop.review.client.ReviewClient;
 import com.nhnacademy.front.shop.review.dto.ReviewListResponse;
 import com.nhnacademy.front.shop.user.client.dto.UserPasswordUpdateRequest;
@@ -38,11 +22,24 @@ import com.nhnacademy.front.shop.user.client.dto.UserUpdateRequest;
 import com.nhnacademy.front.shop.user.dto.RegisterRequest;
 import com.nhnacademy.front.shop.user.service.UserService;
 import com.nhnacademy.front.util.PageUtil;
-
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.CookieValue;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.multipart.MultipartFile;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -157,9 +154,9 @@ public class MyPageController {
 
     @GetMapping("/me/coupons")
     public String getMeCoupons(@RequestParam(defaultValue = "0") int page,
-        @RequestParam(defaultValue = "10") int size,
-        @RequestParam(required = false) String status,
-        Model model) {
+                               @RequestParam(defaultValue = "10") int size,
+                               @RequestParam(required = false) String status,
+                               Model model) {
         PageResponse<CouponStoreResponse> coupons;
 
         if ("unused".equals(status)) {
@@ -204,16 +201,16 @@ public class MyPageController {
 
     @GetMapping("/me/reviews")
     public String getMeReviews(@RequestParam(defaultValue = "0") int page,
-        Model model) {
+                               Model model) {
 
         PageResponse<ReviewListResponse> reviews =
-            reviewClient.getReviewsByUserId(page, 5);
+                reviewClient.getReviewsByUserId(page, 5);
 
         PageUtil.PageInfo pageInfo = PageUtil.calculatePageRange(
-            reviews.page(), reviews.totalPages(), 5);
+                reviews.page(), reviews.totalPages(), 5);
 
         model.addAttribute("currentPage", "reviews");
-        model.addAttribute("user",   userService.getCurrentUserDetail());
+        model.addAttribute("user", userService.getCurrentUserDetail());
         model.addAttribute("reviews", reviews);
         model.addAttribute("pageInfo", pageInfo);
 
@@ -222,21 +219,21 @@ public class MyPageController {
 
     @PostMapping(value = "/me/reviews", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public String addReview(@RequestParam Long orderBookId,
-        @RequestParam String title,
-        @RequestParam String content,
-        @RequestParam int rating,
-        @RequestPart(value = "images", required = false) List<MultipartFile> images) {
+                            @RequestParam String title,
+                            @RequestParam String content,
+                            @RequestParam int rating,
+                            @RequestPart(value = "images", required = false) List<MultipartFile> images) {
         reviewClient.addReview(orderBookId, title, content, rating, images);
         return "redirect:/me/orders";
     }
 
     @PostMapping(value = "/me/reviews/{review-id}/update", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public String updateMyReview(@PathVariable("review-id") Long reviewId,
-        @RequestParam String title,
-        @RequestParam String content,
-        @RequestParam int rating,
-        @RequestPart(value = "images", required = false)
-        List<MultipartFile> images) {
+                                 @RequestParam String title,
+                                 @RequestParam String content,
+                                 @RequestParam int rating,
+                                 @RequestPart(value = "images", required = false)
+                                 List<MultipartFile> images) {
 
         reviewClient.updateReview(reviewId, title, content, rating, images);
         return "redirect:/me/reviews";
