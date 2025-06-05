@@ -74,8 +74,28 @@
     let bookList;
     let recommendedBooks;
     let currentSort = 'title,asc';
-
+    // === 환경에 따라 자동 설정되는 API 및 페이지 base URL ===
+    // ink3ApiBase: API 호출용 base URL (local/dev/prod 구분)
+    // ink3pageBase: 링크 이동용 base URL (local/dev/prod 구분)
     const isLoggedIn = [[${isLoggedIn}]];
+    const contextPath = /*[[@{/}]]*/ "/";
+    const ink3Hostname = location.hostname;
+    const ink3Pathname = location.pathname;
+
+    const ink3IsLocal = ink3Hostname === 'localhost' || ink3Hostname.startsWith('127.');
+    const ink3IsDevPath = ink3Pathname.startsWith('/dev/');
+
+    const ink3ApiBase = ink3IsLocal
+        ? 'https://ink3.shop/dev/gateway'
+        : ink3IsDevPath
+            ? `${contextPath}dev/gateway`
+            : `${contextPath}gateway`;
+
+    const ink3pageBase = ink3IsLocal
+        ? ''
+        : ink3IsDevPath
+            ? `${contextPath}dev`
+            : contextPath;
 
     document.getElementById('sortSelect').addEventListener('change', (e) => {
         currentSort = e.target.value;
@@ -85,12 +105,12 @@
 
     function goToCategory(name) {
         const encoded = encodeURIComponent(name);
-        location.href = `/books/category?name=${encoded}`;
+        location.href = `${ink3pageBase}/books/category?name=${encoded}`;
     }
 
     function fetchBooks() {
         if (!currentQuery) return;
-        const url = `https://ink3.shop/dev/gateway/shop/books?q=${encodeURIComponent(currentQuery)}&page=${currentPage - 1}&size=${itemsPerPage}&sort=${currentSort}`;
+        const url = `${ink3ApiBase}/shop/books?q=${encodeURIComponent(currentQuery)}&page=${currentPage - 1}&size=${itemsPerPage}&sort=${currentSort}`;
 
         fetch(url)
             .then(res => res.json())
@@ -114,7 +134,7 @@
         const itemsPerPageSelect = document.getElementById('itemsPerPage');
         itemsPerPage = parseInt(itemsPerPageSelect.value);
 
-        fetch('https://ink3.shop/dev/gateway/shop/categories')
+        fetch(`${ink3ApiBase}/shop/categories`)
             .then(res => res.json())
             .then(data => {
                 const tree = buildCategoryTree(data.data.content);
@@ -251,24 +271,24 @@
             div.className = 'flex bg-white rounded-xl shadow hover:shadow-md w-full max-w-5xl mx-auto transition p-4';
 
             div.innerHTML = `
-                    <a href="/books/${book.id}" class="w-[130px] h-[190px] flex-shrink-0 mr-6 block">
+                    <a href="${ink3pageBase}/books/${book.id}" class="w-[130px] h-[190px] flex-shrink-0 mr-6 block">
                         <img src="${book.thumbnailUrl}" alt="${book.title}" class="w-full h-full object-cover rounded-md" />
                     </a>
                     <div class="flex flex-col justify-between flex-1">
                         <div>
-                            <a href="/books/${book.id}" class="text-lg font-bold text-gray-900 mb-1 hover:underline block">
+                            <a href="${ink3pageBase}/books/${book.id}" class="text-lg font-bold text-gray-900 mb-1 hover:underline block">
                                 ${book.title}
                             </a>
-                            <a href="/books/${book.id}" class="text-sm text-gray-600 mb-1 block">
+                            <a href="${ink3pageBase}/books/${book.id}" class="text-sm text-gray-600 mb-1 block">
                                 ${book.authorNames?.join(', ') || '저자 없음'} · ${book.publisherName} | ${book.publishedAt}
                             </a>
-                            <a href="/books/${book.id}" class="text-base font-semibold text-red-600 mb-1 block">
+                            <a href="${ink3pageBase}/books/${book.id}" class="text-base font-semibold text-red-600 mb-1 block">
                                 ${book.salePrice.toLocaleString()}원 <span class="title-font font-medium bg-red-100 text-red-600 text-sm font-bold px-2 py-1 rounded-md">${book.discountRate}%</span>
                             </a>
-                            <a href="/books/${book.id}" class="text-sm text-gray-400 line-through block">
+                            <a href="${ink3pageBase}/books/${book.id}" class="text-sm text-gray-400 line-through block">
                                 ${book.originalPrice.toLocaleString()}원
                             </a>
-                            <a href="/books/${book.id}" class="text-sm mt-2 text-gray-700 line-clamp-2 block">
+                            <a href="${ink3pageBase}/books/${book.id}" class="text-sm mt-2 text-gray-700 line-clamp-2 block">
                                 ${book.description}
                             </a>
                         </div>
@@ -360,7 +380,7 @@
     function orderNow(bookId, quantity) {
         const form = document.createElement('form');
         form.method = 'get';
-        form.action = `/order-form/from-book/${bookId}`;
+        form.action = `${contextPath}order-form/from-book/${bookId}`;
 
         const input = document.createElement('input');
         input.type = 'hidden';
@@ -373,7 +393,7 @@
     }
 
     function addToCart(bookId, quantity) {
-        const url = isLoggedIn ? '/carts' : '/guest-carts';
+        const url = isLoggedIn ? `${contextPath}carts` : `${contextPath}guest-carts`;
 
         const form = document.createElement('form');
         form.method = 'post';

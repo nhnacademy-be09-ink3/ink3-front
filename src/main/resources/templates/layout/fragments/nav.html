@@ -29,16 +29,24 @@
     </ul>
 
     <script>
+        const navHostname = location.hostname;
+        const navPathname = location.pathname;
+        const isLocal = navHostname === 'localhost' || navHostname.startsWith('127.');
+        const isDev = navPathname.startsWith('/dev/');
+        const navPageBase = isLocal ? '' : (isDev ? '/dev' : '');
+        const navApiBase = isLocal || isDev
+            ? 'https://ink3.shop/dev/gateway'
+            : 'https://ink3.shop/gateway';
+
         function goToCategory(name) {
             const encoded = encodeURIComponent(name);
-            const prefix = location.pathname.includes('/dev/') ? '/dev' : '';
-            location.href = `${prefix}/books/category?name=${encoded}`;
+            location.href = `${navPageBase}/books/category?name=${encoded}`;
         }
 
         document.addEventListener('DOMContentLoaded', () => {
             let topLevelCategories = [];
 
-            fetch('https://ink3.shop/dev/gateway/shop/categories')
+            fetch(`${navApiBase}/shop/categories`)
                 .then(res => res.json())
                 .then(data => {
                     const tree = buildCategoryTree(data.data.content);
