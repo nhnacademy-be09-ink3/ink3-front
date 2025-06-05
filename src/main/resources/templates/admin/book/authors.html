@@ -18,23 +18,14 @@
     <div th:replace="~{admin/layout/fragments/sidebar :: sidebarFragment}"></div>
 
     <main class="main-content-area flex-1 p-6 bg-gray-100 overflow-y-auto">
-<!--        <div class="bg-white p-6 rounded-lg shadow-md mb-6 h-full">-->
-
-<!--        </div>-->
 
         <div class="w-8/12 mx-auto flex flex-col space-y-6">
             <div class="w-3/4 flex flex-col space-y-4">
                 <div class="ink-card-white p-6">
-                    <h1 class="text-xl font-semibold text-gray-800 mb-6">출판사 관리</h1>
+                    <h1 class="text-xl font-semibold text-gray-800 mb-6">작가 관리</h1>
 
-<!--                    <div class="flex items-center space-x-2 mb-6">-->
-<!--                        <input type="text" id="publisherName" placeholder="새 출판사 이름" required-->
-<!--                               class="ink-input-field w-full max-w-xs">-->
-<!--                        <button type="button" class="ink-btn-primary" onclick="submitPub()">등록</button>-->
-<!--                    </div>-->
-
-                    <form th:action="@{/admin/pubs}" method="post" class="flex items-center space-x-2 mb-6">
-                        <input type="text" name="name" placeholder="새 출판사 이름" required
+                    <form th:action="@{/admin/authors}" method="post" class="flex items-center space-x-2 mb-6">
+                        <input type="text" name="name" placeholder="새 작가 이름" required
                                class="ink-input-field w-full max-w-xs">
                         <button type="submit" class="ink-btn-primary">등록</button>
                     </form>
@@ -56,18 +47,18 @@
                         </thead>
                         <tbody class="divide-y divide-gray-200">
                         <tr class="hover:bg-gray-50 transition-colors duration-200"
-                            th:each="publisher, stat : ${publishers.content}">
+                            th:each="author, stat : ${authors.content}">
                             <td class="py-3 px-4 text-sm text-gray-700" th:text="${stat.count}"></td>
-                            <td class="py-3 px-4 text-sm text-gray-700" th:text="${publisher.name}"></td>
+                            <td class="py-3 px-4 text-sm text-gray-700" th:text="${author.name}"></td>
                             <td class="py-3 px-4 text-sm text-gray-700 space-x-2">
                                 <!-- 수정 버튼 -->
-                                <form th:action="@{/admin/pubs/{id}(id=${publisher.id})}" method="post" class="inline">
+                                <form th:action="@{/admin/authors/{id}(id=${author.id})}" method="post" class="inline">
                                     <input type="hidden" name="_method" value="put"/>
                                     <input type="text" name="name" placeholder="새 이름" class="ink-input-field w-32" required>
                                     <button type="submit" class="bg-ink-primary px-2 py-1 text-white rounded-xl hover:bg-ink-primary-hover">수정</button>
                                 </form>
                                 <!-- 삭제 버튼 -->
-                                <form th:action="@{/admin/pubs/{id}(id=${publisher.id})}" method="post" class="inline">
+                                <form th:action="@{/admin/authors/{id}(id=${author.id})}" method="post" class="inline">
                                     <input type="hidden" name="_method" value="delete"/>
                                     <button type="submit" class="bg-red-500 px-2 py-1 text-white rounded-xl hover:bg-red-400">삭제</button>
                                 </form>
@@ -79,7 +70,7 @@
                     <!-- 페이지네이션 -->
                     <ul class="flex justify-center gap-1 text-gray-900 mt-6">
                         <li>
-                            <a th:href="@{/admin/pubs(page=${publishers.hasPrevious()} ? ${publishers.page - 1} : ${publishers.page})}"
+                            <a th:href="@{/admin/authors(page=${authors.hasPrevious()} ? ${authors.page - 1} : ${authors.page})}"
                                class="ink-page-item-arrow"
                                aria-label="Previous page">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="size-4" viewBox="0 0 20 20"
@@ -91,12 +82,12 @@
                             </a>
                         </li>
                         <li th:each="i : ${#numbers.sequence(pageInfo.startPage, pageInfo.endPage)}">
-                            <a th:href="@{/admin/pubs(page=${i})}"
-                               th:class="${i == publishers.page} ? 'ink-page-item-current' : 'ink-page-item'"
+                            <a th:href="@{/admin/authors(page=${i})}"
+                               th:class="${i == authors.page} ? 'ink-page-item-current' : 'ink-page-item'"
                                th:text="${i + 1}"></a>
                         </li>
                         <li>
-                            <a th:href="@{/admin/pubs(page=${publishers.hasNext()} ? ${publishers.page + 1} : ${publishers.page})}"
+                            <a th:href="@{/admin/authors(page=${authors.hasNext()} ? ${authors.page + 1} : ${authors.page})}"
                                class="ink-page-item-arrow" aria-label="Next page">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="size-4" viewBox="0 0 20 20"
                                      fill="currentColor">
@@ -110,36 +101,6 @@
                 </div>
             </div>
         </div>
-
-<!--        <script>-->
-<!--            function submitPub() {-->
-<!--                const name = document.getElementById('publisherName').value;-->
-
-<!--                if (!name.trim()) {-->
-<!--                    alert("출판사 이름을 입력해주세요.");-->
-<!--                    return;-->
-<!--                }-->
-
-<!--                fetch('/pubs', {-->
-<!--                    method: 'POST',-->
-<!--                    headers: {-->
-<!--                        'Content-Type': 'application/json'-->
-<!--                    },-->
-<!--                    body: JSON.stringify({ name })-->
-<!--                })-->
-<!--                    .then(response => {-->
-<!--                        if (response.ok) {-->
-<!--                            location.reload(); // 성공하면 새로고침-->
-<!--                        } else {-->
-<!--                            response.text().then(msg => alert("오류: " + msg));-->
-<!--                        }-->
-<!--                    })-->
-<!--                    .catch(error => {-->
-<!--                        console.error('에러:', error);-->
-<!--                        alert('요청 실패');-->
-<!--                    });-->
-<!--            }-->
-<!--        </script>-->
     </main>
 </div>
 </body>

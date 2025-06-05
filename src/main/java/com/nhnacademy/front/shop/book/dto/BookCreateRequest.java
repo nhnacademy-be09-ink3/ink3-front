@@ -28,4 +28,24 @@ public record BookCreateRequest(
         @NotEmpty(message = "저자는 최소 1명 이상이어야 합니다.")
         List<AuthorRoleRequest> authors,
         List<@NotNull Long> tagIds
-) {}
+) {
+        public static BookCreateRequest from(BookCreateForm form, List<AuthorRoleRequest> authorRequests) {
+                return new BookCreateRequest(
+                        form.getIsbn(),
+                        form.getTitle(),
+                        form.getContents(),
+                        form.getDescription(),
+                        form.getPublishedAt(),
+                        form.getOriginalPrice(),
+                        form.getSalePrice(),
+                        form.getQuantity(),
+                        form.getStatus(),
+                        form.isPackable(),
+                        form.getThumbnailUrl(),
+                        form.getPublisherId(),
+                        form.getSelectedCategoryIds(),
+                        authorRequests,
+                        form.getTagIds()
+                );
+        }
+}

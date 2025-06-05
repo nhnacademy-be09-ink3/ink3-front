@@ -4,6 +4,7 @@ import com.nhnacademy.front.shop.author.client.AuthorClient;
 import com.nhnacademy.front.shop.author.client.dto.AuthorResponse;
 import com.nhnacademy.front.shop.book.dto.AuthorDto;
 import com.nhnacademy.front.shop.book.dto.AuthorRoleRequest;
+import com.nhnacademy.front.shop.book.dto.BookCreateForm;
 import com.nhnacademy.front.shop.book.dto.BookResponse;
 import com.nhnacademy.front.shop.book.dto.BookStatus;
 import com.nhnacademy.front.shop.book.dto.BookUpdateForm;
@@ -146,11 +147,25 @@ public class BookController {
         model.addAttribute("categories", categories.data().content());
         model.addAttribute("tags", tags.data());
 
-        return "admin/book-register";
+        return "admin/book/book-register";
     }
 
     @PostMapping("/admin/book-register")
-    public String registerBook(@ModelAttribute BookCreateRequest request) {
+    public String registerBook(@ModelAttribute @Valid BookCreateForm bookForm,
+                               BindingResult bindingResult) {
+        List<AuthorRoleRequest> authorRequests = new ArrayList<>();
+        for (int i = 0; i < bookForm.getAuthorIds().size(); i++) {
+            Long authorId = bookForm.getAuthorIds().get(i);
+            String role = bookForm.getAuthorRoles().get(i);
+            authorRequests.add(new AuthorRoleRequest(authorId, role));
+        }
+        BookCreateRequest request = BookCreateRequest.from(bookForm, authorRequests);
+
+        if (bindingResult.hasErrors()) {
+            log.debug("bindingResult: {}", bindingResult);
+            return "redirect:/admin";
+        }
+
         bookClient.createBook(request);
         return "redirect:/admin/book-register";
     }
@@ -169,10 +184,10 @@ public class BookController {
     @GetMapping("/admin/book-edit/{book-id}")
     public String getBookEdit(@PathVariable(name="book-id") Long bookId, Model model) {
         CommonResponse<BookResponse> response = bookClient.getBookDetail(bookId);
-        CommonResponse<PageResponse<AuthorResponse>> authorList = authorClient.getAuthors(5, 0);
-        CommonResponse<PageResponse<PublisherResponse>> publisherList = publisherClient.getPublishers(5, 0);
+        CommonResponse<PageResponse<AuthorResponse>> authorList = authorClient.getAuthors(0, 0);
+        CommonResponse<PageResponse<PublisherResponse>> publisherList = publisherClient.getPublishers(0, 0);
         CommonResponse<PageResponse<CategoryResponse>> categoryList = categoryClient.getCategories();
-        CommonResponse<PageResponse<TagResponse>> tagList = tagClient.getTags(5, 0);
+        CommonResponse<PageResponse<TagResponse>> tagList = tagClient.getTags(0, 0);
         List<Long> selectedTagIds = response.data().tags().stream()
                 .map(TagResponse::id)
                 .toList();
@@ -180,7 +195,6 @@ public class BookController {
         List<Long> selectedCategoryIds = response.data().categories().stream()
                 .map(CategoryResponse::id)
                 .toList();
-
 
         model.addAttribute("book", response.data());
         model.addAttribute("authors", authorList.data().content());
@@ -191,7 +205,8 @@ public class BookController {
         model.addAttribute("initialAuthors", initialAuthors);
         model.addAttribute("selectedCategoryIds", selectedCategoryIds);
         model.addAttribute("statuses", Arrays.asList(BookStatus.values()));
-        return "book/book-edit";
+
+        return "admin/book/book-edit";
     }
 
 
