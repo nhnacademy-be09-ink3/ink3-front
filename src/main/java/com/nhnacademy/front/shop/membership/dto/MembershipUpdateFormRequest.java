@@ -4,7 +4,6 @@ public record MembershipUpdateFormRequest(
         Long id,
         String name,
         Integer conditionAmount,
-        Integer pointRate,
-        Boolean isActive
+        Integer pointRate
 ) {
 }

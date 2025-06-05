@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -74,15 +75,15 @@ public class AdminUserManagementController {
     }
 
     @PostMapping("/membership/activate")
-    public String activateMembership(@RequestParam long id) {
+    @ResponseBody
+    public void activateMembership(@RequestParam long id) {
         membershipService.activateMembership(id);
-        return "redirect:/admin/membership";
     }
 
     @PostMapping("/membership/deactivate")
-    public String deactivate(@RequestParam long id) {
+    @ResponseBody
+    public void deactivate(@RequestParam long id) {
         membershipService.deactivateMembership(id);
-        return "redirect:/admin/membership";
     }
 
     @PostMapping("/membership/default")
