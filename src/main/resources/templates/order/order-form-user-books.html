@@ -365,9 +365,10 @@
                             보유 포인트:
                             <span class="text-gray-700 font-semibold"
                                   th:text="${#numbers.formatInteger(user.point, 0, 'COMMA') + 'P'}">0P</span><br/>
-                            <span class="text-red-500">※ 최대 <span th:text="${user.point}">0</span>P 까지 입력 가능합니다.</span>
+                            <span class="text-red-500">
+                                ※ 최대 <span id="allowedPointText" th:text="${user.point}">0</span>P 까지 입력 가능합니다.
+                            </span>
                         </p>
-                        <p class="text-xs text-red-500 mt-1" id="pointMessage"></p>
                     </div>
 
                 </div>
@@ -547,11 +548,17 @@
 
                 // 🔥 포인트 전체 사용 적용 여부 반영
                 const input = document.querySelector('input[name="usedPoint"]');
+                const before = usedPoint;
                 const useAllChk = document.getElementById('useAllPointChk');
                 if (useAllChk?.checked) {
                     handlePointToggle(input, useAllChk); // ✅ 다시 계산
                 } else {
                     updateSummary(); // 그냥 갱신
+                }
+
+                // 🔥 포인트가 줄었다면 알림
+                if (usedPoint < before) {
+                    showPointAdjustedAlert(usedPoint);
                 }
             });
         });
@@ -583,16 +590,12 @@
         const { paymentAmountBeforePoint } = getSummary();
 
         const allowedPoint = Math.min(max, paymentAmountBeforePoint);
-
         if (val > allowedPoint) {
             usedPoint = allowedPoint;
             input.value = usedPoint;
-
-            // ✅ 안내 메시지 표시
-            setPointMessage(`결제 가능 금액 기준으로 최대 ${formatCurrency(allowedPoint)}까지만 사용 가능합니다.`);
+            showPointAdjustedAlert();
         } else {
             usedPoint = val;
-            clearPointMessage();
         }
 
         checkbox.checked = usedPoint === max;
@@ -608,34 +611,10 @@
         usedPoint = checkbox.checked ? allowedPoint : 0;
         input.value = usedPoint;
 
-        if (checkbox.checked && usedPoint < max) {
-            // ✅ 전체 사용했지만 할인 등으로 포인트가 줄어든 경우 안내
-            setPointMessage(`결제 가능 금액 기준으로 ${formatCurrency(allowedPoint)}까지만 사용되었습니다.`);
-        } else {
-            clearPointMessage();
-        }
-
         updateSummary();
     }
 
-    // 포인트 오류 메시지 세팅
-    function setPointMessage(msg) {
-        let el = document.getElementById("pointMessage");
-        if (!el) {
-            console.warn("⚠️ pointMessage 요소 없음");
-            return;
-        }
-        el.textContent = msg;
-        console.log("✅ 안내 메시지 출력됨:", msg);
-    }
-
-    // 포인트 오류 제거
-    function clearPointMessage() {
-        const el = document.getElementById("pointMessage");
-        if (el) el.remove();
-    }
-
-    // 포인트 조정 알람
+    // 📌 포인pointMessage트 조정 알람
     function showPointAdjustedAlert(amount) {
         // 너무 자주 뜨지 않게 방지 (1초 내에 중복 방지용)
         if (window.__lastPointAlertTime && Date.now() - window.__lastPointAlertTime < 1000) return;
@@ -668,11 +647,9 @@
         if (inputVal > newAllowedPoint) {
             usedPoint = newAllowedPoint;
             pointInput.value = newAllowedPoint;
-            setPointMessage(`할인 적용으로 ${formatCurrency(newAllowedPoint)}까지만 사용할 수 있습니다.`);
             showPointAdjustedAlert(newAllowedPoint);
         } else {
             usedPoint = inputVal;
-            clearPointMessage();
         }
 
         const paymentAmount = Math.max(paymentAmountBeforePoint - usedPoint, 0);
