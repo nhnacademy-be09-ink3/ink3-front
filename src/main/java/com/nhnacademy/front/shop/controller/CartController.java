@@ -180,7 +180,7 @@ public class CartController {
             try {
                 MainBookResponse data = cartClient.getBookById(item.bookId()).data();
                 CartBookResponse book = new CartBookResponse(data.title(), data.originalPrice(), data.salePrice(),
-                    data.discountRate(), data.thumbnailUrl());
+                    data.discountRate(), data.thumbnailUrl(), data.isPackable());
                 log.info("🔍 응답 book = {}", book);
                 int quantity = item.quantity();
                 int order = book.originalBookPrice() * quantity;

@@ -27,7 +27,6 @@ public class OrderController {
     private final OrderService orderService;
     private final PaymentService paymentService;
 
-    //TODO 쿠폰 적용해야함.
     // 주문 상세 페이지
     @GetMapping("/orders/{orderId}")
     public String getOrderDetails(@PathVariable long orderId, Model model) {
@@ -44,7 +43,7 @@ public class OrderController {
         model.addAttribute( "paymentResponse", paymentResponse);
         return "order/order-details";
     }
-
+    
     // 주문 반품
     @PostMapping("/refunds")
     public String createRefund(Model model, @RequestBody RefundCreateRequest request){

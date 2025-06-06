@@ -9,6 +9,7 @@ public record MainBookResponse(
     int salePrice,
     int discountRate,
     String thumbnailUrl,
+    boolean isPackable,
     List<String> authorNames
 ) {
 }
