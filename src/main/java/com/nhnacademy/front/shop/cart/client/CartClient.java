@@ -1,6 +1,7 @@
 package com.nhnacademy.front.shop.cart.client;
 
 import com.nhnacademy.front.shop.book.dto.MainBookResponse;
+import com.nhnacademy.front.shop.cart.dto.CartCouponResponse;
 import java.util.List;
 
 import org.springframework.cloud.openfeign.FeignClient;
@@ -25,6 +26,9 @@ public interface CartClient {
 
     @PutMapping("/me/carts/{cartId}")
     CommonResponse<CartResponse> updateQuantity(@PathVariable Long cartId, @RequestBody CartUpdateRequest request);
+
+    @GetMapping("/me/carts")
+    CommonResponse<List<CartCouponResponse>> getCartsWithCoupon();
 
     @GetMapping("/me/carts")
     CommonResponse<List<CartResponse>> getCarts();
