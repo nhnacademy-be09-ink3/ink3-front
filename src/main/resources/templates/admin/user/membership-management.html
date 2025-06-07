@@ -308,8 +308,7 @@
                 });
 
                 if (response.status < 400) {
-                    const location = response.headers.get('Location');
-                    window.location.href = location ?? `${contextPath}admin/membership`;
+                    window.location.href = `${contextPath}admin/membership`;
                 } else {
                     alert('맴버십 기본 지정에 실패하였습니다.');
                 }
@@ -418,9 +417,11 @@
                 redirect: 'manual'
             });
 
-            if (!response.ok) {
-                this.checked = !this.checked;
-                alert('맴버십 활성화에 실패하였습니다.');
+            if (response.ok) {
+                window.location.reload();
+            } else {
+                checkbox.checked = !checkbox.checked;
+                alert('맴버십 활성화/비활성화 실패');
             }
         } catch (error) {
             this.checked = !this.checked;
