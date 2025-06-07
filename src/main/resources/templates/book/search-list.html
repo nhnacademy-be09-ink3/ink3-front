@@ -11,233 +11,233 @@
 <div th:replace="~{layout/fragments/header :: headerFragment}"></div>
 
 <main class="px-6 py-8 bg-gray-100">
-    <span class="hidden force-include"></span>
     <div class="flex max-w-7xl mx-auto gap-6">
-<!--         🔽 좌측 카테고리-->
-<!--         카테고리 사이드 메뉴 (다단 구조)-->
+        <!-- 카테고리 -->
         <aside class="w-40 self-start bg-white rounded-lg shadow p-4 relative overflow-visible">
             <h2 class="text-lg font-bold mb-4">📚 카테고리</h2>
-            <ul class="space-y-2">
-                <li class="relative group inline-block">
-                    <button type="button" class="text-left font-medium text-gray-700 hover:text-ink-primary transition-colors cursor-pointer">
-                        소설
-                    </button>
-
-                    <!-- 2차 메뉴 -->
-                    <ul class="absolute top-0 left-full ml-2 invisible opacity-0 flex flex-col pointer-events-none group-hover:visible group-hover:opacity-100 group-hover:pointer-events-auto transition-opacity delay-75 duration-200 bg-white shadow-md rounded px-1 py-1 w-max whitespace-nowrap z-50">
-
-                        <!-- 한국 소설 -->
-                        <li class="relative group/korea inline-block">
-                            <button type="button" class="text-left px-2 py-1 text-sm text-gray-700 hover:text-ink-primary cursor-pointer">
-                                한국 소설
-                            </button>
-                            <ul class="absolute top-0 left-full ml-2 invisible opacity-0 pointer-events-none group-hover/korea:visible group-hover/korea:opacity-100 group-hover/korea:pointer-events-auto transition-opacity delay-150 duration-300 bg-white shadow-md rounded px-1 py-1 w-max whitespace-nowrap z-50">
-                                <li><button type="button" class="text-left px-2 py-1 text-sm text-gray-700 hover:text-ink-primary">고전 소설</button></li>
-                                <li><button type="button" class="text-left px-2 py-1 text-sm text-gray-700 hover:text-ink-primary">현대 소설</button></li>
-                            </ul>
-                        </li>
-
-                        <!-- 외국 소설 -->
-                        <li class="relative group/global inline-block">
-                            <button type="button" class="text-left px-2 py-1 text-sm text-gray-700 hover:text-ink-primary cursor-pointer">
-                                외국 소설
-                            </button>
-                            <ul class="absolute top-0 left-full ml-2 invisible opacity-0 pointer-events-none group-hover/global:visible group-hover/global:opacity-100 group-hover/global:pointer-events-auto transition-opacity delay-150 duration-300 bg-white shadow-md rounded px-1 py-1 w-max whitespace-nowrap z-50">
-                                <li><button type="button" class="text-left px-2 py-1 text-sm text-gray-700 hover:text-ink-primary">고전 소설</button></li>
-                                <li><button type="button" class="text-left px-2 py-1 text-sm text-gray-700 hover:text-ink-primary">현대 소설</button></li>
-                            </ul>
-                        </li>
-
-                    </ul>
-                </li>
-            </ul>
+            <ul id="category-menu" class="space-y-2"></ul>
         </aside>
 
-        <!-- 🔹 우측 본문 전체를 하나의 <div>로 묶기 -->
+        <!-- 본문 -->
         <div class="flex-1">
-            <!-- 📌 검색 결과 제목과 표시 개수 나란히 -->
             <div class="flex justify-between items-center mb-4">
                 <h1 id="search-title" class="text-2xl font-bold text-gray-800 truncate max-w-full">
                     📚 도서 검색 결과
                 </h1>
-                <div class="flex items-center">
-                    <label for="itemsPerPage" class="mr-2 text-sm text-gray-700">표시 개수:</label>
-                    <select id="itemsPerPage" class="border border-gray-300 rounded px-2 py-1 text-sm">
-                        <option value="5">5개</option>
-                        <option value="10" selected>10개</option>
-                        <option value="15">15개</option>
-                        <option value="20">20개</option>
-                        <option value="25">25개</option>
-                    </select>
+
+                <!-- 정렬 + 표시 개수 묶기 -->
+                <div class="flex items-center gap-4">
+                    <!-- 정렬 -->
+                    <div class="flex items-center gap-2">
+                        <label for="sortSelect" class="text-sm text-gray-700">정렬:</label>
+                        <select id="sortSelect" class="border border-gray-300 rounded px-2 py-1 text-sm">
+                            <option value="title,asc">제목순</option>
+                            <option value="originalPrice,asc">가격 낮은순</option>
+                            <option value="originalPrice,desc">가격 높은순</option>
+                            <option value="publishedAt,desc">출간일 최신순</option>
+                        </select>
+                    </div>
+
+                    <!-- 표시 개수 -->
+                    <div class="flex items-center gap-2">
+                        <label for="itemsPerPage" class="text-sm text-gray-700">표시 개수:</label>
+                        <select id="itemsPerPage" class="border border-gray-300 rounded px-2 py-1 text-sm">
+                            <option value="5">5개</option>
+                            <option value="10" selected>10개</option>
+                            <option value="15">15개</option>
+                            <option value="20">20개</option>
+                            <option value="25">25개</option>
+                        </select>
+                    </div>
                 </div>
             </div>
 
             <div id="book-list" class="flex flex-col gap-6 px-4"></div>
 
-            <!-- 추천 도서 영역 -->
-            <section id="recommended-section" class="py-10 mt-12">
+            <!-- 추천 도서 -->
+            <section id="recommended-section" class="py-10 mt-16">
                 <h2 class="text-2xl font-semibold mb-6 text-gray-800">📖 이런 책은 어떠신가요?</h2>
-                <div class="max-w-full px-4 py-10">
-                    <div id="recommended-books" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6 justify-items-center"></div>
-                </div>
+                <div id="recommended-books" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6 justify-items-center"></div>
             </section>
         </div>
-
     </div>
 </main>
 
 <div th:replace="~{layout/fragments/footer :: footerFragment}"></div>
 
 <script th:inline="javascript">
+    let currentPage = 1;
+    let itemsPerPage = 10;
+    let totalItems = 0;
+    let currentQuery = '';
+
+    let bookList;
+    let recommendedBooks;
+    let currentSort = 'title,asc';
+    // === 환경에 따라 자동 설정되는 API 및 페이지 base URL ===
+    // ink3ApiBase: API 호출용 base URL (local/dev/prod 구분)
+    // ink3pageBase: 링크 이동용 base URL (local/dev/prod 구분)
+    const isLoggedIn = [[${isLoggedIn}]];
+    const contextPath = /*[[@{/}]]*/ "/";
+    const ink3Hostname = location.hostname;
+    const ink3Pathname = location.pathname;
+
+    const ink3IsLocal = ink3Hostname === 'localhost' || ink3Hostname.startsWith('127.');
+    const ink3IsDevPath = ink3Pathname.startsWith('/dev/');
+
+    const ink3ApiBase = ink3IsLocal
+        ? 'https://ink3.shop/dev/gateway'
+        : ink3IsDevPath
+            ? `${contextPath}dev/gateway`
+            : `${contextPath}gateway`;
+
+    const ink3pageBase = ink3IsLocal
+        ? ''
+        : ink3IsDevPath
+            ? `${contextPath}dev`
+            : contextPath;
+
+    document.getElementById('sortSelect').addEventListener('change', (e) => {
+        currentSort = e.target.value;
+        currentPage = 1; // 정렬 변경 시 1페이지로 초기화
+        fetchBooks();
+    });
+
+    function goToCategory(name) {
+        const encoded = encodeURIComponent(name);
+        location.href = `${ink3pageBase}/books/category?name=${encoded}`;
+    }
+
+    function fetchBooks() {
+        if (!currentQuery) return;
+        const url = `${ink3ApiBase}/shop/books?q=${encodeURIComponent(currentQuery)}&page=${currentPage - 1}&size=${itemsPerPage}&sort=${currentSort}`;
+
+        fetch(url)
+            .then(res => res.json())
+            .then(data => {
+                const result = data?.data;
+                if (!result || !result.content) {
+                    console.error('검색 결과가 없습니다:', data);
+                    return;
+                }
+                totalItems = result.totalElements;
+                renderBooks(result.content);
+                renderPagination();
+            })
+            .catch(err => console.error('검색 API 에러:', err));
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
-        const bookList = document.getElementById('book-list');
-        const recommendedBooks = document.getElementById('recommended-books');
+        bookList = document.getElementById('book-list');
+        recommendedBooks = document.getElementById('recommended-books');
         const titleEl = document.getElementById('search-title');
         const itemsPerPageSelect = document.getElementById('itemsPerPage');
+        itemsPerPage = parseInt(itemsPerPageSelect.value);
 
-        const urlParams = new URLSearchParams(window.location.search);
-        const query = urlParams.get('q');
-        if (query) {
-            const maxLength = 10;
-            const truncated = query.length > maxLength ? query.slice(0, maxLength) + '....' : query;
-            titleEl.textContent = '📚 "' + truncated + '" 검색 결과';
-        }
+        fetch(`${ink3ApiBase}/shop/categories`)
+            .then(res => res.json())
+            .then(data => {
+                const tree = buildCategoryTree(data.data.content);
+                // ROOT 노드 제거 후 그 자식들만 표시
+                const rootNode = tree.find(cat => cat.name === 'ROOT');
+                const filteredTree = rootNode?.children || [];
+                renderCategoryMenu(filteredTree, document.getElementById('category-menu'));
+            })
+            .catch(err => console.error('카테고리 불러오기 실패:', err));
 
-        const mockData = Array.from({ length: 1002 }, (_, i) => ({
-            id: i + 1,
-            title: `도서 제목 ${i + 1}`,
-            authorNames: [`작가 ${i + 1}`],
-            originalPrice: 20000 + i * 100,
-            thumbnailUrl: "https://image.aladin.co.kr/product/35259/73/coversum/k142934245_1.jpg"
-        }));
-
-        let currentPage = 1;
-        let itemsPerPage = parseInt(itemsPerPageSelect.value);
-
-        const renderBooks = () => {
-            bookList.innerHTML = '';
-            const start = (currentPage - 1) * itemsPerPage;
-            const end = start + itemsPerPage;
-            const currentBooks = mockData.slice(start, end);
-
-            currentBooks.forEach(book => {
-                const div = document.createElement('div');
-                div.className = 'flex bg-white rounded-xl shadow hover:shadow-md w-full max-w-5xl mx-auto transition p-4';
-
-                div.innerHTML = `
-            <!-- 도서 이미지 -->
-            <div class="w-[130px] h-[190px] flex-shrink-0 mr-6">
-                <img src="${book.thumbnailUrl}" alt="${book.title}" class="w-full h-full object-cover rounded-md" />
-            </div>
-
-            <!-- 도서 정보와 버튼 영역 -->
-            <div class="flex justify-between w-full">
-                <!-- 도서 정보 -->
-                <div class="flex flex-col justify-between flex-1">
-                    <div>
-                        <h2 class="text-lg font-bold text-gray-900 mb-1">${book.title}</h2>
-                        <p class="text-sm text-gray-600 mb-1">
-                            ${book.authorNames.join(', ')} · ${book.publisher || '출판사'} | ${book.pubDate || '출판일'}
-                        </p>
-                        <p class="text-base font-semibold text-red-600 mb-1">
-                            ${(book.originalPrice * 0.9).toLocaleString()}원
-                            <span class="text-sm text-gray-400">10% 할인</span>
-                        </p>
-                        <p class="text-sm text-gray-400 line-through">${book.originalPrice.toLocaleString()}원</p>
-                        <p class="text-sm mt-2 text-gray-700 line-clamp-2">${book.description || ''}</p>
-                    </div>
-                </div>
-
-                <!-- 버튼 영역 -->
-                <div class="flex flex-col items-end w-40 flex-shrink-0">
-                    <div class="flex items-center justify-between border border-gray-300 rounded px-2 py-1 w-full mb-3">
-                        <button onclick="changeQty(${book.id}, -1)" class="text-gray-700 px-2">−</button>
-                        <span id="qty-${book.id}" class="px-2">1</span>
-                        <button onclick="changeQty(${book.id}, 1)" class="text-gray-700 px-2">＋</button>
-                    </div>
-                    <div class="flex flex-col gap-3 w-full">
-                        <button class="ink-btn-primary text-sm px-4 py-2 w-full">카트에 담기</button>
-                        <button class="ink-btn-primary text-sm px-4 py-2 w-full mb-2">바로구매</button>
-                    </div>
-                </div>
-            </div>
-        `;
-
-                bookList.appendChild(div);
+        const buildCategoryTree = (flatList) => {
+            const map = {};
+            const roots = [];
+            flatList.forEach(cat => {
+                cat.children = [];
+                map[cat.id] = cat;
             });
+            flatList.forEach(cat => {
+                if (cat.parentId == null) {
+                    roots.push(cat);
+                } else if (map[cat.parentId]) {
+                    map[cat.parentId].children.push(cat);
+                }
+            });
+            return roots;
         };
-        <!-- 페이지네이션 -->
-        const renderPagination = () => {
-            let paginationEl = document.getElementById('pagination');
-            if (!paginationEl) {
-                paginationEl = document.createElement('div');
-                paginationEl.id = 'pagination';
-                paginationEl.className = 'flex justify-center items-center gap-2 mt-6';
-                bookList.after(paginationEl);
-            }
-            paginationEl.innerHTML = '';
 
-            const totalPages = Math.ceil(mockData.length / itemsPerPage);
-            const groupSize = 10;
-            const currentGroup = Math.floor((currentPage - 1) / groupSize);
-            const startPage = currentGroup * groupSize + 1;
-            const endPage = Math.min(startPage + groupSize - 1, totalPages);
+        const renderCategoryMenu = (categories, container) => {
+            categories.forEach(cat => {
+                const li = document.createElement('li');
+                li.className = 'relative group w-max';
+                li.innerHTML = `
+                    <button type="button"
+                        onclick="goToCategory('${cat.name}')"
+                        class="text-left font-medium text-gray-700 hover:text-ink-primary transition-colors cursor-pointer whitespace-nowrap px-2 py-1 w-max">
+                        ${cat.name}
+                    </button>
+                `;
 
-            const createBtn = (label, page, isActive = false) => {
-                const btn = document.createElement('button');
-                btn.textContent = label;
-                btn.className = `px-3 py-1 border rounded ${isActive ? 'bg-ink-primary text-white' : 'hover:bg-gray-100'}`;
-                btn.disabled = page < 1 || page > totalPages;
+                if (cat.children.length > 0) {
+                    const subUl = document.createElement('ul');
+                    subUl.className = `
+                        absolute top-0 left-full
+                        ml-2 z-50 px-1 py-1 rounded bg-white shadow-md
+                        invisible opacity-0 pointer-events-none transition-opacity duration-200
+                        min-w-max
+                    `;
+                    renderCategoryMenu(cat.children, subUl);
+                    li.appendChild(subUl);
+                }
 
-                btn.addEventListener('click', () => {
-                    currentPage = page;
-                    renderBooks();
-                    renderPagination();
+                container.appendChild(li);
+            });
 
-                    // 📌 페이지 상단으로 스크롤
-                    const scrollTarget = document.getElementById('search-title');
-                    if (scrollTarget) {
-                        scrollTarget.scrollIntoView({ behavior: 'instant', block: 'start' });
-                    }
+            applyHoverDelay();
+        };
+        const applyHoverDelay = () => {
+            document.querySelectorAll('#category-menu li.group').forEach(group => {
+                const submenu = group.querySelector('ul');
+                if (!submenu) return;
+
+                let timeout;
+                group.addEventListener('mouseenter', () => {
+                    clearTimeout(timeout);
+                    submenu.classList.remove('invisible', 'opacity-0', 'pointer-events-none');
+                    submenu.classList.add('visible', 'opacity-100', 'pointer-events-auto');
                 });
 
-                return btn;
-            };
-
-            // 이전 그룹 이동
-            if (startPage > 1) {
-                paginationEl.appendChild(createBtn('<', startPage - 1));
-            }
-
-            for (let i = startPage; i <= endPage; i++) {
-                paginationEl.appendChild(createBtn(i, i, i === currentPage));
-            }
-
-            // 다음 그룹 이동
-            if (endPage < totalPages) {
-                paginationEl.appendChild(createBtn('...', endPage + 1));
-                paginationEl.appendChild(createBtn('>', endPage + 1));
-            }
+                group.addEventListener('mouseleave', () => {
+                    timeout = setTimeout(() => {
+                        submenu.classList.remove('visible', 'opacity-100', 'pointer-events-auto');
+                        submenu.classList.add('invisible', 'opacity-0', 'pointer-events-none');
+                    }, 100); // 딜레이는 필요 시 조정
+                });
+            });
         };
+
+
 
         window.changeQty = function (id, delta) {
             const qtyEl = document.getElementById(`qty-${id}`);
-            let current = parseInt(qtyEl.innerText);
+            let current = parseInt(qtyEl.value) || 1;
             const next = Math.max(1, current + delta);
-            qtyEl.innerText = next;
+            qtyEl.value = next;
         };
 
         itemsPerPageSelect.addEventListener('change', () => {
             currentPage = 1;
             itemsPerPage = parseInt(itemsPerPageSelect.value);
-            renderBooks();
-            renderPagination();
+            fetchBooks();
         });
 
-        renderBooks();
-        renderPagination();
+        const urlParams = new URLSearchParams(window.location.search);
+        const query = urlParams.get('q');
+        if (query) {
+            currentQuery = query;
+            const maxLength = 10;
+            const truncated = query.length > maxLength ? query.slice(0, maxLength) + '....' : query;
+            titleEl.textContent = '📚 "' + truncated + '" 검색 결과';
+            fetchBooks();
+        }
 
-        // 추천 도서 카드
+        // 추천 도서 (하드코딩)
         const books = [
             { title: "이펙티브 자바", author: "조슈아 블로크", price: 35000, thumbnail: "https://image.aladin.co.kr/product/35259/73/coversum/k142934245_1.jpg" },
             { title: "자바의 정석", author: "남궁성", price: 30000, thumbnail: "https://image.aladin.co.kr/product/35259/73/coversum/k142934245_1.jpg" },
@@ -249,49 +249,171 @@
         books.forEach(book => {
             const div = document.createElement('div');
             div.className = 'ink-card-white p-4 flex flex-col items-center text-center w-[200px]';
-
             div.innerHTML = `
         <div class="w-[120px] h-[180px] bg-gray-100 rounded-md overflow-hidden mb-3">
-            <img
-                src="${book.thumbnail}"
-                alt="${book.title}"
-                class="w-full h-full object-cover"
-                onerror="this.style.display='none';"
-            />
+          <img src="${book.thumbnail}" alt="${book.title}" class="w-full h-full object-cover" />
         </div>
-
         <h3 class="text-sm font-semibold text-gray-800 mb-1 truncate w-full">${book.title}</h3>
         <p class="text-xs text-gray-600 mb-1 truncate w-full">${book.author}</p>
-
         <div class="mb-3 flex flex-col items-center leading-tight">
-            <span class="text-gray-400 line-through text-xs">₩${(book.price * 1.1).toLocaleString()}</span>
-            <span class="text-sm text-gray-900 font-bold">₩${book.price.toLocaleString()}</span>
-            <span class="bg-red-100 text-red-600 text-xs font-bold px-2 py-0.5 rounded-md mt-1">10%</span>
-        </div>
-    `;
+          <span class="text-gray-400 line-through text-xs">₩${(book.price * 1.1).toLocaleString()}</span>
+          <span class="text-sm text-gray-900 font-bold">₩${book.price.toLocaleString()}</span>
+          <span class="bg-red-100 text-red-600 text-xs font-bold px-2 py-0.5 rounded-md mt-1">10%</span>
+        </div>`;
             recommendedBooks.appendChild(div);
         });
-
-        // 드롭다운 딜레이
-        document.querySelectorAll('.group, .group\\/korea, .group\\/global').forEach(group => {
-            let timeout;
-            const menu = group.querySelector('ul');
-            if (!menu) return;
-
-            group.addEventListener('mouseenter', () => {
-                clearTimeout(timeout);
-                menu.classList.remove('invisible', 'opacity-0', 'pointer-events-none');
-                menu.classList.add('visible', 'opacity-100', 'pointer-events-auto');
-            });
-
-            group.addEventListener('mouseleave', () => {
-                timeout = setTimeout(() => {
-                    menu.classList.remove('visible', 'opacity-100', 'pointer-events-auto');
-                    menu.classList.add('invisible', 'opacity-0', 'pointer-events-none');
-                }, 100); //여기서 숫자를 조절하면 딜레이 시간 조절 가능
-            });
-        });
     });
+
+    const renderBooks = (books) => {
+        bookList.innerHTML = '';
+        books.forEach(book => {
+            const div = document.createElement('div');
+            div.className = 'flex bg-white rounded-xl shadow hover:shadow-md w-full max-w-5xl mx-auto transition p-4';
+
+            div.innerHTML = `
+                    <a href="${ink3pageBase}/books/${book.id}" class="w-[130px] h-[190px] flex-shrink-0 mr-6 block">
+                        <img src="${book.thumbnailUrl}" alt="${book.title}" class="w-full h-full object-cover rounded-md" />
+                    </a>
+                    <div class="flex flex-col justify-between flex-1">
+                        <div>
+                            <a href="${ink3pageBase}/books/${book.id}" class="text-lg font-bold text-gray-900 mb-1 hover:underline block">
+                                ${book.title}
+                            </a>
+                            <a href="${ink3pageBase}/books/${book.id}" class="text-sm text-gray-600 mb-1 block">
+                                ${book.authorNames?.join(', ') || '저자 없음'} · ${book.publisherName} | ${book.publishedAt}
+                            </a>
+                            <a href="${ink3pageBase}/books/${book.id}" class="text-base font-semibold text-red-600 mb-1 block">
+                                ${book.salePrice.toLocaleString()}원 <span class="title-font font-medium bg-red-100 text-red-600 text-sm font-bold px-2 py-1 rounded-md">${book.discountRate}%</span>
+                            </a>
+                            <a href="${ink3pageBase}/books/${book.id}" class="text-sm text-gray-400 line-through block">
+                                ${book.originalPrice.toLocaleString()}원
+                            </a>
+                            <a href="${ink3pageBase}/books/${book.id}" class="text-sm mt-2 text-gray-700 line-clamp-2 block">
+                                ${book.description}
+                            </a>
+                        </div>
+                    </div>
+            <div class="flex flex-col items-end w-40 flex-shrink-0">
+                <div class="flex items-center justify-between border border-gray-300 rounded px-2 py-1 w-full mb-3">
+                    <button onclick="changeQty(${book.id}, -1)" class="text-gray-700 px-2">−</button>
+                    <input
+                          type="text"
+                          id="qty-${book.id}"
+                          class="w-10 text-center outline-none bg-transparent px-2"
+                          value="1"
+                          maxlength="3"
+                          onkeyup="checkNumeric(this)"
+                          title="수량설정"
+                        />
+                    <button onclick="changeQty(${book.id}, 1)" class="text-gray-700 px-2">＋</button>
+                </div>
+                <div class="flex flex-col gap-3 w-full">
+                    <button class="ink-btn-primary text-sm px-4 py-2 w-full"
+                        onclick="addToCart(${book.id}, document.getElementById('qty-${book.id}').value)">
+                        카트에 담기
+                    </button>
+                    <button
+                      class="ink-btn-primary text-sm px-4 py-2 w-full mb-2"
+                      onclick="orderNow(${book.id}, document.getElementById('qty-${book.id}').value)">
+                      바로구매
+                    </button>
+                </div>
+            </div>
+        `;
+            bookList.appendChild(div);
+        });
+    };
+
+    const renderPagination = () => {
+        let paginationEl = document.getElementById('pagination');
+        if (!paginationEl) {
+            paginationEl = document.createElement('div');
+            paginationEl.id = 'pagination';
+            paginationEl.className = 'flex justify-center items-center gap-2 mt-6';
+            bookList.after(paginationEl);
+        }
+        paginationEl.innerHTML = '';
+
+        const totalPages = Math.ceil(totalItems / itemsPerPage);
+        const groupSize = 10;
+        const currentGroup = Math.floor((currentPage - 1) / groupSize);
+        const startPage = currentGroup * groupSize + 1;
+        const endPage = Math.min(startPage + groupSize - 1, totalPages);
+
+        const createBtn = (label, page, isActive = false) => {
+            const btn = document.createElement('button');
+            btn.textContent = label;
+            btn.className = `px-3 py-1 border rounded ${isActive ? 'bg-ink-primary text-white' : 'hover:bg-gray-100'}`;
+            btn.disabled = page < 1 || page > totalPages;
+
+            btn.addEventListener('click', () => {
+                currentPage = page;
+                fetchBooks();
+                const scrollTarget = document.getElementById('search-title');
+                if (scrollTarget) {
+                    scrollTarget.scrollIntoView({ behavior: 'instant', block: 'start' });
+                }
+            });
+            return btn;
+        };
+
+        if (startPage > 1) {
+            paginationEl.appendChild(createBtn('<', startPage - 1));
+        }
+
+        for (let i = startPage; i <= endPage; i++) {
+            paginationEl.appendChild(createBtn(i, i, i === currentPage));
+        }
+
+        if (endPage < totalPages) {
+            paginationEl.appendChild(createBtn('...', endPage + 1));
+            paginationEl.appendChild(createBtn('>', endPage + 1));
+        }
+    };
+
+    function checkNumeric(input) {
+        input.value = input.value.replace(/[^0-9]/g, '');
+        if (input.value === '' || parseInt(input.value) < 1) {
+            input.value = 1;
+        }
+    }
+    function orderNow(bookId, quantity) {
+        const form = document.createElement('form');
+        form.method = 'get';
+        form.action = `${contextPath}order-form/from-book/${bookId}`;
+
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'quantity';
+        input.value = quantity;
+
+        form.appendChild(input);
+        document.body.appendChild(form);
+        form.submit();
+    }
+
+    function addToCart(bookId, quantity) {
+        const url = isLoggedIn ? `${contextPath}carts` : `${contextPath}guest-carts`;
+
+        const form = document.createElement('form');
+        form.method = 'post';
+        form.action = url;
+
+        const bookInput = document.createElement('input');
+        bookInput.type = 'hidden';
+        bookInput.name = 'bookId';
+        bookInput.value = bookId;
+        form.appendChild(bookInput);
+
+        const qtyInput = document.createElement('input');
+        qtyInput.type = 'hidden';
+        qtyInput.name = 'quantity';
+        qtyInput.value = quantity;
+        form.appendChild(qtyInput);
+
+        document.body.appendChild(form);
+        form.submit();
+    }
 </script>
 </body>
 </html>

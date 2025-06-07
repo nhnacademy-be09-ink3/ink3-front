@@ -3,3 +3,5 @@ spring:
     name: ink3-front
   config:
     import: optional:configserver:https://ink3.shop/config/
+
+

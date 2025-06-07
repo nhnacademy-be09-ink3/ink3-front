@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ink3</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/output.css(v=${#dates.createNow().getTime()})}">
+    <script src="https://js.tosspayments.com/v1/payment"></script>
+    <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+<div th:replace="~{layout/fragments/header :: headerFragment}"></div>
+<main class="container max-w-[1600px] mx-auto px-4 py-8">
+    <!-- 비회원 안내 메시지 -->
+    <div class="bg-yellow-50 border-l-4 border-yellow-400 text-yellow-800 p-4 rounded mb-6">
+        <p class="font-medium">비회원 주문 안내</p>
+        <p class="text-sm mt-1">
+            로그인 없이 주문을 진행하고 있습니다. <strong class="text-yellow-700">주문 확인은 이메일과 주문번호</strong>로만 가능합니다.<br>
+            ※ 비회원 주문의 경우 교환/반품이 어려울 수 있습니다.
+        </p>
+    </div>
+    <div class="flex flex-col lg:flex-row gap-10">
+
+        <!-- 왼쪽: 입력 -->
+        <div class="w-full lg:w-[70%] bg-white p-8 rounded-xl shadow">
+            <!-- 주문 상품 목록 -->
+            <section class="mb-8">
+                <h2 class="text-2xl font-semibold mb-4">주문 상품</h2>
+                <!-- 주문 상품 카드: 가로 정렬 -->
+                <div th:each="item : ${cart}"
+                     class="cart-item bg-white p-4 rounded-xl shadow text-sm flex items-center gap-6 mb-4"
+                     th:attr="data-book-id=${item.bookId}, data-price=${item.book.saleBookPrice}, data-quantity=${item.quantity}">
+
+                    <!-- 이미지 -->
+                    <div class="w-16 flex-shrink-0">
+                        <img th:src="${item.book.thumbnailUrl}" alt="도서 이미지"
+                             class="w-full h-auto rounded border border-gray-200">
+                    </div>
+
+                    <!-- 상품명 -->
+                    <div class="min-w-[130px]">
+                        <div class="text-gray-500 text-xs">상품명</div>
+                        <div class="font-medium text-gray-800" th:text="${item.book.bookTitle}">도서 제목</div>
+                    </div>
+
+                    <!-- 정가 -->
+                    <div class="min-w-[70px]">
+                        <div class="text-gray-500 text-xs">정가</div>
+                        <div th:text="${#numbers.formatInteger(item.book.originalBookPrice, 0, 'COMMA') + '원'}">정가</div>
+                    </div>
+
+                    <!-- 수량 -->
+                    <div class="min-w-[60px]">
+                        <div class="text-gray-500 text-xs">수량</div>
+                        <div th:text="${item.quantity + '개'}">0개</div>
+                    </div>
+
+                    <!-- 할인금액 -->
+                    <div class="min-w-[90px]">
+                        <div class="text-gray-500 text-xs">할인금액</div>
+                        <div class="text-red-600 font-semibold"
+                             th:text="${#numbers.formatInteger(item.book.saleBookPrice, 0, 'COMMA') + '원'}">
+                            할인금액
+                        </div>
+                        <div class="text-xs text-red-500"
+                             th:if="${item.book.bookDiscountRate != null}"
+                             th:text="|(${item.book.bookDiscountRate}% ↓)|">
+                        </div>                    </div>
+
+                    <!-- 합계 -->
+                    <div class="min-w-[90px] text-right">
+                        <div class="text-gray-500 text-xs">합계</div>
+                        <div class="text-base font-bold text-gray-900"
+                             th:text="${#numbers.formatInteger(item.book.saleBookPrice * item.quantity, 0, 'COMMA') + '원'}">
+                            합계
+                        </div>
+                    </div>
+
+                    <!-- 포장지 선택 -->
+                    <div class="flex items-center gap-2">
+                        <label class="text-sm font-medium text-gray-700 whitespace-nowrap w-[90px]">포장지 선택</label>
+                        <select class="packaging-select ink-input-field w-full sm:w-[240px]"
+                                th:disabled="${!item.book.isPackable}"
+                                th:classappend="${!item.book.isPackable} ? ' bg-gray-100 text-gray-400 cursor-not-allowed'">
+                            <option th:if="${item.book.isPackable}" value="">포장지 선택 안 함</option>
+                            <option th:unless="${item.book.isPackable}" disabled selected>포장지 선택 불가 상품</option>
+                            <option th:each="p : ${packagings}"
+                                    th:if="${item.book.isPackable}"
+                                    th:value="${p.id}"
+                                    th:text="${p.name + ' (' + #numbers.formatInteger(p.price, 0, 'COMMA') + '원)'}"
+                                    th:attr="data-price=${p.price}"
+                                    th:disabled="${!p.isAvailable}">
+                            </option>
+                        </select>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 주문자 정보 -->
+            <section class="mb-8">
+                <h2 class="text-2xl font-semibold mt-10 mb-4">주문자 정보</h2>
+                <div class="bg-gray-50 p-4 rounded-lg shadow space-y-6 text-sm">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block mb-1 text-sm font-medium text-gray-700">이름</label>
+                            <input type="text" class="ink-input-field w-full" id="ordererName" placeholder="홍길동">
+                        </div>
+                        <div>
+                            <label class="block mb-1 text-sm font-medium text-gray-700">연락처</label>
+                            <input type="text" class="ink-input-field w-full" id="ordererPhone" placeholder="010-9876-5432">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block mb-1 text-sm font-medium text-gray-700">이메일</label>
+                        <input type="email" class="ink-input-field w-full" id="ordererEmail"
+                               placeholder="example@email.com">
+                        <small class="text-gray-500 text-xs mt-1 block">
+                               ※ 주문 확인 메일이 발송되며, 이후 <strong>주문 조회 시 인증용</strong>으로 사용됩니다.
+                        </small>
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- 배송지 정보 -->
+            <section class="mb-8">
+                <!-- 배송지 정보 -->
+                <section class="mb-8">
+                    <h2 class="text-2xl font-semibold mt-10 mb-4">배송지 정보</h2>
+
+                    <!-- 주소 입력 필드 -->
+                    <div class="bg-gray-50 p-4 rounded-lg shadow space-y-6 text-sm">
+
+                        <!-- 수령인 & 연락처 -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block mb-1 text-sm font-medium text-gray-700">수령인</label>
+                                <input type="text" class="ink-input-field w-full" id="recipientName" placeholder="수령인">
+                            </div>
+                            <div>
+                                <label class="block mb-1 text-sm font-medium text-gray-700">연락처</label>
+                                <input type="text" class="ink-input-field w-full" id="recipientPhone"  placeholder="010-9876-5432">
+                            </div>
+                        </div>
+
+                        <!-- 주소 -->
+                        <div class="flex flex-col gap-3">
+                            <label class="block mb-1 text-sm font-medium text-gray-700">배송 주소</label>
+                            <div class="flex flex-col space-y-[16px]">
+                                <!-- 우편번호 + 버튼 -->
+                                <div class="flex gap-2">
+                                    <input type="text" id="postalCode" class="ink-input-field w-[30%]"
+                                           placeholder="우편번호" readonly>
+                                    <button type="button" onclick="execDaumPostcode()"
+                                            class="ink-btn-primary text-sm px-4 py-2 h-full">
+                                        우편번호 찾기
+                                    </button>
+                                </div>
+
+                                <!-- 도로명 주소 -->
+                                <input type="text" id="defaultAddress" class="ink-input-field w-full"
+                                       placeholder="도로명 주소" readonly>
+
+                                <!-- 상세 주소 -->
+                                <input type="text" id="detailAddress" class="ink-input-field w-full"
+                                       placeholder="상세 주소 입력">
+
+                                <!-- 참고 주소 -->
+                                <input type="text" id="extraAddress" class="ink-input-field w-full"
+                                       placeholder="참고 주소 입력">
+                            </div>
+                        </div>
+
+                        <!-- 희망 배송일 -->
+                        <div>
+                            <label class="block mb-2 text-sm font-medium text-gray-700">희망 배송일</label>
+
+                            <!-- 기본 배송일 안내 -->
+                            <div class="bg-blue-50 border border-blue-200 text-blue-800 px-4 py-2 rounded-md text-sm mb-4">
+                                기본 배송 예정일은 <strong id="defaultDeliveryDate">2025-06-02</strong> 입니다.
+                            </div>
+
+                            <!-- 배송일 지정 스위치 -->
+                            <div class="flex items-center gap-4 mb-4">
+                                <label for="enablePreferredDate" class="inline-flex items-center cursor-pointer">
+                                    <span class="mr-3 text-sm text-gray-700">배송일 지정</span>
+                                    <div class="relative">
+                                        <input type="checkbox" id="enablePreferredDate" class="sr-only peer">
+                                        <div class="w-11 h-6 bg-gray-300 rounded-full peer peer-checked:bg-indigo-500 transition-all"></div>
+                                        <div class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow peer-checked:translate-x-full transition-transform"></div>
+                                    </div>
+                                </label>
+                            </div>
+
+                            <!-- 날짜 선택 input -->
+                            <div>
+                                <input type="date" id="preferredDeliveryDateInput"
+                                       class="ink-input-field w-full sm:w-[250px] bg-white text-gray-800 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                                       disabled
+                                       min="2025-06-02"
+                                >
+                            </div>
+                        </div>
+
+                    </div>
+                </section>
+            </section>
+        </div>
+
+        <!-- 오른쪽: 요약 -->
+        <div class="w-full lg:w-[30%]">
+            <div class="sticky top-6 bg-white p-6 rounded-xl shadow min-h-[75vh] flex flex-col justify-between border border-gray-200">
+                <div>
+                    <h2 class="text-xl font-bold border-b pb-2 mb-4">주문 요약</h2>
+                    <div class="space-y-2 text-sm mb-6">
+                        <!-- 상품별 요약 반복 렌더링 -->
+                        <div th:each="item : ${cart}" class="flex justify-between">
+                            <span th:text="${item.book.bookTitle}">도서명</span>
+                            <span th:text="${item.quantity + '개 / ' + (#numbers.formatInteger(item.book.saleBookPrice * item.quantity, 0, 'COMMA') + '원')}">0개 / 0원</span>
+                        </div>
+                    </div>
+
+                    <h2 class="text-xl font-bold border-b pb-2 mb-4">결제 내역</h2>
+                    <div class="space-y-2 text-sm">
+                        <!-- 상품 총액 -->
+                        <div class="flex justify-between">
+                            <span>상품 총액</span>
+                            <span><span data-role="product-total">0원</span></span>
+                        </div>
+
+                        <!-- 배송비 -->
+                        <div class="flex justify-between">
+                            <span>배송비</span>
+                            <span><span data-role="shipping-fee">3,000원</span></span>
+                        </div>
+                        <script th:inline="javascript">
+                            const SHIPPING_POLICY = {
+                                threshold: [[${activeShippingPolicy.threshold}]],
+                                fee: [[${activeShippingPolicy.fee}]]
+                            };
+                        </script>
+
+                        <!-- 포장지 비용 -->
+                        <div class="flex justify-between">
+                            <span>포장지 비용</span>
+                            <span><span data-role="packaging-total">0원</span></span>
+                        </div>
+
+                        <!-- 최종 결제 금액 -->
+                        <div class="flex justify-between font-bold text-base">
+                            <span>최종 결제</span>
+                            <span><span data-role="final-total">0원</span></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="text-xs text-gray-500 text-center mt-4">
+                      ※ 주문 후 <strong>이메일과 주문번호</strong>로 확인하실 수 있습니다.
+                </div>
+                <button type="button" onclick="submitOrderForm()" class="ink-btn-primary mt-8 w-full text-base py-2">
+                    결제하기
+                </button>
+
+            </div>
+        </div>
+    </div>
+</main>
+<div th:replace="~{layout/fragments/footer :: footerFragment}"></div>
+</body>
+</html>
+
+<script th:inline="javascript">
+    document.addEventListener("DOMContentLoaded", () => {
+        initDeliveryDate();
+        initAutoHyphen(["ordererPhone", "recipientPhone"]);
+        initPackagingSelect();
+        updateSummary();
+    });
+
+    // 📌 희망 배송일 초기화
+    function initDeliveryDate() {
+        const checkbox = document.getElementById("enablePreferredDate");
+        const dateInput = document.getElementById("preferredDeliveryDateInput");
+
+        const defaultDate = new Date();
+        defaultDate.setDate(defaultDate.getDate() + 2);
+        const formatted = defaultDate.toISOString().split('T')[0];
+
+        document.getElementById("defaultDeliveryDate").textContent = formatted;
+        dateInput.min = formatted;
+        dateInput.value = formatted;
+
+        checkbox?.addEventListener("change", () => {
+            dateInput.disabled = !checkbox.checked;
+        });
+
+        window.getPreferredDeliveryDate = () => checkbox?.checked ? dateInput?.value : formatted;
+    }
+
+    // 📌 전화번호 하이픈 자동
+    function initAutoHyphen(ids) {
+        ids.forEach(id => {
+            const el = document.getElementById(id);
+            if (!el) return;
+            el.addEventListener("input", (e) => {
+                const num = e.target.value.replace(/\D/g, "");
+                if (num.startsWith("02")) {
+                    e.target.value = num.replace(/(\d{2})(\d{3,4})(\d{4})/, "$1-$2-$3");
+                } else {
+                    e.target.value = num.replace(/(\d{3})(\d{3,4})(\d{4})/, "$1-$2-$3");
+                }
+            });
+        });
+    }
+
+    // 📌 포장지 선택 이벤트
+    function initPackagingSelect() {
+        document.querySelectorAll('select.packaging-select').forEach(select =>
+            select.addEventListener('change', updateSummary)
+        );
+    }
+
+    // 📌 통화 포맷
+    function formatCurrency(num) {
+        return new Intl.NumberFormat('ko-KR').format(num) + '원';
+    }
+
+    // 📌 결제 요약 계산
+    function updateSummary() {
+        const PRODUCT_TOTAL_EL = document.querySelector('[data-role="product-total"]');
+        const PACKAGING_TOTAL_EL = document.querySelector('[data-role="packaging-total"]');
+        const FINAL_TOTAL_EL = document.querySelector('[data-role="final-total"]');
+        const SHIPPING_FEE_EL = document.querySelector('[data-role="shipping-fee"]');
+
+        let productTotal = 0;
+        let packagingTotal = 0;
+
+        document.querySelectorAll('.cart-item').forEach(item => {
+            const price = parseInt(item.dataset.price || '0', 10);
+            const quantity = parseInt(item.dataset.quantity || '0', 10);
+            productTotal += price * quantity;
+
+            const select = item.querySelector('select.packaging-select');
+            if (select && !select.disabled) {
+                const selectedOption = select.selectedOptions[0];
+                const packagingPrice = parseInt(selectedOption?.dataset.price || '0', 10);
+                packagingTotal += packagingPrice;
+            }
+        });
+
+        const shippingFee = productTotal >= SHIPPING_POLICY.threshold ? 0 : SHIPPING_POLICY.fee;
+        const finalAmount = Math.max(productTotal + packagingTotal + shippingFee, 0);
+
+        PRODUCT_TOTAL_EL.textContent = formatCurrency(productTotal);
+        PACKAGING_TOTAL_EL.textContent = formatCurrency(packagingTotal);
+        FINAL_TOTAL_EL.textContent = formatCurrency(finalAmount);
+        if (SHIPPING_FEE_EL) SHIPPING_FEE_EL.textContent = formatCurrency(shippingFee);
+    }
+
+    // 📌 다음 주소 API
+    function execDaumPostcode() {
+        new daum.Postcode({
+            oncomplete: function (data) {
+                let addr = data.userSelectedType === 'R' ? data.roadAddress : data.jibunAddress;
+                let extraAddr = '';
+
+                if (data.userSelectedType === 'R') {
+                    if (data.bname && /[동|로|가]$/g.test(data.bname)) {
+                        extraAddr += data.bname;
+                    }
+                    if (data.buildingName && data.apartment === 'Y') {
+                        extraAddr += (extraAddr ? ', ' : '') + data.buildingName;
+                    }
+                    if (extraAddr) {
+                        extraAddr = ' (' + extraAddr + ')';
+                    }
+                }
+
+                document.getElementById("postalCode").value = data.zonecode;
+                document.getElementById("defaultAddress").value = addr;
+                document.getElementById("extraAddress").value = extraAddr;
+                document.getElementById("detailAddress").focus();
+            }
+        }).open();
+    }
+
+    // 📌 주문 제출
+    function submitOrderForm() {
+        const ordererName = document.getElementById("ordererName")?.value.trim();
+        const ordererPhone = document.getElementById("ordererPhone")?.value.trim();
+        const ordererEmail = document.getElementById("ordererEmail")?.value.trim();
+        const recipientName = document.getElementById("recipientName")?.value.trim();
+        const recipientPhone = document.getElementById("recipientPhone")?.value.trim();
+        const postalCode = document.getElementById("postalCode")?.value.trim();
+        const defaultAddress = document.getElementById("defaultAddress")?.value.trim();
+        const detailAddress = document.getElementById("detailAddress")?.value.trim();
+        const extraAddress = document.getElementById("extraAddress")?.value.trim();
+
+        if (!ordererName || !ordererPhone || !ordererEmail) {
+            alert("주문자 정보를 모두 입력해주세요.");
+            return;
+        }
+        if (!recipientName || !recipientPhone || !postalCode || !defaultAddress || !detailAddress) {
+            alert("배송지 정보를 모두 입력해주세요.");
+            return;
+        }
+
+        const preferredDate = window.getPreferredDeliveryDate();
+        const orderItems = [];
+        let productTotal = 0;
+        let packagingTotal = 0;
+
+        document.querySelectorAll(".cart-item").forEach(item => {
+            const bookId = parseInt(item.dataset.bookId);
+            const price = parseInt(item.dataset.price);
+            const quantity = parseInt(item.dataset.quantity);
+            productTotal += price * quantity;
+
+            const packagingSelect = item.querySelector("select.packaging-select");
+            const packagingId = (packagingSelect && !packagingSelect.disabled && packagingSelect.value)
+                ? parseInt(packagingSelect.value)
+                : null;
+
+            const selectedOption = packagingSelect?.selectedOptions[0];
+            const packagingPrice = (packagingSelect && !packagingSelect.disabled)
+                ? parseInt(selectedOption?.dataset.price || '0', 10)
+                : 0;
+
+            packagingTotal += packagingPrice;
+
+            const couponIdEl = item.querySelector("select[name='couponId']");
+            const couponStoreId = (couponIdEl && !couponIdEl.disabled && couponIdEl.value)
+                ? parseInt(couponIdEl.value)
+                : null;
+
+            orderItems.push({ bookId, packagingId, couponStoreId, price, quantity });
+        });
+
+        const shippingFee = productTotal >= SHIPPING_POLICY.threshold ? 0 : SHIPPING_POLICY.fee;
+        const finalAmount = Math.max(productTotal + packagingTotal + shippingFee, 0);
+
+        const payload = {
+            guestCreateRequest: { email: ordererEmail },
+            guestOrderCreateRequest: { ordererName, ordererPhone },
+            shipmentCreateRequest: {
+                preferredDeliveryDate: preferredDate,
+                recipientName,
+                recipientPhone,
+                postalCode: parseInt(postalCode),
+                defaultAddress,
+                detailAddress,
+                extraAddress,
+                shippingFee,
+                shippingCode: null
+            },
+            createRequestList: orderItems,
+            paymentAmount: finalAmount
+        };
+
+        const tossPayments = TossPayments("test_ck_ALnQvDd2VJ2jvnEdDeLnVMj7X41m");
+        const contextPath = /*[[@{/}]]*/ '';
+
+        fetch(`${contextPath}guest/payments`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+        })
+            .then(res => res.json())
+            .then(data => {
+                tossPayments.requestPayment("카드", {
+                    amount: data.amount,
+                    orderId: data.orderId,
+                    orderName: data.orderName,
+                    customerName: data.customerName,
+                    successUrl: data.successUrl,
+                    failUrl: data.failUrl
+                });
+            })
+            .catch(error => {
+                console.error("🚫 TossPayments 오류:", error);
+                alert(error.code === "USER_CANCEL" ? "결제를 취소했습니다." : "결제 중 오류가 발생했습니다.");
+            });
+
+        return false;
+    }
+</script>

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ink3</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/output.css(v=${#dates.createNow().getTime()})}">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+<div th:replace="~{admin/layout/fragments/header :: headerFragment}"></div>
+<div class="flex flex-1 min-h-[calc(100vh-64px)]">
+    <div th:replace="~{admin/layout/fragments/sidebar :: sidebarFragment}"></div>
+
+    <main class="main-content-area flex-1 p-6 bg-gray-100 overflow-y-auto">
+        <div class="w-8/12 mx-auto flex flex-col space-y-6">
+            <div class="w-3/4 flex flex-col space-y-4">
+                <div class="ink-card-white p-6">
+                    <h1 class="text-xl font-semibold text-gray-800 mb-6">도서 목록</h1>
+
+                    <!-- 도서 리스트 테이블 -->
+                    <table class="min-w-full bg-white rounded-lg overflow-hidden">
+                        <thead class="bg-gray-100 border-b border-gray-200">
+                        <tr>
+                            <th class="py-3 px-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider rounded-tl-lg">순번</th>
+                            <th class="py-3 px-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">제목</th>
+                            <th class="py-3 px-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">작가</th>
+                            <th class="py-3 px-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">출판사</th>
+                            <th class="py-3 px-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">카테고리</th>
+                            <th class="py-3 px-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider rounded-tr-lg">관리</th>
+                        </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200">
+                        <tr class="hover:bg-gray-50 transition-colors duration-200" th:each="book, stat : ${bookList}">
+                            <td class="py-3 px-4 text-sm text-gray-700" th:text="${stat.count}"></td>
+                            <td class="py-3 px-4 text-sm text-gray-700" th:text="${book.title}"></td>
+                            <td class="py-3 px-4 text-sm text-gray-700">-</td>
+                            <td class="py-3 px-4 text-sm text-gray-700">-</td>
+                            <td class="py-3 px-4 text-sm text-gray-700">-</td>
+                            <td class="py-3 px-4 text-sm text-gray-700 space-x-2">
+                                <!-- 수정 버튼 -->
+                                <form th:action="@{'/admin/book-edit/' + ${book.id}}" method="get" class="inline">
+                                    <button type="submit"
+                                            class="bg-ink-primary px-2 py-1 text-white rounded-xl hover:bg-ink-primary-hover">
+                                        수정
+                                    </button>
+                                </form>
+
+                                <!-- 삭제 버튼 -->
+                                <form th:action="@{'/admin/books/' + ${book.id}}" method="post" class="inline">
+                                    <input type="hidden" name="_method" value="delete"/>
+                                    <button type="submit"
+                                            class="bg-red-500 px-2 py-1 text-white rounded-xl hover:bg-red-400">
+                                        삭제
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+
+                    <!-- 페이지네이션 -->
+                    <ul class="flex justify-center gap-1 text-gray-900 mt-6" th:if="${books != null and books.totalPages > 1}">
+                        <li>
+                            <a th:href="@{/admin/list(page=${books.hasPrevious()} ? ${books.page - 1} : ${books.page})}"
+                               class="ink-page-item-arrow" aria-label="Previous page">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="size-4" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd"
+                                          d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
+                                          clip-rule="evenodd"/>
+                                </svg>
+                            </a>
+                        </li>
+                        <li th:each="i : ${#numbers.sequence(0, books.totalPages - 1)}">
+                            <a th:href="@{/admin/list(page=${i})}"
+                               th:class="${i == books.page} ? 'ink-page-item-current' : 'ink-page-item'"
+                               th:text="${i + 1}"></a>
+                        </li>
+                        <li>
+                            <a th:href="@{/admin/list(page=${books.hasNext()} ? ${books.page + 1} : ${books.page})}"
+                               class="ink-page-item-arrow" aria-label="Next page">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="size-4" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd"
+                                          d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                                          clip-rule="evenodd"/>
+                                </svg>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+</body>
+</html>

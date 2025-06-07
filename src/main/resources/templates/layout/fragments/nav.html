@@ -1,20 +1,151 @@
+<script th:inline="javascript">
+    const contextPath = /*[[@{/}]]*/ '';
+</script>
 <nav th:fragment="navFragment">
-    <ul class="flex space-x-6">
-        <li class="nav-item">
-            <a th:href="@{#}" class="text-gray-700 hover:text-ink-primary transition-colors category-item">카테고리</a>
+    <ul class="flex space-x-6 relative z-50">
+        <li class="nav-item relative group" id="category-nav-item">
+
+            <button id="main-category-button"
+                    class="text-gray-700 hover:text-ink-primary transition-colors cursor-pointer">
+                카테고리
+            </button>
+            <ul id="nav-category-menu"
+                class="absolute left-0 top-full mt-2 bg-white rounded shadow-lg invisible opacity-0 transition-opacity duration-200 z-50 min-w-max py-1 px-1 whitespace-nowrap">
+            </ul>
         </li>
         <li class="nav-item">
-            <a th:href="@{#}" class="text-gray-700 hover:text-ink-primary transition-colors category-item">베스트셀러</a>
+            <a th:href="@{/books/bestseller}" class="text-gray-700 hover:text-ink-primary transition-colors category-item">베스트셀러</a>
         </li>
         <li class="nav-item">
-            <a th:href="@{#}" class="text-gray-700 hover:text-ink-primary transition-colors category-item">신간</a>
+            <a th:href="@{/books/new}" class="text-gray-700 hover:text-ink-primary transition-colors category-item">신간</a>
         </li>
         <li class="nav-item">
-            <a th:href="@{#}" class="text-gray-700 hover:text-ink-primary transition-colors category-item">추천도서</a>
+            <a th:href="@{/books/recommend}" class="text-gray-700 hover:text-ink-primary transition-colors category-item">추천도서</a>
         </li>
         <li class="nav-item">
             <a th:href="@{/component}"
                class="text-gray-700 hover:text-ink-primary transition-colors category-item">이벤트</a>
         </li>
     </ul>
+
+    <script>
+        const navHostname = location.hostname;
+        const navPathname = location.pathname;
+        const isLocal = navHostname === 'localhost' || navHostname.startsWith('127.');
+        const isDev = navPathname.startsWith('/dev/');
+        const navPageBase = isLocal ? '' : (isDev ? '/dev' : '');
+        const navApiBase = isLocal || isDev
+            ? 'https://ink3.shop/dev/gateway'
+            : 'https://ink3.shop/gateway';
+
+        function goToCategory(name) {
+            const encoded = encodeURIComponent(name);
+            location.href = `${navPageBase}/books/category?name=${encoded}`;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            let topLevelCategories = [];
+
+            fetch(`${navApiBase}/shop/categories`)
+                .then(res => res.json())
+                .then(data => {
+                    const tree = buildCategoryTree(data.data.content);
+                    const rootNode = tree.find(cat => cat.name === 'ROOT');
+                    const filteredTree = rootNode?.children || tree.filter(cat => cat.name !== 'ROOT');
+                    topLevelCategories = filteredTree;
+                    renderNavCategoryMenu(filteredTree, document.getElementById('nav-category-menu'));
+                    applyHoverDelay();
+                });
+
+
+            document.getElementById('main-category-button').addEventListener('click', () => {
+                if (topLevelCategories.length > 0) {
+                    goToCategory(topLevelCategories[0].name);
+                }
+            });
+
+            function buildCategoryTree(flatList) {
+                const map = {}, roots = [];
+                flatList.forEach(cat => { cat.children = []; map[cat.id] = cat; });
+                flatList.forEach(cat => {
+                    if (cat.parentId == null) roots.push(cat);
+                    else if (map[cat.parentId]) map[cat.parentId].children.push(cat);
+                });
+                return roots;
+            }
+
+            function renderNavCategoryMenu(categories, container) {
+                categories.forEach(cat => {
+                    const li = document.createElement('li');
+                    li.className = 'relative group';
+
+                    const button = document.createElement('button');
+                    button.type = 'button';
+                    button.innerText = cat.name;
+                    button.className = 'block text-sm px-4 py-2 text-gray-700 hover:text-ink-primary whitespace-nowrap';
+                    button.onclick = () => goToCategory(cat.name);
+                    li.appendChild(button);
+
+                    if (cat.children.length > 0) {
+                        const subUl = document.createElement('ul');
+                        subUl.className = `
+              absolute top-0 left-full ml-2 bg-white shadow-md rounded px-1 py-1 z-50
+              invisible opacity-0 pointer-events-none transition-opacity duration-300 min-w-max whitespace-nowrap
+            `;
+                        li.appendChild(subUl);
+                        renderNavCategoryMenu(cat.children, subUl);
+
+                        let closeTimer;
+
+                        li.addEventListener('mouseenter', () => {
+                            clearTimeout(closeTimer);
+                            subUl.classList.remove('invisible', 'opacity-0', 'pointer-events-none');
+                            subUl.classList.add('visible', 'opacity-100', 'pointer-events-auto');
+                        });
+
+                        li.addEventListener('mouseleave', () => {
+                            closeTimer = setTimeout(() => {
+                                subUl.classList.remove('visible', 'opacity-100', 'pointer-events-auto');
+                                subUl.classList.add('invisible', 'opacity-0', 'pointer-events-none');
+                            }, 500);
+                        });
+
+                        subUl.addEventListener('mouseenter', () => clearTimeout(closeTimer));
+                        subUl.addEventListener('mouseleave', () => {
+                            closeTimer = setTimeout(() => {
+                                subUl.classList.remove('visible', 'opacity-100', 'pointer-events-auto');
+                                subUl.classList.add('invisible', 'opacity-0', 'pointer-events-none');
+                            }, 500);
+                        });
+                    }
+
+                    container.appendChild(li);
+                });
+            }
+
+            function applyHoverDelay() {
+                const parent = document.getElementById('category-nav-item');
+                const root = document.getElementById('nav-category-menu');
+                let closeTimer;
+
+                const showMenu = () => {
+                    clearTimeout(closeTimer);
+                    root.classList.remove('invisible', 'opacity-0');
+                    root.classList.add('visible', 'opacity-100');
+                };
+
+                const hideMenu = () => {
+                    closeTimer = setTimeout(() => {
+                        root.classList.remove('visible', 'opacity-100');
+                        root.classList.add('invisible', 'opacity-0');
+                    }, 500);
+                };
+
+                parent.addEventListener('mouseenter', showMenu);
+                parent.addEventListener('mouseleave', hideMenu);
+                root.addEventListener('mouseenter', showMenu);
+                root.addEventListener('mouseleave', hideMenu);
+            }
+        });
+    </script>
 </nav>

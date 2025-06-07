@@ -28,6 +28,92 @@
             <div class="w-3/4 flex flex-col space-y-4">
                 <div class="ink-card-white p-6">
                     <h1 class="text-xl font-semibold text-gray-800 mb-6">쿠폰함</h1>
+
+                    <!-- 탭 버튼 -->
+                    <div class="flex border-b mb-4">
+                        <a th:href="@{/me/coupons}"
+                           th:class="${status == null} ? 'px-4 py-2 font-semibold border-t border-l border-r rounded-t text-blue-600 bg-white'
+                   : 'px-4 py-2 font-semibold text-gray-500 bg-gray-100'">
+                            전체 쿠폰
+                        </a>
+                        <a th:href="@{/me/coupons(status='unused')}"
+                           th:class="${status == 'unused'} ? 'px-4 py-2 font-semibold border-t border-l border-r rounded-t text-blue-600 bg-white'
+                   : 'px-4 py-2 font-semibold text-gray-500 bg-gray-100'">
+                            사용가능한 쿠폰
+                        </a>
+                        <a th:href="@{/me/coupons(status='used')}"
+                           th:class="${status == 'used'} ? 'px-4 py-2 font-semibold border-t border-l border-r rounded-t text-blue-600 bg-white'
+                   : 'px-4 py-2 font-semibold text-gray-500 bg-gray-100'">
+                            사용/만료된 쿠폰
+                        </a>
+                    </div>
+
+                    <!-- 테이블 -->
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full border text-sm text-gray-800">
+                            <thead class="bg-gray-100">
+                            <tr>
+                                <th class="px-4 py-2 text-left border">쿠폰명</th>
+                                <th class="px-4 py-2 text-left border">사용 조건 / 사용기간</th>
+                                <th class="px-4 py-2 text-left border">할인 혜택</th>
+                                <th class="px-4 py-2 text-left border">등록일</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="coupon : ${coupons.content}" class="border-b">
+                                <td class="px-4 py-2 border" th:text="${coupon.couponName}">쿠폰명</td>
+                                <td class="px-4 py-2 border">
+                                    <span>도서 전용 / </span>
+                                    <span th:text="${#temporals.format(coupon.issuedAt, 'yyyy-MM-dd')}">2025-06-01</span>
+                                    ~
+                                    <!--                                    <span th:text="${#temporals.format(coupon.expiresAt, 'yyyy-MM-dd')}">2025-12-31</span>-->
+                                </td>
+                                <td class="px-4 py-2 border">-10%</td> <!-- 실제 할인 혜택 정보가 있으면 여기에 표시 -->
+                                <td class="px-4 py-2 border"
+                                    th:text="${#temporals.format(coupon.issuedAt, 'yyyy-MM-dd')}">2025-06-01
+                                </td>
+                            </tr>
+                            <tr th:if="${coupons.content.size() == 0}">
+                                <td colspan="4" class="text-center py-6 text-gray-500">쿠폰함이 비어있습니다.</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <ul class="flex justify-center gap-1 text-gray-900 mt-8">
+                        <!-- 이전 -->
+                        <li>
+                            <a th:href="@{/me/coupons(page=${coupons.hasPrevious()} ? ${coupons.page()-1} : 0)}"
+                               class="ink-page-item-arrow" aria-label="prev">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="size-4" viewBox="0 0 20 20"
+                                     fill="currentColor">
+                                    <path fill-rule="evenodd"
+                                          d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
+                                          clip-rule="evenodd"/>
+                                </svg>
+                            </a>
+                        </li>
+
+                        <!-- 번호 -->
+                        <li th:each="i : ${#numbers.sequence(pageInfo.startPage(), pageInfo.endPage())}">
+                            <a th:href="@{/me/coupons(page=${i})}"
+                               th:class="${i == coupons.page()} ? 'ink-page-item-current' : 'ink-page-item'"
+                               th:text="${i + 1}">1</a>
+                        </li>
+
+                        <!-- 다음 -->
+                        <li>
+                            <a th:href="@{/me/coupons(page=${coupons.hasNext()} ? ${coupons.page()+1} : ${coupons.page()})}"
+                               class="ink-page-item-arrow" aria-label="next">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="size-4" viewBox="0 0 20 20"
+                                     fill="currentColor">
+                                    <path fill-rule="evenodd"
+                                          d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                                          clip-rule="evenodd"/>
+                                </svg>
+                            </a>
+                        </li>
+                    </ul>
                 </div>
             </div>
         </div>

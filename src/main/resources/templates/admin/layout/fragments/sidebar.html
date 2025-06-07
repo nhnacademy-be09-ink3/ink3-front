@@ -1,0 +1,125 @@
+<aside th:fragment="sidebarFragment"
+       class="sidebar bg-gray-800 text-white w-64 p-6 space-y-4 md:block flex-shrink-0 shadow-lg">
+    <div class="text-xl font-semibold mb-6">메뉴</div>
+    <nav>
+        <ul class="space-y-2">
+            <li>
+                <button type="button" onclick="toggleMenu('users-submenu')"
+                        class="w-full text-left flex justify-between items-center px-3 py-2 rounded-md hover:bg-gray-700">
+                    <span>회원 관리</span>
+                    <svg id="icon-users-submenu" class="w-4 h-4 transition-transform" fill="none"
+                         viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                </button>
+                <ul id="users-submenu" class="pl-4 mt-1 space-y-1 hidden">
+                    <li>
+                        <a th:href="@{/admin/user}"
+                           class="block px-3 py-2 rounded-md hover:bg-gray-700 text-sm">
+                            회원 목록
+                        </a>
+                    </li>
+                    <li>
+                        <a th:href="@{/admin/membership}"
+                           class="block px-3 py-2 rounded-md hover:bg-gray-700 text-sm">
+                            맴버십
+                        </a>
+                    </li>
+                    <li>
+                        <a th:href="@{/admin/point-policy}"
+                           class="block px-3 py-2 rounded-md hover:bg-gray-700 text-sm">
+                            포인트 정책
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <li>
+                <button type="button" onclick="toggleMenu('orders-submenu')"
+                        class="w-full text-left flex justify-between items-center px-3 py-2 rounded-md hover:bg-gray-700">
+                    <span>도서 관리</span>
+                    <svg id="icon-orders-submenu" class="w-4 h-4 transition-transform" fill="none"
+                         viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                </button>
+                <ul id="orders-submenu" class="pl-4 mt-1 space-y-1 hidden">
+                    <li>
+                        <a th:href="@{/admin/book-register}"
+                           class="block px-3 py-2 rounded-md hover:bg-gray-700 text-sm">
+                            도서 등록
+                        </a>
+                    </li>
+                    <li>
+                        <a th:href="@{/admin/list}"
+                           class="block px-3 py-2 rounded-md hover:bg-gray-700 text-sm">
+                            도서 목록
+                        </a>
+                    </li>
+                    <li>
+                        <a th:href="@{/admin/categories}"
+                           class="block px-3 py-2 rounded-md hover:bg-gray-700 text-sm">
+                            카테고리 관리
+                        </a>
+                    </li>
+                    <li>
+                        <a th:href="@{/admin/authors}"
+                           class="block px-3 py-2 rounded-md hover:bg-gray-700 text-sm">
+                            작가 관리
+                        </a>
+                    </li>
+                    <li>
+                        <a th:href="@{/admin/pubs}"
+                           class="block px-3 py-2 rounded-md hover:bg-gray-700 text-sm">
+                            출판사 관리
+                        </a>
+                    </li>
+                    <li>
+                        <a th:href="@{/admin/tags}"
+                           class="block px-3 py-2 rounded-md hover:bg-gray-700 text-sm">
+                            태그 관리
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <li>
+                <button type="button" onclick="toggleMenu('product-submenu')"
+                        class="w-full text-left flex justify-between items-center px-3 py-2 rounded-md hover:bg-gray-700">
+                    <span>상품 관리</span>
+                    <svg id="icon-product-submenu" class="w-4 h-4 transition-transform" fill="none"
+                         viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                </button>
+                <ul id="product-submenu" class="pl-4 mt-1 space-y-1 hidden">
+                    <li>
+                        <a th:href="@{/admin/products/orders}"
+                           class="block px-3 py-2 rounded-md hover:bg-gray-700 text-sm">
+                            주문 내역
+                        </a>
+                    </li>
+                    <li>
+                        <a th:href="@{/admin/products/payments}"
+                           class="block px-3 py-2 rounded-md hover:bg-gray-700 text-sm">
+                            결제 내역
+                        </a>
+                    </li>
+                    <li>
+                        <a th:href="@{/admin-order/refunds}"
+                           class="block px-3 py-2 rounded-md hover:bg-gray-700 text-sm">
+                            반품 내역
+                        </a>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+        <script>
+            function toggleMenu(id) {
+                const menu = document.getElementById(id);
+                const icon = document.getElementById("icon-" + id);
+
+                menu.classList.toggle("hidden");
+                icon.classList.toggle("rotate-180");
+            }
+        </script>
+    </nav>
+</aside>

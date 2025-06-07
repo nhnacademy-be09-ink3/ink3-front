@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<th:block th:fragment="categoryTree(categoryTree, prefix)">
+  <ul class="space-y-1">
+    <li th:each="category : ${categoryTree}">
+      <div class="flex items-center space-x-2 group">
+        <span th:text="${prefix + '├── ' + category.name}" class="text-gray-800 font-medium"></span>
+
+        <div th:if="${#lists.isEmpty(category.children)}" class="relative">
+          <form th:action="@{/admin/categories/{id}(id=${category.id})}" method="post"
+                class="inline top-1/2 -translate-y-1/2 ml-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+            <input type="hidden" name="_method" value="delete"/>
+            <button type="submit" class="bg-red-500 text-white text-[12px] px-1 py-0.5 rounded hover:bg-red-400">
+              ✕
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- 재귀적으로 자식 호출 -->
+      <div th:if="${not #lists.isEmpty(category.children)}"
+           th:replace="~{admin/layout/fragments/categoryTreeFragment :: categoryTree(${category.children}, ${prefix + '│   '})}">
+      </div>
+    </li>
+  </ul>
+</th:block>
+</body>
+</html>
+
+<!-- 삭제 버튼 -->
+<form th:action="@{/admin/pubs/{id}(id=${publisher.id})}" method="post" class="inline">
+  <input type="hidden" name="_method" value="delete"/>
+  <button type="submit" class="bg-red-500 px-2 py-1 text-white rounded-xl hover:bg-red-400">삭제</button>
+</form>

@@ -39,14 +39,11 @@ public class DevFeignAccessTokenInterceptor implements RequestInterceptor {
             UserType userType = UserType.valueOf(
                     decodedAccessToken.getClaim("userType").asString().toUpperCase()
             );
-
             template.header("X-User-Id", String.valueOf(id));
             template.header("X-User-Role", userType.name());
         }
 
         template.header(HttpHeaders.USER_AGENT, "Mozilla/5.0");
-        template.header(HttpHeaders.ACCEPT, "application/json");
-        template.header(HttpHeaders.CONTENT_TYPE, "application/json");
 
         log.info("Feign Request → Method: {}, URL: {}", template.method(), template.url());
         log.info("Headers: {}", template.headers());

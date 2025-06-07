@@ -1,5 +1,7 @@
 package com.nhnacademy.front.shop.book.dto;
 
+import com.nhnacademy.front.shop.category.client.dto.CategoryResponse;
+import com.nhnacademy.front.shop.tag.client.dto.TagResponse;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -18,8 +20,8 @@ public record BookResponse(
         BookStatus status,
         boolean isPackable,
         String thumbnailUrl,
-        List<String> categoryNames,
-        List<String> authorNames,
-        List<String> tagNames
-) {
-}
+        List<CategoryResponse> categories,
+        List<AuthorDto> authors,
+        List<TagResponse> tags,
+        double averageRating
+) {}
