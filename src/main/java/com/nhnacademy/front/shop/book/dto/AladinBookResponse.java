@@ -8,7 +8,7 @@ public record AladinBookResponse(
         String publisher,
         String pubDate,
         String isbn13,
-        int priceStandard,
+        Integer priceStandard,
         String cover,
         String categoryName
 ) {}
