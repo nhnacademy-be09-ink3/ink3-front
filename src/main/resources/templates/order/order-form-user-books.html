@@ -593,7 +593,7 @@
         if (val > allowedPoint) {
             usedPoint = allowedPoint;
             input.value = usedPoint;
-            showPointAdjustedAlert();
+            showPointAdjustedAlert(usedPoint);
         } else {
             usedPoint = val;
         }
@@ -647,7 +647,6 @@
         if (inputVal > newAllowedPoint) {
             usedPoint = newAllowedPoint;
             pointInput.value = newAllowedPoint;
-            showPointAdjustedAlert(newAllowedPoint);
         } else {
             usedPoint = inputVal;
         }
