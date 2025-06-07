@@ -98,6 +98,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             UserType userType = UserType.valueOf(
                     decodeRefreshToken.getClaim("userType").asString().toUpperCase()
             );
+            boolean rememberMe = decodeRefreshToken.getClaim("rememberMe").asBoolean();
 
             LoginResponse reissueRes = authClient.reissue(new ReissueRequest(
                     id,
@@ -105,7 +106,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     refreshToken
             )).data();
 
-            CookieUtil.setTokenCookies(response, reissueRes.accessToken(), reissueRes.refreshToken());
+            CookieUtil.setTokenCookies(response, reissueRes.accessToken(), reissueRes.refreshToken(), rememberMe);
             request.setAttribute("accessToken", reissueRes.accessToken().token());
             return reissueRes.accessToken().token();
         }

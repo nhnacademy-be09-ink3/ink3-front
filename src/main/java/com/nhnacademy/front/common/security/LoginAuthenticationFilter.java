@@ -1,8 +1,8 @@
 package com.nhnacademy.front.common.security;
 
+import com.nhnacademy.front.auth.client.dto.LoginRequest;
 import com.nhnacademy.front.auth.client.dto.LoginResponse;
 import com.nhnacademy.front.auth.client.dto.UserType;
-import com.nhnacademy.front.auth.dto.ClientLoginRequest;
 import com.nhnacademy.front.auth.service.AuthService;
 import com.nhnacademy.front.util.CookieUtil;
 import feign.FeignException;
@@ -11,7 +11,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.lang.Nullable;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -65,13 +64,12 @@ public class LoginAuthenticationFilter extends AbstractAuthenticationProcessingF
 
         try {
             String username = obtainUsername(request);
-            username = (username != null) ? username.trim() : "";
             String password = obtainPassword(request);
-            password = (password != null) ? password : "";
+            boolean rememberMe = obtainRememberMe(request);
 
-            LoginResponse loginResponse = authService.login(new ClientLoginRequest(username, password), userType);
+            LoginResponse loginResponse = authService.login(new LoginRequest(username, password, userType, rememberMe));
 
-            CookieUtil.setTokenCookies(response, loginResponse.accessToken(), loginResponse.refreshToken());
+            CookieUtil.setTokenCookies(response, loginResponse.accessToken(), loginResponse.refreshToken(), rememberMe);
 
             List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_" + userType.name()));
             return new UsernamePasswordAuthenticationToken(username, null, authorities);
@@ -88,14 +86,19 @@ public class LoginAuthenticationFilter extends AbstractAuthenticationProcessingF
         }
     }
 
-    @Nullable
-    protected String obtainPassword(HttpServletRequest request) {
-        return request.getParameter(this.passwordParameter);
+    protected String obtainUsername(HttpServletRequest request) {
+        String rawUsername = request.getParameter(this.usernameParameter);
+        return rawUsername != null ? rawUsername.strip() : "";
     }
 
-    @Nullable
-    protected String obtainUsername(HttpServletRequest request) {
-        return request.getParameter(this.usernameParameter);
+    protected String obtainPassword(HttpServletRequest request) {
+        String rawPassword = request.getParameter(this.passwordParameter);
+        return rawPassword != null ? rawPassword : "";
+    }
+
+    protected boolean obtainRememberMe(HttpServletRequest request) {
+        String rawRememberMe = request.getParameter("rememberMe");
+        return rawRememberMe != null && rawRememberMe.equals("on");
     }
 
     public void setUsernameParameter(String usernameParameter) {
