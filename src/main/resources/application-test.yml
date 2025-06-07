@@ -17,3 +17,5 @@ toss:
   url:
     success: http://localhost:8080/payments/success
     fail: http://localhost:8080/payments/fail
+    success-guest: http://localhost:8080/guest/payments/success
+    fail-guest: http://localhost:8080/guest/payments/fail
