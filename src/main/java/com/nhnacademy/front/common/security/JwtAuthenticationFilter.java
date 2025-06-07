@@ -71,7 +71,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             Authentication authentication = new UsernamePasswordAuthenticationToken(username, null, authorities);
             SecurityContextHolder.getContext().setAuthentication(authentication);
         } catch (Exception e) {
-            log.warn("Unauthorized: {}", e.getMessage());
             CookieUtil.expireTokenCookies(response);
             SecurityContextHolder.clearContext();
         }
