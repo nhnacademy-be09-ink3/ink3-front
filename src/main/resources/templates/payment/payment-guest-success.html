@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ink3</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/output.css(v=${#dates.createNow().getTime()})}">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+<div th:replace="~{layout/fragments/header :: headerFragment}"></div>
+<main class="flex justify-center py-8">
+    <div class="bg-white text-gray-800 p-6 w-[360px] border border-gray-300 shadow-lg font-sans text-sm rounded-md">
+        <div class="text-center mb-4">
+            <h2 class="text-xl font-bold tracking-wide">INK3 서점</h2>
+            <p class="text-xs text-gray-500">비회원 결제 완료</p>
+        </div>
+
+        <div class="border-t border-dashed border-gray-400 my-2"></div>
+
+        <!-- 결제 정보 -->
+        <div class="mb-4 space-y-1">
+            <div class="flex justify-between">
+                <span>주문번호</span>
+                <span th:text="${paymentResponse.orderId}">123456</span>
+            </div>
+            <div class="flex justify-between">
+                <span>결제수단</span>
+                <span th:text="${paymentResponse.paymentType}">TOSS</span>
+            </div>
+            <div class="flex justify-between">
+                <span>결제일시</span>
+                <span th:text="${#temporals.format(paymentResponse.approvedAt, 'yyyy-MM-dd HH:mm')}">2025-06-05</span>
+            </div>
+        </div>
+
+        <div class="border-t border-dashed border-gray-400 my-2"></div>
+
+        <!-- 금액 -->
+        <div class="mb-4">
+            <div class="flex justify-between font-bold text-base">
+                <span>총 결제금액</span>
+                <span th:text="${#numbers.formatInteger(paymentResponse.paymentAmount, 0, 'COMMA')} + '원'">24,000원</span>
+            </div>
+        </div>
+
+        <div class="border-t border-dashed border-gray-400 my-4"></div>
+
+        <!-- 주문 조회 정보 -->
+        <div class="text-xs text-gray-600 bg-gray-50 p-3 rounded-md mb-4">
+            <p class="mb-1 font-semibold">주문을 확인하시려면 아래 정보를 기억해주세요.</p>
+            <div><span class="font-medium">이메일:</span> <span th:text="${email}">example@email.com</span></div>
+            <div><span class="font-medium">주문번호:</span> <span th:text="${paymentResponse.orderId}">123456</span></div>
+        </div>
+
+        <p class="text-center text-gray-500 text-xs mb-6">감사합니다. 좋은 하루 되세요!</p>
+
+        <!-- 버튼 -->
+        <div class="flex flex-col gap-2">
+            <a th:href="@{/guest/login}"
+               class="w-full text-center bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md shadow text-sm">
+                비회원 주문 조회하기
+            </a>
+            <a th:href="@{/}"
+               class="w-full text-center bg-gray-200 hover:bg-gray-300 text-gray-800 py-2 rounded-md shadow text-sm">
+                메인으로 돌아가기
+            </a>
+        </div>
+    </div>
+</main>
+
+<div th:replace="~{layout/fragments/footer :: footerFragment}"></div>
+</body>
+</html>

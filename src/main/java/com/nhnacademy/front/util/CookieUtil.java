@@ -30,7 +30,8 @@ public class CookieUtil {
     public static void setTokenCookies(
             HttpServletResponse response,
             JwtToken accessToken,
-            JwtToken refreshToken
+            JwtToken refreshToken,
+            boolean rememberMe
     ) {
         long now = System.currentTimeMillis();
 
@@ -38,7 +39,7 @@ public class CookieUtil {
                 .httpOnly(true)
                 .secure(true)
                 .path("/")
-                .maxAge(Duration.ofMillis(accessToken.expiresAt() - now))
+                .maxAge(rememberMe ? Duration.ofMillis(accessToken.expiresAt() - now) : Duration.ofSeconds(-1))
                 .sameSite("Lax")
                 .build();
 
@@ -46,7 +47,7 @@ public class CookieUtil {
                 .httpOnly(true)
                 .secure(true)
                 .path("/")
-                .maxAge(Duration.ofMillis(refreshToken.expiresAt() - now))
+                .maxAge(rememberMe ? Duration.ofMillis(refreshToken.expiresAt() - now) : Duration.ofSeconds(-1))
                 .sameSite("Lax")
                 .build();
 
@@ -55,7 +56,7 @@ public class CookieUtil {
     }
 
     public static void expireTokenCookies(HttpServletResponse response) {
-        ResponseCookie expiredAccess = ResponseCookie.from("accessToken", "")
+        ResponseCookie expiredAccessCookie = ResponseCookie.from("accessToken", "")
                 .httpOnly(true)
                 .secure(true)
                 .path("/")
@@ -63,7 +64,7 @@ public class CookieUtil {
                 .sameSite("Lax")
                 .build();
 
-        ResponseCookie expiredRefresh = ResponseCookie.from("refreshToken", "")
+        ResponseCookie expiredRefreshCookie = ResponseCookie.from("refreshToken", "")
                 .httpOnly(true)
                 .secure(true)
                 .path("/")
@@ -71,7 +72,7 @@ public class CookieUtil {
                 .sameSite("Lax")
                 .build();
 
-        response.addHeader(HttpHeaders.SET_COOKIE, expiredAccess.toString());
-        response.addHeader(HttpHeaders.SET_COOKIE, expiredRefresh.toString());
+        response.addHeader(HttpHeaders.SET_COOKIE, expiredAccessCookie.toString());
+        response.addHeader(HttpHeaders.SET_COOKIE, expiredRefreshCookie.toString());
     }
 }

@@ -1,33 +1,51 @@
 package com.nhnacademy.front.shop.controller;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nhnacademy.front.common.dto.CommonResponse;
 import com.nhnacademy.front.common.dto.PageResponse;
 import com.nhnacademy.front.shop.address.client.dto.AddressResponse;
 import com.nhnacademy.front.shop.address.service.AddressService;
 import com.nhnacademy.front.shop.book.client.BookClient;
 import com.nhnacademy.front.shop.book.dto.BookResponse;
+import com.nhnacademy.front.shop.book.dto.MainBookResponse;
 import com.nhnacademy.front.shop.cart.client.CartClient;
+import com.nhnacademy.front.shop.cart.dto.CartBookResponse;
+import com.nhnacademy.front.shop.cart.dto.CartCouponResponse;
 import com.nhnacademy.front.shop.cart.dto.CartResponse;
+import com.nhnacademy.front.shop.cart.dto.GuestCartView;
+import com.nhnacademy.front.shop.cart.dto.MeCartRequest;
+import com.nhnacademy.front.shop.guest.service.GuestOrderService;
 import com.nhnacademy.front.shop.order.dto.PackagingResponse;
 import com.nhnacademy.front.shop.order.dto.ShippingPolicyResponse;
 import com.nhnacademy.front.shop.order.service.OrderService;
 import com.nhnacademy.front.shop.user.client.dto.UserResponse;
 import com.nhnacademy.front.shop.user.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 //TODO : 쿠폰 적용 (회원)
+@Slf4j
 @RequiredArgsConstructor
 @Controller
 @RequestMapping("/order-form")
 public class OrderFromController {
+    private final GuestOrderService guestOrderService;
     private final OrderService orderService;
     private final AddressService addressService;
     private final UserService userService;
@@ -35,41 +53,43 @@ public class OrderFromController {
     private final BookClient bookClient;
 
     /**
-     * 주문서 작성 페이지 return
-     * @param model
-     * @return
+     * 장바구니 -> 주문서 작성 페이지 return
+     * @param model model
+     * @return 주문서 작성 페이지 return
      */
     @GetMapping("/from-cart")
-    public String getUserOrderFromCarts(Model model, HttpServletRequest request) {
+    public String getUserOrderFromCarts(
+            Model model,
+            HttpServletRequest request,
+            @CookieValue(value = "guest_cart", required = false) String guestCartCookie
+    ) {
         addPackagingList(model);
         addShippingPolicy(model);
 
         if(orderService.isLoggedIn(request)){
             addUserInfo(model);
             // 장바구니 리스트
-            CommonResponse<List<CartResponse>> cartResponse = cartClient.getCarts();
-            List<CartResponse> cart = cartResponse.data();
+            CommonResponse<List<CartCouponResponse>> cartResponse = cartClient.getCartsWithCoupon();
+            List<CartCouponResponse> cart = cartResponse.data();
+            log.info("couponsize = {}", cart.getFirst().applicableCoupons().size());
             model.addAttribute("cart", cart);
             return "order/order-form-user-books";
         }else {
-            //TODO 쿠키값에서 꺼내서 사용해야함. (임시 데이터)
-            List<CartResponse> testCart = List.of(
-                    new CartResponse(
-                            1L,             // cartId
-                            null,           // userId (비회원이므로 null)
-                            101L,           // bookId
-                            "자바의 정석",     // bookTitle
-                            30000,          // originalBookPrice
-                            27000,          // saleBookPrice
-                            10,            // bookDiscountRate
-                            "/images/java.jpg", // thumbnailUrl
-                            1              // quantity
-                    ));
-            model.addAttribute("cart", testCart);
+            // 비회원 장바구니 리스트
+            List<GuestCartView> guestCartViews = guestOrderService.getGuestCartViews(guestCartCookie);
+            model.addAttribute("cart", guestCartViews);
             return "order/order-form-guest-books";
         }
     }
 
+    /**
+     * 상품 -> 주문서 작성 페이지 return
+     * @param model model
+     * @param bookId 구매 상품Id
+     * @param quantity 구매 수량
+     * @param request 쿠키값에 accessToken여부 확인
+     * @return 주문서 작성 페이지 return
+     */
     @GetMapping("/from-book/{bookId}")
     public String getUserOrderFromBooks(
             Model model,
@@ -88,8 +108,6 @@ public class OrderFromController {
             return "order/order-form-guest-book";
         }
     }
-
-
 
     // 사용자 정보 입력
     private void addUserInfo(Model model) {

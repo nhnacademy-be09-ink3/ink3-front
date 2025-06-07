@@ -234,4 +234,14 @@ public class BookController {
 
         return "redirect:/admin/book-edit/" + bookId;
     }
+
+    @GetMapping("/admin/list")
+    public String showBookList(@RequestParam(defaultValue = "0") int page, Model model) {
+        CommonResponse<PageResponse<BookResponse>> response = bookClient.getBooks();
+        PageResponse<BookResponse> pageResponse = response.data();
+
+        model.addAttribute("bookList", pageResponse.content()); // 리스트 자체
+        model.addAttribute("books", pageResponse);              // 페이지 전체 정보
+        return "admin/book/list";
+    }
 }

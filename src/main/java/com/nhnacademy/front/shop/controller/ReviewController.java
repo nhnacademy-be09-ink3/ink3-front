@@ -24,17 +24,10 @@ import lombok.extern.slf4j.Slf4j;
 public class ReviewController {
     private final ReviewClient reviewClient;
 
-    @PostMapping(value = "/{book-id}/reviews", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public String addReview(@PathVariable(name = "book-id") Long bookId, @RequestPart("review") MeReviewRequest request,
-        @RequestPart(value = "images", required = false) List<MultipartFile> images) {
-        reviewClient.addReview(request, images);
-        return "redirect:/books/" + bookId;
-    }
-
-    @PostMapping(value = "/{bookId}/reviews/{reviewId}/update",
+    @PostMapping(value = "/{book-id}/reviews/{review-id}/update",
         consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public String updateReview(@PathVariable Long bookId,
-        @PathVariable Long reviewId,
+    public String updateReview(@PathVariable(name = "book-id") Long bookId,
+        @PathVariable(name = "review-id") Long reviewId,
         @RequestParam String title,
         @RequestParam String content,
         @RequestParam int rating,

@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ink3</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/output.css(v=${#dates.createNow().getTime()})}">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+<div th:replace="~{admin/layout/fragments/header :: headerFragment}"></div>
+<div class="flex flex-1 min-h-[calc(100vh-64px)]">
+    <div th:replace="~{admin/layout/fragments/sidebar :: sidebarFragment}"></div>
+
+    <main class="main-content-area flex-1 p-6 bg-gray-100 overflow-y-auto">
+        <div class="bg-white p-6 rounded-lg shadow-md mb-6">
+            <div class="flex justify-between mb-6">
+                <h1 class="text-3xl font-bold text-gray-900 flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                         class="mr-3">
+                        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                    </svg>
+                    멤버십 관리
+                </h1>
+                <button class="ink-btn-primary" onclick="openModal('create-membership')">새 맴버십 등록</button>
+            </div>
+            <div class="overflow-x-auto rounded-lg shadow border border-gray-200">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                    <tr id="membershipTableHeader">
+                        <th data-sort-key="id"
+                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer">
+                            ID <span class="sort-icon" data-sort-key="id"></span>
+                        </th>
+                        <th data-sort-key="name"
+                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer">
+                            멤버십 이름 <span class="sort-icon" data-sort-key="name"></span>
+                        </th>
+                        <th data-sort-key="conditionAmount"
+                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer">
+                            조건 금액 <span class="sort-icon" data-sort-key="conditionAmount"></span>
+                        </th>
+                        <th data-sort-key="pointRate"
+                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer">
+                            포인트 적립률 (%) <span class="sort-icon" data-sort-key="pointRate"></span>
+                        </th>
+                        <th data-sort-key="isActive"
+                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer">
+                            활성 여부 <span class="sort-icon" data-sort-key="isActive"></span>
+                        </th>
+                        <th data-sort-key="isDefault"
+                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer">
+                            기본 멤버십 <span class="sort-icon" data-sort-key="isDefault"></span>
+                        </th>
+                        <th data-sort-key="createdAt"
+                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer">
+                            생성일 <span class="sort-icon" data-sort-key="createdAt"></span>
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            액션
+                        </th>
+                    </tr>
+                    </thead>
+                    <tbody id="membershipTableBody" class="bg-white divide-y divide-gray-200">
+                    <tr th:each="membership : ${memberships.content()}" class="hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900"
+                            th:text="${membership.id()}"></td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"
+                            th:text="${membership.name()}"></td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"
+                            th:text="${#numbers.formatInteger(membership.conditionAmount(), 0, 'COMMA') + ' 원'}"></td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"
+                            th:text="${membership.pointRate()}"></td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm">
+                        <span th:if="${membership.isActive()}"
+                              class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                            활성
+                        </span>
+                            <span th:unless="${membership.isActive()}"
+                                  class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                            비활성
+                        </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm">
+                        <span th:if="${membership.isDefault()}"
+                              class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                            기본
+                        </span>
+                            <span th:unless="${membership.isDefault()}"
+                                  class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
+                            아님
+                        </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"
+                            th:text="${#temporals.format(membership.createdAt(), 'yyyy-MM-dd HH:mm:ss')}"></td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <button class="text-indigo-600 hover:text-indigo-900 mr-2 p-1 rounded-md hover:bg-indigo-50 transition duration-150 ease-in-out"
+                                    onclick="openUpdateModal(this)"
+                                    th:data-id="${membership.id()}"
+                                    th:data-name="${membership.name()}"
+                                    th:data-condition-amount="${membership.conditionAmount()}"
+                                    th:data-point-rate="${membership.pointRate()}"
+                                    th:data-is-active="${membership.isActive()}"
+                                    th:data-is-default="${membership.isDefault()}">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                     stroke-linejoin="round">
+                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                </svg>
+                            </button>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <ul class="flex justify-center gap-1 text-gray-900 mt-6 end">
+                <li>
+                    <a th:href="@{/admin/membership(page=${memberships.hasPrevious()} ? ${memberships.page() - 1} : ${memberships.page()})}"
+                       class="ink-page-item-arrow"
+                       aria-label="Previous page">
+                        <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                class="size-4"
+                                viewBox="0 0 20 20"
+                                fill="currentColor"
+                        >
+                            <path
+                                    fill-rule="evenodd"
+                                    d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
+                                    clip-rule="evenodd"
+                            />
+                        </svg>
+                    </a>
+                </li>
+                <li th:each="i : ${#numbers.sequence(pageInfo.startPage(), pageInfo.endPage())}">
+                    <a th:href="@{/admin/membership(page=${i})}"
+                       th:class="${i == memberships.page()} ? 'ink-page-item-current' : 'ink-page-item'"
+                       th:text="${i + 1}"></a>
+                </li>
+                <li>
+                    <a th:href="@{/admin/membership(page=${memberships.hasNext()} ? ${memberships.page() + 1} : ${memberships.page()})}"
+                       class="ink-page-item-arrow" aria-label="Next page">
+                        <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                class="size-4"
+                                viewBox="0 0 20 20"
+                                fill="currentColor"
+                        >
+                            <path
+                                    fill-rule="evenodd"
+                                    d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                                    clip-rule="evenodd"
+                            />
+                        </svg>
+                    </a>
+                </li>
+            </ul>
+
+            <div class="mt-8 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                         class="mr-2">
+                        <path d="M3 3v18h18M8 17v-5m4 5v-9m4 9V7"/>
+                    </svg>
+                    통계
+                </h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+                        <p class="text-sm text-gray-500">전체 멤버십 수</p>
+                        <p id="totalMemberships" class="text-2xl font-bold text-gray-900"
+                           th:text="${statistics.totalCount()} + ' 개'"></p>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+                        <p class="text-sm text-gray-500">활성 멤버십 수</p>
+                        <p id="activeMemberships" class="text-2xl font-bold text-green-600"
+                           th:text="${statistics.activeCount()} + ' 개'"></p>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+                        <p class="text-sm text-gray-500">비활성 멤버십 수</p>
+                        <p id="inactiveMemberships" class="text-2xl font-bold text-yellow-600"
+                           th:text="${statistics.inactiveCount()} + ' 개'"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<div id="create-membership" class="modal fixed inset-0 bg-gray-500/50 flex items-center justify-center z-50 hidden">
+    <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-2xl space-y-4 relative">
+        <div class="flex justify-between">
+            <h2 class="text-xl font-bold">맴버십 등록</h2>
+            <button onclick="closeModal('create-membership')"
+                    class="text-gray-400 hover:text-gray-600">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
+                     viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+        </div>
+        <form method="post" th:action="@{/admin/membership/create}" class="space-y-4">
+            <div>
+                <label for="name" class="block text-gray-700 text-sm font-bold mb-2">맴버십 이름</label>
+                <input type="text" id="name" name="name" placeholder="맴버십 이름을 입력해주세요"
+                       class="ink-input-field w-full" required>
+            </div>
+            <div>
+                <label for="conditionAmount" class="block text-gray-700 text-sm font-bold mb-2">조건 금액</label>
+                <input type="text" id="conditionAmount" name="conditionAmount" placeholder="조건 금액을 입력해주세요"
+                       class="ink-input-field w-full" required>
+            </div>
+            <div>
+                <label for="pointRate" class="block text-gray-700 text-sm font-bold mb-2">적립률</label>
+                <input type="text" id="pointRate" name="pointRate" placeholder="적립률을 입력해주세요"
+                       class="ink-input-field w-full" required>
+            </div>
+            <div class="mt-6 text-right space-x-2">
+                <button type="submit" class="ink-btn-primary">등록</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="update-membership" class="modal fixed inset-0 bg-gray-500/50 flex items-center justify-center z-50 hidden">
+    <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-2xl space-y-4 relative">
+        <div class="flex justify-between">
+            <h2 class="text-xl font-bold">맴버십 수정</h2>
+            <button onclick="closeModal('update-membership')"
+                    class="text-gray-400 hover:text-gray-600">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
+                     viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+        </div>
+        <form method="post" th:action="@{/admin/membership/update}" class="space-y-4">
+            <input type="hidden" id="id" name="id">
+            <div>
+                <label for="newName" class="block text-gray-700 text-sm font-bold mb-2">맴버십 이름</label>
+                <input type="text" id="newName" name="name" placeholder="아이디를 입력해주세요"
+                       class="ink-input-field w-full">
+            </div>
+            <div>
+                <label for="newConditionAmount" class="block text-gray-700 text-sm font-bold mb-2">조건 금액</label>
+                <input type="text" id="newConditionAmount" name="conditionAmount" placeholder="조건 금액을 입력해주세요"
+                       class="ink-input-field w-full">
+            </div>
+            <div>
+                <label for="newPointRate" class="block text-gray-700 text-sm font-bold mb-2">적립률</label>
+                <input type="text" id="newPointRate" name="pointRate" placeholder="적립률을 입력해주세요"
+                       class="ink-input-field w-full">
+            </div>
+            <hr class="h-px bg-gray-200 border-0">
+            <div class="flex items-center space-x-4 justify-between">
+                <span class="text-gray-700 text-sm font-bold">활성화 여부</span>
+                <label for="newIsActive"
+                       class="relative block h-8 w-14 rounded-full bg-gray-300 transition-colors [-webkit-tap-highlight-color:_transparent] has-checked:bg-ink-primary">
+                    <input type="checkbox" id="newIsActive" class="peer sr-only"/>
+                    <span class="absolute inset-y-0 start-0 m-1 size-6 rounded-full bg-white transition-[inset-inline-start] peer-checked:start-6"></span>
+                </label>
+            </div>
+            <hr class="h-px bg-gray-200 border-0">
+            <div class="mt-6 flex justify-between">
+                <button type="button"
+                        class="bg-blue-500 text-white px-4 py-2 rounded-md font-semibold transition duration-300 hover:bg-blue-700"
+                        onclick="setDefaultMembership()">
+                    기본으로 지정
+                </button>
+                <div class="space-x-2">
+                    <button type="submit" class="ink-btn-primary">수정</button>
+                    <button type="button"
+                            class="bg-red-500 text-white px-4 py-2 rounded-md font-semibold transition duration-300 hover:bg-red-400"
+                            onclick="deleteMembership()">
+                        삭제
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+</body>
+<script th:inline="javascript">
+    const contextPath = /*[[@{/}]]*/ '';
+
+    async function setDefaultMembership() {
+        const id = document.getElementById('id').value;
+
+        if (confirm('기본 맴버십으로 지정하시겠습니까?')) {
+            try {
+                const response = await fetch(`${contextPath}admin/membership/default`, {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: new URLSearchParams({id}),
+                    redirect: 'manual'
+                });
+
+                if (response.status < 400) {
+                    window.location.href = `${contextPath}admin/membership`;
+                } else {
+                    alert('맴버십 기본 지정에 실패하였습니다.');
+                }
+            } catch (error) {
+                alert('네트워크 또는 서버 오류가 발생했습니다.');
+            }
+        }
+    }
+
+    async function deleteMembership() {
+        const id = document.getElementById('id').value;
+
+        if (confirm('맴버십을 삭제하시겠습니까?')) {
+            try {
+                const response = await fetch(`${contextPath}admin/membership/delete`, {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: new URLSearchParams({id}),
+                    redirect: 'manual'
+                });
+
+                if (response.status < 400) {
+                    const location = response.headers.get('Location');
+                    window.location.href = location ?? `${contextPath}admin/membership`;
+                } else {
+                    alert('맴버십 삭제에 실패하였습니다.');
+                }
+            } catch (error) {
+                alert('네트워크 또는 서버 오류가 발생했습니다.');
+            }
+        }
+    }
+
+    function openModal(modalId) {
+        document.getElementById(modalId).classList.remove('hidden');
+    }
+
+    function closeModal(modalId) {
+        const modal = document.getElementById(modalId);
+        modal.classList.add('hidden');
+
+        const inputs = modal.querySelectorAll('input');
+        inputs.forEach(input => {
+            if (input.type === 'checkbox') {
+                input.checked = false;
+            } else {
+                input.value = '';
+            }
+        });
+    }
+
+    function openUpdateModal(button) {
+        const id = button.getAttribute('data-id');
+        const name = button.getAttribute('data-name');
+        const conditionAmount = button.getAttribute('data-condition-amount');
+        const pointRate = button.getAttribute('data-point-rate');
+        const isActive = button.getAttribute('data-is-active') === 'true';
+        const isDefault = button.getAttribute('data-is-default') === 'true';
+        const checkbox = document.getElementById('newIsActive');
+
+        document.getElementById('id').value = id;
+        document.getElementById('newName').value = name;
+        document.getElementById('newConditionAmount').value = conditionAmount;
+        document.getElementById('newPointRate').value = pointRate;
+
+        checkbox.checked = isActive;
+
+        if (isDefault) {
+            checkbox.onclick = () => false;
+        } else {
+            checkbox.onclick = null;
+        }
+
+        openModal('update-membership');
+    }
+
+    window.addEventListener('click', function (e) {
+        document.querySelectorAll('.modal').forEach(modal => {
+            if (!modal.classList.contains('hidden') && e.target === modal) {
+                closeModal(modal.id);
+            }
+        });
+    });
+
+    document.getElementById('newIsActive').addEventListener('change', async function () {
+        const checkbox = this;
+        const id = document.getElementById('id').value;
+
+        const url = this.checked
+            ? `${contextPath}admin/membership/activate`
+            : `${contextPath}admin/membership/deactivate`;
+
+        checkbox.disabled = true;
+
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: new URLSearchParams({id}),
+                redirect: 'manual'
+            });
+
+            if (response.ok) {
+                window.location.reload();
+            } else {
+                checkbox.checked = !checkbox.checked;
+                alert('맴버십 활성화/비활성화 실패');
+            }
+        } catch (error) {
+            this.checked = !this.checked;
+            alert('네트워크 또는 서버 오류가 발생했습니다.');
+        } finally {
+            checkbox.disabled = false;
+        }
+    });
+</script>
+</html>

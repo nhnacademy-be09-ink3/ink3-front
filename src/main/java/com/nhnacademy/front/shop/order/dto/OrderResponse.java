@@ -12,7 +12,6 @@ import lombok.NoArgsConstructor;
 public class OrderResponse {
     private Long id;
     private Long userId;
-    private Long couponStoreId;
     private String orderUUID;
     private OrderStatus status;
     private LocalDateTime orderedAt;

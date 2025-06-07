@@ -6,6 +6,7 @@ import java.util.List;
 public record ReviewListResponse(
     Long id,
     Long userId,
+    Long bookId,
     Long orderBookId,
     String userName,
     String title,

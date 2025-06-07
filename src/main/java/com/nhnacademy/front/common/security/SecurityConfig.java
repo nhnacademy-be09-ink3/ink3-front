@@ -124,7 +124,7 @@ public class SecurityConfig {
 
     @Bean
     public LoginFailureHandler adminLoginFailureHandler() {
-        return new LoginFailureHandler("/admin/login?error");
+        return new LoginFailureHandler("/admin/login");
     }
 
     @Bean
@@ -134,6 +134,6 @@ public class SecurityConfig {
 
     @Bean
     public LoginFailureHandler userLoginFailureHandler() {
-        return new LoginFailureHandler("/login?error");
+        return new LoginFailureHandler("/login");
     }
 }
