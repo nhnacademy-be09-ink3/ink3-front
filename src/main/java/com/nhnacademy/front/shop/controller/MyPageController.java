@@ -1,6 +1,5 @@
 package com.nhnacademy.front.shop.controller;
 
-import com.nhnacademy.front.auth.client.dto.OAuth2UserInfo;
 import com.nhnacademy.front.auth.service.AuthService;
 import com.nhnacademy.front.common.dto.PageResponse;
 import com.nhnacademy.front.shop.address.client.dto.AddressCreateRequest;
@@ -19,7 +18,6 @@ import com.nhnacademy.front.shop.review.client.ReviewClient;
 import com.nhnacademy.front.shop.review.dto.ReviewListResponse;
 import com.nhnacademy.front.shop.user.client.dto.UserPasswordUpdateRequest;
 import com.nhnacademy.front.shop.user.client.dto.UserUpdateRequest;
-import com.nhnacademy.front.shop.user.dto.RegisterRequest;
 import com.nhnacademy.front.shop.user.service.UserService;
 import com.nhnacademy.front.util.PageUtil;
 import jakarta.servlet.http.HttpServletResponse;
@@ -54,18 +52,6 @@ public class MyPageController {
     private final CouponStoreService couponStoreService;
     private final BookClient bookClient;
     private final ReviewClient reviewClient;
-
-    @GetMapping("/register")
-    public String getRegister(@ModelAttribute OAuth2UserInfo userInfo, Model model) {
-        model.addAttribute("userInfo", userInfo);
-        return "user/register";
-    }
-
-    @PostMapping("/register")
-    public String postRegister(@ModelAttribute RegisterRequest request) {
-        userService.registerUser(request);
-        return "redirect:/";
-    }
 
     @GetMapping("/me")
     public String getMe(Model model) {
