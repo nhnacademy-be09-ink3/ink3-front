@@ -37,10 +37,10 @@
                     <div class="flex mb-4">
                         <span class="flex items-center">
                             <span class="text-gray-600">
-                            <th:block th:each="author, iterStat : ${book.authors}">
-                                <span th:text="${author.authorName + ' (' + author.role + ')'}"></span><th:block th:if="${!iterStat.last}">, </th:block>
-                            </th:block>
-                        </span>
+                                <th:block th:each="author, iterStat : ${book.authors}">
+                                    <span th:text="${author.authorName + ' (' + author.role + ')'}"></span><th:block th:if="${!iterStat.last}">, </th:block>
+                                </th:block>
+                            </span>
                             <span class="flex ml-3 pl-3 py-2 border-l-2 border-gray-200 space-x-2s"
                                   th:text="${book.publisherName}"></span>
                             <span class="flex ml-3 pl-3 py-2 border-l-2 border-gray-200 space-x-2s"

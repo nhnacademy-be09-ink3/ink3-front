@@ -250,7 +250,7 @@ public class BookController {
 
     @GetMapping("/admin/list")
     public String showBookList(@RequestParam(defaultValue = "0") int page, Model model) {
-        CommonResponse<PageResponse<BookResponse>> response = bookClient.getBooks(page, 20);
+        CommonResponse<PageResponse<BookResponse>> response = bookClient.getBooks(page, 10);
         PageResponse<BookResponse> books = response.data();
         PageUtil.PageInfo pageInfo = PageUtil.calculatePageRange(
                 books.page(), books.totalPages(), 5
