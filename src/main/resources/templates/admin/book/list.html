@@ -36,7 +36,7 @@
                         </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-200">
-                        <tr class="hover:bg-gray-50 transition-colors duration-200" th:each="book, stat : ${bookList}">
+                        <tr class="hover:bg-gray-50 transition-colors duration-200" th:each="book, stat : ${books.content()}">
                             <td class="py-3 px-4 text-sm text-gray-700" th:text="${stat.count}"></td>
                             <td class="py-3 px-4 text-sm text-gray-700" th:text="${book.title}"></td>
                             <td class="py-3 px-4 text-sm text-gray-700">-</td>
@@ -76,7 +76,7 @@
                                 </svg>
                             </a>
                         </li>
-                        <li th:each="i : ${#numbers.sequence(0, books.totalPages - 1)}">
+                        <li th:each="i : ${#numbers.sequence(pageInfo.startPage, pageInfo.endPage)}">
                             <a th:href="@{/admin/list(page=${i})}"
                                th:class="${i == books.page} ? 'ink-page-item-current' : 'ink-page-item'"
                                th:text="${i + 1}"></a>

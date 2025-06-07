@@ -28,7 +28,7 @@ public interface BookClient {
     );
 
     @GetMapping("/books")
-    CommonResponse<PageResponse<BookResponse>> getBooks();
+    CommonResponse<PageResponse<BookResponse>> getBooks(@RequestParam int page, @RequestParam int size);
 
     @GetMapping("/books/bestseller")
     CommonResponse<PageResponse<MainBookResponse>> getTop5BestsellerBooks();

@@ -250,11 +250,15 @@ public class BookController {
 
     @GetMapping("/admin/list")
     public String showBookList(@RequestParam(defaultValue = "0") int page, Model model) {
-        CommonResponse<PageResponse<BookResponse>> response = bookClient.getBooks();
-        PageResponse<BookResponse> pageResponse = response.data();
+        CommonResponse<PageResponse<BookResponse>> response = bookClient.getBooks(page, 20);
+        PageResponse<BookResponse> books = response.data();
+        PageUtil.PageInfo pageInfo = PageUtil.calculatePageRange(
+                books.page(), books.totalPages(), 5
+        );
 
-        model.addAttribute("bookList", pageResponse.content()); // 리스트 자체
-        model.addAttribute("books", pageResponse);              // 페이지 전체 정보
+        model.addAttribute("currentPage", "list");
+        model.addAttribute("books", books);
+        model.addAttribute("pageInfo", pageInfo);
         return "admin/book/list";
     }
 }
