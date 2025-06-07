@@ -10,6 +10,9 @@
         body {
             font-family: 'Inter', sans-serif;
         }
+        #tab-reviews span {
+            pointer-events: none;
+        }
     </style>
 </head>
 <body class="bg-gray-100">
@@ -238,7 +241,7 @@
         </div>
 
         <!-- 리뷰 영역 -->
-        <div id="tab-content-review" class="max-w-5xl mx-auto px-4 py-12 border-t border-gray-200 bg-white">
+        <div id="tab-content-review" class="max-w-5xl mx-auto px-4 py-12 border-t border-gray-200 bg-white hidden">
             <div class="block">
                 <!-- 작성 폼 -->
                 <!--                    <form th:action="@{'/books/' + ${book.id} + '/reviews'}"-->
@@ -301,7 +304,7 @@
 
                         <!-- 이미지 -->
                         <div class="flex flex-wrap gap-2 mt-2" th:if="${review.images != null}">
-                            <img th:each="img : ${rv.images}"
+                            <img th:each="img : ${review.images}"
                                  th:src="${img.imageUrl}"
                                  class="w-28 h-28 object-cover rounded">
                         </div>
@@ -520,6 +523,15 @@
 
         form.classList.toggle('hidden');
         btn.textContent = form.classList.contains('hidden') ? '리뷰 수정' : '닫기';
+    });
+
+    document.addEventListener("click", function (e) {
+        if (e.target.closest('#tab-book-info')) {
+            showTab('book');
+        }
+        if (e.target.closest('#tab-reviews')) {
+            showTab('review');
+        }
     });
 
     document.addEventListener('submit', function (e) {

@@ -1,9 +1,11 @@
 package com.nhnacademy.front.shop.user.service;
 
+import com.nhnacademy.front.common.dto.PageResponse;
 import com.nhnacademy.front.shop.user.client.UserClient;
 import com.nhnacademy.front.shop.user.client.dto.SocialUserCreateRequest;
 import com.nhnacademy.front.shop.user.client.dto.UserCreateRequest;
 import com.nhnacademy.front.shop.user.client.dto.UserDetailResponse;
+import com.nhnacademy.front.shop.user.client.dto.UserListItemDto;
 import com.nhnacademy.front.shop.user.client.dto.UserPasswordUpdateRequest;
 import com.nhnacademy.front.shop.user.client.dto.UserResponse;
 import com.nhnacademy.front.shop.user.client.dto.UserUpdateRequest;
@@ -43,6 +45,10 @@ public class UserService {
 
     public UserResponse getCurrentUser() {
         return userClient.getCurrentUser().data();
+    }
+
+    public PageResponse<UserListItemDto> getUsersForManagement(String keyword, int page, int size) {
+        return userClient.getUsers(keyword, page, size).data();
     }
 
     public UserDetailResponse getCurrentUserDetail() {

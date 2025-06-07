@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 public record ReviewResponse(
     Long id,
     Long userId,
+    Long bookId,
     Long orderBookId,
     String title,
     String content,

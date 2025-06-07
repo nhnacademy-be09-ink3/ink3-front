@@ -1,4 +1,4 @@
-package com.nhnacademy.front.shop.point.client.dto;
+package com.nhnacademy.front.shop.point.history.client.dto;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

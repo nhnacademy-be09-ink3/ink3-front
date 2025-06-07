@@ -16,4 +16,7 @@ public class OrderWithDetailsResponse  {
     private String representativeBookName;
     private String representativeThumbnailUrl;
     private Integer bookTypeCount;
+    private Long orderBookId;
+    private Long bookId;
+    private Long hasReview;
 }

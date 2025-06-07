@@ -186,19 +186,6 @@
                                                     <span class="text-red-500"
                                                           th:text="'(' + ${cart.bookDiscountRate} + '% 할인)'">0%</span>
                                                 </div>
-
-                                                <div class="mt-2 flex items-center gap-2">
-                                                    <select class="border px-2 py-1.5 rounded text-sm text-gray-700 w-40">
-                                                        <option selected disabled>쿠폰 선택</option>
-                                                        <option>5% 할인 쿠폰</option>
-                                                        <option>10% 할인 쿠폰</option>
-                                                        <option>배송비 무료</option>
-                                                    </select>
-                                                    <button type="button"
-                                                            class="ink-btn-primary text-white px-2 py-1 text-xs rounded hover:bg-green-600">
-                                                        적용
-                                                    </button>
-                                                </div>
                                             </div>
                                         </div>
                                     </td>
@@ -349,6 +336,9 @@
                 const parent = button.closest('.cart-item-row');
                 const cartId = parent.getAttribute('data-cart-id');
                 const quantity = parent.querySelector('.qty-input').value;
+                const itemPriceElem = parent.querySelector('.item-price');
+                const unitPriceText = parent.querySelector('.price-info .font-semibold')?.textContent || '0원';
+                const unitPrice = parseInt(unitPriceText.replace(/[^0-9]/g, ''), 10);
 
                 if (!cartId || !quantity) {
                     alert("유효하지 않은 요청입니다.");
@@ -368,6 +358,8 @@
                     })
                     .then(() => {
                         alert('수량이 변경되었습니다.');
+                        const totalPrice = quantity * unitPrice;
+                        itemPriceElem.textContent = totalPrice.toLocaleString('ko-KR') + ' 원';
                     })
                     .catch(() => {
                         alert('수량 변경에 실패했습니다.');

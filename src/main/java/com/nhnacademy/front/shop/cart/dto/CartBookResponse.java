@@ -7,6 +7,7 @@ public record CartBookResponse(
     @JsonProperty("originalPrice") int originalBookPrice,
     @JsonProperty("salePrice") int saleBookPrice,
     @JsonProperty("discountRate") int bookDiscountRate,
-    @JsonProperty("thumbnailUrl") String thumbnailUrl
+    @JsonProperty("thumbnailUrl") String thumbnailUrl,
+    @JsonProperty("isPackable") boolean isPackable
 ) {
 }
