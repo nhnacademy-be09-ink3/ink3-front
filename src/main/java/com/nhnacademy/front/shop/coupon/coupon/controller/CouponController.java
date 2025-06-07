@@ -57,7 +57,7 @@ public class CouponController {
         model.addAttribute("categories", categories);
 
         // 3) 뷰 이름 반환
-        return "redirect:/admin/coupon/coupon-register";
+        return "admin/coupon/coupon-register";
     }
 
     /**
@@ -83,7 +83,7 @@ public class CouponController {
             model.addAttribute("policies", policyClient.getAllPolicies(size, page).data());
             model.addAttribute("books", bookClient.getBooks().data());
             model.addAttribute("categories", categoryClient.getCategories().data());
-            return "admin/coupon/coupon-register";
+            return "redirect:/admin/coupon/coupon-register";
         }
     }
 }
