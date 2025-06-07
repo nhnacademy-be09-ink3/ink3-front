@@ -27,7 +27,7 @@ public interface CartClient {
     @PutMapping("/me/carts/{cartId}")
     CommonResponse<CartResponse> updateQuantity(@PathVariable Long cartId, @RequestBody CartUpdateRequest request);
 
-    @GetMapping("/me/carts")
+    @GetMapping("/me/carts/coupons")
     CommonResponse<List<CartCouponResponse>> getCartsWithCoupon();
 
     @GetMapping("/me/carts")
