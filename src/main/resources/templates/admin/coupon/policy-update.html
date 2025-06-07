@@ -66,7 +66,7 @@
 
                     <!-- 수정 폼 시작 -->
                     <!-- th:object를 사용하면 ${policy} 내부 프로퍼티 바인딩이 간편해집니다 -->
-                    <form th:action="@{/admin/policies/{id}(id=${policy.policyId})}"
+                    <form th:action="@{/admin/coupon/policies/{id}(id=${policy.policyId})}"
                           th:object="${policy}"
                           method="post"
                           class="space-y-6">

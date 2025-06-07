@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>쿠폰 등록</title>
+
+    <!-- Google Fonts -->
+    <link
+            href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap"
+            rel="stylesheet"
+    />
+
+    <!-- Tailwind CSS -->
+    <link
+            rel="stylesheet"
+            th:href="@{/css/output.css(v=${#dates.createNow().getTime()})}"
+    />
+
+    <!-- jQuery & Select2 -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link
+            href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css"
+            rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .ink-input-group { @apply grid grid-cols-1 gap-2 mb-6; }
+        .ink-input-group label { @apply text-gray-700 font-medium block mb-2; }
+    </style>
+</head>
+
+<body class="bg-gray-100">
+<div th:replace="~{admin/layout/fragments/header :: headerFragment}"></div>
+<div class="flex flex-1 min-h-[calc(100vh-64px)]">
+    <div th:replace="~{admin/layout/fragments/sidebar :: sidebarFragment}"></div>
+
+    <main class="flex-1 p-6 bg-gray-100 overflow-y-auto">
+        <div class="w-8/12 mx-auto space-y-6">
+            <div class="ink-card-white p-6">
+                <h1 class="text-xl font-semibold text-gray-800 mb-6">쿠폰 등록</h1>
+
+                <form
+                        th:action="@{/admin/coupon/coupon-register}"
+                        method="post"
+                        class="space-y-8"
+                >
+                    <!-- 1) 정책 선택 -->
+                    <div class="ink-input-group">
+                        <label for="policyId">쿠폰 정책 선택</label>
+                        <select id="policyId" name="policyId" class="js-select w-full" required>
+                            <option value="">정책을 선택하세요</option>
+                            <!-- PageResponse<PolicyResponse> 의 content 로 반복 -->
+                            <th:block th:each="policy : ${policies.content()}">
+                                <option th:value="${policy.policyId()}"
+                                        th:text="${policy.policyName()}">정책명</option>
+                            </th:block>
+                        </select>
+                    </div>
+
+                    <!-- 2) 쿠폰 이름 입력 -->
+                    <div class="ink-input-group">
+                        <label for="name">쿠폰 이름</label>
+                        <input
+                                type="text"
+                                id="name"
+                                name="name"
+                                required
+                                class="ink-input-field w-full"
+                                placeholder="예: SPRING_COUPON_01"
+                        />
+                    </div>
+
+                    <!-- 3) Issuable From (발급 가능 시작일) -->
+                    <div class="ink-input-group">
+                        <label for="issuableFrom">발급 가능 시작일</label>
+                        <input
+                                type="datetime-local"
+                                id="issuableFrom"
+                                name="issuableFrom"
+                                required
+                                class="ink-input-field w-full"
+                        />
+                    </div>
+
+                    <!-- 4) Expires At (만료일) -->
+                    <div class="ink-input-group">
+                        <label for="expiresAt">만료일</label>
+                        <input
+                                type="datetime-local"
+                                id="expiresAt"
+                                name="expiresAt"
+                                required
+                                class="ink-input-field w-full"
+                        />
+                    </div>
+
+                    <!-- 5) Created At (생성일) -->
+                    <div class="ink-input-group">
+                        <label for="createdAt">생성일</label>
+                        <input
+                                type="datetime-local"
+                                id="createdAt"
+                                name="createdAt"
+                                required
+                                class="ink-input-field w-full"
+                                th:value="${#dates.format(#dates.createNow(), 'yyyy-MM-dd\'T\'HH:mm')}"
+                        />
+                    </div>
+
+                    <!-- 6) 도서 선택 (멀티 셀렉트) -->
+                    <div class="ink-input-group">
+                        <label for="bookIds">도서 선택 (해당 도서에 자동 발급)</label>
+                        <select id="bookIds"
+                                name="bookIdList"
+                                class="js-multi-select w-full"
+                                multiple="multiple">
+                            <th:block th:each="book : ${books.content}">
+                                <option th:value="${book.id}"
+                                        th:text="${book.title}">도서명</option>
+                            </th:block>
+                        </select>
+                    </div>
+
+                    <!-- 7) 카테고리 선택 (멀티 셀렉트) -->
+                    <div class="ink-input-group">
+                        <label for="categoryIds">카테고리 선택 (해당 카테고리에 자동 발급)</label>
+                        <select id="categoryIds"
+                                name="categoryIdList"
+                                class="js-multi-select w-full"
+                                multiple="multiple">
+                            <th:block th:each="category : ${categories.content}">
+                                <option th:value="${category.id}"
+                                        th:text="${category.name}">카테고리명</option>
+                            </th:block>
+                        </select>
+                    </div>
+
+                    <!-- 8) 제출 버튼 -->
+                    <div class="flex justify-end">
+                        <button type="submit" class="ink-btn-primary px-6 py-2">
+                            등록
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- Select2 초기화 스크립트 -->
+<script>
+    $(function () {
+        $(".js-select").select2({
+            placeholder: "정책을 선택하세요",
+            allowClear: true,
+            width: "100%",
+        });
+        $(".js-multi-select").select2({
+            placeholder: "항목을 선택하세요",
+            allowClear: true,
+            width: "100%",
+        });
+    });
+</script>
+</body>
+</html>

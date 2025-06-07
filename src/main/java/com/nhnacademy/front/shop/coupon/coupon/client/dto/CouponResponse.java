@@ -5,8 +5,9 @@ import java.util.List;
 
 public record CouponResponse(
         Long couponId,
-        Long policyId,
         String name,
+        Long policyId,
+        String policyName,
         LocalDateTime issuableFrom,
         LocalDateTime expiresAt,
         LocalDateTime createdAt,

@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 @RequiredArgsConstructor
 @Controller
-@RequestMapping("/admin")
+@RequestMapping("/admin/coupon")
 public class PolicyController {
     private final CouponPolicyClient couponPolicyClient;
 
@@ -24,7 +24,7 @@ public class PolicyController {
     @PostMapping("/policy-register")
     public String createPolicy(@ModelAttribute PolicyCreateRequest req) {
         couponPolicyClient.createPolicy(req);
-        return "redirect:/admin/policies";
+        return "redirect:/admin/coupon/policies";
     }
 
     @GetMapping("/policy-register")

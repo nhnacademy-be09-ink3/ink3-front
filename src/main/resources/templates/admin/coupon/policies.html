@@ -18,7 +18,7 @@
 
                 <!-- (A) 단일 조회 폼 -->
                 <form id="searchForm"
-                      th:action="@{/admin/policies}"
+                      th:action="@{/admin/coupon/policies}"
                       method="get"
                       class="flex items-center space-x-2 mb-6">
                     <input
@@ -46,7 +46,7 @@
                         <!-- … 나머지 필드들 동일하게 출력 … -->
                     </div>
                     <div class="mt-4">
-                        <a th:href="@{/admin/policies}"
+                        <a th:href="@{/admin/coupon/policies}"
                            class="ink-btn-secondary px-4 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-200">
                             전체 목록으로
                         </a>
@@ -101,7 +101,7 @@
                                 th:text="${#temporals.format(policy.createdAt, 'yyyy-MM-dd')}">2025-06-05</td>
                             <td class="py-3 px-4 text-sm text-gray-700 space-x-2">
                                 <!-- ① 수정: GET /admin/policies/{id}/edit 로 이동 -->
-                                <form th:action="@{/admin/policies/{id}/edit(id=${policy.policyId})}"
+                                <form th:action="@{/admin/coupon/policies/{id}/edit(id=${policy.policyId})}"
                                       method="get" class="inline">
                                     <button type="submit"
                                             class="bg-ink-primary px-2 py-1 text-white rounded-xl hover:bg-ink-primary-hover">
@@ -110,7 +110,7 @@
                                 </form>
 
                                 <!-- ② 삭제: POST + _method=delete 로 보내야 DELETE 매핑이 동작 -->
-                                <form th:action="@{/admin/policies/{id}(id=${policy.policyId})}"
+                                <form th:action="@{/admin/coupon/policies/{id}(id=${policy.policyId})}"
                                       method="post" class="inline">
                                     <input type="hidden" name="_method" value="delete"/>
                                     <button type="submit"
@@ -126,7 +126,7 @@
                     <!-- 페이지네이션 (pageNum, pageInfo 등은 컨트롤러에서 넘겨 준다고 가정) -->
                     <ul class="flex justify-center gap-1 text-gray-900 mt-6">
                         <li>
-                            <a th:href="@{/admin/policies(page=${policies.hasPrevious()} ? ${pageNum} - 1 : ${pageNum})}"
+                            <a th:href="@{/admin/coupon/policies(page=${policies.hasPrevious()} ? ${pageNum} - 1 : ${pageNum})}"
                                class="ink-page-item-arrow" aria-label="Previous page">
                                 <!-- ← 화살표 SVG ... -->
                                 <svg xmlns="http://www.w3.org/2000/svg" class="size-4" viewBox="0 0 20 20"
@@ -138,12 +138,12 @@
                             </a>
                         </li>
                         <li th:each="i : ${#numbers.sequence(pageInfo.startPage, pageInfo.endPage)}">
-                            <a th:href="@{/admin/policies(page=${i})}"
+                            <a th:href="@{/admin/coupon/policies(page=${i})}"
                                th:classappend="${i == pageNum} ? ' ink-page-item-current' : ' ink-page-item'"
                                th:text="${i + 1}"></a>
                         </li>
                         <li>
-                            <a th:href="@{/admin/policies(page=${policies.hasNext()} ? ${pageNum} + 1 : ${pageNum})}"
+                            <a th:href="@{/admin/coupon/policies(page=${policies.hasNext()} ? ${pageNum} + 1 : ${pageNum})}"
                                class="ink-page-item-arrow" aria-label="Next page">
                                 <!-- → 화살표 SVG ... -->
                                 <svg xmlns="http://www.w3.org/2000/svg" class="size-4" viewBox="0 0 20 20"
