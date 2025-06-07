@@ -64,7 +64,7 @@ public class BookController {
         @RequestParam(defaultValue = "0") int  page,
         @RequestParam(defaultValue = "10") int  size,
         Model model, @CookieValue(name = "accessToken", required = false) String accessToken) {
-        CommonResponse<BookResponse> books = bookClient.getBookDetail(bookId);
+        CommonResponse<BookResponse> response = bookClient.getBookDetail(bookId);
         PageResponse<ReviewListResponse> reviews =
             reviewClient.getReviewsByBookId(bookId, page, size);
 
@@ -81,7 +81,7 @@ public class BookController {
             log.warn("비회원 사용자 도서 상세페이지 접근: {}", e.getMessage());
         }
 
-        model.addAttribute("book",      books.data());
+        model.addAttribute("book",      response.data());
         model.addAttribute("reviews",   reviews.content());
         model.addAttribute("reviewPage", reviews);
         model.addAttribute("pageInfo",  pageInfo);
@@ -141,8 +141,8 @@ public class BookController {
 
     @GetMapping("/admin/book-register")
     public String getBookRegister(Model model) {
-        CommonResponse<PageResponse<AuthorResponse>> authors = authorClient.getAuthors(0, 0);
-        CommonResponse<PageResponse<PublisherResponse>> publishers = publisherClient.getPublishers(0, 0);
+        CommonResponse<PageResponse<AuthorResponse>> authors = authorClient.getAuthors(20, 10);
+        CommonResponse<PageResponse<PublisherResponse>> publishers = publisherClient.getPublishers(20, 10);
         CommonResponse<PageResponse<CategoryResponse>> categories = categoryClient.getCategories();
         CommonResponse<PageResponse<TagResponse>> tags = tagClient.getTags(0, 0);
 
@@ -155,27 +155,22 @@ public class BookController {
     }
 
     @PostMapping(value = "/admin/book-register", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public String registerBook(@ModelAttribute @Valid BookCreateForm bookForm,
-                               BindingResult bindingResult) {
+    public String registerBook(@ModelAttribute @Valid BookCreateForm bookCreateForm) {
         List<AuthorRoleRequest> authorRequests = new ArrayList<>();
-        for (int i = 0; i < bookForm.getAuthorIds().size(); i++) {
-            Long authorId = bookForm.getAuthorIds().get(i);
-            String role = bookForm.getAuthorRoles().get(i);
+        for (int i = 0; i < bookCreateForm.getAuthorIds().size(); i++) {
+            Long authorId = bookCreateForm.getAuthorIds().get(i);
+            String role = bookCreateForm.getAuthorRoles().get(i);
             authorRequests.add(new AuthorRoleRequest(authorId, role));
         }
-        BookCreateRequest request = BookCreateRequest.from(bookForm, authorRequests);
+        BookCreateRequest request = BookCreateRequest.from(bookCreateForm, authorRequests);
 
-        if (bindingResult.hasErrors()) {
-            log.debug("bindingResult: {}", bindingResult);
-            return "redirect:/admin";
-        }
         try {
             String jsonRequest = objectMapper.writeValueAsString(request);
+            bookClient.createBook(jsonRequest, bookCreateForm.getCoverImage());
 
-            bookClient.createBook(jsonRequest, bookForm.getCoverImage());
         } catch (JsonProcessingException e) {
             log.error("JSON 변환 실패", e);
-            return "redirect:/admin?error";
+            return "redirect:/admin";
         }
 
         return "redirect:/admin/book-register";
@@ -224,24 +219,31 @@ public class BookController {
     @PutMapping("/admin/books/{bookId}")
     public String updateBook(
             @PathVariable("bookId") Long bookId,
-            @ModelAttribute("book") @Valid BookUpdateForm bookForm,
+            @ModelAttribute("book") @Valid BookUpdateForm bookUpdateForm,
             BindingResult bindingResult
     ) {
 
         List<AuthorRoleRequest> authorRequests = new ArrayList<>();
-        for (int i = 0; i < bookForm.getAuthorIds().size(); i++) {
-            Long aId = bookForm.getAuthorIds().get(i);
-            String role = bookForm.getAuthorRoles().get(i);
+        for (int i = 0; i < bookUpdateForm.getAuthorIds().size(); i++) {
+            Long aId = bookUpdateForm.getAuthorIds().get(i);
+            String role = bookUpdateForm.getAuthorRoles().get(i);
             authorRequests.add(new AuthorRoleRequest(aId, role));
         }
-        BookUpdateRequest request = new BookUpdateRequest(
-                bookForm, authorRequests
-        );
+        BookUpdateRequest request = new BookUpdateRequest(bookUpdateForm, authorRequests);
+
         if (bindingResult.hasErrors()) {
             log.debug("bindingResult: {}", bindingResult);
             return "redirect:/admin/book-edit/" + bookId;
         }
-        bookClient.updateBook(bookId, request);
+
+        try {
+            String jsonRequest = objectMapper.writeValueAsString(request);
+            bookClient.updateBook(bookId, jsonRequest, bookUpdateForm.getCoverImage());
+
+        } catch (JsonProcessingException e) {
+            log.error("JSON 변환 실패", e);
+            return "redirect:/admin";
+        }
 
         return "redirect:/admin/book-edit/" + bookId;
     }

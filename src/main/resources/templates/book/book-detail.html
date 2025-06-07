@@ -63,8 +63,8 @@
                         </div>
                     </div>
                     <!-- 책 소개 -->
-                    <p class="leading-relaxed" th:text="${book.description}"></p>
-                    <br>
+<!--                    <p class="leading-relaxed" th:text="${book.description}"></p>-->
+<!--                    <br>-->
                     <!-- 카테고리 -->
                     <div class="flex mb-4">
                         <span class="flex items-center">
@@ -221,7 +221,7 @@
                 <div class="md:w-1/5 w-full mb-4 md:mb-0">
                     <h2 class="text-xl font-semibold text-gray-800">책소개</h2>
                 </div>
-                <div class="md:w-4/5 w-full text-gray-700 leading-relaxed space-y-4"
+                <div class="whitespace-pre-line md:w-4/5 w-full text-gray-700 leading-relaxed space-y-4"
                      th:text="${book.description}"></div>
             </div>
             <!-- 목차 -->
@@ -232,7 +232,8 @@
                 </div>
 
                 <!-- 목차 내용 -->
-                <div class="md:w-4/5 w-full text-gray-700 leading-relaxed space-y-4" th:text="${book.contents}"></div>
+                <div class="whitespace-pre-line md:w-4/5 w-full text-gray-700 leading-relaxed space-y-4"
+                     th:text="${book.contents}"></div>
             </div>
         </div>
 

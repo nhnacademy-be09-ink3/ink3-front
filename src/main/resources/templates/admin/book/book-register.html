@@ -23,15 +23,14 @@
         .ink-input-group label {
             @apply text-gray-700 font-medium block mb-2;
         }
-
-        .author-input-group {
-            @apply flex items-center space-x-4 mb-3;
-        }
     </style>
     <script>
         $(document).ready(function() {
             $('.js-select').select2({
-                allowClear: true
+                allowClear: true,
+                minimumResultsForSearch: 0,
+                dropdownAutoWidth: true,
+                width: '100%'
             });
         });
     </script>

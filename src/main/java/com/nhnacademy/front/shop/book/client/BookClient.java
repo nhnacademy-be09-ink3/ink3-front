@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.nhnacademy.front.common.dto.CommonResponse;
 import com.nhnacademy.front.common.dto.PageResponse;
-import com.nhnacademy.front.shop.book.dto.BookCreateRequest;
 import com.nhnacademy.front.shop.book.dto.MainBookResponse;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
@@ -24,7 +23,7 @@ public interface BookClient {
 
     @PostMapping(value = "/books", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     CommonResponse<BookResponse> createBook(
-            @RequestPart("request") String bookCreateRequestJson,
+            @RequestPart("book") String bookCreateRequestJson,
             @RequestPart("coverImage") MultipartFile coverImage
     );
 
@@ -52,6 +51,10 @@ public interface BookClient {
     @GetMapping("/books/{bookId}")
     CommonResponse<BookResponse> getBookDetail(@PathVariable Long bookId);
 
-    @PutMapping("/books/{bookId}")
-    CommonResponse<BookResponse> updateBook(@PathVariable Long bookId, @RequestBody BookUpdateRequest request);
+    @PutMapping(value = "/books/{bookId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    CommonResponse<BookResponse> updateBook(
+            @PathVariable Long bookId,
+            @RequestPart("book") String bookUpdateRequestJson,
+            @RequestPart("coverImage") MultipartFile coverImage
+    );
 }
