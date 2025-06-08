@@ -491,7 +491,7 @@
 
             <div class="flex justify-end gap-3">
                 <button onclick="closeZeroModal()" class="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300">취소</button>
-                <button onclick="submitZeroPayment()" class="px-4 py-2 bg-indigo-600 rounded hover:bg-indigo-700">확인</button>
+                <button onclick="submitZeroPayment()" class="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700">확인</button>
             </div>
         </div>
     </div>
@@ -799,8 +799,12 @@
             if (!getVal(id)) return alert("모든 정보를 입력해주세요.");
         }
 
-        if (document.querySelectorAll('select[name="couponId"]:not([disabled])').length > 1)
+        const selectedCoupons = Array.from(document.querySelectorAll('select[name="couponId"]'))
+            .filter(select => !select.disabled && select.value);  // 실제로 선택된 쿠폰만 필터링
+
+        if (selectedCoupons.length > 1) {
             return alert("쿠폰은 한 개만 사용할 수 있습니다.");
+        }
 
         const userId = parseInt(getVal("userId"), 10);
         const preferredDate = window.getPreferredDeliveryDate();
@@ -826,7 +830,7 @@
             });
         });
 
-        const { productTotal, packagingTotal, couponDiscountTotal, shippingFee, paymentAmountBeforePoint } = getSummary();
+        const {productTotal, packagingTotal, couponDiscountTotal, shippingFee, paymentAmountBeforePoint} = getSummary();
         const usedPointAmount = usedPoint;
         const finalAmount = Math.max(paymentAmountBeforePoint - usedPointAmount, 0);
 
@@ -836,7 +840,7 @@
         }
 
         const payload = {
-            orderCreateRequest: { userId, ordererName: getVal("ordererName"), ordererPhone: getVal("ordererPhone") },
+            orderCreateRequest: {userId, ordererName: getVal("ordererName"), ordererPhone: getVal("ordererPhone")},
             shipmentCreateRequest: {
                 preferredDeliveryDate: preferredDate,
                 recipientName: getVal("recipientName"),
@@ -862,7 +866,14 @@
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload)
         })
-            .then(res => res.json())
+            .then(res => {
+                if (!res.ok) {
+                    return res.json().then(err => {
+                        throw err;
+                    });
+                }
+                return res.json();
+            })
             .then(data => toss.requestPayment("카드", {
                 amount: data.amount,
                 orderId: data.orderId,
@@ -872,7 +883,14 @@
                 failUrl: data.failUrl
             }))
             .catch(err => {
+                console.log("error 메세지 : " + err.message);
+                const errorMessage = err.message || err;
+
                 if (err.code === "USER_CANCEL") alert("결제를 취소했습니다.");
+                else if (typeof errorMessage === "string" && errorMessage.includes("BOOK_INSUFFICIENT_STOCK")) {
+                    alert("도서 재고가 부족합니다.");
+                    window.location.href = `${contextPath}carts`;
+                }
                 else alert("결제 중 오류가 발생했습니다.");
             });
     }
@@ -955,9 +973,13 @@
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload)
         })
-            .then(response => {
-                if (!response.ok) throw new Error("결제 요청 실패");
-                return response.text();
+            .then(res => {
+                if (!res.ok) {
+                    return res.json().then(err => {
+                        throw err;
+                    });
+                }
+                return res.json();
             })
             .then(html => {
                 // 결제 성공 페이지 HTML로 전환
@@ -966,8 +988,15 @@
                 document.close();
             })
             .catch(err => {
-                alert("0원 결제 중 오류가 발생했습니다.");
-                console.error(err);
+                const errorMessage = err.message || err;
+                if (typeof errorMessage === "string" && errorMessage.includes("BOOK_INSUFFICIENT_STOCK")) {
+                    alert("도서 재고가 부족합니다.");
+                    window.location.href = `${contextPath}carts`;
+                }  else {
+                    alert("0원 결제 중 오류가 발생했습니다.");
+                    console.error(err);
+                }
+
             });
     }
 </script>
