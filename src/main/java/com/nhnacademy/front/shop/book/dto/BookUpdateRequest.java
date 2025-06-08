@@ -19,8 +19,7 @@ public record BookUpdateRequest(
         @NotNull @PositiveOrZero Integer salePrice,
         @NotNull @PositiveOrZero Integer quantity,
         @NotNull BookStatus status,
-        boolean isPackable,
-        @NotBlank String thumbnailUrl,
+        Boolean isPackable,
         @NotNull Long publisherId,
 
         @NotEmpty(message = "카테고리는 최소 1개 이상이어야 합니다.")
@@ -41,7 +40,6 @@ public record BookUpdateRequest(
                         form.getQuantity(),
                         form.getStatus(),
                         form.isPackable(),
-                        "testUrl",
                         form.getPublisherId(),
                         form.getSelectedCategoryIds(),
                         authorRequests,

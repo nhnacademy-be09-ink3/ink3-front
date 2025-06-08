@@ -10,6 +10,7 @@ import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.web.multipart.MultipartFile;
 
 @Getter
 @Setter
@@ -61,4 +62,6 @@ public class BookUpdateForm {
 
     private List<Long> tagIds = new ArrayList<>();
 
+    @NotNull(message = "썸네일 이미지를 첨부해주세요.")
+    private MultipartFile coverImage;
 }

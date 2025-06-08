@@ -37,10 +37,10 @@
                     <div class="flex mb-4">
                         <span class="flex items-center">
                             <span class="text-gray-600">
-                            <th:block th:each="author, iterStat : ${book.authors}">
-                                <span th:text="${author.authorName + ' (' + author.role + ')'}"></span><th:block th:if="${!iterStat.last}">, </th:block>
-                            </th:block>
-                        </span>
+                                <th:block th:each="author, iterStat : ${book.authors}">
+                                    <span th:text="${author.authorName + ' (' + author.role + ')'}"></span><th:block th:if="${!iterStat.last}">, </th:block>
+                                </th:block>
+                            </span>
                             <span class="flex ml-3 pl-3 py-2 border-l-2 border-gray-200 space-x-2s"
                                   th:text="${book.publisherName}"></span>
                             <span class="flex ml-3 pl-3 py-2 border-l-2 border-gray-200 space-x-2s"
@@ -66,8 +66,8 @@
                         </div>
                     </div>
                     <!-- 책 소개 -->
-                    <p class="leading-relaxed" th:text="${book.description}"></p>
-                    <br>
+<!--                    <p class="leading-relaxed" th:text="${book.description}"></p>-->
+<!--                    <br>-->
                     <!-- 카테고리 -->
                     <div class="flex mb-4">
                         <span class="flex items-center">
@@ -224,7 +224,7 @@
                 <div class="md:w-1/5 w-full mb-4 md:mb-0">
                     <h2 class="text-xl font-semibold text-gray-800">책소개</h2>
                 </div>
-                <div class="md:w-4/5 w-full text-gray-700 leading-relaxed space-y-4"
+                <div class="whitespace-pre-line md:w-4/5 w-full text-gray-700 leading-relaxed space-y-4"
                      th:text="${book.description}"></div>
             </div>
             <!-- 목차 -->
@@ -235,7 +235,8 @@
                 </div>
 
                 <!-- 목차 내용 -->
-                <div class="md:w-4/5 w-full text-gray-700 leading-relaxed space-y-4" th:text="${book.contents}"></div>
+                <div class="whitespace-pre-line md:w-4/5 w-full text-gray-700 leading-relaxed space-y-4"
+                     th:text="${book.contents}"></div>
             </div>
         </div>
 
