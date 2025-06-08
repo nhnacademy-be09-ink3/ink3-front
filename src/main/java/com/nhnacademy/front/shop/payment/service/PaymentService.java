@@ -4,6 +4,7 @@ import com.nhnacademy.front.common.dto.CommonResponse;
 import com.nhnacademy.front.shop.payment.client.PaymentClient;
 import com.nhnacademy.front.shop.payment.dto.PaymentConfirmRequest;
 import com.nhnacademy.front.shop.payment.dto.PaymentResponse;
+import com.nhnacademy.front.shop.payment.dto.ZeroPaymentRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +20,12 @@ public class PaymentService {
 
     public PaymentResponse confirmPayment(PaymentConfirmRequest confirmRequest){
         CommonResponse<PaymentResponse> paymentResponse = paymentClient.confirmPayment(confirmRequest);
+        return paymentResponse.data();
+    }
+
+    // 결제 생성 (0원 결제 시)
+    public PaymentResponse createZeroPayment(ZeroPaymentRequest zeroPaymentRequest){
+        CommonResponse<PaymentResponse> paymentResponse = paymentClient.createZeroPayment(zeroPaymentRequest);
         return paymentResponse.data();
     }
 
