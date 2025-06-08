@@ -100,24 +100,32 @@
                             <select class="ink-input-field w-full sm:w-[240px]"
                                     name="couponId"
                                     th:id="'coupon-select-' + ${item.bookId}"
-                                    th:if="${item.applicableCoupons != null and !item.applicableCoupons.isEmpty()}">
-                                <option value="">쿠폰 선택 안 함</option>
+                                    th:disabled="${item.applicableCoupons == null or item.applicableCoupons.isEmpty()}"
+                                    th:classappend="${item.applicableCoupons == null or item.applicableCoupons.isEmpty()} ? ' bg-gray-100 text-gray-400 cursor-not-allowed'">
+
+                                <!-- 쿠폰이 없는 경우 -->
+                                <option th:if="${item.applicableCoupons == null or item.applicableCoupons.isEmpty()}" disabled selected>
+                                    쿠폰 선택 불가
+                                </option>
+
+                                <!-- 쿠폰이 있는 경우 -->
+                                <option th:if="${item.applicableCoupons != null and !item.applicableCoupons.isEmpty()}" value="">
+                                    쿠폰 선택 안 함
+                                </option>
                                 <option th:each="c : ${item.applicableCoupons}"
                                         th:value="${c.storeId}"
                                         th:utext="${c.couponName + ' - ' +
-                                                  (c.discountType == 'FIXED' ?
-                                                    #numbers.formatInteger(c.discountValue, 0, 'COMMA') + '원 할인' :
-                                                    c.discountPercentage + '% 할인' +
-                                                    (c.maximumDiscountAmount != null ? ' (최대 ' + #numbers.formatInteger(c.maximumDiscountAmount, 0, 'COMMA') + '원)' : '')
-                                                  ) + '&#10;만료일: ' + #temporals.format(c.expiresAt, 'yyyy-MM-dd HH:mm')}"
-                                        th:attr="data-coupon-id=${c.couponId},
-                                                 data-discount-type=${c.discountType},
-                                                 data-discount-value=${c.discountValue},
-                                                 data-discount-percentage=${c.discountPercentage},
-                                                 data-max-discount=${c.maximumDiscountAmount}">
+                                          (c.discountType == 'FIXED' ?
+                                            #numbers.formatInteger(c.discountValue, 0, 'COMMA') + '원 할인' :
+                                            c.discountPercentage + '% 할인' +
+                                            (c.maximumDiscountAmount != null ? ' (최대 ' + #numbers.formatInteger(c.maximumDiscountAmount, 0, 'COMMA') + '원)' : '')
+                                          ) + '&#10;만료일: ' + #temporals.format(c.expiresAt, 'yyyy-MM-dd HH:mm')}"
+                                                        th:attr="data-coupon-id=${c.couponId},
+                                         data-discount-type=${c.discountType},
+                                         data-discount-value=${c.discountValue},
+                                         data-discount-percentage=${c.discountPercentage},
+                                         data-max-discount=${c.maximumDiscountAmount}">
                                 </option>
-                            <!-- applicableCoupons가 비었을 경우 표시 -->
-                            <span th:if="${item.applicableCoupons == null || item.applicableCoupons.isEmpty()}">적용 가능한 쿠폰 없음</span>
                             </select>
                             <style>
                                 select option {
@@ -442,6 +450,51 @@
             </div>
         </div>
     </div>
+    <!-- ✅ 0원 결제 확인 모달 -->
+    <div id="zeroPaymentModal" class="fixed inset-0 bg-black/50 z-50 hidden justify-center items-center">
+        <div class="bg-white rounded-xl shadow-xl p-6 max-w-lg w-full">
+            <h2 class="text-xl font-bold text-gray-800 mb-4">결제 확인</h2>
+            <p class="text-gray-700 mb-6">
+                사용하신 포인트와 할인으로 인해 결제 금액이 <strong class="text-red-600">0원</strong>입니다.<br>
+                아래 결제 내역을 확인하고 주문을 진행하시겠습니까?
+            </p>
+
+            <!-- 영수증 형식 결제 요약 -->
+            <table class="w-full text-sm text-gray-700 mb-6">
+                <tbody>
+                <tr class="border-t">
+                    <td class="py-2">상품 총액</td>
+                    <td class="py-2 text-right font-medium" id="receiptProductTotal">0원</td>
+                </tr>
+                <tr>
+                    <td class="py-2">배송비</td>
+                    <td class="py-2 text-right" id="receiptShippingFee">0원</td>
+                </tr>
+                <tr>
+                    <td class="py-2">포장지 비용</td>
+                    <td class="py-2 text-right" id="receiptPackagingTotal">0원</td>
+                </tr>
+                <tr>
+                    <td class="py-2">할인 금액</td>
+                    <td class="py-2 text-right text-green-600" id="receiptDiscountAmount">-0원</td>
+                </tr>
+                <tr>
+                    <td class="py-2">포인트 사용</td>
+                    <td class="py-2 text-right text-blue-600" id="receiptUsedPoint">-0P</td>
+                </tr>
+                <tr class="border-t font-bold">
+                    <td class="py-2">최종 결제 금액</td>
+                    <td class="py-2 text-right text-red-600">0원</td>
+                </tr>
+                </tbody>
+            </table>
+
+            <div class="flex justify-end gap-3">
+                <button onclick="closeZeroModal()" class="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300">취소</button>
+                <button onclick="submitZeroPayment()" class="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700">확인</button>
+            </div>
+        </div>
+    </div>
 </main>
 <div th:replace="~{layout/fragments/footer :: footerFragment}"></div>
 </body>
@@ -559,7 +612,7 @@
 
                 // 🔥 포인트가 줄었다면 알림
                 if (usedPoint < before) {
-                    showPointAdjustedAlert(usedPoint);
+                    showPointAdjustedAlert(usedPoint, "할인 쿠폰 적용");
                 }
             });
         });
@@ -594,7 +647,7 @@
         if (val > allowedPoint) {
             usedPoint = allowedPoint;
             input.value = usedPoint;
-            showPointAdjustedAlert(usedPoint);
+            showPointAdjustedAlert(usedPoint, "할인 쿠폰 적용");
         } else {
             usedPoint = val;
         }
@@ -616,12 +669,12 @@
     }
 
     // 📌 포인pointMessage트 조정 알람
-    function showPointAdjustedAlert(amount) {
+    function showPointAdjustedAlert(amount, reason) {
         // 너무 자주 뜨지 않게 방지 (1초 내에 중복 방지용)
         if (window.__lastPointAlertTime && Date.now() - window.__lastPointAlertTime < 1000) return;
         window.__lastPointAlertTime = Date.now();
 
-        alert(`선택한 할인쿠폰 적용으로 인해 포인트 사용 금액이 ${formatCurrency(amount)}으로 조정되었습니다.`);
+        alert(`${reason}으로 인해 포인트 사용 금액이 ${formatCurrency(amount)}으로 조정되었습니다.`);
     }
 
     // 📌 화면 내 통화 포맷
@@ -643,13 +696,25 @@
         const maxPoint = parseInt(pointInput.getAttribute("max") || "0", 10);
         const inputVal = parseInt(pointInput.value || "0", 10);
 
+        const useAllChk = document.getElementById('useAllPointChk');
+        const wasChecked = useAllChk?.checked;
+
         const newAllowedPoint = Math.min(inputVal, maxPoint, paymentAmountBeforePoint);
 
-        if (inputVal > newAllowedPoint) {
-            usedPoint = newAllowedPoint;
-            pointInput.value = newAllowedPoint;
+        if (wasChecked) {
+            const adjusted = Math.min(maxPoint, paymentAmountBeforePoint);
+            if (usedPoint !== adjusted) {
+                usedPoint = adjusted;
+                pointInput.value = usedPoint;
+                showPointAdjustedAlert(usedPoint, "포장지 선택");
+            }
         } else {
-            usedPoint = inputVal;
+            if (inputVal > newAllowedPoint) {
+                usedPoint = newAllowedPoint;
+                pointInput.value = usedPoint;
+            } else {
+                usedPoint = inputVal;
+            }
         }
 
         const paymentAmount = Math.max(paymentAmountBeforePoint - usedPoint, 0);
@@ -734,8 +799,12 @@
             if (!getVal(id)) return alert("모든 정보를 입력해주세요.");
         }
 
-        if (document.querySelectorAll('select[name="couponId"]:not([disabled])').length > 1)
+        const selectedCoupons = Array.from(document.querySelectorAll('select[name="couponId"]'))
+            .filter(select => !select.disabled && select.value);  // 실제로 선택된 쿠폰만 필터링
+
+        if (selectedCoupons.length > 1) {
             return alert("쿠폰은 한 개만 사용할 수 있습니다.");
+        }
 
         const userId = parseInt(getVal("userId"), 10);
         const preferredDate = window.getPreferredDeliveryDate();
@@ -761,12 +830,17 @@
             });
         });
 
-        const { productTotal, packagingTotal, couponDiscountTotal, shippingFee, paymentAmountBeforePoint } = getSummary();
+        const {productTotal, packagingTotal, couponDiscountTotal, shippingFee, paymentAmountBeforePoint} = getSummary();
         const usedPointAmount = usedPoint;
         const finalAmount = Math.max(paymentAmountBeforePoint - usedPointAmount, 0);
 
+        if (finalAmount === 0) {
+            openZeroPaymentModal(usedPointAmount, couponDiscountTotal);
+            return;
+        }
+
         const payload = {
-            orderCreateRequest: { userId, ordererName: getVal("ordererName"), ordererPhone: getVal("ordererPhone") },
+            orderCreateRequest: {userId, ordererName: getVal("ordererName"), ordererPhone: getVal("ordererPhone")},
             shipmentCreateRequest: {
                 preferredDeliveryDate: preferredDate,
                 recipientName: getVal("recipientName"),
@@ -792,7 +866,14 @@
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload)
         })
-            .then(res => res.json())
+            .then(res => {
+                if (!res.ok) {
+                    return res.json().then(err => {
+                        throw err;
+                    });
+                }
+                return res.json();
+            })
             .then(data => toss.requestPayment("카드", {
                 amount: data.amount,
                 orderId: data.orderId,
@@ -802,9 +883,120 @@
                 failUrl: data.failUrl
             }))
             .catch(err => {
+                console.log("error 메세지 : " + err.message);
+                const errorMessage = err.message || err;
+
                 if (err.code === "USER_CANCEL") alert("결제를 취소했습니다.");
+                else if (typeof errorMessage === "string" && errorMessage.includes("BOOK_INSUFFICIENT_STOCK")) {
+                    alert("도서 재고가 부족합니다.");
+                    window.location.href = `${contextPath}carts`;
+                }
                 else alert("결제 중 오류가 발생했습니다.");
             });
     }
 
+    // 📌 0원 결제시 모달 열기
+    function openZeroPaymentModal(usedPoint, discountAmount) {
+        console.log('✅ 0원 결제 모달 열기 시도');
+
+        // 신규 (영수증용)
+        const productTotal = document.querySelector('[data-role="product-total"]').textContent;
+        const shippingFee = document.querySelector('[data-role="shipping-fee"]').textContent;
+        const packagingTotal = document.querySelector('[data-role="packaging-total"]').textContent;
+
+        document.getElementById('receiptProductTotal').textContent = productTotal;
+        document.getElementById('receiptShippingFee').textContent = shippingFee;
+        document.getElementById('receiptPackagingTotal').textContent = packagingTotal;
+        document.getElementById('receiptDiscountAmount').textContent = "-" + discountAmount.toLocaleString() + "원";
+        document.getElementById('receiptUsedPoint').textContent = "-" + usedPoint.toLocaleString() + "P";
+
+        document.getElementById('zeroPaymentModal').classList.remove('hidden');
+    }
+
+    // 📌 0원 결제시 모달 닫기
+    function closeZeroModal() {
+        document.getElementById("zeroPaymentModal").classList.add("hidden");
+    }
+
+    // 📌 0원 결제시
+    function submitZeroPayment() {
+        const getVal = id => document.getElementById(id)?.value.trim();
+        const userId = parseInt(getVal("userId"), 10);
+        const preferredDate = window.getPreferredDeliveryDate();
+        const items = [];
+
+        document.querySelectorAll(".cart-item").forEach(item => {
+            const packagingSelect = item.querySelector("select.packaging-select");
+            const packagingValue = packagingSelect?.value;
+            const packagingId = packagingValue ? parseInt(packagingValue) : null;
+
+            const couponSelect = item.querySelector("select[name='couponId']");
+            const couponValue = couponSelect?.value;
+            const couponStoreId = (couponSelect && !couponSelect.disabled && couponValue)
+                ? parseInt(couponValue)
+                : null;
+
+            items.push({
+                bookId: parseInt(item.dataset.bookId),
+                quantity: parseInt(item.dataset.quantity),
+                price: parseInt(item.dataset.price),
+                packagingId: packagingId,
+                couponStoreId: couponStoreId
+            });
+        });
+
+        const { shippingFee, couponDiscountTotal, packagingTotal, productTotal, paymentAmountBeforePoint } = getSummary();
+
+        const payload = {
+            orderCreateRequest: { userId, ordererName: getVal("ordererName"), ordererPhone: getVal("ordererPhone") },
+            shipmentCreateRequest: {
+                preferredDeliveryDate: preferredDate,
+                recipientName: getVal("recipientName"),
+                recipientPhone: getVal("recipientPhone"),
+                postalCode: parseInt(getVal("postalCode")),
+                defaultAddress: getVal("defaultAddress"),
+                detailAddress: getVal("detailAddress"),
+                extraAddress: getVal("extraAddress"),
+                shippingFee,
+                shippingCode: null
+            },
+            createRequestList: items,
+            discountAmount: couponDiscountTotal,
+            usedPointAmount: usedPoint,
+            paymentAmount: 0 // 반드시 0원으로 설정
+        };
+
+        const contextPath = /*[[@{/}]]*/ '';
+
+        fetch(`${contextPath}payments/zero`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+        })
+            .then(res => {
+                if (!res.ok) {
+                    return res.json().then(err => {
+                        throw err;
+                    });
+                }
+                return res.json();
+            })
+            .then(html => {
+                // 결제 성공 페이지 HTML로 전환
+                document.open();
+                document.write(html);
+                document.close();
+            })
+            .catch(err => {
+                const errorMessage = err.message || err;
+                if (typeof errorMessage === "string" && errorMessage.includes("BOOK_INSUFFICIENT_STOCK")) {
+                    alert("도서 재고가 부족합니다.");
+                    window.location.href = `${contextPath}carts`;
+                }  else {
+                    alert("0원 결제 중 오류가 발생했습니다.");
+                    console.error(err);
+                }
+
+            });
+    }
 </script>
