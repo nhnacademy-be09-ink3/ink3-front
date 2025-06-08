@@ -12,16 +12,24 @@ import com.nhnacademy.front.shop.book.dto.BookStatus;
 import com.nhnacademy.front.shop.book.dto.BookUpdateForm;
 import com.nhnacademy.front.shop.book.dto.BookUpdateRequest;
 import com.nhnacademy.front.shop.book.dto.BookCreateRequest;
+import com.nhnacademy.front.shop.book.dto.SortType;
 import com.nhnacademy.front.shop.category.client.CategoryClient;
 import com.nhnacademy.front.shop.category.client.dto.CategoryResponse;
+import com.nhnacademy.front.shop.like.client.dto.LikeResponse;
+import com.nhnacademy.front.shop.like.service.LikeService;
 import com.nhnacademy.front.shop.publisher.client.PublisherClient;
 import com.nhnacademy.front.shop.publisher.client.dto.PublisherResponse;
 import com.nhnacademy.front.shop.tag.client.TagClient;
 import com.nhnacademy.front.shop.tag.client.dto.TagResponse;
+
 import jakarta.validation.Valid;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
+
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -57,12 +65,13 @@ public class BookController {
     private final AuthorClient authorClient;
     private final PublisherClient publisherClient;
     private final TagClient tagClient;
+    private final LikeService likeService;
     private final ObjectMapper objectMapper;
 
     @GetMapping("/books/{bookId}")
     public String getBookDetail(@PathVariable Long bookId,
-        @RequestParam(defaultValue = "0") int  page,
-        @RequestParam(defaultValue = "10") int  size,
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size,
         Model model, @CookieValue(name = "accessToken", required = false) String accessToken) {
         CommonResponse<BookResponse> response = bookClient.getBookDetail(bookId);
         PageResponse<ReviewListResponse> reviews =
@@ -81,60 +90,82 @@ public class BookController {
             log.warn("비회원 사용자 도서 상세페이지 접근: {}", e.getMessage());
         }
 
-        model.addAttribute("book",      response.data());
-        model.addAttribute("reviews",   reviews.content());
+        AtomicBoolean liked = new AtomicBoolean(false);
+        AtomicReference<Long> likeId = new AtomicReference<>(null);
+
+        if (userId != null) {
+            PageResponse<LikeResponse> likes = likeService.getCurrentUserLikes(0, 100, null);
+            likes.content().stream()
+                .filter(like -> like.bookId().equals(bookId))
+                .findFirst()
+                .ifPresent(like -> {
+                    liked.set(true);
+                    likeId.set(like.id());
+                });
+        }
+
+        model.addAttribute("book", response.data());
+        model.addAttribute("reviews", reviews.content());
         model.addAttribute("reviewPage", reviews);
-        model.addAttribute("pageInfo",  pageInfo);
-        model.addAttribute("bookId",    bookId);
-        model.addAttribute("userId",    userId);
+        model.addAttribute("pageInfo", pageInfo);
+        model.addAttribute("bookId", bookId);
+        model.addAttribute("userId", userId);
+        model.addAttribute("liked", liked);
+        model.addAttribute("likeId", likeId);
 
         return "book/book-detail";
     }
 
     @GetMapping("/books/bestseller")
-    public String getBestsellerBooks(@RequestParam(defaultValue = "0") int page, Model model) {
-        CommonResponse<PageResponse<MainBookResponse>> response = bookClient.getAllBestsellerBooks(page, 10);
+    public String getBestsellerBooks(@RequestParam(defaultValue = "REVIEW") SortType sortType,
+        @RequestParam(defaultValue = "0") int page, Model model) {
+        CommonResponse<PageResponse<MainBookResponse>> response = bookClient.getAllBestsellerBooks(sortType, page, 10);
         PageResponse<MainBookResponse> pageData = response.data();
 
         PageUtil.PageInfo pageInfo = PageUtil.calculatePageRange(
-                pageData.page(), pageData.totalPages(), 5
+            pageData.page(), pageData.totalPages(), 5
         );
 
         model.addAttribute("bookList", pageData.content());
         model.addAttribute("bookPage", pageData);
         model.addAttribute("pageInfo", pageInfo);
+        model.addAttribute("currentSort", sortType.name());
 
         return "book/list/bestseller-books";
     }
 
     @GetMapping("/books/new")
-    public String getNewBooks(@RequestParam(defaultValue = "0") int page, Model model) {
-        CommonResponse<PageResponse<MainBookResponse>> response = bookClient.getAllNewBooks(page, 10);
+    public String getNewBooks(@RequestParam(defaultValue = "REVIEW") SortType sortType,
+        @RequestParam(defaultValue = "0") int page, Model model) {
+        CommonResponse<PageResponse<MainBookResponse>> response = bookClient.getAllNewBooks(sortType, page, 10);
         PageResponse<MainBookResponse> pageData = response.data();
 
         PageUtil.PageInfo pageInfo = PageUtil.calculatePageRange(
-                pageData.page(), pageData.totalPages(), 5
+            pageData.page(), pageData.totalPages(), 5
         );
 
         model.addAttribute("bookList", pageData.content());
         model.addAttribute("bookPage", pageData);
         model.addAttribute("pageInfo", pageInfo);
+        model.addAttribute("currentSort", sortType.name());
 
         return "book/list/new-books";
     }
 
     @GetMapping("/books/recommend")
-    public String getRecommendBooks(@RequestParam(defaultValue = "0") int page, Model model) {
-        CommonResponse<PageResponse<MainBookResponse>> response = bookClient.getAllRecommendedBooks(page, 10);
+    public String getRecommendBooks(@RequestParam(defaultValue = "REVIEW") SortType sortType,
+        @RequestParam(defaultValue = "0") int page, Model model) {
+        CommonResponse<PageResponse<MainBookResponse>> response = bookClient.getAllRecommendedBooks(sortType, page, 10);
         PageResponse<MainBookResponse> pageData = response.data();
 
         PageUtil.PageInfo pageInfo = PageUtil.calculatePageRange(
-                pageData.page(), pageData.totalPages(), 5
+            pageData.page(), pageData.totalPages(), 5
         );
 
         model.addAttribute("bookList", pageData.content());
         model.addAttribute("bookPage", pageData);
         model.addAttribute("pageInfo", pageInfo);
+        model.addAttribute("currentSort", sortType.name());
 
         return "book/list/recommend-books";
     }
@@ -188,19 +219,19 @@ public class BookController {
     }
 
     @GetMapping("/admin/book-edit/{book-id}")
-    public String getBookEdit(@PathVariable(name="book-id") Long bookId, Model model) {
+    public String getBookEdit(@PathVariable(name = "book-id") Long bookId, Model model) {
         CommonResponse<BookResponse> response = bookClient.getBookDetail(bookId);
         CommonResponse<PageResponse<AuthorResponse>> authorList = authorClient.getAuthors(0, 0);
         CommonResponse<PageResponse<PublisherResponse>> publisherList = publisherClient.getPublishers(0, 0);
         CommonResponse<PageResponse<CategoryResponse>> categoryList = categoryClient.getCategories();
         CommonResponse<PageResponse<TagResponse>> tagList = tagClient.getTags(0, 0);
         List<Long> selectedTagIds = response.data().tags().stream()
-                .map(TagResponse::id)
-                .toList();
+            .map(TagResponse::id)
+            .toList();
         List<AuthorDto> initialAuthors = response.data().authors();
         List<Long> selectedCategoryIds = response.data().categories().stream()
-                .map(CategoryResponse::id)
-                .toList();
+            .map(CategoryResponse::id)
+            .toList();
 
         model.addAttribute("book", response.data());
         model.addAttribute("authors", authorList.data().content());
@@ -215,12 +246,11 @@ public class BookController {
         return "admin/book/book-edit";
     }
 
-
     @PutMapping("/admin/books/{bookId}")
     public String updateBook(
-            @PathVariable("bookId") Long bookId,
-            @ModelAttribute("book") @Valid BookUpdateForm bookUpdateForm,
-            BindingResult bindingResult
+        @PathVariable("bookId") Long bookId,
+        @ModelAttribute("book") @Valid BookUpdateForm bookUpdateForm,
+        BindingResult bindingResult
     ) {
 
         List<AuthorRoleRequest> authorRequests = new ArrayList<>();
@@ -253,7 +283,7 @@ public class BookController {
         CommonResponse<PageResponse<BookResponse>> response = bookClient.getBooks(page, 10);
         PageResponse<BookResponse> books = response.data();
         PageUtil.PageInfo pageInfo = PageUtil.calculatePageRange(
-                books.page(), books.totalPages(), 5
+            books.page(), books.totalPages(), 5
         );
 
         model.addAttribute("currentPage", "list");

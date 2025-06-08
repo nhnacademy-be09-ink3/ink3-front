@@ -18,6 +18,20 @@
 <main class="container mx-auto px-4 py-8">
     <h2 class="text-2xl font-bold mb-6 text-center">신간 도서</h2>
 
+    <div class="max-w-5xl mx-auto flex justify-end mb-4">
+        <form method="get" class="flex items-center gap-2">
+            <label for="sort" class="text-sm text-gray-600">정렬:</label>
+            <select id="sort" name="sortType"
+                    class="px-2 py-1 border border-gray-300 rounded-md"
+                    onchange="this.form.submit()">
+                <option value="REVIEW" th:selected="${currentSort == 'REVIEW'}">리뷰 많은 순</option>
+                <option value="LIKE" th:selected="${currentSort == 'LIKE'}">찜 많은 순</option>
+                <option value="TITLE" th:selected="${currentSort == 'TITLE'}">이름순</option>
+            </select>
+            <input type="hidden" name="page" th:value="${bookPage.page()}">
+        </form>
+    </div>
+
     <div class="space-y-6">
         <div th:each="book, iterStat : ${bookList}"
              class="bg-white rounded-xl shadow p-6 flex gap-6 items-center w-full max-w-5xl mx-auto">
@@ -83,7 +97,7 @@
     <ul class="flex justify-center gap-1 text-gray-900 mt-6">
         <!-- 이전 페이지 -->
         <li>
-            <a th:href="@{/books/new(page=${bookPage.hasPrevious()} ? ${bookPage.page() - 1} : ${bookPage.page()})}"
+            <a th:href="@{/books/new(page=${bookPage.hasPrevious()} ? ${bookPage.page() - 1} : ${bookPage.page()}, sortType=${currentSort})}"
                class="ink-page-item-arrow"
                aria-label="Previous page">
                 <svg xmlns="http://www.w3.org/2000/svg" class="size-4" viewBox="0 0 20 20" fill="currentColor">
@@ -96,14 +110,14 @@
 
         <!-- 페이지 번호 -->
         <li th:each="i : ${#numbers.sequence(pageInfo.startPage(), pageInfo.endPage())}">
-            <a th:href="@{/books/new(page=${i})}"
+            <a th:href="@{/books/new(page=${i}, sortType=${currentSort})}"
                th:class="${i == bookPage.page()} ? 'ink-page-item-current' : 'ink-page-item'"
                th:text="${i + 1}"></a>
         </li>
 
         <!-- 다음 페이지 -->
         <li>
-            <a th:href="@{/books/new(page=${bookPage.hasNext()} ? ${bookPage.page() + 1} : ${bookPage.page()})}"
+            <a th:href="@{/books/new(page=${bookPage.hasNext()} ? ${bookPage.page() + 1} : ${bookPage.page()}, sortType=${currentSort})}"
                class="ink-page-item-arrow" aria-label="Next page">
                 <svg xmlns="http://www.w3.org/2000/svg" class="size-4" viewBox="0 0 20 20" fill="currentColor">
                     <path fill-rule="evenodd"
