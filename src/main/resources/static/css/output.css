@@ -19,6 +19,7 @@
     --color-orange-500: oklch(70.5% 0.213 47.604);
     --color-orange-800: oklch(47% 0.157 37.304);
     --color-yellow-50: oklch(98.7% 0.026 102.212);
+    --color-orange-800: oklch(47% 0.157 37.304);
     --color-yellow-100: oklch(97.3% 0.071 103.193);
     --color-yellow-300: oklch(90.5% 0.182 98.111);
     --color-yellow-400: oklch(85.2% 0.199 91.936);
@@ -551,6 +552,12 @@
   .h-\[280px\] {
     height: 280px;
   }
+  .h-\[280px\] {
+    height: 280px;
+  }
+  .h-\[500px\] {
+    height: 500px;
+  }
   .h-auto {
     height: auto;
   }
@@ -682,6 +689,8 @@
   }
   .w-auto {
     width: auto;
+  .w-\[400px\] {
+    width: 400px;
   }
   .w-fit {
     width: fit-content;

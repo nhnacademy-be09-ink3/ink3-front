@@ -1,6 +1,3 @@
-<script th:inline="javascript">
-    const contextPath = /*[[@{/}]]*/ '';
-</script>
 <nav th:fragment="navFragment">
     <ul class="flex space-x-6 relative z-50">
         <li class="nav-item relative group" id="category-nav-item">
@@ -28,25 +25,19 @@
         </li>
     </ul>
 
-    <script>
-        const navHostname = location.hostname;
-        const navPathname = location.pathname;
-        const isLocal = navHostname === 'localhost' || navHostname.startsWith('127.');
-        const isDev = navPathname.startsWith('/dev/');
-        const navPageBase = isLocal ? '' : (isDev ? '/dev' : '');
-        const navApiBase = isLocal || isDev
-            ? 'https://ink3.shop/dev/gateway'
-            : 'https://ink3.shop/gateway';
+    <script th:inline="javascript">
+
+        const navContext = /*[[@{/}]]*/ "/";
 
         function goToCategory(name) {
             const encoded = encodeURIComponent(name);
-            location.href = `${navPageBase}/books/category?name=${encoded}`;
+            location.href = `${navContext}books/category?name=${encoded}`;
         }
 
         document.addEventListener('DOMContentLoaded', () => {
             let topLevelCategories = [];
 
-            fetch(`${navApiBase}/shop/categories`)
+            fetch(`${window.api.gatewayBaseUrl}/shop/categories`)
                 .then(res => res.json())
                 .then(data => {
                     const tree = buildCategoryTree(data.data.content);
