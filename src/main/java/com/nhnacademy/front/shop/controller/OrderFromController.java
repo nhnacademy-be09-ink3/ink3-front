@@ -1,21 +1,17 @@
 package com.nhnacademy.front.shop.controller;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nhnacademy.front.common.dto.CommonResponse;
 import com.nhnacademy.front.common.dto.PageResponse;
 import com.nhnacademy.front.shop.address.client.dto.AddressResponse;
 import com.nhnacademy.front.shop.address.service.AddressService;
 import com.nhnacademy.front.shop.book.client.BookClient;
 import com.nhnacademy.front.shop.book.dto.BookResponse;
-import com.nhnacademy.front.shop.book.dto.MainBookResponse;
 import com.nhnacademy.front.shop.cart.client.CartClient;
 import com.nhnacademy.front.shop.cart.dto.CartBookResponse;
 import com.nhnacademy.front.shop.cart.dto.CartCouponResponse;
-import com.nhnacademy.front.shop.cart.dto.CartResponse;
 import com.nhnacademy.front.shop.cart.dto.GuestCartView;
-import com.nhnacademy.front.shop.cart.dto.MeCartRequest;
+import com.nhnacademy.front.shop.couponStore.client.dto.CouponStoreDto;
+import com.nhnacademy.front.shop.couponStore.service.CouponStoreService;
 import com.nhnacademy.front.shop.guest.service.GuestOrderService;
 import com.nhnacademy.front.shop.order.dto.PackagingResponse;
 import com.nhnacademy.front.shop.order.dto.ShippingPolicyResponse;
@@ -23,14 +19,9 @@ import com.nhnacademy.front.shop.order.service.OrderService;
 import com.nhnacademy.front.shop.user.client.dto.UserResponse;
 import com.nhnacademy.front.shop.user.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
-import java.io.IOException;
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.CookieValue;
@@ -51,9 +42,11 @@ public class OrderFromController {
     private final UserService userService;
     private final CartClient cartClient;
     private final BookClient bookClient;
+    private final CouponStoreService couponStoreService;
 
     /**
      * 장바구니 -> 주문서 작성 페이지 return
+     *
      * @param model model
      * @return 주문서 작성 페이지 return
      */
@@ -66,15 +59,16 @@ public class OrderFromController {
         addPackagingList(model);
         addShippingPolicy(model);
 
-        if(orderService.isLoggedIn(request)){
+        if (orderService.isLoggedIn(request)) {
             addUserInfo(model);
+
             // 장바구니 리스트
             CommonResponse<List<CartCouponResponse>> cartResponse = cartClient.getCartsWithCoupon();
             List<CartCouponResponse> cart = cartResponse.data();
             log.info("couponsize = {}", cart.getFirst().applicableCoupons().size());
             model.addAttribute("cart", cart);
             return "order/order-form-user-books";
-        }else {
+        } else {
             // 비회원 장바구니 리스트
             List<GuestCartView> guestCartViews = guestOrderService.getGuestCartViews(guestCartCookie);
             model.addAttribute("cart", guestCartViews);
@@ -84,10 +78,11 @@ public class OrderFromController {
 
     /**
      * 상품 -> 주문서 작성 페이지 return
-     * @param model model
-     * @param bookId 구매 상품Id
+     *
+     * @param model    model
+     * @param bookId   구매 상품Id
      * @param quantity 구매 수량
-     * @param request 쿠키값에 accessToken여부 확인
+     * @param request  쿠키값에 accessToken여부 확인
      * @return 주문서 작성 페이지 return
      */
     @GetMapping("/from-book/{bookId}")
@@ -97,31 +92,26 @@ public class OrderFromController {
             @RequestParam int quantity,
             HttpServletRequest request
     ) {
-        addBookInfo(model, bookId, quantity);
         addPackagingList(model);
         addShippingPolicy(model);
 
-        if(orderService.isLoggedIn(request)) {
-            addUserInfo(model);
-            return "order/order-form-user-book";
-        }else{
-            return "order/order-form-guest-book";
+        if (orderService.isLoggedIn(request)) {
+            long userId = addUserInfo(model);
+            addBookInfoForUser(model, userId, bookId, quantity);
+            return "order/order-form-user-books";
+        } else {
+            addBookInfoForGuest(model, bookId, quantity);
+            return "order/order-form-guest-books";
         }
     }
 
     // 사용자 정보 입력
-    private void addUserInfo(Model model) {
+    private long addUserInfo(Model model) {
         UserResponse currentUser = userService.getCurrentUser();
         PageResponse<AddressResponse> addresses = addressService.getAddresses(0, 10);
         model.addAttribute("user", currentUser);
         model.addAttribute("addressList", addresses.content());
-    }
-
-    // 상품 정보
-    private void addBookInfo(Model model, long bookId, int quantity) {
-        CommonResponse<BookResponse> bookDetailResponse = bookClient.getBookDetail(bookId);
-        model.addAttribute("book", bookDetailResponse.data());
-        model.addAttribute("quantity", quantity);
+        return currentUser.id();
     }
 
     // 포장지 정보
@@ -134,5 +124,47 @@ public class OrderFromController {
     private void addShippingPolicy(Model model) {
         ShippingPolicyResponse activeShippingPolicy = orderService.getActiveShippingPolicy();
         model.addAttribute("activeShippingPolicy", activeShippingPolicy);
+    }
+
+    // 상품 정보 (회원)
+    private void addBookInfoForUser(Model model, long userId, long bookId, int quantity) {
+        BookResponse book = bookClient.getBookDetail(bookId).data();
+        List<CouponStoreDto> applicableCoupons = couponStoreService.getApplicableCoupons(userId, bookId);
+        CartCouponResponse cartCouponResponse = new CartCouponResponse(
+                0L,
+                userId,
+                book.id(),
+                book.title(),
+                book.originalPrice(),
+                book.salePrice(),
+                book.discountRate(),
+                book.thumbnailUrl(),
+                book.isPackable(),
+                quantity,
+                applicableCoupons);
+
+        List<CartCouponResponse> cart = List.of(cartCouponResponse);
+        model.addAttribute("cart", cart);
+    }
+
+    // 상품 정보 (비회원)
+    private void addBookInfoForGuest(Model model, long bookId, int quantity) {
+        BookResponse book = bookClient.getBookDetail(bookId).data();
+
+        CartBookResponse cartBookResponse = new CartBookResponse(
+                book.title(),
+                book.originalPrice(),
+                book.salePrice(),
+                book.discountRate(),
+                book.thumbnailUrl(),
+                book.isPackable());
+
+        GuestCartView guestCartView = new GuestCartView(
+                bookId,
+                quantity,
+                cartBookResponse);
+
+        List<GuestCartView> cart = List.of(guestCartView);
+        model.addAttribute("cart", cart);
     }
 }

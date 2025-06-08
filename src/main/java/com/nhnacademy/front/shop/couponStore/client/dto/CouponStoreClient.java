@@ -1,5 +1,6 @@
 package com.nhnacademy.front.shop.couponStore.client.dto;
 
+import java.util.List;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -29,4 +30,10 @@ public interface CouponStoreClient {
         @RequestParam int page,
         @RequestParam int size,
         @RequestParam(required = false) String sort);
+
+    @GetMapping("/applicable-coupons")
+    CommonResponse<List<CouponStoreDto>> getApplicableCoupons(
+            @RequestParam long userId,
+            @RequestParam long bookId
+    );
 }
