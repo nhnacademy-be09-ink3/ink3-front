@@ -29,7 +29,7 @@
                      class="cart-item bg-white p-4 rounded-xl shadow text-sm flex items-center gap-6 mb-4"
                      th:attr="data-book-id=${item.bookId}, data-price=${item.saleBookPrice}, data-quantity=${item.quantity}">
 
-                <!-- 이미지 -->
+                    <!-- 이미지 -->
                     <div class="w-16 flex-shrink-0">
                         <img th:src="${item.thumbnailUrl}" alt="도서 이미지"
                              class="w-full h-auto rounded border border-gray-200">
@@ -120,7 +120,7 @@
                                             c.discountPercentage + '% 할인' +
                                             (c.maximumDiscountAmount != null ? ' (최대 ' + #numbers.formatInteger(c.maximumDiscountAmount, 0, 'COMMA') + '원)' : '')
                                           ) + '&#10;만료일: ' + #temporals.format(c.expiresAt, 'yyyy-MM-dd HH:mm')}"
-                                                        th:attr="data-coupon-id=${c.couponId},
+                                        th:attr="data-coupon-id=${c.couponId},
                                          data-discount-type=${c.discountType},
                                          data-discount-value=${c.discountValue},
                                          data-discount-percentage=${c.discountPercentage},
@@ -866,13 +866,20 @@
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload)
         })
-            .then(res => {
+            .then(async res => {
+                const contentType = res.headers.get("Content-Type") || "";
+                const isJson = contentType.includes("application/json");
+
                 if (!res.ok) {
-                    return res.json().then(err => {
-                        throw err;
-                    });
+                    const errorBody = await res.text();
+                    throw new Error(errorBody);
                 }
-                return res.json();
+
+                if (isJson) {
+                    return res.json();
+                } else {
+                    return res.text(); // HTML로 온 경우 처리
+                }
             })
             .then(data => toss.requestPayment("카드", {
                 amount: data.amount,
@@ -973,13 +980,20 @@
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload)
         })
-            .then(res => {
+            .then(async res => {
+                const contentType = res.headers.get("Content-Type") || "";
+                const isJson = contentType.includes("application/json");
+
                 if (!res.ok) {
-                    return res.json().then(err => {
-                        throw err;
-                    });
+                    const errorBody = await res.text();
+                    throw new Error(errorBody);
                 }
-                return res.json();
+
+                if (isJson) {
+                    return res.json();
+                } else {
+                    return res.text(); // HTML로 온 경우 처리
+                }
             })
             .then(html => {
                 // 결제 성공 페이지 HTML로 전환
