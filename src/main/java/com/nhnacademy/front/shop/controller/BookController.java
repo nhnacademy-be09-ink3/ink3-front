@@ -112,6 +112,7 @@ public class BookController {
         model.addAttribute("userId", userId);
         model.addAttribute("liked", liked);
         model.addAttribute("likeId", likeId);
+        model.addAttribute("likeCount", response.data().likeCount());
 
         return "book/book-detail";
     }
