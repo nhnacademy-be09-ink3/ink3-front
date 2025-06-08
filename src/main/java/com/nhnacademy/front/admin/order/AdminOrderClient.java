@@ -3,11 +3,14 @@ package com.nhnacademy.front.admin.order;
 import com.nhnacademy.front.common.dto.CommonResponse;
 import com.nhnacademy.front.common.dto.PageResponse;
 import com.nhnacademy.front.shop.order.dto.OrderResponse;
+import com.nhnacademy.front.shop.order.dto.OrderStatusUpdateRequest;
 import com.nhnacademy.front.shop.order.dto.RefundResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
 @FeignClient(name = "adminOrderClient", url = "${feign.url.shop}")
@@ -16,6 +19,10 @@ public interface AdminOrderClient {
     CommonResponse<PageResponse<OrderResponse>> getOrders(
             @RequestParam("page") int page,
             @RequestParam("size") int size);
+
+    @PatchMapping("/orders/{orderId}/order-status")
+    CommonResponse<Void> updateOrderStatus(@PathVariable long orderId,
+                                           @RequestBody OrderStatusUpdateRequest request);
 
     @GetMapping("/refunds")
     CommonResponse<PageResponse<RefundResponse>> getRefunds(
@@ -29,6 +36,4 @@ public interface AdminOrderClient {
 
     @PostMapping("/refunds/{orderId}")
     CommonResponse<Void> approveRefund(@PathVariable("orderId") String orderId);
-
-
 }
