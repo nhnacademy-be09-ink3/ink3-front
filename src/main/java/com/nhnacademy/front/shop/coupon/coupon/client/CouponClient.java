@@ -30,8 +30,8 @@ public interface CouponClient {
      */
     @GetMapping("/coupons")
     CommonResponse<PageResponse<CouponResponse>> getAll(
-            @RequestParam("page") int page,
-            @RequestParam("size") int size);
+            @RequestParam("size") int size,
+            @RequestParam("page") int page);
 
     /**
      * 쿠폰 수정

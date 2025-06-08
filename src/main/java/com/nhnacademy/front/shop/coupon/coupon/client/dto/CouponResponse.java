@@ -8,12 +8,14 @@ public record CouponResponse(
         String name,
         Long policyId,
         String policyName,
+        int discountRate,
+        int discountValue,
         LocalDateTime issuableFrom,
         LocalDateTime expiresAt,
         LocalDateTime createdAt,
         List<BookInfo> books,
         List<CategoryInfo> categories
 ) {
-    public record BookInfo(Long originId, Long id, String title) {}
-    public record CategoryInfo(Long originId, Long id, String name) {}
+    public record BookInfo(Long originId, Long id, String title, String originType) {}
+    public record CategoryInfo(Long originId, Long id, String name, String originType) {}
 }

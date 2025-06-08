@@ -12,10 +12,19 @@ import com.nhnacademy.front.shop.book.dto.BookUpdateRequest;
 import com.nhnacademy.front.shop.book.dto.BookCreateRequest;
 import com.nhnacademy.front.shop.category.client.CategoryClient;
 import com.nhnacademy.front.shop.category.client.dto.CategoryResponse;
+import com.nhnacademy.front.shop.coupon.coupon.client.CouponClient;
+import com.nhnacademy.front.shop.coupon.coupon.client.dto.CouponResponse;
+import com.nhnacademy.front.shop.coupon.policy.client.CouponPolicyClient;
+import com.nhnacademy.front.shop.coupon.policy.client.dto.PolicyResponse;
+import com.nhnacademy.front.shop.coupon.store.client.CouponStore;
+import com.nhnacademy.front.shop.coupon.store.client.dto.CouponIssueRequest;
+import com.nhnacademy.front.shop.coupon.store.client.dto.StoresResponse;
+import com.nhnacademy.front.shop.couponStore.client.dto.CouponStoreResponse;
 import com.nhnacademy.front.shop.publisher.client.PublisherClient;
 import com.nhnacademy.front.shop.publisher.client.dto.PublisherResponse;
 import com.nhnacademy.front.shop.tag.client.TagClient;
 import com.nhnacademy.front.shop.tag.client.dto.TagResponse;
+import feign.FeignException;
 import jakarta.validation.Valid;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -43,6 +52,7 @@ import com.nhnacademy.front.util.PageUtil;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -54,6 +64,9 @@ public class BookController {
     private final AuthorClient authorClient;
     private final PublisherClient publisherClient;
     private final TagClient tagClient;
+    private final CouponClient couponClient;
+    private final CouponPolicyClient couponPolicyClient;
+    private final CouponStore couponStore;
 
     @GetMapping("/books/{bookId}")
     public String getBookDetail(@PathVariable Long bookId,
@@ -77,12 +90,33 @@ public class BookController {
             log.warn("비회원 사용자 도서 상세페이지 접근: {}", e.getMessage());
         }
 
+        // 3) 도서에 직접 연결된 쿠폰
+        CommonResponse<PageResponse<CouponResponse>> bookCouponsResp =
+                couponClient.getByBookId(bookId, 0, 10);
+        List<CouponResponse> bookCoupons =
+                bookCouponsResp.data().content();
+
+        // 4) 카테고리별 쿠폰 합치기
+        List<CouponResponse> categoryCoupons = new ArrayList<>();
+        for (CategoryResponse cat : books.data().categories()) {
+            CommonResponse<PageResponse<CouponResponse>> resp =
+                    couponClient.getByCategoryId(cat.id(), 0, 10);
+            categoryCoupons.addAll(resp.data().content());
+        }
+
+        // 5) 둘을 합쳐서 모델에 한 번에 담기
+        List<CouponResponse> coupons = new ArrayList<>();
+        coupons.addAll(bookCoupons);
+        coupons.addAll(categoryCoupons);
+
+
         model.addAttribute("book",      books.data());
         model.addAttribute("reviews",   reviews.content());
         model.addAttribute("reviewPage", reviews);
         model.addAttribute("pageInfo",  pageInfo);
         model.addAttribute("bookId",    bookId);
         model.addAttribute("userId",    userId);
+        model.addAttribute("coupons", coupons);
 
         return "book/book-detail";
     }
@@ -243,5 +277,53 @@ public class BookController {
         model.addAttribute("bookList", pageResponse.content()); // 리스트 자체
         model.addAttribute("books", pageResponse);              // 페이지 전체 정보
         return "admin/book/list";
+    }
+
+    @PostMapping("/users/coupon-stores")
+    public String issueCoupon(@RequestParam Long couponId,
+                              @RequestParam String originType,
+                              @RequestParam Long originId,
+                              @CookieValue(name = "accessToken", required = false) String accessToken,
+                              RedirectAttributes redirectAttributes)
+    {
+        Long userId = null;
+        try {
+            if (accessToken != null) {
+                DecodedJWT decodedAccessToken = JWT.decode(accessToken);
+                userId = decodedAccessToken.getClaim("id").asLong();
+            }
+        } catch (Exception e) {
+            log.warn("비회원 사용자 도서 상세페이지 접근: {}", e.getMessage());
+        }
+        CouponIssueRequest req = new CouponIssueRequest(
+                userId, couponId, originType, originId
+        );
+        // 3) Feign 호출 및 예외 처리
+        try {
+            CommonResponse<StoresResponse> resp = couponStore.issueCoupon(req);
+            redirectAttributes.addFlashAttribute(
+                    "successMessage", resp.data().couponName() + " 쿠폰이 발급되었습니다."
+            );
+        } catch (FeignException e) {
+            if (e.status() == 409) {
+                // 충돌(중복 발급 등) 메시지 파싱
+                String msg = extractMessageFromFeignBody(e.contentUTF8());
+                redirectAttributes.addFlashAttribute("errorMessage", msg);
+            } else {
+                redirectAttributes.addFlashAttribute("errorMessage", "쿠폰 발급 중 오류가 발생했습니다.");
+            }
+        }
+
+        // 4) 발급 후 원래 페이지로 리다이렉트
+        return "redirect:/books/" + originId;
+    }
+
+    private String extractMessageFromFeignBody(String body) {
+        try {
+            var tree = new com.fasterxml.jackson.databind.ObjectMapper().readTree(body);
+            return tree.path("message").asText();
+        } catch (Exception ex) {
+            return "알 수 없는 오류가 발생했습니다.";
+        }
     }
 }
