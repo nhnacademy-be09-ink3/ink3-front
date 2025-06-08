@@ -1002,15 +1002,25 @@
                 document.close();
             })
             .catch(err => {
-                const errorMessage = err.message || err;
-                if (typeof errorMessage === "string" && errorMessage.includes("BOOK_INSUFFICIENT_STOCK")) {
-                    alert("도서 재고가 부족합니다.");
-                    window.location.href = `${contextPath}carts`;
-                }  else {
-                    alert("0원 결제 중 오류가 발생했습니다.");
-                    console.error(err);
+                const errorMessage = err.message || "";
+
+                const jsonMatch = errorMessage.match(/\[({.+})\]/); // 대괄호 안의 JSON 객체 추출
+                if (jsonMatch && jsonMatch[1]) {
+                    try {
+                        const errorJson = JSON.parse(jsonMatch[1]);
+                        if (errorJson.message === "BOOK_INSUFFICIENT_STOCK.") {
+                            alert(errorJson.data || "도서 재고가 부족합니다.");
+                            window.location.href = `${contextPath}carts`;
+                            return;
+                        }
+                    } catch (e) {
+                        console.warn("에러 JSON 파싱 실패:", e);
+                    }
                 }
 
+                // 기본 오류 처리
+                alert("0원 결제 중 오류가 발생했습니다.");
+                console.error(err);
             });
     }
 </script>
