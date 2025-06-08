@@ -866,13 +866,20 @@
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload)
         })
-            .then(res => {
+            .then(async res => {
+                const contentType = res.headers.get("Content-Type") || "";
+                const isJson = contentType.includes("application/json");
+
                 if (!res.ok) {
-                    return res.json().then(err => {
-                        throw err;
-                    });
+                    const errorBody = await res.text();
+                    throw new Error(errorBody);
                 }
-                return res.json();
+
+                if (isJson) {
+                    return res.json();
+                } else {
+                    return res.text(); // HTML로 온 경우 처리
+                }
             })
             .then(data => toss.requestPayment("카드", {
                 amount: data.amount,
@@ -973,13 +980,20 @@
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload)
         })
-            .then(res => {
+            .then(async res => {
+                const contentType = res.headers.get("Content-Type") || "";
+                const isJson = contentType.includes("application/json");
+
                 if (!res.ok) {
-                    return res.json().then(err => {
-                        throw err;
-                    });
+                    const errorBody = await res.text();
+                    throw new Error(errorBody);
                 }
-                return res.json();
+
+                if (isJson) {
+                    return res.json();
+                } else {
+                    return res.text(); // HTML로 온 경우 처리
+                }
             })
             .then(html => {
                 // 결제 성공 페이지 HTML로 전환
