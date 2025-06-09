@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 import com.nhnacademy.front.shop.book.client.BookClient;
 import com.nhnacademy.front.shop.book.dto.MainBookResponse;
+import com.nhnacademy.front.shop.logo.client.LogoClient;
 
 import lombok.RequiredArgsConstructor;
 
@@ -15,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class IndexController {
     private final BookClient bookClient;
+    private final LogoClient logoClient;
 
     @GetMapping(value = {"/", "/home"})
     public String getBook(Model model) {
@@ -25,6 +27,7 @@ public class IndexController {
         model.addAttribute("bestSeller", bestSeller);
         model.addAttribute("newBooks", newBooks);
         model.addAttribute("recommendBooks", recommendBooks);
+        model.addAttribute("logoPresignedUrl", logoClient.getLogoPresignedUrl());
 
         return "book/book-main";
     }
