@@ -1,5 +1,6 @@
 package com.nhnacademy.front.shop.controller;
 
+import com.nhnacademy.front.shop.book.dto.BookResponse;
 import com.nhnacademy.front.shop.book.dto.MainBookResponse;
 import java.io.IOException;
 import java.net.URLDecoder;
@@ -93,6 +94,7 @@ public class CartController {
             if (!exists) {
                 cartList.add(new MeCartRequest(bookId, quantity));
             }
+            log.warn("cartList={}", cartList);
 
             String encoded = URLEncoder.encode(mapper.writeValueAsString(cartList), StandardCharsets.UTF_8);
             ResponseCookie cookie = ResponseCookie.from("guest_cart", encoded)
@@ -178,7 +180,7 @@ public class CartController {
 
         for (MeCartRequest item : guestItems) {
             try {
-                MainBookResponse data = cartClient.getBookById(item.bookId()).data();
+                BookResponse data = cartClient.getBookById(item.bookId()).data();
                 CartBookResponse book = new CartBookResponse(data.title(), data.originalPrice(), data.salePrice(),
                     data.discountRate(), data.thumbnailUrl(), data.isPackable());
                 log.info("🔍 응답 book = {}", book);

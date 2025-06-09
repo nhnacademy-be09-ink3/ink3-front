@@ -18,6 +18,20 @@
 <main class="container mx-auto px-4 py-8">
     <h2 class="text-2xl font-bold mb-6 text-center">신간 도서</h2>
 
+    <div class="max-w-5xl mx-auto flex justify-end mb-4">
+        <form method="get" class="flex items-center gap-2">
+            <label for="sort" class="text-sm text-gray-600">정렬:</label>
+            <select id="sort" name="sortType"
+                    class="px-2 py-1 border border-gray-300 rounded-md"
+                    onchange="this.form.submit()">
+                <option value="REVIEW" th:selected="${currentSort == 'REVIEW'}">리뷰 많은 순</option>
+                <option value="LIKE" th:selected="${currentSort == 'LIKE'}">찜 많은 순</option>
+                <option value="TITLE" th:selected="${currentSort == 'TITLE'}">이름순</option>
+            </select>
+            <input type="hidden" name="page" th:value="${bookPage.page()}">
+        </form>
+    </div>
+
     <div class="space-y-6">
         <div th:each="book, iterStat : ${bookList}"
              class="bg-white rounded-xl shadow p-6 flex gap-6 items-center w-full max-w-5xl mx-auto">
@@ -37,12 +51,40 @@
                     <p class="text-sm text-gray-600 mb-2"
                        th:text="${#strings.arrayJoin(book.authorNames.toArray(), ', ')}">작가명</p>
 
-                    <div>
+                    <div class="flex items-center text-sm font-bold text-gray-700 gap-6 mt-2">
+                        <!-- Like Count -->
+                        <div class="flex items-center gap-1 hover:text-pink-500 transition">
+                            <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5
+                     2 5.42 4.42 3 7.5 3c1.74 0 3.41 1.01 4.5
+                     2.09C13.09 4.01 14.76 3 16.5 3
+                     19.58 3 22 5.42 22 8.5c0
+                     3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                            </svg>
+                            <span th:text="${book.likeCount} + '명 찜'">0명 찜</span>
+                        </div>
+
+                        <!-- Review Count -->
+                        <div class="flex items-center gap-1 hover:text-yellow-500 transition">
+                            <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                                <path d="M12 17.27L18.18 21 16.54 13.97
+                     22 9.24l-7.19-.61L12 2
+                     9.19 8.63 2 9.24l5.46 4.73L5.82
+                     21z"/>
+                            </svg>
+                            <span th:text="${book.reviewCount} + '개 리뷰'">0개 리뷰</span>
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
                         <p class="text-sm line-through text-gray-400"
                            th:text="${#numbers.formatDecimal(book.originalPrice(), 0, 'COMMA', 0, 'POINT')} + '원'">
-                            정가</p>
+                            정가
+                        </p>
                         <p class="text-red-500 font-bold text-lg"
-                           th:text="${#numbers.formatDecimal(book.salePrice(), 0, 'COMMA', 0, 'POINT')} + '원'">할인가</p>
+                           th:text="${#numbers.formatDecimal(book.salePrice(), 0, 'COMMA', 0, 'POINT')} + '원'">
+                            할인가
+                        </p>
                     </div>
                 </div>
             </div>
@@ -58,7 +100,7 @@
                     <input type="hidden" name="bookId" th:value="${book.id}"/>
                     <input type="hidden" name="quantity" th:value="1"/>
                     <button type="submit"
-                            class="w-32 bg-gray-300 text-gray-800 text-sm py-2 rounded-md hover:bg-gray-400 transition">
+                            class="w-32 bg-ink-primary text-white text-sm py-2 rounded-md hover:bg-gray-400 transition">
                         장바구니에 넣기
                     </button>
                 </form>
@@ -83,7 +125,7 @@
     <ul class="flex justify-center gap-1 text-gray-900 mt-6">
         <!-- 이전 페이지 -->
         <li>
-            <a th:href="@{/books/new(page=${bookPage.hasPrevious()} ? ${bookPage.page() - 1} : ${bookPage.page()})}"
+            <a th:href="@{/books/new(page=${bookPage.hasPrevious()} ? ${bookPage.page() - 1} : ${bookPage.page()}, sortType=${currentSort})}"
                class="ink-page-item-arrow"
                aria-label="Previous page">
                 <svg xmlns="http://www.w3.org/2000/svg" class="size-4" viewBox="0 0 20 20" fill="currentColor">
@@ -96,14 +138,14 @@
 
         <!-- 페이지 번호 -->
         <li th:each="i : ${#numbers.sequence(pageInfo.startPage(), pageInfo.endPage())}">
-            <a th:href="@{/books/new(page=${i})}"
+            <a th:href="@{/books/new(page=${i}, sortType=${currentSort})}"
                th:class="${i == bookPage.page()} ? 'ink-page-item-current' : 'ink-page-item'"
                th:text="${i + 1}"></a>
         </li>
 
         <!-- 다음 페이지 -->
         <li>
-            <a th:href="@{/books/new(page=${bookPage.hasNext()} ? ${bookPage.page() + 1} : ${bookPage.page()})}"
+            <a th:href="@{/books/new(page=${bookPage.hasNext()} ? ${bookPage.page() + 1} : ${bookPage.page()}, sortType=${currentSort})}"
                class="ink-page-item-arrow" aria-label="Next page">
                 <svg xmlns="http://www.w3.org/2000/svg" class="size-4" viewBox="0 0 20 20" fill="currentColor">
                     <path fill-rule="evenodd"

@@ -8,6 +8,7 @@ import com.nhnacademy.front.shop.user.client.dto.UserDetailResponse;
 import com.nhnacademy.front.shop.user.client.dto.UserListItemDto;
 import com.nhnacademy.front.shop.user.client.dto.UserPasswordUpdateRequest;
 import com.nhnacademy.front.shop.user.client.dto.UserResponse;
+import com.nhnacademy.front.shop.user.client.dto.UserStatisticsResponse;
 import com.nhnacademy.front.shop.user.client.dto.UserUpdateRequest;
 import com.nhnacademy.front.shop.user.dto.RegisterRequest;
 import java.util.Objects;
@@ -20,7 +21,7 @@ public class UserService {
     private final UserClient userClient;
 
     public UserResponse registerUser(RegisterRequest request) {
-        if (Objects.isNull(request.provider())) {
+        if (Objects.isNull(request.provider()) || request.provider().isEmpty()) {
             return userClient.createUser(new UserCreateRequest(
                     request.id(),
                     request.password(),
@@ -65,5 +66,9 @@ public class UserService {
 
     public void withdrawCurrentUser() {
         userClient.withdrawCurrentUser();
+    }
+
+    public UserStatisticsResponse getUserStatistics() {
+        return userClient.getUserStatistics().data();
     }
 }
