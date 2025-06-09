@@ -243,19 +243,23 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
                         <p class="text-sm text-gray-500">전체 회원 수</p>
-                        <p id="totalMembers" class="text-2xl font-bold text-gray-900">0명</p>
+                        <p id="totalMembers" class="text-2xl font-bold text-gray-900"
+                           th:text="${statistics.totalUsers()} + '명'"></p>
                     </div>
                     <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
                         <p class="text-sm text-gray-500">활성 회원 수</p>
-                        <p id="activeMembers" class="text-2xl font-bold text-green-600">0명</p>
+                        <p id="activeMembers" class="text-2xl font-bold text-green-600"
+                           th:text="${statistics.activeUsers()} + '명'"></p>
                     </div>
                     <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
                         <p class="text-sm text-gray-500">휴면 회원 수</p>
-                        <p id="dormantMembers" class="text-2xl font-bold text-yellow-600">0명</p>
+                        <p id="dormantMembers" class="text-2xl font-bold text-yellow-600"
+                           th:text="${statistics.dormantUsers()} + '명'"></p>
                     </div>
                     <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
                         <p class="text-sm text-gray-500">탈퇴 회원 수</p>
-                        <p id="withdrawnMembers" class="text-2xl font-bold text-red-600">0명</p>
+                        <p id="withdrawnMembers" class="text-2xl font-bold text-red-600"
+                           th:text="${statistics.withdrawnUsers()} + '명'"></p>
                     </div>
                 </div>
             </div>
