@@ -180,7 +180,7 @@ public class BookController {
 
     @GetMapping("/books/category")
     public String booksByCategory(Model model) {
-        CommonResponse<PageResponse<BookResponse>> response = bookClient.getBooks();
+        CommonResponse<PageResponse<BookResponse>> response = bookClient.getBooks(0, 10);
         List<BookResponse> books = response.data().content();
 
         Map<Long, Integer> reviewCounts = new HashMap<>();
