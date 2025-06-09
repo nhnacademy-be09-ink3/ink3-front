@@ -6,6 +6,7 @@ import com.nhnacademy.front.shop.order.dto.OrderResponse;
 import com.nhnacademy.front.shop.order.dto.OrderStatus;
 import com.nhnacademy.front.shop.order.dto.OrderStatusUpdateRequest;
 import com.nhnacademy.front.shop.order.dto.RefundResponse;
+import com.nhnacademy.front.shop.order.service.OrderService;
 import com.nhnacademy.front.util.PageUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,6 +29,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class AdminOrderController {
 
     private final AdminOrderService adminOrderService;
+    private final OrderService orderService;
 
     // 반품 페이지
     @GetMapping("/refunds")
@@ -73,12 +75,19 @@ public class AdminOrderController {
     // 주문 상태 변경 요청
     @PostMapping("/orders/{orderId}/order-status")
     public String updateOrderStatus(@PathVariable Long orderId,
-                                    @RequestParam("value") String value,
+                                    @RequestParam("beforeStatus") String beforeStatus,
+                                    @RequestParam("afterStatus") String afterStatus,
                                     RedirectAttributes redirectAttributes) {
         try {
-            log.info("value={}", value);
-            OrderStatus status = OrderStatus.valueOf(value);
-            adminOrderService.updateOrderStatus(orderId, new OrderStatusUpdateRequest(status));
+            OrderStatus before = OrderStatus.valueOf(beforeStatus);
+            OrderStatus after = OrderStatus.valueOf(afterStatus);
+
+            if(after==OrderStatus.DELIVERED){
+                adminOrderService.updateShipmentDeliveredAtToNow(orderId);
+            }else if(before==OrderStatus.DELIVERED && ( after==OrderStatus.CREATED || after==OrderStatus.CONFIRMED)){
+                adminOrderService.updateShipmentDeliveredAtToNull(orderId);
+            }
+            adminOrderService.updateOrderStatus(orderId, new OrderStatusUpdateRequest(after));
             return "redirect:/admin-order/orders";
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", "상태 변경 실패: " + e.getMessage());

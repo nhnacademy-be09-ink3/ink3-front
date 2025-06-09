@@ -6,6 +6,8 @@ import com.nhnacademy.front.shop.order.dto.OrderResponse;
 import com.nhnacademy.front.shop.order.dto.OrderStatus;
 import com.nhnacademy.front.shop.order.dto.OrderStatusUpdateRequest;
 import com.nhnacademy.front.shop.order.dto.RefundResponse;
+import com.nhnacademy.front.shop.order.dto.ShipmentResponse;
+import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cloud.config.client.ConfigServerHealthIndicator;
 import org.springframework.stereotype.Service;
@@ -32,5 +34,11 @@ public class AdminOrderService {
         adminOrderClient.approveRefund(orderId , userId);
     }
 
+    public ShipmentResponse updateShipmentDeliveredAtToNow(long orderId) {
+        return adminOrderClient.updateShipmentDeliveredAt(orderId, LocalDateTime.now()).data();
+    }
 
+    public ShipmentResponse updateShipmentDeliveredAtToNull(long orderId) {
+        return adminOrderClient.updateShipmentDeliveredAt(orderId, null).data();
+    }
 }
