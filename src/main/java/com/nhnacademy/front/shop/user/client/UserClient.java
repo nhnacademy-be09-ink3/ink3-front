@@ -8,6 +8,7 @@ import com.nhnacademy.front.shop.user.client.dto.UserDetailResponse;
 import com.nhnacademy.front.shop.user.client.dto.UserListItemDto;
 import com.nhnacademy.front.shop.user.client.dto.UserPasswordUpdateRequest;
 import com.nhnacademy.front.shop.user.client.dto.UserResponse;
+import com.nhnacademy.front.shop.user.client.dto.UserStatisticsResponse;
 import com.nhnacademy.front.shop.user.client.dto.UserUpdateRequest;
 import java.util.Map;
 import org.springframework.cloud.openfeign.FeignClient;
@@ -31,7 +32,7 @@ public interface UserClient {
 
     @GetMapping("/me/detail")
     CommonResponse<UserDetailResponse> getCurrentUserDetail();
-    
+
     @GetMapping
     CommonResponse<PageResponse<UserListItemDto>> getUsers(
             @RequestParam(required = false) String keyword,
@@ -53,4 +54,7 @@ public interface UserClient {
 
     @PatchMapping("/me/withdraw")
     CommonResponse<Void> withdrawCurrentUser();
+
+    @GetMapping("/statistics")
+    CommonResponse<UserStatisticsResponse> getUserStatistics();
 }

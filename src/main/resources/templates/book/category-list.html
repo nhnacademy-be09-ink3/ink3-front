@@ -21,7 +21,9 @@
         <!-- 도서 리스트 -->
         <div class="flex-1">
             <div class="flex justify-between items-center mb-6">
-                <h1 id="search-title" class="text-2xl font-bold text-gray-800" th:text="'📂 ' + ${categoryName}">📂 카테고리명</h1>
+                <h1 id="search-title" class="text-2xl font-bold text-gray-800">
+                    📂 <span id="category-name"></span>
+                </h1>
 
                 <div class="flex items-center gap-4">
                     <div class="flex items-center gap-2">
@@ -47,7 +49,48 @@
                 </div>
             </div>
 
-            <div id="book-list" class="flex flex-col gap-6 px-4"></div>
+            <div id="book-list" class="flex flex-col gap-6 px-4">
+                <div th:each="book : ${bookList}" class="flex bg-white rounded-xl shadow hover:shadow-md w-full max-w-5xl mx-auto transition p-4">
+                    <a th:href="@{|/books/${book.id}|}" class="w-[130px] h-[190px] flex-shrink-0 mr-6 block">
+                        <img th:src="${book.thumbnailUrl}" th:alt="${book.title}" class="w-full h-full object-cover rounded-md" />
+                    </a>
+                    <div class="flex flex-col justify-between flex-1">
+                        <div>
+                            <a th:href="@{|/books/${book.id}|}" class="text-lg font-bold text-gray-900 mb-1 hover:underline block" th:text="${book.title}">제목</a>
+                            <div class="text-sm text-gray-600 mb-1">
+                                <span th:if="${#lists.isEmpty(book.authors)}">저자 없음</span>
+                                    <span th:if="${!#lists.isEmpty(book.authors)}">
+                                        <th:block th:each="author, iterStat : ${book.authors}">
+                                            <span th:text="${author.authorName + ' (' + author.role + ')'}"></span>
+                                            <th:block th:if="${!iterStat.last}">, </th:block>
+                                        </th:block>
+                                    </span>
+                                <span th:text="' · ' + ${book.publisherName} + ' | ' + ${book.publishedAt}"></span>
+                            </div>
+                            <a th:href="@{|/books/${book.id}|}" class="text-base font-semibold text-red-600 mb-1 block">
+                                <span th:text="${#numbers.formatInteger(book.salePrice, 3, 'COMMA')} + '원'">가격</span>
+                                <span class="title-font font-medium bg-red-100 text-red-600 text-sm font-bold px-2 py-1 rounded-md" th:text="${book.discountRate + '%'}"></span>
+                            </a>
+                            <a th:href="@{|/books/${book.id}|}" class="text-sm text-gray-400 line-through block" th:text="${#numbers.formatInteger(book.originalPrice, 3, 'COMMA')} + '원'">정가</a>
+                            <a th:href="@{|/books/${book.id}|}" class="text-sm mt-2 text-gray-700 line-clamp-2 block"
+                               th:text="${#strings.length(book.description) > 100 ? #strings.abbreviate(book.description, 100) : book.description}">
+                                설명
+                            </a>
+                        </div>
+                    </div>
+                    <div class="flex flex-col items-end w-40 flex-shrink-0">
+                        <div class="flex items-center justify-between border border-gray-300 rounded px-2 py-1 w-full mb-3">
+                            <button type="button" class="text-gray-700 px-2" th:onclick="'changeQty(' + ${book.id} + ', -1)'">−</button>
+                            <input type="text" th:id="'qty-' + ${book.id}" class="w-10 text-center outline-none bg-transparent px-2" value="1" maxlength="3" onkeyup="checkNumeric(this)" title="수량설정" />
+                            <button type="button" class="text-gray-700 px-2" th:onclick="'changeQty(' + ${book.id} + ', 1)'">＋</button>
+                        </div>
+                        <div class="flex flex-col gap-3 w-full">
+                            <button type="button" class="ink-btn-primary text-sm px-4 py-2 w-full" th:onclick="'addToCart(' + ${book.id} + ', document.getElementById(\'qty-' + ${book.id} + '\').value)'">카트에 담기</button>
+                            <button type="button" class="ink-btn-primary text-sm px-4 py-2 w-full mb-2" th:onclick="'orderNow(' + ${book.id} + ', document.getElementById(\'qty-' + ${book.id} + '\').value)'">바로구매</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
             <div id="pagination" class="flex justify-center items-center gap-2 mt-6"></div>
 
             <!-- ✅ 추천 도서 고정 -->
@@ -66,28 +109,10 @@
     let currentSort = 'title,asc';
     const isLoggedIn = [[${isLoggedIn}]];
     const contextPath = /*[[@{/}]]*/ "/";
-    const hostname = location.hostname;
-    const pathname = location.pathname;
-
-    const ink3IsLocal = hostname === 'localhost' || hostname.startsWith('127.');
-    const ink3IsDevPath = pathname.startsWith('/dev/');
-
-    const ink3ApiBase = ink3IsLocal
-        ? 'https://ink3.shop/dev/gateway'
-        : ink3IsDevPath
-            ? `${contextPath}dev/gateway`
-            : `${contextPath}gateway`;
-
-    const ink3PageBase = ink3IsLocal
-        ? ''
-        : ink3IsDevPath
-            ? `${contextPath}dev`
-            : contextPath;
-
 
     function goToCategory(name) {
         const encoded = encodeURIComponent(name);
-        location.href = `${ink3PageBase}/books/category?name=${encoded}`;
+        location.href = `${contextPath}books/category?name=${encoded}`;
     }
 
     function orderNow(bookId, quantity) {
@@ -110,22 +135,22 @@
         const paginationEl = document.getElementById('pagination');
         const recommendedBooks = document.getElementById('recommended-books');
         const itemsPerPageSelect = document.getElementById('itemsPerPage');
-        const titleEl = document.getElementById('search-title');
 
         let currentPage = 1;
         let itemsPerPage = parseInt(itemsPerPageSelect.value);
 
         // ✅ 카테고리명 추출
-        const rawCategory = titleEl?.innerText || '';
-        const categoryName = rawCategory.replace('📂', '').trim();
-        const encodedCategory = encodeURIComponent(categoryName);
+        const urlParams = new URLSearchParams(window.location.search);
+        const categoryName = urlParams.get('name') || '';
+        document.getElementById('category-name').innerText = categoryName;
+
+        fetchBooks();
 
         // ✅ 도서 렌더링
-        fetch(`${ink3ApiBase}/shop/categories`)
+        fetch(`${window.api.gatewayBaseUrl}/shop/categories`)
             .then(res => res.json())
             .then(data => {
                 const tree = buildCategoryTree(data.data.content);
-                // ROOT 노드 제거 후 그 자식들만 표시
                 const rootNode = tree.find(cat => cat.name === 'ROOT');
                 const filteredTree = rootNode?.children || [];
                 renderCategoryMenu(filteredTree, document.getElementById('category-menu'));
@@ -136,29 +161,41 @@
         const renderBooks = (books) => {
             bookList.innerHTML = '';
             books.forEach(book => {
+
+                const authors = book.authors && book.authors.length > 0
+                    ? book.authors.map(a => `${a.authorName} (${a.role})`).join(', ')
+                    : '저자 없음';
+
                 const div = document.createElement('div');
                 div.className = 'flex bg-white rounded-xl shadow hover:shadow-md w-full max-w-5xl mx-auto transition p-4';
 
                 div.innerHTML = `
-                    <a href="${ink3PageBase}/books/${book.id}" class="w-[130px] h-[190px] flex-shrink-0 mr-6 block">
+                    <a href="${contextPath}books/${book.id}" class="w-[130px] h-[190px] flex-shrink-0 mr-6 block">
                         <img src="${book.thumbnailUrl}" alt="${book.title}" class="w-full h-full object-cover rounded-md" />
                     </a>
                     <div class="flex flex-col justify-between flex-1">
                         <div>
-                            <a href="${ink3PageBase}/books/${book.id}" class="text-lg font-bold text-gray-900 mb-1 hover:underline block">
+                            <a href="${contextPath}books/${book.id}" class="text-lg font-bold text-gray-900 mb-1 hover:underline block">
                                 ${book.title}
                             </a>
-                            <a href="${ink3PageBase}/books/${book.id}" class="text-sm text-gray-600 mb-1 block">
-                                ${book.authorNames?.join(', ') || '저자 없음'} · ${book.publisherName} | ${book.publishedAt}
+                            <a href="${contextPath}books/${book.id}" class="text-sm text-gray-600 mb-1 block">
+                                ${authors} · ${book.publisherName} | ${book.publishedAt}
                             </a>
-                            <a href="${ink3PageBase}/books/${book.id}" class="text-base font-semibold text-red-600 mb-1 block">
+                            <a href="${contextPath}books/${book.id}" class="text-base font-semibold text-red-600 mb-1 block">
                                 ${book.salePrice.toLocaleString()}원 <span class="title-font font-medium bg-red-100 text-red-600 text-sm font-bold px-2 py-1 rounded-md">${book.discountRate}%</span>
                             </a>
-                            <a href="${ink3PageBase}/books/${book.id}" class="text-sm text-gray-400 line-through block">
+                            <a href="${contextPath}books/${book.id}" class="text-sm text-gray-400 line-through block">
                                 ${book.originalPrice.toLocaleString()}원
                             </a>
-                            <a href="${ink3PageBase}/books/${book.id}" class="text-sm mt-2 text-gray-700 line-clamp-2 block">
-                                ${book.description}
+                            <a href="${contextPath}books/${book.id}" class="text-sm text-yellow-600 font-semibold flex items-center gap-1 mt-1">
+                                <span>⭐</span>
+                                <span class="average-rating" data-book-id="${book.id}">-</span>
+                                <span class="text-gray-500 ml-1">(리뷰 <span class="review-count">-</span>개)</span>
+                            </a>
+                            <a href="${contextPath}books/${book.id}" class="text-sm mt-2 text-gray-700 block">
+                                ${book.description && book.description.length > 100
+                                                ? book.description.substring(0, 100) + '...'
+                                                : book.description}
                             </a>
                         </div>
                     </div>
@@ -189,10 +226,20 @@
                 </div>
             </div>
         `;
+                fetchReviewData(book.id).then(review => {
+                    console.log('📊 bookId:', book.id, '리뷰:', review);
+                    const ratingEl = div.querySelector('.average-rating');
+                    const countEl = div.querySelector('.review-count');
+
+                    if (ratingEl) ratingEl.innerText = review.average?.toFixed(1) ?? '-';
+                    if (countEl) countEl.innerText = review.count;
+                });
                 bookList.appendChild(div);
             });
-        };
+        }
         // ✅ 페이징 렌더링
+
+
 
         const renderPagination = (totalItems) => {
             paginationEl.innerHTML = '';
@@ -213,7 +260,7 @@
                     fetchBooks();
                     const scrollTarget = document.getElementById('search-title');
                     if (scrollTarget) {
-                        scrollTarget.scrollIntoView({ behavior: 'instant', block: 'start' });
+                        scrollTarget.scrollIntoView({behavior: 'instant', block: 'start'});
                     }
                 });
                 return btn;
@@ -230,11 +277,11 @@
 
         const renderRecommended = () => {
             const books = [
-                { title: "이펙티브 자바", author: "조슈아 블로크", price: 35000 },
-                { title: "자바의 정석", author: "남궁성", price: 30000 },
-                { title: "스프링 부트 입문", author: "이동욱", price: 32000 },
-                { title: "JPA 완전 정복", author: "김영한", price: 38000 },
-                { title: "객체지향의 사실과 오해", author: "조영호", price: 28000 }
+                {title: "이펙티브 자바", author: "조슈아 블로크", price: 35000},
+                {title: "자바의 정석", author: "남궁성", price: 30000},
+                {title: "스프링 부트 입문", author: "이동욱", price: 32000},
+                {title: "JPA 완전 정복", author: "김영한", price: 38000},
+                {title: "객체지향의 사실과 오해", author: "조영호", price: 28000}
             ];
             books.forEach(book => {
                 const div = document.createElement('div');
@@ -327,6 +374,9 @@
 
             applyHoverDelay();
         };
+
+
+
         const applyHoverDelay = () => {
             document.querySelectorAll('#category-menu li.group').forEach(group => {
                 const submenu = group.querySelector('ul');
@@ -350,22 +400,54 @@
 
         // ✅ 실제 API 호출
 
-        const fetchBooks = () => {
-            fetch(`${ink3ApiBase}/shop/books?page=${currentPage - 1}&size=${itemsPerPage}&category=${encodedCategory}&sort=${currentSort}`)
+        function fetchBooks() {
+            fetch(`${window.api.gatewayBaseUrl}/shop/books?category=${encodeURIComponent(categoryName)}&page=${currentPage - 1}&size=${itemsPerPage}&sort=${currentSort}`)
                 .then(response => response.json())
                 .then(data => {
-                    const result = data.data;
-                    renderBooks(result.content);
-                    renderPagination(result.totalElements);
+                    renderBooks(data.data.content);
+                    renderPagination(data.data.totalElements);
                 })
-                .catch(err => console.error('API 에러 발생:', err));
-        };
-        renderRecommended();
+                .catch(err => console.error('도서 목록 불러오기 실패:', err));
+        }
 
-        fetchBooks();
+        function fetchReviewData(bookId) {
+            const pageSize = 100; // 한 번에 가져올 최대 리뷰 수
+            const baseUrl = `${window.api.gatewayBaseUrl}/shop/books/${bookId}/reviews`;
 
+            async function fetchAllReviews(page = 0, collected = []) {
+                const url = `${baseUrl}?page=${page}&size=${pageSize}`;
+                const res = await fetch(url);
+                const json = await res.json();
+
+                const pageData = json.data || json; // data 래핑 여부 대응
+                const content = pageData.content || [];
+                const totalPages = pageData.totalPages;
+
+                const all = collected.concat(content);
+
+                if (page + 1 < totalPages) {
+                    return fetchAllReviews(page + 1, all); // 다음 페이지 재귀 호출
+                } else {
+                    return all; // 마지막까지 도달 시 반환
+                }
+            }
+
+            return fetchAllReviews().then(allReviews => {
+                const total = allReviews.length;
+                const avg = total > 0
+                    ? (allReviews.reduce((sum, r) => sum + r.rating, 0) / total)
+                    : 0;
+
+                return {
+                    average: avg,
+                    count: total
+                };
+            }).catch(err => {
+                console.error("📛 리뷰 통계 불러오기 실패:", err);
+                return { average: '-', count: 0 };
+            });
+        }
     });
-
     function checkNumeric(input) {
         input.value = input.value.replace(/[^0-9]/g, '');
         if (input.value === '' || parseInt(input.value) < 1) {

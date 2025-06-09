@@ -1,6 +1,7 @@
 package com.nhnacademy.front.shop.review.dto;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public record ReviewResponse(
     Long id,
@@ -10,6 +11,9 @@ public record ReviewResponse(
     String title,
     String content,
     int rating,
-    LocalDateTime createdAt
+    LocalDateTime createdAt,
+    LocalDateTime modifiedAt,
+    List<String> images,
+    String description
 ) {
 }
