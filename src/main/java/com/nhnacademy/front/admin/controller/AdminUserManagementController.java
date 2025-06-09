@@ -44,6 +44,7 @@ public class AdminUserManagementController {
         );
         model.addAttribute("users", users);
         model.addAttribute("pageInfo", pageInfo);
+        model.addAttribute("statistics", userService.getUserStatistics());
         return "admin/user/user-management";
     }
 
