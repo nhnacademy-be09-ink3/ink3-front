@@ -26,11 +26,13 @@ import jakarta.validation.Valid;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.springframework.http.MediaType;
+import java.util.Map;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -209,8 +211,45 @@ public class BookController {
     }
 
     @GetMapping("/books/category")
-    public String getBooksByCategory(@RequestParam String name, Model model) {
-        model.addAttribute("categoryName", name);
+    public String booksByCategory(Model model) {
+        CommonResponse<PageResponse<BookResponse>> response = bookClient.getBooks(0, 10);
+        List<BookResponse> books = response.data().content();
+
+        Map<Long, Integer> reviewCounts = new HashMap<>();
+        Map<Long, Double> averageRatings = new HashMap<>();
+
+        for (BookResponse book : books) {
+            Long bookId = book.id();
+
+            try {
+                PageResponse<ReviewListResponse> page0 = reviewClient.getReviewsByBookId(bookId, 0, 1);
+                int totalReviews = (int) page0.totalElements();
+                reviewCounts.put(bookId, totalReviews);
+
+                int totalPages = page0.totalPages();
+                List<ReviewListResponse> allReviews = new ArrayList<>();
+
+                for (int page = 0; page < totalPages; page++) {
+                    PageResponse<ReviewListResponse> reviewPage = reviewClient.getReviewsByBookId(bookId, page, 100);
+                    allReviews.addAll(reviewPage.content());
+                }
+
+                double avg = allReviews.stream()
+                        .mapToDouble(ReviewListResponse::rating)
+                        .average()
+                        .orElse(0.0);
+                averageRatings.put(bookId, avg);
+
+            } catch (Exception e) {
+                reviewCounts.put(bookId, 0);
+                averageRatings.put(bookId, 0.0);
+            }
+        }
+
+        model.addAttribute("bookList", books);
+        model.addAttribute("reviewCounts", reviewCounts);
+        model.addAttribute("averageRatings", averageRatings);
+
         return "book/category-list";
     }
 

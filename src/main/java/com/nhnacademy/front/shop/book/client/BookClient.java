@@ -59,4 +59,9 @@ public interface BookClient {
             @RequestPart("book") String bookUpdateRequestJson,
             @RequestPart("coverImage") MultipartFile coverImage
     );
+    @PutMapping("/books/{bookId}")
+    CommonResponse<BookResponse> updateBook(@PathVariable Long bookId, @RequestBody BookUpdateRequest request);
+
+    @GetMapping("/books/category")
+    CommonResponse<java.util.List<BookResponse>> getBooksByCategory(@RequestParam("name") String categoryName);
 }
