@@ -175,10 +175,10 @@ public class BookController {
 
     @GetMapping("/admin/book-register")
     public String getBookRegister(Model model) {
-        CommonResponse<PageResponse<AuthorResponse>> authors = authorClient.getAuthors(0, 0);
-        CommonResponse<PageResponse<PublisherResponse>> publishers = publisherClient.getPublishers(0, 0);
+        CommonResponse<PageResponse<AuthorResponse>> authors = authorClient.getAuthors(100, 0);
+        CommonResponse<PageResponse<PublisherResponse>> publishers = publisherClient.getPublishers(100, 0);
         CommonResponse<PageResponse<CategoryResponse>> categories = categoryClient.getCategories();
-        CommonResponse<PageResponse<TagResponse>> tags = tagClient.getTags(0, 0);
+        CommonResponse<PageResponse<TagResponse>> tags = tagClient.getTags(100, 0);
 
         model.addAttribute("authors", authors.data().content());
         model.addAttribute("publishers", publishers.data());
@@ -261,10 +261,10 @@ public class BookController {
     @GetMapping("/admin/book-edit/{book-id}")
     public String getBookEdit(@PathVariable(name = "book-id") Long bookId, Model model) {
         CommonResponse<BookResponse> response = bookClient.getBookDetail(bookId);
-        CommonResponse<PageResponse<AuthorResponse>> authorList = authorClient.getAuthors(0, 0);
-        CommonResponse<PageResponse<PublisherResponse>> publisherList = publisherClient.getPublishers(0, 0);
+        CommonResponse<PageResponse<AuthorResponse>> authorList = authorClient.getAuthors(100, 0);
+        CommonResponse<PageResponse<PublisherResponse>> publisherList = publisherClient.getPublishers(100, 0);
         CommonResponse<PageResponse<CategoryResponse>> categoryList = categoryClient.getCategories();
-        CommonResponse<PageResponse<TagResponse>> tagList = tagClient.getTags(0, 0);
+        CommonResponse<PageResponse<TagResponse>> tagList = tagClient.getTags(100, 0);
         List<Long> selectedTagIds = response.data().tags().stream()
             .map(TagResponse::id)
             .toList();
