@@ -3,17 +3,25 @@ package com.nhnacademy.front.admin.controller;
 import com.nhnacademy.front.admin.order.AdminOrderService;
 import com.nhnacademy.front.common.dto.PageResponse;
 import com.nhnacademy.front.shop.order.dto.OrderResponse;
+import com.nhnacademy.front.shop.order.dto.OrderStatus;
+import com.nhnacademy.front.shop.order.dto.OrderStatusUpdateRequest;
 import com.nhnacademy.front.shop.order.dto.RefundResponse;
 import com.nhnacademy.front.util.PageUtil;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+@Slf4j
 @RequiredArgsConstructor
 @Controller
 @RequestMapping("/admin-order")
@@ -45,15 +53,36 @@ public class AdminOrderController {
         return "redirect:/admin-order/refunds";
     }
 
-
+    // 주문 리스트 요청
     @GetMapping("/orders")
     public String orders(
             Model model,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
 
-        PageResponse<OrderResponse> orderList = adminOrderService.getOrderList(page, size);
-        model.addAttribute("orders", orderList);
+        PageResponse<OrderResponse> orders = adminOrderService.getOrderList(page, size);
+        PageUtil.PageInfo pageInfo = PageUtil.calculatePageRange(
+                orders.page(), orders.totalPages(), 10);
+        log.info("order size = {}", orders.content().size());
+        model.addAttribute("orderStatuses", OrderStatus.values());
+        model.addAttribute("orders", orders);
+        model.addAttribute("pageInfo", pageInfo);
         return "admin/order/order";
+    }
+
+    // 주문 상태 변경 요청
+    @PostMapping("/orders/{orderId}/order-status")
+    public String updateOrderStatus(@PathVariable Long orderId,
+                                    @RequestParam("value") String value,
+                                    RedirectAttributes redirectAttributes) {
+        try {
+            log.info("value={}", value);
+            OrderStatus status = OrderStatus.valueOf(value);
+            adminOrderService.updateOrderStatus(orderId, new OrderStatusUpdateRequest(status));
+            return "redirect:/admin-order/orders";
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "상태 변경 실패: " + e.getMessage());
+            return "redirect:/admin-order/orders";
+        }
     }
 }
