@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nhnacademy.front.common.dto.CommonResponse;
 import com.nhnacademy.front.common.dto.PageResponse;
+import com.nhnacademy.front.shop.book.dto.BookResponse;
 import com.nhnacademy.front.shop.book.dto.MainBookResponse;
 import com.nhnacademy.front.shop.cart.client.CartClient;
 import com.nhnacademy.front.shop.cart.dto.CartBookResponse;
@@ -63,7 +64,7 @@ public class GuestOrderService {
         List<GuestCartView> guestCartViews = new ArrayList<>();
         for(MeCartRequest item : guestItems){
             try {
-                MainBookResponse data = cartClient.getBookById(item.bookId()).data();
+                BookResponse data = cartClient.getBookById(item.bookId()).data();
                 CartBookResponse book =  new CartBookResponse(data.title(), data.originalPrice(), data.salePrice(),
                         data.discountRate(), data.thumbnailUrl(), data.isPackable());
 
