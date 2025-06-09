@@ -103,15 +103,6 @@
     function closeModal(modalId) {
         const modal = document.getElementById(modalId);
         modal.classList.add('hidden');
-
-        const inputs = modal.querySelectorAll('input');
-        inputs.forEach(input => {
-            if (input.type === 'checkbox') {
-                input.checked = false;
-            } else {
-                input.value = '';
-            }
-        });
     }
 
     window.addEventListener('click', function (e) {

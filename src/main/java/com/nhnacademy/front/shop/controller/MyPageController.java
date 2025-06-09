@@ -231,6 +231,12 @@ public class MyPageController {
         return "redirect:/me/reviews";
     }
 
+    @GetMapping("/me/withdraw")
+    public String getMeWithdraw(Model model) {
+        model.addAttribute("currentPage", "withdraw");
+        model.addAttribute("user", userService.getCurrentUserDetail());
+        return "user/me-withdraw";
+    }
 
     @PostMapping("/me/withdraw")
     public String postWithdraw(

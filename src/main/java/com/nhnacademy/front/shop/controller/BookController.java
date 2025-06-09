@@ -1,5 +1,7 @@
 package com.nhnacademy.front.shop.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nhnacademy.front.shop.author.client.AuthorClient;
 import com.nhnacademy.front.shop.author.client.dto.AuthorResponse;
 import com.nhnacademy.front.shop.book.dto.AuthorDto;
@@ -29,6 +31,7 @@ import jakarta.validation.Valid;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -67,13 +70,14 @@ public class BookController {
     private final CouponClient couponClient;
     private final CouponPolicyClient couponPolicyClient;
     private final CouponStore couponStore;
+    private final ObjectMapper objectMapper;
 
     @GetMapping("/books/{bookId}")
     public String getBookDetail(@PathVariable Long bookId,
         @RequestParam(defaultValue = "0") int  page,
         @RequestParam(defaultValue = "10") int  size,
         Model model, @CookieValue(name = "accessToken", required = false) String accessToken) {
-        CommonResponse<BookResponse> books = bookClient.getBookDetail(bookId);
+        CommonResponse<BookResponse> response = bookClient.getBookDetail(bookId);
         PageResponse<ReviewListResponse> reviews =
             reviewClient.getReviewsByBookId(bookId, page, size);
 
@@ -98,7 +102,7 @@ public class BookController {
 
         // 4) 카테고리별 쿠폰 합치기
         List<CouponResponse> categoryCoupons = new ArrayList<>();
-        for (CategoryResponse cat : books.data().categories()) {
+        for (CategoryResponse cat : response.data().categories()) {
             CommonResponse<PageResponse<CouponResponse>> resp =
                     couponClient.getByCategoryId(cat.id(), 0, 10);
             categoryCoupons.addAll(resp.data().content());
@@ -110,7 +114,8 @@ public class BookController {
         coupons.addAll(categoryCoupons);
 
 
-        model.addAttribute("book",      books.data());
+        model.addAttribute("book",      response.data());
+        model.addAttribute("book",      response.data());
         model.addAttribute("reviews",   reviews.content());
         model.addAttribute("reviewPage", reviews);
         model.addAttribute("pageInfo",  pageInfo);
@@ -184,19 +189,22 @@ public class BookController {
         return "admin/book/book-register";
     }
 
-    @PostMapping("/admin/book-register")
-    public String registerBook(@ModelAttribute @Valid BookCreateForm bookForm,
-                               BindingResult bindingResult) {
+    @PostMapping(value = "/admin/book-register", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public String registerBook(@ModelAttribute @Valid BookCreateForm bookCreateForm) {
         List<AuthorRoleRequest> authorRequests = new ArrayList<>();
-        for (int i = 0; i < bookForm.getAuthorIds().size(); i++) {
-            Long authorId = bookForm.getAuthorIds().get(i);
-            String role = bookForm.getAuthorRoles().get(i);
+        for (int i = 0; i < bookCreateForm.getAuthorIds().size(); i++) {
+            Long authorId = bookCreateForm.getAuthorIds().get(i);
+            String role = bookCreateForm.getAuthorRoles().get(i);
             authorRequests.add(new AuthorRoleRequest(authorId, role));
         }
-        BookCreateRequest request = BookCreateRequest.from(bookForm, authorRequests);
+        BookCreateRequest request = BookCreateRequest.from(bookCreateForm, authorRequests);
 
-        if (bindingResult.hasErrors()) {
-            log.debug("bindingResult: {}", bindingResult);
+        try {
+            String jsonRequest = objectMapper.writeValueAsString(request);
+            bookClient.createBook(jsonRequest, bookCreateForm.getCoverImage());
+
+        } catch (JsonProcessingException e) {
+            log.error("JSON 변환 실패", e);
             return "redirect:/admin";
         }
 
@@ -247,35 +255,46 @@ public class BookController {
     @PutMapping("/admin/books/{bookId}")
     public String updateBook(
             @PathVariable("bookId") Long bookId,
-            @ModelAttribute("book") @Valid BookUpdateForm bookForm,
+            @ModelAttribute("book") @Valid BookUpdateForm bookUpdateForm,
             BindingResult bindingResult
     ) {
 
         List<AuthorRoleRequest> authorRequests = new ArrayList<>();
-        for (int i = 0; i < bookForm.getAuthorIds().size(); i++) {
-            Long aId = bookForm.getAuthorIds().get(i);
-            String role = bookForm.getAuthorRoles().get(i);
+        for (int i = 0; i < bookUpdateForm.getAuthorIds().size(); i++) {
+            Long aId = bookUpdateForm.getAuthorIds().get(i);
+            String role = bookUpdateForm.getAuthorRoles().get(i);
             authorRequests.add(new AuthorRoleRequest(aId, role));
         }
-        BookUpdateRequest request = new BookUpdateRequest(
-                bookForm, authorRequests
-        );
+        BookUpdateRequest request = new BookUpdateRequest(bookUpdateForm, authorRequests);
+
         if (bindingResult.hasErrors()) {
             log.debug("bindingResult: {}", bindingResult);
             return "redirect:/admin/book-edit/" + bookId;
         }
-        bookClient.updateBook(bookId, request);
+
+        try {
+            String jsonRequest = objectMapper.writeValueAsString(request);
+            bookClient.updateBook(bookId, jsonRequest, bookUpdateForm.getCoverImage());
+
+        } catch (JsonProcessingException e) {
+            log.error("JSON 변환 실패", e);
+            return "redirect:/admin";
+        }
 
         return "redirect:/admin/book-edit/" + bookId;
     }
 
     @GetMapping("/admin/list")
     public String showBookList(@RequestParam(defaultValue = "0") int page, Model model) {
-        CommonResponse<PageResponse<BookResponse>> response = bookClient.getBooks();
-        PageResponse<BookResponse> pageResponse = response.data();
+        CommonResponse<PageResponse<BookResponse>> response = bookClient.getBooks(page, 10);
+        PageResponse<BookResponse> books = response.data();
+        PageUtil.PageInfo pageInfo = PageUtil.calculatePageRange(
+                books.page(), books.totalPages(), 5
+        );
 
-        model.addAttribute("bookList", pageResponse.content()); // 리스트 자체
-        model.addAttribute("books", pageResponse);              // 페이지 전체 정보
+        model.addAttribute("currentPage", "list");
+        model.addAttribute("books", books);
+        model.addAttribute("pageInfo", pageInfo);
         return "admin/book/list";
     }
 

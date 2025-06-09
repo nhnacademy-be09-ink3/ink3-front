@@ -19,14 +19,15 @@
         .ink-input-group label {
             @apply text-gray-700 font-medium block mb-2;
         }
-        .author-input-group {
-            @apply flex items-center space-x-4 mb-3;
-        }
     </style>
     <script>
         $(document).ready(function() {
             $('.js-select').select2({
-                allowClear: true
+                allowClear: true,
+                minimumResultsForSearch: 0,
+                maximumSelectionLength : 1000,
+                dropdownAutoWidth: true,
+                width: '100%'
             });
         });
     </script>
@@ -204,13 +205,17 @@
 
                 <div class="ink-input-group">
                     <label for="coverImage">표지 이미지</label>
+                    <div th:if="*{thumbnailUrl != null}">
+                        <img th:src="${book.thumbnailUrl}" alt="기존 표지 이미지"
+                             class="mb-2 w-32 h-48 object-cover rounded shadow"/>
+                    </div>
                     <input
                             type="file"
                             id="coverImage"
                             name="coverImage"
-                            th:field="*{thumbnailUrl}"
                             class="ink-input-field w-full"
                     />
+                    <p class="text-sm text-gray-500">수정할 이미지 파일을 첨부하지 않으면 기존 표지 이미지로 유지됩니다.</p>
                 </div>
                 <div class="flex justify-end">
                     <button type="submit" class="ink-btn-primary">수정</button>

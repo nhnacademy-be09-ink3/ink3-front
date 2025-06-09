@@ -9,6 +9,7 @@ import com.nhnacademy.front.shop.payment.dto.PaymentConfirmRequest;
 import com.nhnacademy.front.shop.payment.dto.PaymentResponse;
 import com.nhnacademy.front.shop.payment.dto.PaymentType;
 import com.nhnacademy.front.shop.payment.dto.TossUrlProperty;
+import com.nhnacademy.front.shop.payment.dto.ZeroPaymentRequest;
 import com.nhnacademy.front.shop.payment.service.PaymentService;
 import com.nhnacademy.front.shop.user.client.dto.UserResponse;
 import com.nhnacademy.front.shop.user.service.UserService;
@@ -103,5 +104,29 @@ public class PaymentController {
     public String paymentCancel(@RequestParam long orderId) {
         paymentService.dealWithPaymentCancel(orderId);
         return "order/order-cancel";
+    }
+
+    @PostMapping("/zero")
+    public String paymentZero(
+            Model model,
+            @RequestBody OrderFormCreateRequest orderFormCreateRequest
+    ) {
+        // 주문 생성
+        UserResponse currentUser = userService.getCurrentUser();
+        CommonResponse<OrderResponse> commonOrderResponse = orderClient.createOrder(orderFormCreateRequest);
+        OrderResponse orderResponse = commonOrderResponse.data();
+
+        // 결제 생성
+        ZeroPaymentRequest zeroPaymentRequest = ZeroPaymentRequest.builder()
+                .userId(currentUser.id())
+                .orderId(orderResponse.getId())
+                .usedPointAmount(orderFormCreateRequest.usedPointAmount())
+                .discountAmount(orderFormCreateRequest.discountAmount())
+                .amount(orderFormCreateRequest.paymentAmount())
+                .build();
+        PaymentResponse zeroPaymentResponse = paymentService.createZeroPayment(zeroPaymentRequest);
+
+        model.addAttribute("paymentResponse", zeroPaymentResponse);
+        return "payment/payment-success";
     }
 }
