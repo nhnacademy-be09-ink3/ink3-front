@@ -29,7 +29,7 @@
                      class="cart-item bg-white p-4 rounded-xl shadow text-sm flex items-center gap-6 mb-4"
                      th:attr="data-book-id=${item.bookId}, data-price=${item.saleBookPrice}, data-quantity=${item.quantity}">
 
-                <!-- 이미지 -->
+                    <!-- 이미지 -->
                     <div class="w-16 flex-shrink-0">
                         <img th:src="${item.thumbnailUrl}" alt="도서 이미지"
                              class="w-full h-auto rounded border border-gray-200">
@@ -120,7 +120,7 @@
                                             c.discountPercentage + '% 할인' +
                                             (c.maximumDiscountAmount != null ? ' (최대 ' + #numbers.formatInteger(c.maximumDiscountAmount, 0, 'COMMA') + '원)' : '')
                                           ) + '&#10;만료일: ' + #temporals.format(c.expiresAt, 'yyyy-MM-dd HH:mm')}"
-                                                        th:attr="data-coupon-id=${c.couponId},
+                                        th:attr="data-coupon-id=${c.couponId},
                                          data-discount-type=${c.discountType},
                                          data-discount-value=${c.discountValue},
                                          data-discount-percentage=${c.discountPercentage},
@@ -866,13 +866,20 @@
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload)
         })
-            .then(res => {
+            .then(async res => {
+                const contentType = res.headers.get("Content-Type") || "";
+                const isJson = contentType.includes("application/json");
+
                 if (!res.ok) {
-                    return res.json().then(err => {
-                        throw err;
-                    });
+                    const errorBody = await res.text();
+                    throw new Error(errorBody);
                 }
-                return res.json();
+
+                if (isJson) {
+                    return res.json();
+                } else {
+                    return res.text(); // HTML로 온 경우 처리
+                }
             })
             .then(data => toss.requestPayment("카드", {
                 amount: data.amount,
@@ -883,15 +890,33 @@
                 failUrl: data.failUrl
             }))
             .catch(err => {
-                console.log("error 메세지 : " + err.message);
-                const errorMessage = err.message || err;
+                console.log("🔥 error 메세지:", err.message);
+                const errorMessage = err.message || "";
 
-                if (err.code === "USER_CANCEL") alert("결제를 취소했습니다.");
-                else if (typeof errorMessage === "string" && errorMessage.includes("BOOK_INSUFFICIENT_STOCK")) {
-                    alert("도서 재고가 부족합니다.");
-                    window.location.href = `${contextPath}carts`;
+                try {
+                    // 1차: 전체 메시지가 JSON 문자열이면 파싱
+                    const outer = JSON.parse(errorMessage);
+
+                    // 2차: trace 내부에서 [{...}] 부분만 정규식으로 추출
+                    const match = outer.trace.match(/\[({.*?})\]/);
+                    if (match && match[1]) {
+                        const innerError = JSON.parse(match[1]);
+                        if (innerError.message === "BOOK_INSUFFICIENT_STOCK.") {
+                            alert(innerError.data || "도서 재고가 부족합니다.");
+                            window.location.href = `${contextPath}carts`;
+                            return;
+                        }
+                    }
+
+                } catch (e) {
+                    console.warn("에러 응답 JSON 파싱 실패:", e);
                 }
-                else alert("결제 중 오류가 발생했습니다.");
+
+                if (err.code === "USER_CANCEL") {
+                    alert("결제를 취소했습니다.");
+                } else {
+                    alert("결제 중 오류가 발생했습니다.");
+                }
             });
     }
 
@@ -973,13 +998,20 @@
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload)
         })
-            .then(res => {
+            .then(async res => {
+                const contentType = res.headers.get("Content-Type") || "";
+                const isJson = contentType.includes("application/json");
+
                 if (!res.ok) {
-                    return res.json().then(err => {
-                        throw err;
-                    });
+                    const errorBody = await res.text();
+                    throw new Error(errorBody);
                 }
-                return res.json();
+
+                if (isJson) {
+                    return res.json();
+                } else {
+                    return res.text(); // HTML로 온 경우 처리
+                }
             })
             .then(html => {
                 // 결제 성공 페이지 HTML로 전환
@@ -988,15 +1020,31 @@
                 document.close();
             })
             .catch(err => {
-                const errorMessage = err.message || err;
-                if (typeof errorMessage === "string" && errorMessage.includes("BOOK_INSUFFICIENT_STOCK")) {
-                    alert("도서 재고가 부족합니다.");
-                    window.location.href = `${contextPath}carts`;
-                }  else {
-                    alert("0원 결제 중 오류가 발생했습니다.");
-                    console.error(err);
+                const errorMessage = err.message || "";
+                console.log("🔥 error message:", errorMessage);
+
+                try {
+                    // 1단계: 전체 errorMessage가 JSON 문자열인지 시도
+                    const outer = JSON.parse(errorMessage);
+
+                    // 2단계: trace 필드에서 [{...}] 구조 추출
+                    const match = outer.trace.match(/\[({.*?})\]/);
+                    if (match && match[1]) {
+                        const innerError = JSON.parse(match[1]);
+
+                        if (innerError.message === "BOOK_INSUFFICIENT_STOCK.") {
+                            alert(innerError.data || "도서 재고가 부족합니다.");
+                            window.location.href = `${contextPath}carts`;
+                            return;
+                        }
+                    }
+                } catch (e) {
+                    console.warn("에러 JSON 파싱 실패:", e);
                 }
 
+                // 기본 오류 처리
+                alert("0원 결제 중 오류가 발생했습니다.");
+                console.error(err);
             });
     }
 </script>

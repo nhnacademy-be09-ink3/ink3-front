@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ink3</title>
+    <title>주문 관리</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/output.css(v=${#dates.createNow().getTime()})}">
     <style>
@@ -18,6 +18,88 @@
     <div th:replace="~{admin/layout/fragments/sidebar :: sidebarFragment}"></div>
 
     <main class="main-content-area flex-1 p-6 bg-gray-100 overflow-y-auto">
+        <div th:if="${errorMessage}" class="bg-red-100 text-red-800 px-4 py-2 rounded mb-4">
+            <p th:text="${errorMessage}">에러 메시지</p>
+        </div>
+
+        <div class="bg-white p-6 rounded-lg shadow-md">
+            <h1 class="text-3xl font-bold text-gray-900 mb-6 flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
+                     viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" class="mr-3">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h18M9 3v18M9 9h12"/>
+                </svg>
+                주문 관리
+            </h1>
+
+            <div class="overflow-x-auto rounded-lg shadow border border-gray-200">
+                <table class="min-w-full divide-y divide-gray-200 text-sm text-left text-gray-700 bg-white">
+                    <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">주문 ID</th>
+                        <th class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">주문자</th>
+                        <th class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">주문일</th>
+                        <th class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">주문 상태</th>
+                        <th class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">상태 변경</th>
+                    </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200 bg-white">
+                    <tr th:each="order : ${orders.content}" class="hover:bg-gray-50">
+                        <form th:action="@{/admin-order/orders/{id}/order-status(id=${order.id})}" method="post">
+                            <td class="px-6 py-4" th:text="${order.id}"></td>
+                            <td class="px-6 py-4" th:text="${order.ordererName}"></td>
+                            <td class="px-6 py-4" th:text="${#temporals.format(order.orderedAt, 'yyyy-MM-dd')}"></td>
+                            <td class="px-6 py-4" th:text="${order.status.label}"></td>
+                            <td class="px-6 py-4">
+                                <div class="flex gap-2">
+                                    <select name="value"
+                                            class="border rounded px-2 py-1 text-sm text-gray-800 focus:outline-none focus:ring focus:border-blue-300">
+                                        <option th:each="status : ${orderStatuses}"
+                                                th:value="${status.name()}"
+                                                th:text="${status.label}"
+                                                th:selected="${status.name() == order.status.name()}">
+                                        </option>
+                                    </select>
+                                    <button type="submit"
+                                            class="px-3 py-1 bg-blue-600 text-white text-xs font-semibold rounded hover:bg-blue-700">
+                                        변경
+                                    </button>
+                                </div>
+                            </td>
+                        </form>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 페이지네이션 -->
+            <ul class="flex justify-center gap-1 text-gray-900 mt-6 end">
+                <li>
+                    <a th:href="@{/admin-order/orders(page=${orders.hasPrevious()} ? ${orders.page() - 1} : ${orders.page()})}"
+                       class="ink-page-item-arrow" aria-label="Previous page">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="size-4" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd"
+                                  d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
+                                  clip-rule="evenodd"/>
+                        </svg>
+                    </a>
+                </li>
+                <li th:each="i : ${#numbers.sequence(pageInfo.startPage(), pageInfo.endPage())}">
+                    <a th:href="@{/admin-order/orders(page=${i})}"
+                       th:class="${i == orders.page()} ? 'ink-page-item-current' : 'ink-page-item'"
+                       th:text="${i + 1}"></a>
+                </li>
+                <li>
+                    <a th:href="@{/admin-order/orders(page=${orders.hasNext()} ? ${orders.page() + 1} : ${orders.page()})}"
+                       class="ink-page-item-arrow" aria-label="Next page">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="size-4" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd"
+                                  d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                                  clip-rule="evenodd"/>
+                        </svg>
+                    </a>
+                </li>
+            </ul>
+        </div>
     </main>
 </div>
 </body>
