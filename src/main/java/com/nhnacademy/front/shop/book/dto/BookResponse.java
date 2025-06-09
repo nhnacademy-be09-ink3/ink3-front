@@ -23,5 +23,6 @@ public record BookResponse(
         List<CategoryResponse> categories,
         List<AuthorDto> authors,
         List<TagResponse> tags,
-        double averageRating
+        double averageRating,
+        long likeCount
 ) {}

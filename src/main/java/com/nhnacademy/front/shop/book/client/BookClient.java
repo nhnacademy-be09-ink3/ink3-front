@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.nhnacademy.front.common.dto.CommonResponse;
 import com.nhnacademy.front.common.dto.PageResponse;
 import com.nhnacademy.front.shop.book.dto.MainBookResponse;
+import com.nhnacademy.front.shop.book.dto.SortType;
+
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -34,19 +36,19 @@ public interface BookClient {
     CommonResponse<PageResponse<MainBookResponse>> getTop5BestsellerBooks();
 
     @GetMapping("/books/bestseller-all")
-    CommonResponse<PageResponse<MainBookResponse>> getAllBestsellerBooks(@RequestParam int page, @RequestParam int size);
+    CommonResponse<PageResponse<MainBookResponse>> getAllBestsellerBooks(@RequestParam(defaultValue = "REVIEW") SortType sortType, @RequestParam int page, @RequestParam int size);
 
     @GetMapping("/books/new")
     CommonResponse<PageResponse<MainBookResponse>> getTop5NewBooks();
 
     @GetMapping("/books/new-all")
-    CommonResponse<PageResponse<MainBookResponse>> getAllNewBooks(@RequestParam int page, @RequestParam int size);
+    CommonResponse<PageResponse<MainBookResponse>> getAllNewBooks(@RequestParam(defaultValue = "REVIEW") SortType sortType, @RequestParam int page, @RequestParam int size);
 
     @GetMapping("/books/recommend")
     CommonResponse<PageResponse<MainBookResponse>> getTop5RecommendedBooks();
 
     @GetMapping("/books/recommend-all")
-    CommonResponse<PageResponse<MainBookResponse>> getAllRecommendedBooks(@RequestParam int page, @RequestParam int size);
+    CommonResponse<PageResponse<MainBookResponse>> getAllRecommendedBooks(@RequestParam(defaultValue = "REVIEW") SortType sortType, @RequestParam int page, @RequestParam int size);
 
     @GetMapping("/books/{bookId}")
     CommonResponse<BookResponse> getBookDetail(@PathVariable Long bookId);

@@ -111,10 +111,11 @@
                     </div>
 
                     <div th:if="${loginUser != null}">
-                        <form th:action="@{/carts}" method="post" class="flex gap-4 mt-auto">
-                            <input type="hidden" name="bookId" th:value="1"/>
+                        <div class="flex gap-4 mt-6 items-center">
+                            <form th:action="@{/carts}" method="post" class="flex gap-4 mt-auto">
+                                <input type="hidden" name="bookId" th:value="1"/>
 
-                            <div class="flex mb-4">
+                                <div class="flex mb-4">
                             <span class="flex items-center">
                                 <span class="text-md text-gray-600 mb-1">수량</span>
                                 <span class="flex ml-3 pl-3 py-2 border-l-2 border-gray-200 space-x-2s"></span>
@@ -127,26 +128,37 @@
                                         class="w-16 px-2 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 />
                             </span>
-                            </div>
+                                </div>
 
-                            <div class="flex gap-4 mt-0.5">
-                                <button type="submit"
-                                        class="ink-btn-primary bg-gray-300 text-gray-800 hover:bg-gray-400">
-                                    장바구니에 넣기
-                                </button>
-                            </div>
+                                <div class="flex gap-4 mt-0.5">
+                                    <button type="submit"
+                                            class="ink-btn-primary bg-gray-300 text-gray-800 hover:bg-gray-400">
+                                        장바구니에 넣기
+                                    </button>
+                                </div>
+                            </form>
 
-                            <div class="flex gap-4 mt-0.5">
-                                <a href="/books" class="ink-btn-primary bg-gray-300 text-gray-800 hover:bg-gray-400">목록으로</a>
-                                <button class="rounded-full w-10 h-10 bg-gray-200 p-0 border-0 inline-flex items-center justify-center text-gray-500 ml-4">
-                                    <svg fill="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                                         stroke-width="2"
-                                         class="w-5 h-5" viewBox="0 0 24 24">
-                                        <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"></path>
+                            <a href="/books"
+                               class="ink-btn-primary bg-gray-300 text-gray-800 hover:bg-gray-400">
+                                목록으로
+                            </a>
+
+                            <!-- 찜 버튼 -->
+                            <form id="like-form"
+                                  th:attr="data-liked=${liked.get()}, data-like-id=${likeId.get()}, data-book-id=${bookId}"
+                                  onsubmit="return false;">
+                                <button type="button" id="like-btn"
+                                        class="rounded-full w-10 h-10 p-0 border-0 inline-flex items-center justify-center"
+                                        th:classappend="${liked} == true ? 'bg-red-100 text-red-500' : 'bg-gray-200 text-gray-500'">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="currentColor"
+                                         viewBox="0 0 24 24">
+                                        <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78L12 21.23l7.78-7.78a5.5 5.5 0 000-7.78z"/>
                                     </svg>
                                 </button>
-                            </div>
-                        </form>
+                            </form>
+                            <span class="flex ml-3 pl-3 py-2 border-l-2 border-gray-200 space-x-2s"
+                                  th:text="${book.likeCount}"></span>
+                        </div>
                     </div>
 
                     <div th:unless="${loginUser != null}">
@@ -174,18 +186,19 @@
                                     장바구니에 넣기
                                 </button>
                             </div>
-
-                            <div class="flex gap-4 mt-0.5">
-                                <a href="/books" class="ink-btn-primary bg-gray-300 text-gray-800 hover:bg-gray-400">목록으로</a>
-                                <button class="rounded-full w-10 h-10 bg-gray-200 p-0 border-0 inline-flex items-center justify-center text-gray-500 ml-4">
-                                    <svg fill="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                                         stroke-width="2"
-                                         class="w-5 h-5" viewBox="0 0 24 24">
-                                        <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"></path>
-                                    </svg>
-                                </button>
-                            </div>
                         </form>
+
+                        <div class="flex items-center gap-4 mt-0.5">
+                            <a href="/books"
+                               class="ink-btn-primary bg-gray-300 text-gray-800 hover:bg-gray-400">목록으로</a>
+
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="currentColor"
+                                 viewBox="0 0 24 24">
+                                <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78L12 21.23l7.78-7.78a5.5 5.5 0 000-7.78z"/>
+                            </svg>
+                            <span class="flex ml-3 pl-3 py-2 border-l-2 border-gray-200 space-x-2s"
+                                  th:text="${book.likeCount}"></span>
+                        </div>
                     </div>
 
                     <div>
@@ -526,6 +539,63 @@
         }
     });
 
+    /* ---------- 공통 util ---------- */
+    function updateLikeButton(isLiked) {
+        const btn = document.getElementById('like-btn');
+        btn.classList.toggle('bg-red-100',  isLiked);
+        btn.classList.toggle('text-red-500',isLiked);
+        btn.classList.toggle('bg-gray-200', !isLiked);
+        btn.classList.toggle('text-gray-500',!isLiked);
+    }
+
+    /* ---------- 찜 버튼 ---------- */
+    document.getElementById('like-btn')?.addEventListener('click', () => {
+        const form   = document.getElementById('like-form');
+        const liked  = form.dataset.liked === 'true';
+        const bookId = form.dataset.bookId;
+        const likeId = form.dataset.likeId;
+
+        liked ? deleteLike(likeId, form) : createLike(bookId, form);
+    });
+
+    /* 등록 */
+    function createLike(bookId, form) {
+        const body = new URLSearchParams({bookId});
+        fetch(`${contextPath}likes`, {
+            method  : 'POST',
+            headers : {'Content-Type':'application/x-www-form-urlencoded',
+                'X-CSRF-TOKEN':document.querySelector('meta[name="_csrf"]')?.content||''},
+            body
+        })
+            .then(r => { if(!r.ok) throw new Error(); return r.text(); }) // ← likeId 받음
+            .then(likeId => {
+                form.dataset.liked  = 'true';
+                form.dataset.likeId = likeId;
+                updateLikeButton(true);
+            })
+            .catch(() => alert('찜 등록 중 오류가 발생했습니다.'));
+    }
+
+    /* 삭제 */
+    function deleteLike(likeId, form) {
+        if (!likeId) { alert('likeId 가 없습니다'); return; }
+
+        const body = new URLSearchParams({likeId});
+        fetch(`${contextPath}likes/delete`, {
+            method  : 'POST',
+            headers : {'Content-Type':'application/x-www-form-urlencoded',
+                'X-CSRF-TOKEN':document.querySelector('meta[name="_csrf"]')?.content||''},
+            body
+        })
+            .then(r => { if(!r.ok) throw new Error(); })
+            .then(() => {
+                form.dataset.liked  = 'false';
+                form.dataset.likeId = '';
+                updateLikeButton(false);
+            })
+            .catch(() => alert('찜 삭제 중 오류가 발생했습니다.'));
+    }
+  
     document.addEventListener('DOMContentLoaded', function () {
         const checkbox = document.getElementById('photo-only-checkbox');
         const reviews = document.querySelectorAll('.review-item');
