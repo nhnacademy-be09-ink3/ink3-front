@@ -113,7 +113,7 @@
                     <div th:if="${loginUser != null}">
                         <div class="flex gap-4 mt-6 items-center">
                             <form th:action="@{/carts}" method="post" class="flex gap-4 mt-auto">
-                                <input type="hidden" name="bookId" th:value="1"/>
+                                <input type="hidden" name="bookId" th:value="${book.id}"/>
 
                                 <div class="flex mb-4">
                             <span class="flex items-center">
@@ -163,7 +163,7 @@
 
                     <div th:unless="${loginUser != null}">
                         <form th:action="@{/guest-carts}" method="post" class="flex gap-4 mt-auto">
-                            <input type="hidden" name="bookId" th:value="1"/>
+                            <input type="hidden" name="bookId" th:value="${book.id}"/>
 
                             <div class="flex mb-4">
                             <span class="flex items-center">
