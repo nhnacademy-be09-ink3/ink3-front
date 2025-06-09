@@ -5,6 +5,8 @@ import com.nhnacademy.front.common.dto.PageResponse;
 import com.nhnacademy.front.shop.order.dto.OrderResponse;
 import com.nhnacademy.front.shop.order.dto.OrderStatusUpdateRequest;
 import com.nhnacademy.front.shop.order.dto.RefundResponse;
+import com.nhnacademy.front.shop.order.dto.ShipmentResponse;
+import java.time.LocalDateTime;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -36,4 +38,9 @@ public interface AdminOrderClient {
 
     @PostMapping("/refunds/{orderId}")
     CommonResponse<Void> approveRefund(@PathVariable("orderId") String orderId);
+
+    @PatchMapping("/shipments/{orderId}/deliverea-at")
+    CommonResponse<ShipmentResponse> updateShipmentDeliveredAt(
+            @PathVariable("orderId") long orderId,
+            @RequestParam LocalDateTime deliveredAt);
 }
