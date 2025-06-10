@@ -51,7 +51,7 @@
                     <!-- 테이블 -->
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4">
                         <div th:each="coupon : ${coupons.content}"
-                             class="border rounded-lg bg-white p-4 shadow hover:shadow-md transition">
+                             class="relative border rounded-lg bg-white p-4 shadow hover:shadow-md transition">
                             <div class="flex justify-between items-center mb-2">
                                 <h3 class="text-lg font-semibold text-gray-800" th:text="${coupon.couponName}">쿠폰명</h3>
                                 <span class="text-sm text-gray-500"
@@ -68,10 +68,14 @@
                             <div class="text-sm text-gray-600 mb-3">
                                 할인 혜택:
                                 <span class="text-lg font-bold text-[#86EF7D]">
-                                    <span th:if="${coupon.discountPercentage != null}" th:text="'-' + ${coupon.discountPercentage} + '%'">-10%</span>
-                                    <span th:unless="${coupon.discountPercentage != null}" th:text="'-' + ${coupon.discountValue} + '원'">-3000원</span>
+                                    <span class="right-10" th:if="${coupon.discountPercentage != null}" th:text="'-' + ${coupon.discountPercentage} + '%'">-10%</span>
+                                    <span class="right-10" th:unless="${coupon.discountPercentage != null}" th:text="'-' + ${coupon.discountValue} + '원'">-3000원</span>
                                 </span>
                             </div>
+                            <span class="absolute bottom-2 right-3 text-sm text-gray-500"
+                                  th:if="${coupon.status == T(com.nhnacademy.front.shop.couponStore.dto.CouponStatus).USED}">사용됨</span>
+                            <span class="absolute bottom-2 right-3 text-sm text-gray-500"
+                                  th:if="${coupon.status == T(com.nhnacademy.front.shop.couponStore.dto.CouponStatus).EXPIRED}">만료됨</span>
                         </div>
 
                         <!-- 비어있을 경우 -->
