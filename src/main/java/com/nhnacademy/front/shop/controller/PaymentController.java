@@ -1,6 +1,7 @@
 package com.nhnacademy.front.shop.controller;
 
 import com.nhnacademy.front.common.dto.CommonResponse;
+import com.nhnacademy.front.shop.cart.client.CartClient;
 import com.nhnacademy.front.shop.order.client.OrderClient;
 import com.nhnacademy.front.shop.order.dto.OrderFormCreateRequest;
 import com.nhnacademy.front.shop.order.dto.OrderResponse;
@@ -29,11 +30,12 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @Controller
 @RequestMapping("/payments")
 public class PaymentController {
+    //TODO 확장성을 위해서 TossUrlProperty 수정해야함.
+    private final TossUrlProperty tossUrlProperty;
     private final PaymentService paymentService;
     private final OrderClient orderClient;
     private final UserService userService;
-    //TODO 확장성을 위해서 TossUrlProperty 수정해야함.
-    private final TossUrlProperty tossUrlProperty;
+    private final CartClient cartClient;
 
     @PostMapping
     @ResponseBody
@@ -90,6 +92,8 @@ public class PaymentController {
                 .paymentType(PaymentType.TOSS)
                 .build();
         PaymentResponse paymentResponse = paymentService.confirmPayment(paymentConfirmRequest);
+        //TODO : 바로 구매 시 장바구니 안비움
+        cartClient.deleteCarts();
         model.addAttribute("paymentResponse", paymentResponse);
         return "payment/payment-success";
     }

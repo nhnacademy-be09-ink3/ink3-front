@@ -1,6 +1,7 @@
 package com.nhnacademy.front.shop.controller;
 
 import com.nhnacademy.front.common.dto.PageResponse;
+import com.nhnacademy.front.shop.cart.client.CartClient;
 import com.nhnacademy.front.shop.guest.dto.GuestOrderDetailsResponse;
 import com.nhnacademy.front.shop.guest.dto.GuestOrderFormCreateRequest;
 import com.nhnacademy.front.shop.guest.dto.GuestOrderResponse;
@@ -29,9 +30,10 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @Controller
 @RequestMapping("/guest")
 public class GuestOrderController {
+    private final TossUrlProperty tossUrlProperty;
     private final GuestOrderService guestOrderService;
     private final GuestPaymentService guestPaymentService;
-    private final TossUrlProperty tossUrlProperty;
+    private final CartClient cartClient;
 
     // 비회원 주문 조회 로그인
     @GetMapping("/login")
@@ -113,6 +115,8 @@ public class GuestOrderController {
                 .paymentType(PaymentType.TOSS)
                 .build();
         PaymentResponse paymentResponse = guestPaymentService.confirmPayment(guestPaymentConfirmRequest);
+        //TODO : 바로 구매 시 장바구니 안비움
+        cartClient.deleteCarts();
         model.addAttribute("paymentResponse", paymentResponse);
         model.addAttribute("email", email);
         return "payment/payment-guest-success";

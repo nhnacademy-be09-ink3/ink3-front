@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ink3</title>
+    <title>배송 정책 관리</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/output.css(v=${#dates.createNow().getTime()})}">
     <style>
@@ -15,7 +15,104 @@
 <body class="bg-gray-100">
 <div th:replace="~{layout/fragments/header :: headerFragment}"></div>
 <main class="container mx-auto px-4 py-8">
+    <!-- 활성 배송정책 표시 영역 -->
+    <div class="mb-6">
+        <h2 class="text-xl font-bold text-gray-800 mb-2">활성 배송 정책</h2>
+        <div class="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+            <p class="text-gray-700" th:text="'이름: ' + ${activateShippingPolicy.name()}"></p>
+            <p class="text-gray-700" th:text="'조건 금액: ' + ${activateShippingPolicy.threshold()} + '원'"></p>
+            <p class="text-gray-700" th:text="'배송비: ' + ${activateShippingPolicy.fee()} + '원'"></p>
+        </div>
+    </div>
+
+    <!-- 정책 테이블 -->
+    <div class="bg-white p-6 rounded-lg shadow-md">
+        <div class="flex justify-between mb-4">
+            <h1 class="text-2xl font-bold text-gray-900">배송 정책 목록</h1>
+            <button onclick="openModal('create-policy')" class="ink-btn-primary">새 배송정책 등록</button>
+        </div>
+
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+            <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">이름</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">조건 금액</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">배송비</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">활성화</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">생성일</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">액션</th>
+            </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200 bg-white" id="policy-table">
+            <tr th:each="policy : ${shippingPolicyList.content()}">
+                <td class="px-6 py-4 text-sm text-gray-900" th:text="${policy.id()}"></td>
+                <td class="px-6 py-4 text-sm text-gray-900" th:text="${policy.name()}"></td>
+                <td class="px-6 py-4 text-sm text-gray-900" th:text="${policy.threshold()} + '원'"></td>
+                <td class="px-6 py-4 text-sm text-gray-900" th:text="${policy.fee()} + '원'"></td>
+                <td class="px-6 py-4 text-sm">
+                    <span th:if="${policy.isAvailable()}" class="text-green-600 font-semibold">활성</span>
+                    <span th:unless="${policy.isAvailable()}" class="text-gray-500">비활성</span>
+                </td>
+                <td class="px-6 py-4 text-sm text-gray-500" th:text="${#temporals.format(policy.createdAt(), 'yyyy-MM-dd HH:mm')}"></td>
+                <td class="px-6 py-4 text-sm space-x-2">
+                    <button class="text-indigo-600 hover:underline" th:onclick="|location.href='@{/admin-order/shipping-policies/{id}/activate(id=${policy.id()})}'|"
+                            th:if="${!policy.isAvailable()}">활성화
+                    </button>
+                    <button class="text-blue-600 hover:underline" onclick="openUpdateModal(/* 전달값 */)">수정</button>
+                    <form th:action="@{/admin-order/shipping-policies/{id}(id=${policy.id()})}" method="post" th:object="${policy}" class="inline">
+                        <input type="hidden" name="_method" value="delete"/>
+                        <button type="submit" class="text-red-600 hover:underline">삭제</button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+
+        <!-- 페이지네이션 -->
+        <div class="mt-6 flex justify-center space-x-2">
+            <a th:each="i : ${#numbers.sequence(pageInfo.startPage(), pageInfo.endPage())}"
+               th:href="@{/admin-order/shipping-policies(page=${i})}"
+               th:class="${i == shippingPolicyList.page()} ? 'ink-page-item-current' : 'ink-page-item'"
+               th:text="${i + 1}"></a>
+        </div>
+    </div>
+
+    <!-- 등록 모달 -->
+    <div id="create-policy" class="modal hidden fixed inset-0 bg-gray-500/50 flex items-center justify-center z-50">
+        <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold">배송 정책 등록</h2>
+                <button onclick="closeModal('create-policy')" class="text-gray-400 hover:text-gray-600">X</button>
+            </div>
+            <form method="post" th:action="@{/admin-order/shipping-policies}" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">이름</label>
+                    <input type="text" name="name" class="ink-input-field w-full" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">조건 금액</label>
+                    <input type="number" name="threshold" class="ink-input-field w-full" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">배송비</label>
+                    <input type="number" name="fee" class="ink-input-field w-full" required>
+                </div>
+                <div class="text-right">
+                    <button type="submit" class="ink-btn-primary">등록</button>
+                </div>
+            </form>
+        </div>
+    </div>
 </main>
 <div th:replace="~{layout/fragments/footer :: footerFragment}"></div>
+<script>
+    function openModal(id) {
+        document.getElementById(id).classList.remove('hidden');
+    }
+    function closeModal(id) {
+        document.getElementById(id).classList.add('hidden');
+    }
+</script>
 </body>
 </html>
