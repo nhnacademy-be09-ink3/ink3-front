@@ -1,12 +1,12 @@
 package com.nhnacademy.front.shop.couponStore.service;
 
-import com.nhnacademy.front.shop.couponStore.client.dto.CouponStoreDto;
+import com.nhnacademy.front.shop.couponStore.dto.CouponStoreDto;
 import java.util.List;
 import org.springframework.stereotype.Service;
 
 import com.nhnacademy.front.common.dto.PageResponse;
-import com.nhnacademy.front.shop.couponStore.client.dto.CouponStoreClient;
-import com.nhnacademy.front.shop.couponStore.client.dto.CouponStoreResponse;
+import com.nhnacademy.front.shop.couponStore.client.CouponStoreClient;
+import com.nhnacademy.front.shop.couponStore.dto.CouponStoreResponse;
 
 import lombok.RequiredArgsConstructor;
 

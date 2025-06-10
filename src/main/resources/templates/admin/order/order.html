@@ -44,7 +44,7 @@
                     </thead>
                     <tbody class="divide-y divide-gray-200 bg-white">
                     <tr th:each="order : ${orders.content}" class="hover:bg-gray-50">
-                        <form th:action="@{/admin-order/orders/{id}/order-status(id=${order.id})}" method="post">\
+                        <form th:action="@{/admin-order/orders/{id}/order-status(id=${order.id})}" method="post">
                             <input type="hidden" name="beforeStatus" th:value="${order.status.name()}"/>
                             <td class="px-6 py-4" th:text="${order.id}"></td>
                             <td class="px-6 py-4" th:text="${order.ordererName}"></td>

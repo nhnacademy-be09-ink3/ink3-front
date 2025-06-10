@@ -1,4 +1,4 @@
-package com.nhnacademy.front.shop.couponStore.client.dto;
+package com.nhnacademy.front.shop.couponStore.dto;
 
 import java.time.LocalDateTime;
 
@@ -14,7 +14,10 @@ public record CouponStoreResponse(
         OriginType originType,
         Long originId,
         CouponStatus status,
-        LocalDateTime issuedAt
+        LocalDateTime issuedAt,
+        LocalDateTime expiresAt,
+        Integer discountValue,
+        Integer discountPercentage
 ) {
 }
 
