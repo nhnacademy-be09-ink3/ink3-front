@@ -10,10 +10,6 @@
         body {
             font-family: 'Inter', sans-serif;
         }
-
-        #tab-reviews span {
-            pointer-events: none;
-        }
     </style>
 </head>
 <body class="bg-gray-100">
@@ -21,21 +17,48 @@
 
 <script th:inline="javascript">
     const contextPath = /*[[@{/}]]*/ '';
-    const isLoggedIn = /*[[${isLoggedIn}]]*/ false;
 </script>
 
 <main class="container mx-auto px-4 py-8">
     <section class="text-gray-600 body-font overflow-hidden">
-        <div class="bg-white rounded-lg shadow-md container px-5 py-24 mx-auto pl-16">
-            <div class="lg:w-4/5 mx-auto flex flex-wrap">
+        <div class="bg-white rounded-lg shadow-md max-w-5xl mx-auto px-6 py-16">
+            <div class="w-full max-w-4xl mx-auto flex flex-wrap">
                 <div class="flex-shrink-0 w-full h-full md:w-1/3">
                     <img th:src="${book.thumbnailUrl}" alt="책 표지"
                          class="w-full h-auto object-cover rounded-md">
                 </div>
                 <div class="lg:w-1/2 w-full lg:pl-10 lg:py-6 mt-6 lg:mt-0">
-                    <h1 class="text-gray-900 text-3xl title-font font-medium mb-1" th:text="${book.title}"></h1>
+                    <div class="flex items-center gap-4 mb-1">
+                        <h1 class="text-gray-900 text-3xl title-font font-medium" th:text="${book.title}"></h1>
 
-                    <div class="flex mb-4">
+                        <!-- 찜 버튼 -->
+                        <div th:if="${loginUser != null}" class="flex items-center gap-1 mt-1">
+                            <form id="like-form"
+                                  th:attr="data-liked=${liked.get()}, data-like-id=${likeId.get()}, data-book-id=${bookId}"
+                                  onsubmit="return false;">
+                                <button type="button" id="like-btn"
+                                        class="rounded-full w-8 h-8 p-0 border-0 inline-flex items-center justify-center mr-1"
+                                        th:classappend="${liked} == true ? 'bg-red-100 text-red-500' : 'bg-gray-200 text-gray-500'">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78L12 21.23l7.78-7.78a5.5 5.5 0 000-7.78z"/>
+                                    </svg>
+                                </button>
+                            </form>
+                            <span th:text="${book.likeCount}" class="text-sm font-bold text-gray-600"></span>
+                        </div>
+
+                        <div th:unless="${loginUser != null}" class="flex items-center gap-1 mt-1">
+                            <div class="rounded-full w-8 h-8 flex items-center justify-center bg-gray-200 text-gray-400 mr-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78L12 21.23l7.78-7.78a5.5 5.5 0 000-7.78z"/>
+                                </svg>
+                            </div>
+                            <span th:text="${book.likeCount}" class="text-sm font-bold text-gray-600"></span>
+                        </div>
+                    </div>
+
+
+                    <div class="flex mt-4 mb-4">
                         <span class="flex items-center">
                             <span class="text-gray-600">
                                 <th:block th:each="author, iterStat : ${book.authors}">
@@ -50,7 +73,7 @@
 
                         </span>
                     </div>
-                    <div class="flex mb-4">
+                    <div class="flex mt-4 mb-4">
                         <div class="flex items-center space-x-2">
                             <div class="flex">
                                 <th:block th:each="i : ${#numbers.sequence(1, 5)}">
@@ -67,11 +90,8 @@
                             <span class="text-sm text-gray-500 ml-2" th:text="'(' + ${reviews.size()} + '개 리뷰)'"></span>
                         </div>
                     </div>
-                    <!-- 책 소개 -->
-                    <!--                    <p class="leading-relaxed" th:text="${book.description}"></p>-->
-                    <!--                    <br>-->
-                    <!-- 카테고리 -->
-                    <div class="flex mb-4">
+
+                    <div class="flex mt-10 mb-4">
                         <span class="flex items-center">
                             <span class="text-md text-gray-600 mb-1">카테고리</span>
                             <span class="text-gray-800 flex ml-3 pl-3 py-2 border-l-2 border-gray-200 flex-col">
@@ -110,99 +130,8 @@
                         </span>
                     </div>
 
-                    <div th:if="${loginUser != null}">
-                        <div class="flex gap-4 mt-6 items-center">
-                            <form th:action="@{/carts}" method="post" class="flex gap-4 mt-auto">
-                                <input type="hidden" name="bookId" th:value="${book.id}"/>
-
-                                <div class="flex mb-4">
-                            <span class="flex items-center">
-                                <span class="text-md text-gray-600 mb-1">수량</span>
-                                <span class="flex ml-3 pl-3 py-2 border-l-2 border-gray-200 space-x-2s"></span>
-                                <input
-                                        id="quantity"
-                                        name="quantity"
-                                        type="number"
-                                        min="1"
-                                        value="1"
-                                        class="w-16 px-2 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                />
-                            </span>
-                                </div>
-
-                                <div class="flex gap-4 mt-0.5">
-                                    <button type="submit"
-                                            class="ink-btn-primary bg-gray-300 text-gray-800 hover:bg-gray-400">
-                                        장바구니에 넣기
-                                    </button>
-                                </div>
-                            </form>
-
-                            <a href="/"
-                               class="ink-btn-primary bg-gray-300 text-gray-800 hover:bg-gray-400">
-                                목록으로
-                            </a>
-
-                            <!-- 찜 버튼 -->
-                            <form id="like-form"
-                                  th:attr="data-liked=${liked.get()}, data-like-id=${likeId.get()}, data-book-id=${bookId}"
-                                  onsubmit="return false;">
-                                <button type="button" id="like-btn"
-                                        class="rounded-full w-10 h-10 p-0 border-0 inline-flex items-center justify-center"
-                                        th:classappend="${liked} == true ? 'bg-red-100 text-red-500' : 'bg-gray-200 text-gray-500'">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="currentColor"
-                                         viewBox="0 0 24 24">
-                                        <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78L12 21.23l7.78-7.78a5.5 5.5 0 000-7.78z"/>
-                                    </svg>
-                                </button>
-                            </form>
-                            <span class="flex ml-3 pl-3 py-2 border-l-2 border-gray-200 space-x-2s"
-                                  th:text="${book.likeCount}"></span>
-                        </div>
-                    </div>
-
-                    <div th:unless="${loginUser != null}">
-                        <form th:action="@{/guest-carts}" method="post" class="flex gap-4 mt-auto">
-                            <input type="hidden" name="bookId" th:value="${book.id}"/>
-
-                            <div class="flex mb-4">
-                            <span class="flex items-center">
-                                <span class="text-md text-gray-600 mb-1">수량</span>
-                                <span class="flex ml-3 pl-3 py-2 border-l-2 border-gray-200 space-x-2s"></span>
-                                <input
-                                        id="quantity"
-                                        name="quantity"
-                                        type="number"
-                                        min="1"
-                                        value="1"
-                                        class="w-16 px-2 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                />
-                            </span>
-                            </div>
-
-                            <div class="flex gap-4 mt-0.5">
-                                <button type="submit"
-                                        class="ink-btn-primary bg-gray-300 text-gray-800 hover:bg-gray-400">
-                                    장바구니에 넣기
-                                </button>
-                            </div>
-                        </form>
-
-                        <div class="flex items-center gap-4 mt-0.5">
-                            <a href="/books"
-                               class="ink-btn-primary bg-gray-300 text-gray-800 hover:bg-gray-400">목록으로</a>
-
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="currentColor"
-                                 viewBox="0 0 24 24">
-                                <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78L12 21.23l7.78-7.78a5.5 5.5 0 000-7.78z"/>
-                            </svg>
-                            <span class="flex ml-3 pl-3 py-2 border-l-2 border-gray-200 space-x-2s"
-                                  th:text="${book.likeCount}"></span>
-                        </div>
-                    </div>
-
                     <div>
-                        <div class="flex items-baseline gap-2 mb-6">
+                        <div class="flex items-baseline gap-2 mb-8">
                             <!-- 정가 -->
                             <span class="title-font font-medium text-gray-400 line-through text-lg"
                                   th:text="${#numbers.formatDecimal(book.originalPrice(), 0, 'COMMA', 0, 'POINT')} + '원'"></span>
@@ -218,17 +147,92 @@
                             </span>
                         </div>
                     </div>
+
+                    <div th:if="${loginUser != null}">
+                        <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-start">
+                            <form th:action="@{/carts}" method="post" class="flex gap-4 mt-auto">
+                                <input type="hidden" name="bookId" th:value="${book.id}"/>
+
+                                <div class="mt-8 flex flex-wrap items-center gap-4">
+                                    <!-- 수량 -->
+                                    <div class="flex items-center gap-2">
+                                        <label for="quantity" class="text-md text-gray-600">수량</label>
+                                        <input
+                                                id="quantity"
+                                                name="quantity"
+                                                type="number"
+                                                min="1"
+                                                value="1"
+                                                class="w-20 px-2 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                        />
+                                    </div>
+
+                                    <!-- 장바구니 -->
+                                    <form th:action="@{/carts}" method="post" class="flex items-center gap-4">
+                                        <input type="hidden" name="bookId" th:value="${book.id}"/>
+                                        <button type="submit"
+                                                class="ink-btn-primary px-4 py-2 bg-green-300 text-gray-800 rounded-md hover:bg-green-400">
+                                            장바구니에 넣기
+                                        </button>
+                                    </form>
+
+                            <a href="/"
+                               class="ink-btn-primary bg-gray-300 text-gray-800 hover:bg-gray-400">
+                                목록으로
+                            </a>
+                        </div>
+                    </div>
+
+                    <div th:unless="${loginUser != null}">
+                        <form th:action="@{/guest-carts}" method="post" class="flex gap-4 mt-auto">
+                            <input type="hidden" name="bookId" th:value="${book.id}"/>
+
+                            <div class="mt-8 flex flex-wrap items-center gap-4">
+                                <!-- 수량 -->
+                                <div class="flex items-center gap-2">
+                                    <label for="quantity" class="text-md text-gray-600">수량</label>
+                                    <input
+                                            id="quantity"
+                                            name="quantity"
+                                            type="number"
+                                            min="1"
+                                            value="1"
+                                            class="w-20 px-2 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    />
+                                </div>
+
+                                <!-- 장바구니 -->
+                                <form th:action="@{/carts}" method="post" class="flex items-center gap-4">
+                                    <input type="hidden" name="bookId" th:value="${book.id}"/>
+                                    <button type="submit"
+                                            class="ink-btn-primary px-4 py-2 bg-green-300 text-gray-800 rounded-md hover:bg-green-400">
+                                        장바구니에 넣기
+                                    </button>
+                                </form>
+
+                                <!-- 목록으로 -->
+                                <a href="/books"
+                                   class="ink-btn-primary px-4 py-2 bg-green-300 text-gray-800 rounded-md hover:bg-green-400 inline-flex items-center justify-center">
+                                    목록으로
+                                </a>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
         <!-- 탭 메뉴 추가 -->
         <div class="max-w-5xl mx-auto px-4 mt-12">
-            <div class="flex border-b text-lg font-semibold text-gray-800">
-                <button id="tab-book-info" class="px-4 py-2 bg-gray-800 text-white" type="button" data-tab="book">도서정보
+            <div class="flex border-b mt-12 space-x-2">
+                <button id="tab-book-info"
+                        class="px-4 py-2 text-gray-700 font-semibold border-b-4"
+                        th:classappend="${activeTab == 'book'} ? 'border-ink-btn-primary text-ink-btn-primary' : 'border-transparent'">
+                    도서정보
                 </button>
-                <button id="tab-reviews" class="px-4 py-2 bg-gray-800 text-white"
-                        type="button" data-tab="review">
-                    리뷰/한줄평 (<span th:text="${reviews.size()}"></span>)
+                <button id="tab-reviews"
+                        class="px-4 py-2 text-gray-700 font-semibold border-b-4"
+                        th:classappend="${activeTab == 'review'} ? 'border-ink-btn-primary text-ink-btn-primary' : 'border-transparent'">
+                    리뷰 (<span th:text="${reviews.size()}"></span>)
                 </button>
             </div>
         </div>
@@ -236,23 +240,28 @@
         <!-- 도서정보 영역 -->
         <div id="tab-content-book" class="max-w-5xl mx-auto px-4 py-12 border-t border-gray-200">
             <!-- 책 소개 -->
-            <div class="md:flex md:gap-8 mb-12">
-                <div class="md:w-1/5 w-full mb-4 md:mb-0">
-                    <h2 class="text-xl font-semibold text-gray-800">책소개</h2>
+            <div class="rounded-lg shadow p-6 mb-8">
+                <div class="md:flex md:gap-8">
+                    <div class="md:w-1/5 w-full mb-4 md:mb-0">
+                        <h2 class="text-xl font-semibold text-gray-800">책소개</h2>
+                    </div>
+                    <div class="whitespace-pre-line md:w-4/5 w-full text-gray-700 leading-relaxed space-y-4"
+                         th:text="${book.description}"></div>
                 </div>
-                <div class="whitespace-pre-line md:w-4/5 w-full text-gray-700 leading-relaxed space-y-4"
-                     th:text="${book.description}"></div>
             </div>
-            <!-- 목차 -->
-            <div class="md:flex md:gap-8">
-                <!-- 섹션 제목 -->
-                <div class="md:w-1/5 w-full mb-4 md:mb-0">
-                    <h2 class="text-xl font-semibold text-gray-800">목차</h2>
-                </div>
 
-                <!-- 목차 내용 -->
-                <div class="whitespace-pre-line md:w-4/5 w-full text-gray-700 leading-relaxed space-y-4"
-                     th:text="${book.contents}"></div>
+            <!-- 목차 -->
+            <div class="rounded-lg shadow p-6">
+                <div class="md:flex md:gap-8">
+                    <!-- 섹션 제목 -->
+                    <div class="md:w-1/5 w-full mb-4 md:mb-0">
+                        <h2 class="text-xl font-semibold text-gray-800">목차</h2>
+                    </div>
+
+                    <!-- 목차 내용 -->
+                    <div class="whitespace-pre-line md:w-4/5 w-full text-gray-700 leading-relaxed space-y-4"
+                         th:text="${book.contents}"></div>
+                </div>
             </div>
         </div>
 
@@ -542,18 +551,31 @@
     /* ---------- 공통 util ---------- */
     function updateLikeButton(isLiked) {
         const btn = document.getElementById('like-btn');
-        btn.classList.toggle('bg-red-100',  isLiked);
-        btn.classList.toggle('text-red-500',isLiked);
+        btn.classList.toggle('bg-red-100', isLiked);
+        btn.classList.toggle('text-red-500', isLiked);
         btn.classList.toggle('bg-gray-200', !isLiked);
-        btn.classList.toggle('text-gray-500',!isLiked);
+        btn.classList.toggle('text-gray-500', !isLiked);
+    }
+
+    function updateLikeCount(increment) {
+        const likeCountSpan = document.querySelector('#like-form + span, .text-gray-600.text-sm');
+        if (likeCountSpan) {
+            const count = parseInt(likeCountSpan.textContent || '0');
+            likeCountSpan.textContent = count + increment;
+        }
     }
 
     /* ---------- 찜 버튼 ---------- */
     document.getElementById('like-btn')?.addEventListener('click', () => {
-        const form   = document.getElementById('like-form');
-        const liked  = form.dataset.liked === 'true';
+        const form = document.getElementById('like-form');
+        const liked = form.dataset.liked === 'true';
         const bookId = form.dataset.bookId;
         const likeId = form.dataset.likeId;
+
+        if (form) {
+            const isLiked = form.dataset.liked === 'true';
+            updateLikeButton(isLiked);
+        }
 
         liked ? deleteLike(likeId, form) : createLike(bookId, form);
     });
@@ -562,40 +584,54 @@
     function createLike(bookId, form) {
         const body = new URLSearchParams({bookId});
         fetch(`${contextPath}likes`, {
-            method  : 'POST',
-            headers : {'Content-Type':'application/x-www-form-urlencoded',
-                'X-CSRF-TOKEN':document.querySelector('meta[name="_csrf"]')?.content||''},
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="_csrf"]')?.content || ''
+            },
             body
         })
-            .then(r => { if(!r.ok) throw new Error(); return r.text(); }) // ← likeId 받음
+            .then(r => {
+                if (!r.ok) throw new Error();
+                return r.text();
+            }) // ← likeId 받음
             .then(likeId => {
-                form.dataset.liked  = 'true';
+                form.dataset.liked = 'true';
                 form.dataset.likeId = likeId;
                 updateLikeButton(true);
+                updateLikeCount(1);
             })
             .catch(() => alert('찜 등록 중 오류가 발생했습니다.'));
     }
 
     /* 삭제 */
     function deleteLike(likeId, form) {
-        if (!likeId) { alert('likeId 가 없습니다'); return; }
+        if (!likeId) {
+            alert('likeId 가 없습니다');
+            return;
+        }
 
         const body = new URLSearchParams({likeId});
         fetch(`${contextPath}likes/delete`, {
-            method  : 'POST',
-            headers : {'Content-Type':'application/x-www-form-urlencoded',
-                'X-CSRF-TOKEN':document.querySelector('meta[name="_csrf"]')?.content||''},
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="_csrf"]')?.content || ''
+            },
             body
         })
-            .then(r => { if(!r.ok) throw new Error(); })
+            .then(r => {
+                if (!r.ok) throw new Error();
+            })
             .then(() => {
-                form.dataset.liked  = 'false';
+                form.dataset.liked = 'false';
                 form.dataset.likeId = '';
                 updateLikeButton(false);
+                updateLikeCount(-1);
             })
             .catch(() => alert('찜 삭제 중 오류가 발생했습니다.'));
     }
-  
+
     document.addEventListener('DOMContentLoaded', function () {
         const checkbox = document.getElementById('photo-only-checkbox');
         const reviews = document.querySelectorAll('.review-item');
@@ -608,6 +644,14 @@
                     review.style.display = (!showPhotoOnly || hasImage) ? 'block' : 'none';
                 });
             });
+        }
+    });
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const form = document.getElementById('like-form');
+        if (form) {
+            const isLiked = form.dataset.liked === 'true';
+            updateLikeButton(isLiked);
         }
     });
 </script>
