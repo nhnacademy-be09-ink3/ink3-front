@@ -15,6 +15,9 @@ import com.nhnacademy.front.shop.book.dto.BookCreateRequest;
 import com.nhnacademy.front.shop.book.dto.SortType;
 import com.nhnacademy.front.shop.category.client.CategoryClient;
 import com.nhnacademy.front.shop.category.client.dto.CategoryResponse;
+import com.nhnacademy.front.shop.coupon.coupon.client.CouponClient;
+import com.nhnacademy.front.shop.coupon.coupon.client.dto.CouponResponse;
+import com.nhnacademy.front.shop.coupon.policy.client.CouponPolicyClient;
 import com.nhnacademy.front.shop.coupon.store.client.CouponStore;
 import com.nhnacademy.front.shop.coupon.store.client.dto.CouponIssueRequest;
 import com.nhnacademy.front.shop.coupon.store.client.dto.StoresResponse;
@@ -72,21 +75,22 @@ public class BookController {
     private final AuthorClient authorClient;
     private final PublisherClient publisherClient;
     private final TagClient tagClient;
-    private final LikeService likeService;
     private final ObjectMapper objectMapper;
     private final CouponStore couponStore;
+    private final CouponClient couponClient;
+    private final CouponPolicyClient couponPolicyClient;
 
     @GetMapping("/books/{bookId}")
     public String getBookDetail(@PathVariable Long bookId,
-        @RequestParam(defaultValue = "0") int page,
-        @RequestParam(defaultValue = "10") int size,
-        Model model, @CookieValue(name = "accessToken", required = false) String accessToken) {
-        CommonResponse<BookResponse> response = bookClient.getBookDetail(bookId);
+                                @RequestParam(defaultValue = "0") int  page,
+                                @RequestParam(defaultValue = "10") int  size,
+                                Model model, @CookieValue(name = "accessToken", required = false) String accessToken) {
+        CommonResponse<BookResponse> books = bookClient.getBookDetail(bookId);
         PageResponse<ReviewListResponse> reviews =
-            reviewClient.getReviewsByBookId(bookId, page, size);
+                reviewClient.getReviewsByBookId(bookId, page, size);
 
         PageUtil.PageInfo pageInfo = PageUtil.calculatePageRange(
-            reviews.page(), reviews.totalPages(), 5);
+                reviews.page(), reviews.totalPages(), 5);
 
         Long userId = null;
         try {
@@ -98,29 +102,33 @@ public class BookController {
             log.warn("비회원 사용자 도서 상세페이지 접근: {}", e.getMessage());
         }
 
-        AtomicBoolean liked = new AtomicBoolean(false);
-        AtomicReference<Long> likeId = new AtomicReference<>(null);
+        // 3) 도서에 직접 연결된 쿠폰
+        CommonResponse<PageResponse<CouponResponse>> bookCouponsResp =
+                couponClient.getByBookId(bookId, 0, 10);
+        List<CouponResponse> bookCoupons =
+                bookCouponsResp.data().content();
 
-        if (userId != null) {
-            PageResponse<LikeResponse> likes = likeService.getCurrentUserLikes(0, 100, null);
-            likes.content().stream()
-                .filter(like -> like.bookId().equals(bookId))
-                .findFirst()
-                .ifPresent(like -> {
-                    liked.set(true);
-                    likeId.set(like.id());
-                });
+        // 4) 카테고리별 쿠폰 합치기
+        List<CouponResponse> categoryCoupons = new ArrayList<>();
+        for (CategoryResponse cat : books.data().categories()) {
+            CommonResponse<PageResponse<CouponResponse>> resp =
+                    couponClient.getByCategoryId(cat.id(), 0, 10);
+            categoryCoupons.addAll(resp.data().content());
         }
 
-        model.addAttribute("book", response.data());
-        model.addAttribute("reviews", reviews.content());
+        // 5) 둘을 합쳐서 모델에 한 번에 담기
+        List<CouponResponse> coupons = new ArrayList<>();
+        coupons.addAll(bookCoupons);
+        coupons.addAll(categoryCoupons);
+
+
+        model.addAttribute("book",      books.data());
+        model.addAttribute("reviews",   reviews.content());
         model.addAttribute("reviewPage", reviews);
-        model.addAttribute("pageInfo", pageInfo);
-        model.addAttribute("bookId", bookId);
-        model.addAttribute("userId", userId);
-        model.addAttribute("liked", liked);
-        model.addAttribute("likeId", likeId);
-        model.addAttribute("likeCount", response.data().likeCount());
+        model.addAttribute("pageInfo",  pageInfo);
+        model.addAttribute("bookId",    bookId);
+        model.addAttribute("userId",    userId);
+        model.addAttribute("coupons", coupons);
 
         return "book/book-detail";
     }
