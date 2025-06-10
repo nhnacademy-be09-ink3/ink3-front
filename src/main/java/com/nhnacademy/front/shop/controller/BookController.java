@@ -104,7 +104,6 @@ public class BookController {
             log.warn("비회원 사용자 도서 상세페이지 접근: {}", e.getMessage());
         }
 
-        // (3) 쿠폰 조회: 책 → 카테고리
         List<CouponResponse> bookCoupons =
                 couponClient.getByBookId(bookId, 0, 10).data().content();
 
@@ -114,8 +113,10 @@ public class BookController {
                                 .data().content().stream()
                 )
                 .toList();
+        log.info(">>> bookCoupons (size={}): {}", bookCoupons.size(), bookCoupons);
+        log.info(">>> categoryCoupons (size={}): {}", categoryCoupons.size(), categoryCoupons);
 
-        // (4) 합치고 View DTO 로 변환
+
         List<CouponView> coupons = Stream.concat(bookCoupons.stream(), categoryCoupons.stream())
                 .map(c -> {
                     boolean isBook = !c.books().isEmpty();
@@ -136,6 +137,9 @@ public class BookController {
                     );
                 })
                 .toList();
+        // 로그 찍기 (View DTO)
+        log.info(">>> coupons (combined, size={}): {}", coupons.size(), coupons);
+
 
 
         model.addAttribute("book",      books.data());
