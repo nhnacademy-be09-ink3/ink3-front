@@ -410,50 +410,78 @@
     </div>
 </div>
 
-<<!-- 쿠폰 발급용 모달 -->
+<!-- 쿠폰 발급용 모달 -->
 <div
         id="coupon-modal"
         class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden"
 >
-    <div class="bg-white rounded-lg shadow-lg p-6 w-96">
+    <div class="relative bg-white rounded-lg shadow-lg p-6 w-96">
+
+        <!-- 닫기 버튼 (상단 우측) -->
+        <button
+                type="button"
+                class="absolute top-3 right-3 text-gray-500 hover:text-gray-700 focus:outline-none close-modal"
+                aria-label="닫기"
+        >
+            ✕
+        </button>
+
         <h3 class="text-xl font-semibold mb-4">이 상품에 적용 가능한 쿠폰</h3>
 
         <!-- 쿠폰 리스트 -->
         <ul th:if="${!#lists.isEmpty(coupons)}" class="space-y-3 mb-6">
-            <li
-                    th:each="coupon : ${coupons}"
-                    th:with="
-                        isBook=${!#lists.isEmpty(coupon.books)},
-                        originType=${isBook ? 'BOOK' : 'CATEGORY'},
-                        originId=${isBook ? coupon.books[0].originId : coupon.categories[0].originId}"
-                    class="p-3 border rounded flex justify-between items-center"
-            >
+            <li th:each="coupon : ${coupons}"
+                class="p-3 border rounded flex justify-between items-center">
+
                 <div>
                     <div class="font-medium" th:text="${coupon.name}">쿠폰 이름</div>
                     <div class="text-sm text-gray-500">
-        <span th:if="${coupon.discountRate != null and coupon.discountRate > 0}">
+        <span th:if="${coupon.discountRate > 0}">
           할인율: <span th:text="${coupon.discountRate}"></span>%&nbsp;|&nbsp;
         </span>
-                        <span th:if="${coupon.discountValue != null and coupon.discountValue > 0}">
+                        <span th:if="${coupon.discountValue > 0}">
           할인금액: <span th:text="${coupon.discountValue}"></span>₩&nbsp;|&nbsp;
         </span>
-                        만료: <span th:text="${#temporals.format(coupon.expiresAt, 'yyyy.MM.dd')}">2025.12.31</span>
+                        만료: <span th:text="${#temporals.format(coupon.expiresAt, 'yyyy.MM.dd')}">
+          2025.12.31
+        </span>
                     </div>
                 </div>
-                <button
-                        type="button"
+
+                <button type="button"
                         th:attr="
-                            data-coupon-id=${coupon.couponId},
-                            data-origin-type=${originType},
-                            data-origin-id=${originId},
-                            data-user-id=${userId}"
+              data-coupon-id=${coupon.couponId},
+              data-origin-type=${coupon.originType},
+              data-origin-id=${coupon.originId},
+              data-user-id=${userId}"
                         class="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 issue-this-coupon">
                     발급받기
                 </button>
             </li>
         </ul>
+
+        <!-- 뒤로가기/취소 버튼 (하단) -->
+        <div class="flex justify-end space-x-2">
+            <button
+                    type="button"
+                    class="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 close-modal"
+            >
+                뒤로가기
+            </button>
+        </div>
+
     </div>
 </div>
+
+<!-- 예시 JavaScript -->
+<script>
+    document.querySelectorAll('.close-modal').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.getElementById('coupon-modal').classList.add('hidden');
+        });
+    });
+</script>
+
 
 
 <div th:replace="~{layout/fragments/footer :: footerFragment}"></div>

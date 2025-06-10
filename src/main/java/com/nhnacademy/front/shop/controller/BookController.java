@@ -17,6 +17,7 @@ import com.nhnacademy.front.shop.category.client.CategoryClient;
 import com.nhnacademy.front.shop.category.client.dto.CategoryResponse;
 import com.nhnacademy.front.shop.coupon.coupon.client.CouponClient;
 import com.nhnacademy.front.shop.coupon.coupon.client.dto.CouponResponse;
+import com.nhnacademy.front.shop.coupon.coupon.client.dto.CouponView;
 import com.nhnacademy.front.shop.coupon.policy.client.CouponPolicyClient;
 import com.nhnacademy.front.shop.coupon.store.client.CouponStore;
 import com.nhnacademy.front.shop.coupon.store.client.dto.CouponIssueRequest;
@@ -38,6 +39,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
+import java.util.stream.Stream;
 import org.springframework.http.MediaType;
 import java.util.Map;
 import org.springframework.stereotype.Controller;
@@ -102,24 +104,38 @@ public class BookController {
             log.warn("비회원 사용자 도서 상세페이지 접근: {}", e.getMessage());
         }
 
-        // 3) 도서에 직접 연결된 쿠폰
-        CommonResponse<PageResponse<CouponResponse>> bookCouponsResp =
-                couponClient.getByBookId(bookId, 0, 10);
+        // (3) 쿠폰 조회: 책 → 카테고리
         List<CouponResponse> bookCoupons =
-                bookCouponsResp.data().content();
+                couponClient.getByBookId(bookId, 0, 10).data().content();
 
-        // 4) 카테고리별 쿠폰 합치기
-        List<CouponResponse> categoryCoupons = new ArrayList<>();
-        for (CategoryResponse cat : books.data().categories()) {
-            CommonResponse<PageResponse<CouponResponse>> resp =
-                    couponClient.getByCategoryId(cat.id(), 0, 10);
-            categoryCoupons.addAll(resp.data().content());
-        }
+        List<CouponResponse> categoryCoupons = books.data().categories().stream()
+                .flatMap(cat ->
+                        couponClient.getByCategoryId(cat.id(), 0, 10)
+                                .data().content().stream()
+                )
+                .toList();
 
-        // 5) 둘을 합쳐서 모델에 한 번에 담기
-        List<CouponResponse> coupons = new ArrayList<>();
-        coupons.addAll(bookCoupons);
-        coupons.addAll(categoryCoupons);
+        // (4) 합치고 View DTO 로 변환
+        List<CouponView> coupons = Stream.concat(bookCoupons.stream(), categoryCoupons.stream())
+                .map(c -> {
+                    boolean isBook = !c.books().isEmpty();
+                    String originType = isBook
+                            ? c.books().get(0).originType()
+                            : c.categories().get(0).originType();
+                    Long originId = isBook
+                            ? c.books().get(0).originId()
+                            : c.categories().get(0).originId();
+                    return new CouponView(
+                            c.couponId(),
+                            c.name(),
+                            c.discountRate(),
+                            c.discountValue(),
+                            c.expiresAt(),
+                            originType,
+                            originId
+                    );
+                })
+                .toList();
 
 
         model.addAttribute("book",      books.data());
@@ -363,11 +379,11 @@ public class BookController {
             log.warn("비회원 사용자 도서 상세페이지 접근: {}", e.getMessage());
         }
         CouponIssueRequest req = new CouponIssueRequest(
-                userId, couponId, originType, originId
+                couponId, originType, originId
         );
         // 3) Feign 호출 및 예외 처리
         try {
-            CommonResponse<StoresResponse> resp = couponStore.issueCoupon(req);
+            CommonResponse<StoresResponse> resp = couponStore.issueCoupon(userId, req);
             redirectAttributes.addFlashAttribute(
                     "successMessage", resp.data().couponName() + " 쿠폰이 발급되었습니다."
             );
