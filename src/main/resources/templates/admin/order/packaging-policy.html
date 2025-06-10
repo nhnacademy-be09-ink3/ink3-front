@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>포장지 정책 관리</title>
+    <link rel="stylesheet" th:href="@{/css/output.css(v=${#dates.createNow().getTime()})}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .modal-bg {
+            background-color: rgba(0, 0, 0, 0.4);
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+<div th:replace="~{admin/layout/fragments/header :: headerFragment}"></div>
+<div class="flex flex-1 min-h-[calc(100vh-64px)]">
+    <div th:replace="~{admin/layout/fragments/sidebar :: sidebarFragment}"></div>
+    <main class="main-content-area flex-1 p-6 bg-gray-100 overflow-y-auto">
+
+        <div class="bg-white p-6 rounded-lg shadow-md mb-6">
+            <div class="flex justify-between items-center mb-4">
+                <h1 class="text-3xl font-bold text-gray-900 flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="mr-3" width="24" height="24" fill="none"
+                         viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                              d="M3 3h18M9 3v18M9 9h12"/>
+                    </svg>
+                    포장지 정책 관리
+                </h1>
+                <button onclick="openModal('createModal')"
+                        class="px-4 py-2 bg-blue-600 text-white text-sm rounded hover:bg-blue-700">
+                    + 포장지 추가
+                </button>
+            </div>
+
+            <div class="mb-6">
+                <h2 class="text-xl font-semibold mb-2">활성화된 포장지 정책</h2>
+                <div th:if="${#lists.isEmpty(activatePackagings.content)}"
+                     class="text-gray-500 py-4">활성화된 포장지 정책이 없습니다.</div>
+                <table th:if="${!#lists.isEmpty(activatePackagings.content)}"
+                       class="min-w-full table-auto border border-gray-200 divide-y divide-gray-200">
+                    <thead class="bg-gray-50 text-sm text-gray-600 text-left">
+                    <tr>
+                        <th class="px-4 py-2">ID</th>
+                        <th class="px-4 py-2">이름</th>
+                        <th class="px-4 py-2">가격</th>
+                        <th class="px-4 py-2">활성화</th>
+                        <th class="px-4 py-2">작업</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="pkg : ${activatePackagings.content}" class="hover:bg-gray-50">
+                        <td class="px-4 py-2" th:text="${pkg.id}"></td>
+                        <td class="px-4 py-2" th:text="${pkg.name}"></td>
+                        <td class="px-4 py-2" th:text="${pkg.price + '원'}"></td>
+                        <td class="px-4 py-2 text-green-600 font-semibold">활성화</td>
+                        <td class="px-4 py-2 flex gap-2">
+                            <button
+                                    type="button"
+                                    class="px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700"
+                                    th:attr="data-id=${pkg.id}, data-name=${pkg.name}, data-price=${pkg.price}"
+                                    onclick="handleEditClick(this)">
+                                수정
+                            </button>
+                            <a th:href="@{/admin-order/packaings/{id}/deactivate(id=${pkg.id})}"
+                               class="px-3 py-1 bg-yellow-500 text-xs rounded hover:bg-yellow-600">비활성화</a>
+                            <button
+                                    th:onclick="'openDeleteModal(' + ${pkg.id} + ')'"
+                                    class="px-3 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700">
+                                삭제
+                            </button>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h2 class="text-xl font-semibold mb-2">전체 포장지 정책</h2>
+            <div th:if="${#lists.isEmpty(allPackagings.content)}" class="text-gray-500 py-4">등록된 정책 없음</div>
+            <table th:if="${!#lists.isEmpty(allPackagings.content)}"
+                   class="min-w-full table-auto border border-gray-200 divide-y divide-gray-200">
+                <thead class="bg-gray-50 text-sm text-gray-600 text-left">
+                <tr>
+                    <th class="px-4 py-2">ID</th>
+                    <th class="px-4 py-2">이름</th>
+                    <th class="px-4 py-2">가격</th>
+                    <th class="px-4 py-2">활성화</th>
+                    <th class="px-4 py-2">작업</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="pkg : ${allPackagings.content}" class="hover:bg-gray-50">
+                    <td class="px-4 py-2" th:text="${pkg.id}"></td>
+                    <td class="px-4 py-2" th:text="${pkg.name}"></td>
+                    <td class="px-4 py-2" th:text="${pkg.price + '원'}"></td>
+                    <td class="px-4 py-2" th:text="${pkg.isAvailable ? '활성화' : '비활성화'}"></td>
+                    <td class="px-4 py-2 flex gap-2">
+                        <button
+                                type="button"
+                                class="px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700"
+                                th:attr="data-id=${pkg.id}, data-name=${pkg.name}, data-price=${pkg.price}"
+                                onclick="handleEditClick(this)">
+                            수정
+                        </button>
+                        <a th:if="${pkg.isAvailable}" th:href="@{/admin-order/packaings/{id}/deactivate(id=${pkg.id})}"
+                           class="px-3 py-1 bg-yellow-500 text-xs rounded hover:bg-yellow-600">비활성화</a>
+                        <a th:if="${!pkg.isAvailable}" th:href="@{/admin-order/packaings/{id}/activate(id=${pkg.id})}"
+                           class="px-3 py-1 bg-green-600 text-xs rounded hover:bg-green-700">활성화</a>
+                        <button
+                                th:onclick="'openDeleteModal(' + ${pkg.id} + ')'"
+                                class="px-3 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700">
+                            삭제
+                        </button>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <!-- 페이지네이션 -->
+        <ul class="flex justify-center gap-1 text-gray-900 mt-6 end">
+            <li>
+                <a th:href="@{/admin-order/packagings(page=${allPackagings.hasPrevious()} ? ${allPackagings.page() - 1} : ${allPackagings.page()})}"
+                   class="ink-page-item-arrow" aria-label="Previous page">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="size-4" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd"
+                              d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
+                              clip-rule="evenodd"/>
+                    </svg>
+                </a>
+            </li>
+            <li th:each="i : ${#numbers.sequence(pageInfo.startPage(), pageInfo.endPage())}">
+                <a th:href="@{/admin-order/packagings(page=${i})}"
+                   th:class="${i == allPackagings.page()} ? 'ink-page-item-current' : 'ink-page-item'"
+                   th:text="${i + 1}"></a>
+            </li>
+            <li>
+                <a th:href="@{/admin-order/packagings(page=${allPackagings.hasNext()} ? ${allPackagings.page() + 1} : ${allPackagings.page()})}"
+                   class="ink-page-item-arrow" aria-label="Next page">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="size-4" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd"
+                              d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                              clip-rule="evenodd"/>
+                    </svg>
+                </a>
+            </li>
+        </ul>
+
+        <!-- 등록 모달 -->
+        <div id="createModal" class="fixed inset-0 flex items-center justify-center z-50 hidden modal-bg">
+            <div class="bg-white rounded-lg p-6 w-96 shadow-lg">
+                <h2 class="text-lg font-semibold mb-4">포장지 등록</h2>
+                <form th:action="@{/admin-order/packagings}" method="post">
+                    <input type="text" name="name" placeholder="포장지 이름" required
+                           class="w-full mb-2 border rounded px-3 py-2"/>
+                    <input type="number" name="price" placeholder="가격" required
+                           class="w-full mb-4 border rounded px-3 py-2"/>
+                    <div class="flex justify-end gap-2">
+                        <button type="button" onclick="closeModal('createModal')"
+                                class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">취소</button>
+                        <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">등록</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- 수정 모달 -->
+        <div id="editModal" class="fixed inset-0 flex items-center justify-center z-50 hidden modal-bg">
+            <div class="bg-white rounded-lg p-6 w-96 shadow-lg">
+                <h2 class="text-lg font-semibold mb-4">포장지 수정</h2>
+                <form id="editForm" method="post">
+                    <input type="hidden" name="_method" value="put"/>
+                    <input type="text" id="editName" name="name" placeholder="포장지 이름" required
+                           class="w-full mb-2 border rounded px-3 py-2"/>
+                    <input type="number" id="editPrice" name="price" placeholder="가격" required
+                           class="w-full mb-4 border rounded px-3 py-2"/>
+                    <div class="flex justify-end gap-2">
+                        <button type="button" onclick="closeModal('editModal')"
+                                class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">취소</button>
+                        <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">수정</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+
+        <!-- 삭제 확인 모달 -->
+        <div id="deleteModal" class="fixed inset-0 flex items-center justify-center z-50 hidden modal-bg">
+            <div class="bg-white rounded-lg p-6 w-96 shadow-lg">
+                <h2 class="text-lg font-semibold mb-4 text-red-600">삭제 확인</h2>
+                <p class="mb-4 text-sm text-gray-700">정말로 이 포장지를 삭제하시겠습니까?</p>
+                <form id="deleteForm" method="get">
+                    <div class="flex justify-end gap-2">
+                        <button type="button" onclick="closeModal('deleteModal')"
+                                class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">취소</button>
+                        <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">삭제</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    </main>
+</div>
+<script th:inline="javascript">
+    const contextPath = /*[[@{/}]]*/ '';
+
+    function openModal(id) {
+        const modal = document.getElementById(id);
+        if (modal) {
+            modal.classList.remove('hidden');
+            modal.style.display = 'flex';
+        }
+    }
+
+    function closeModal(id) {
+        const modal = document.getElementById(id);
+        if (modal) {
+            modal.classList.add('hidden');
+            modal.style.display = 'none';
+        }
+    }
+
+    function handleEditClick(button) {
+        const id = button.getAttribute('data-id');
+        const name = button.getAttribute('data-name');
+        const price = button.getAttribute('data-price');
+
+        document.getElementById("editForm").action = `${contextPath}admin-order/packagings/${id}`;
+        document.getElementById("editName").value = name;
+        document.getElementById("editPrice").value = price;
+
+        openModal("editModal");
+    }
+
+    function openDeleteModal(id) {
+        const form = document.getElementById("deleteForm");
+        form.action = `${contextPath}admin-order/packagings/${id}`;
+        openModal("deleteModal");
+    }
+</script>
+</body>
+</html>
