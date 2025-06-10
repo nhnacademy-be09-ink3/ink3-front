@@ -32,53 +32,55 @@
                     <!-- 탭 버튼 -->
                     <div class="flex border-b mb-4">
                         <a th:href="@{/me/coupons}"
-                           th:class="${status == null} ? 'px-4 py-2 font-semibold border-t border-l border-r rounded-t text-blue-600 bg-white'
+                           th:class="${status == null} ? 'px-4 py-2 font-semibold border-t border-l border-r rounded-t text-black-600 bg-white'
                    : 'px-4 py-2 font-semibold text-gray-500 bg-gray-100'">
                             전체 쿠폰
                         </a>
                         <a th:href="@{/me/coupons(status='unused')}"
-                           th:class="${status == 'unused'} ? 'px-4 py-2 font-semibold border-t border-l border-r rounded-t text-blue-600 bg-white'
+                           th:class="${status == 'unused'} ? 'px-4 py-2 font-semibold border-t border-l border-r rounded-t text-black-600 bg-white'
                    : 'px-4 py-2 font-semibold text-gray-500 bg-gray-100'">
                             사용가능한 쿠폰
                         </a>
                         <a th:href="@{/me/coupons(status='used')}"
-                           th:class="${status == 'used'} ? 'px-4 py-2 font-semibold border-t border-l border-r rounded-t text-blue-600 bg-white'
+                           th:class="${status == 'used'} ? 'px-4 py-2 font-semibold border-t border-l border-r rounded-t text-black-600 bg-white'
                    : 'px-4 py-2 font-semibold text-gray-500 bg-gray-100'">
                             사용/만료된 쿠폰
                         </a>
                     </div>
 
                     <!-- 테이블 -->
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full border text-sm text-gray-800">
-                            <thead class="bg-gray-100">
-                            <tr>
-                                <th class="px-4 py-2 text-left border">쿠폰명</th>
-                                <th class="px-4 py-2 text-left border">사용 조건 / 사용기간</th>
-                                <th class="px-4 py-2 text-left border">할인 혜택</th>
-                                <th class="px-4 py-2 text-left border">등록일</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <tr th:each="coupon : ${coupons.content}" class="border-b">
-                                <td class="px-4 py-2 border" th:text="${coupon.couponName}">쿠폰명</td>
-                                <td class="px-4 py-2 border">
-                                    <span>도서 전용 / </span>
-                                    <span th:text="${#temporals.format(coupon.issuedAt, 'yyyy-MM-dd')}">2025-06-01</span>
-                                    ~
-                                    <!--                                    <span th:text="${#temporals.format(coupon.expiresAt, 'yyyy-MM-dd')}">2025-12-31</span>-->
-                                </td>
-                                <td class="px-4 py-2 border">-10%</td> <!-- 실제 할인 혜택 정보가 있으면 여기에 표시 -->
-                                <td class="px-4 py-2 border"
-                                    th:text="${#temporals.format(coupon.issuedAt, 'yyyy-MM-dd')}">2025-06-01
-                                </td>
-                            </tr>
-                            <tr th:if="${coupons.content.size() == 0}">
-                                <td colspan="4" class="text-center py-6 text-gray-500">쿠폰함이 비어있습니다.</td>
-                            </tr>
-                            </tbody>
-                        </table>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4">
+                        <div th:each="coupon : ${coupons.content}"
+                             class="border rounded-lg bg-white p-4 shadow hover:shadow-md transition">
+                            <div class="flex justify-between items-center mb-2">
+                                <h3 class="text-lg font-semibold text-gray-800" th:text="${coupon.couponName}">쿠폰명</h3>
+                                <span class="text-sm text-gray-500"
+                                      th:text="${#temporals.format(coupon.issuedAt, 'yyyy-MM-dd')}">2025-06-01</span>
+                            </div>
+                            <div class="text-sm text-gray-600 mb-1">
+                                사용 조건: <span class="font-medium text-gray-700">도서 전용</span>
+                            </div>
+                            <div class="text-sm text-gray-600 mb-1">
+                                사용 기간:
+                                <span th:text="${#temporals.format(coupon.issuedAt, 'yyyy-MM-dd')}">2025-06-01</span> ~
+                                <span th:text="${#temporals.format(coupon.expiresAt, 'yyyy-MM-dd')}">2025-12-31</span>
+                            </div>
+                            <div class="text-sm text-gray-600 mb-3">
+                                할인 혜택:
+                                <span class="text-lg font-bold text-[#86EF7D]">
+                                    <span th:if="${coupon.discountPercentage != null}" th:text="'-' + ${coupon.discountPercentage} + '%'">-10%</span>
+                                    <span th:unless="${coupon.discountPercentage != null}" th:text="'-' + ${coupon.discountValue} + '원'">-3000원</span>
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- 비어있을 경우 -->
+                        <div th:if="${coupons.content.size() == 0}"
+                             class="col-span-full text-center text-gray-500 py-12 text-lg">
+                            쿠폰함이 비어있습니다.
+                        </div>
                     </div>
+
 
                     <ul class="flex justify-center gap-1 text-gray-900 mt-8">
                         <!-- 이전 -->

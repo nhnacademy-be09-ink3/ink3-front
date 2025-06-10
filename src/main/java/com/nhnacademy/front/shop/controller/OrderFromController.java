@@ -10,7 +10,7 @@ import com.nhnacademy.front.shop.cart.client.CartClient;
 import com.nhnacademy.front.shop.cart.dto.CartBookResponse;
 import com.nhnacademy.front.shop.cart.dto.CartCouponResponse;
 import com.nhnacademy.front.shop.cart.dto.GuestCartView;
-import com.nhnacademy.front.shop.couponStore.client.dto.CouponStoreDto;
+import com.nhnacademy.front.shop.couponStore.dto.CouponStoreDto;
 import com.nhnacademy.front.shop.couponStore.service.CouponStoreService;
 import com.nhnacademy.front.shop.guest.service.GuestOrderService;
 import com.nhnacademy.front.shop.order.dto.PackagingResponse;
