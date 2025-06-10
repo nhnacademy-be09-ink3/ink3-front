@@ -6,7 +6,7 @@ import com.nhnacademy.front.shop.address.client.dto.AddressCreateRequest;
 import com.nhnacademy.front.shop.address.client.dto.AddressUpdateRequest;
 import com.nhnacademy.front.shop.address.service.AddressService;
 import com.nhnacademy.front.shop.book.client.BookClient;
-import com.nhnacademy.front.shop.couponStore.client.dto.CouponStoreResponse;
+import com.nhnacademy.front.shop.couponStore.dto.CouponStoreResponse;
 import com.nhnacademy.front.shop.couponStore.service.CouponStoreService;
 import com.nhnacademy.front.shop.like.client.dto.LikeResponse;
 import com.nhnacademy.front.shop.like.service.LikeService;

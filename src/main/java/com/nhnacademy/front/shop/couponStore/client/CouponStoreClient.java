@@ -1,4 +1,4 @@
-package com.nhnacademy.front.shop.couponStore.client.dto;
+package com.nhnacademy.front.shop.couponStore.client;
 
 import java.util.List;
 import org.springframework.cloud.openfeign.FeignClient;
@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.nhnacademy.front.common.dto.CommonResponse;
 import com.nhnacademy.front.common.dto.PageResponse;
+import com.nhnacademy.front.shop.couponStore.dto.CouponStoreDto;
+import com.nhnacademy.front.shop.couponStore.dto.CouponStoreResponse;
 
 @FeignClient(name = "couponStoreClient", url = "${feign.url.shop}")
 public interface CouponStoreClient {
