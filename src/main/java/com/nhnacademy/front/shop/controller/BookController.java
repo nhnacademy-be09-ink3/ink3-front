@@ -15,6 +15,9 @@ import com.nhnacademy.front.shop.book.dto.BookCreateRequest;
 import com.nhnacademy.front.shop.book.dto.SortType;
 import com.nhnacademy.front.shop.category.client.CategoryClient;
 import com.nhnacademy.front.shop.category.client.dto.CategoryResponse;
+import com.nhnacademy.front.shop.coupon.store.client.CouponStore;
+import com.nhnacademy.front.shop.coupon.store.client.dto.CouponIssueRequest;
+import com.nhnacademy.front.shop.coupon.store.client.dto.StoresResponse;
 import com.nhnacademy.front.shop.like.client.dto.LikeResponse;
 import com.nhnacademy.front.shop.like.service.LikeService;
 import com.nhnacademy.front.shop.publisher.client.PublisherClient;
@@ -22,6 +25,7 @@ import com.nhnacademy.front.shop.publisher.client.dto.PublisherResponse;
 import com.nhnacademy.front.shop.tag.client.TagClient;
 import com.nhnacademy.front.shop.tag.client.dto.TagResponse;
 
+import feign.FeignException;
 import jakarta.validation.Valid;
 
 import java.util.ArrayList;
@@ -56,6 +60,7 @@ import com.nhnacademy.front.util.PageUtil;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -69,6 +74,7 @@ public class BookController {
     private final TagClient tagClient;
     private final LikeService likeService;
     private final ObjectMapper objectMapper;
+    private final CouponStore couponStore;
 
     @GetMapping("/books/{bookId}")
     public String getBookDetail(@PathVariable Long bookId,
