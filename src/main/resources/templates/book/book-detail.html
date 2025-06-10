@@ -414,9 +414,6 @@
 <div id="coupon-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
     <div class="relative bg-white rounded-lg shadow-lg p-6 w-96">
 
-        <!-- 닫기 버튼 -->
-        <button type="button" class="absolute top-3 right-3 text-gray-500 hover:text-gray-700 focus:outline-none close-modal" aria-label="닫기">✕</button>
-
         <h3 class="text-xl font-semibold mb-4">이 상품에 적용 가능한 쿠폰</h3>
 
         <!-- 쿠폰 리스트 -->
@@ -431,11 +428,16 @@
                         만료: <span th:text="${#temporals.format(coupon.expiresAt, 'yyyy.MM.dd')}">2025.12.31</span>
                     </div>
                 </div>
-                <button type="button"
-                        th:attr="data-coupon-id=${coupon.couponId}, data-origin-type=${coupon.originType}, data-origin-id=${coupon.originId}, data-user-id=${userId}"
-                        class="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 issue-this-coupon">
-                    발급받기
-                </button>
+                <!-- ★ 발급 폼 -->
+                <form id="issueCoupon" th:action="@{/books/{bookId}(bookId=${bookId})}" method="post">
+                    <input type="hidden" name="couponId"   th:value="${coupon.couponId}"/>
+                    <input type="hidden" name="originType" th:value="${coupon.originType}"/>
+                    <input type="hidden" name="originId"   th:value="${coupon.originId}"/>
+                    <button type="submit"
+                            class="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700">
+                        발급받기
+                    </button>
+                </form>
             </li>
         </ul>
 
@@ -468,8 +470,6 @@
     const issueBtn      = document.getElementById('issue-coupon-btn');
     const couponModal   = document.getElementById('coupon-modal');
     const cancelIssue   = document.getElementById('cancel-issue-btn');
-    const couponButtons = document.querySelectorAll('.issue-this-coupon');
-
     // 모달 열기
     issueBtn.addEventListener('click', () => {
         couponModal.classList.remove('hidden');
@@ -483,43 +483,6 @@
         if (e.target === couponModal) couponModal.classList.add('hidden');
     });
 
-    // 각 쿠폰 발급 버튼 클릭 시 AJAX 호출 예시
-    document.querySelectorAll('.issue-this-coupon').forEach(btn => {
-        btn.addEventListener('click', () => {
-            const couponId   = Number(btn.dataset.couponId);
-            const originType = btn.dataset.originType;  // e.g. "BOOK" or "CATEGORY"
-            const originId   = Number(btn.dataset.originId);
-            const userId     = Number(btn.dataset.userId);
-
-            const requestBody = {
-                userId:     userId,
-                couponId:   couponId,
-                originType: originType,
-                originId:   originId
-            };
-
-            fetch('/users/coupon-stores', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(requestBody)
-            })
-                .then(res => {
-                    if (!res.ok) throw new Error('발급 실패');
-                    return res.json();
-                })
-                .then(commonResp => {
-                    const issued = commonResp.data;        // CommonResponse<CouponStoreResponse>.data
-                    alert(`${issued.name} 쿠폰이 발급되었습니다!`);
-                    couponModal.classList.add('hidden');
-                })
-                .catch(err => {
-                    alert('쿠폰 발급 중 오류가 발생했습니다.');
-                    console.error(err);
-                });
-        });
-    });
 </script>
 
 <script>

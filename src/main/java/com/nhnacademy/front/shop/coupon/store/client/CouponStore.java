@@ -12,7 +12,4 @@ import org.springframework.web.bind.annotation.RequestHeader;
 public interface CouponStore {
 
     @PostMapping("/me/users/coupon-stores")
-    CommonResponse<StoresResponse> issueCoupon(@RequestHeader(name = "X-User-Id") Long userId,
-                                               @RequestBody CouponIssueRequest request);
-
-}
+    CommonResponse<StoresResponse> issueCoupon(@RequestBody CouponIssueRequest request);}

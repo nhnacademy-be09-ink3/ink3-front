@@ -51,6 +51,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.auth0.jwt.JWT;
@@ -81,6 +82,8 @@ public class BookController {
     private final CouponStore couponStore;
     private final CouponClient couponClient;
     private final CouponPolicyClient couponPolicyClient;
+    private final LikeService likeService;
+
 
     @GetMapping("/books/{bookId}")
     public String getBookDetail(@PathVariable Long bookId,
@@ -104,15 +107,22 @@ public class BookController {
             log.warn("비회원 사용자 도서 상세페이지 접근: {}", e.getMessage());
         }
 
-        List<CouponResponse> bookCoupons =
-                couponClient.getByBookId(bookId, 0, 10).data().content();
+        List<CouponResponse> bookCoupons = new ArrayList<>();
+        List<CouponResponse> categoryCoupons = new ArrayList<>();
 
-        List<CouponResponse> categoryCoupons = books.data().categories().stream()
-                .flatMap(cat ->
-                        couponClient.getByCategoryId(cat.id(), 0, 10)
-                                .data().content().stream()
-                )
-                .toList();
+
+        try{
+            bookCoupons = couponClient.getByBookId(bookId, 0, 10).data().content();
+            categoryCoupons = books.data().categories().stream()
+                    .flatMap(cat ->
+                            couponClient.getByCategoryId(cat.id(), 0, 10)
+                                    .data().content().stream()
+                    )
+                    .toList();
+        } catch (FeignException e) {
+            log.error("쿠폰리스트 예외발생: {}", e.getMessage());
+        }
+
         log.info(">>> bookCoupons (size={}): {}", bookCoupons.size(), bookCoupons);
         log.info(">>> categoryCoupons (size={}): {}", categoryCoupons.size(), categoryCoupons);
 
@@ -137,9 +147,24 @@ public class BookController {
                     );
                 })
                 .toList();
-        // 로그 찍기 (View DTO)
+
         log.info(">>> coupons (combined, size={}): {}", coupons.size(), coupons);
 
+
+
+        AtomicBoolean liked = new AtomicBoolean(false);
+        AtomicReference<Long> likeId = new AtomicReference<>(null);
+
+        if (userId != null) {
+            PageResponse<LikeResponse> likes = likeService.getCurrentUserLikes(0, 100, null);
+            likes.content().stream()
+                    .filter(like -> like.bookId().equals(bookId))
+                    .findFirst()
+                    .ifPresent(like -> {
+                        liked.set(true);
+                        likeId.set(like.id());
+                    });
+        }
 
 
         model.addAttribute("book",      books.data());
@@ -148,6 +173,8 @@ public class BookController {
         model.addAttribute("pageInfo",  pageInfo);
         model.addAttribute("bookId",    bookId);
         model.addAttribute("userId",    userId);
+        model.addAttribute("liked", liked);
+        model.addAttribute("likeId", likeId);
         model.addAttribute("coupons", coupons);
 
         return "book/book-detail";
@@ -366,44 +393,30 @@ public class BookController {
         return "admin/book/list";
     }
 
-    @PostMapping("/users/coupon-stores")
-    public String issueCoupon(@RequestParam Long couponId,
+    @PostMapping("/books/{bookId}")
+    public String issueCoupon(@PathVariable Long bookId,
+                              @RequestParam Long couponId,
                               @RequestParam String originType,
                               @RequestParam Long originId,
-                              @CookieValue(name = "accessToken", required = false) String accessToken,
-                              RedirectAttributes redirectAttributes)
-    {
-        Long userId = null;
+                              @RequestParam(defaultValue = "0") int page,
+                              @RequestParam(defaultValue = "10") int size,
+                              Model model,
+                              @CookieValue(name = "accessToken", required = false) String accessToken) {
+
         try {
-            if (accessToken != null) {
-                DecodedJWT decodedAccessToken = JWT.decode(accessToken);
-                userId = decodedAccessToken.getClaim("id").asLong();
-            }
-        } catch (Exception e) {
-            log.warn("비회원 사용자 도서 상세페이지 접근: {}", e.getMessage());
-        }
-        CouponIssueRequest req = new CouponIssueRequest(
-                couponId, originType, originId
-        );
-        // 3) Feign 호출 및 예외 처리
-        try {
-            CommonResponse<StoresResponse> resp = couponStore.issueCoupon(userId, req);
-            redirectAttributes.addFlashAttribute(
-                    "successMessage", resp.data().couponName() + " 쿠폰이 발급되었습니다."
-            );
+            CouponIssueRequest req = new CouponIssueRequest(couponId, originType, originId);
+            CommonResponse<StoresResponse> resp = couponStore.issueCoupon(req);
+            model.addAttribute("successMessage", resp.data().couponName() + " 쿠폰이 발급되었습니다.");
         } catch (FeignException e) {
-            if (e.status() == 409) {
-                // 충돌(중복 발급 등) 메시지 파싱
-                String msg = extractMessageFromFeignBody(e.contentUTF8());
-                redirectAttributes.addFlashAttribute("errorMessage", msg);
-            } else {
-                redirectAttributes.addFlashAttribute("errorMessage", "쿠폰 발급 중 오류가 발생했습니다.");
-            }
+            String err = e.status() == 409
+                    ? extractMessageFromFeignBody(e.contentUTF8())
+                    : "쿠폰 발급 중 오류가 발생했습니다.";
+            model.addAttribute("errorMessage", err);
         }
 
-        // 4) 발급 후 원래 페이지로 리다이렉트
-        return "redirect:/books/" + originId;
+        return getBookDetail(bookId, page, size, model, accessToken);
     }
+
 
     private String extractMessageFromFeignBody(String body) {
         try {
