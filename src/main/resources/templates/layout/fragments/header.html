@@ -2,9 +2,6 @@
     <div class="bg-white shadow-md py-4">
         <div class="container mx-auto px-4 flex justify-between items-center">
             <div class="flex items-center">
-                <h1 class="text-2xl font-semibold text-gray-800 mr-8">
-                    <a th:href="@{/}" class="text-primary-color">ink3</a>
-                </h1>
                 <div th:replace="~{layout/fragments/nav :: navFragment}"></div>
             </div>
             <div class="flex items-center space-x-4 search-container">
@@ -61,13 +58,7 @@
         window.api = {
             gatewayBaseUrl: /*[[${gatewayBaseUrl}]]*/ ""
         };
-
-        const hostnameHeader = location.hostname;
-        const pathnameHeader = location.pathname;
-
-        const isLocalHeader = hostnameHeader === 'localhost' || hostnameHeader.startsWith('127.');
-        const isDevHeader = pathnameHeader.startsWith('/dev/');
-        const pageBaseHeader = isLocalHeader ? '' : (isDevHeader ? '/dev' : '');
+        const headerContext = /*[[@{/}]]*/ "/";
 
         document.addEventListener('DOMContentLoaded', () => {
             const searchButton = document.getElementById('search-button');
@@ -78,7 +69,7 @@
             const doSearch = () => {
                 const query = searchInput.value.trim();
                 if (query) {
-                    window.location.href = `${pageBaseHeader}/books/search?q=${encodeURIComponent(query)}`;
+                    location.href = `${headerContext}books/search?q=${encodeURIComponent(query)}`;
                 }
             };
 

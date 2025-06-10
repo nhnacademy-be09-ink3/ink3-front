@@ -10,6 +10,8 @@ public record MainBookResponse(
     int discountRate,
     String thumbnailUrl,
     boolean isPackable,
-    List<String> authorNames
+    List<String> authorNames,
+    long reviewCount,
+    long likeCount
 ) {
 }
