@@ -39,7 +39,8 @@
                                 <button type="button" id="like-btn"
                                         class="rounded-full w-8 h-8 p-0 border-0 inline-flex items-center justify-center mr-1"
                                         th:classappend="${liked} == true ? 'bg-red-100 text-red-500' : 'bg-gray-200 text-gray-500'">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="currentColor"
+                                         viewBox="0 0 24 24">
                                         <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78L12 21.23l7.78-7.78a5.5 5.5 0 000-7.78z"/>
                                     </svg>
                                 </button>
@@ -49,7 +50,8 @@
 
                         <div th:unless="${loginUser != null}" class="flex items-center gap-1 mt-1">
                             <div class="rounded-full w-8 h-8 flex items-center justify-center bg-gray-200 text-gray-400 mr-1">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="currentColor"
+                                     viewBox="0 0 24 24">
                                     <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78L12 21.23l7.78-7.78a5.5 5.5 0 000-7.78z"/>
                                 </svg>
                             </div>
@@ -168,18 +170,18 @@
                                     </div>
 
                                     <!-- 장바구니 -->
-                                    <form th:action="@{/carts}" method="post" class="flex items-center gap-4">
-                                        <input type="hidden" name="bookId" th:value="${book.id}"/>
-                                        <button type="submit"
-                                                class="ink-btn-primary px-4 py-2 bg-green-300 text-gray-800 rounded-md hover:bg-green-400">
-                                            장바구니에 넣기
-                                        </button>
-                                    </form>
+                                    <input type="hidden" name="bookId" th:value="${book.id}"/>
+                                    <button type="submit"
+                                            class="ink-btn-primary px-4 py-2 bg-green-300 text-gray-800 rounded-md hover:bg-green-400">
+                                        장바구니에 넣기
+                                    </button>
 
-                            <a href="/"
-                               class="ink-btn-primary bg-gray-300 text-gray-800 hover:bg-gray-400">
-                                목록으로
-                            </a>
+                                    <a href="javascript:history.back()"
+                                       class="ink-btn-primary bg-gray-300 text-gray-800 hover:bg-gray-400">
+                                        목록으로
+                                    </a>
+                                </div>
+                            </form>
                         </div>
                     </div>
 
@@ -202,16 +204,14 @@
                                 </div>
 
                                 <!-- 장바구니 -->
-                                <form th:action="@{/carts}" method="post" class="flex items-center gap-4">
-                                    <input type="hidden" name="bookId" th:value="${book.id}"/>
-                                    <button type="submit"
-                                            class="ink-btn-primary px-4 py-2 bg-green-300 text-gray-800 rounded-md hover:bg-green-400">
-                                        장바구니에 넣기
-                                    </button>
-                                </form>
+                                <input type="hidden" name="bookId" th:value="${book.id}"/>
+                                <button type="submit"
+                                        class="ink-btn-primary px-4 py-2 bg-green-300 text-gray-800 rounded-md hover:bg-green-400">
+                                    장바구니에 넣기
+                                </button>
 
                                 <!-- 목록으로 -->
-                                <a href="/books"
+                                <a href="javascript:history.back()"
                                    class="ink-btn-primary px-4 py-2 bg-green-300 text-gray-800 rounded-md hover:bg-green-400 inline-flex items-center justify-center">
                                     목록으로
                                 </a>
@@ -220,185 +220,185 @@
                     </div>
                 </div>
             </div>
-        </div>
-        <!-- 탭 메뉴 추가 -->
-        <div class="max-w-5xl mx-auto px-4 mt-12">
-            <div class="flex border-b mt-12 space-x-2">
-                <button id="tab-book-info"
-                        class="px-4 py-2 text-gray-700 font-semibold border-b-4"
-                        th:classappend="${activeTab == 'book'} ? 'border-ink-btn-primary text-ink-btn-primary' : 'border-transparent'">
-                    도서정보
-                </button>
-                <button id="tab-reviews"
-                        class="px-4 py-2 text-gray-700 font-semibold border-b-4"
-                        th:classappend="${activeTab == 'review'} ? 'border-ink-btn-primary text-ink-btn-primary' : 'border-transparent'">
-                    리뷰 (<span th:text="${reviews.size()}"></span>)
-                </button>
-            </div>
-        </div>
-
-        <!-- 도서정보 영역 -->
-        <div id="tab-content-book" class="max-w-5xl mx-auto px-4 py-12 border-t border-gray-200">
-            <!-- 책 소개 -->
-            <div class="rounded-lg shadow p-6 mb-8">
-                <div class="md:flex md:gap-8">
-                    <div class="md:w-1/5 w-full mb-4 md:mb-0">
-                        <h2 class="text-xl font-semibold text-gray-800">책소개</h2>
-                    </div>
-                    <div class="whitespace-pre-line md:w-4/5 w-full text-gray-700 leading-relaxed space-y-4"
-                         th:text="${book.description}"></div>
+            <!-- 탭 메뉴 추가 -->
+            <div class="max-w-5xl mx-auto px-4 mt-12">
+                <div class="flex border-b mt-12 space-x-2">
+                    <button id="tab-book-info"
+                            class="px-4 py-2 text-gray-700 font-semibold border-b-4"
+                            th:classappend="${activeTab == 'book'} ? 'border-ink-btn-primary text-ink-btn-primary' : 'border-transparent'">
+                        도서정보
+                    </button>
+                    <button id="tab-reviews"
+                            class="px-4 py-2 text-gray-700 font-semibold border-b-4"
+                            th:classappend="${activeTab == 'review'} ? 'border-ink-btn-primary text-ink-btn-primary' : 'border-transparent'">
+                        리뷰 (<span th:text="${reviews.size()}"></span>)
+                    </button>
                 </div>
             </div>
 
-            <!-- 목차 -->
-            <div class="rounded-lg shadow p-6">
-                <div class="md:flex md:gap-8">
-                    <!-- 섹션 제목 -->
-                    <div class="md:w-1/5 w-full mb-4 md:mb-0">
-                        <h2 class="text-xl font-semibold text-gray-800">목차</h2>
+            <!-- 도서정보 영역 -->
+            <div id="tab-content-book" class="max-w-5xl mx-auto px-4 py-12 border-t border-gray-200">
+                <!-- 책 소개 -->
+                <div class="rounded-lg shadow p-6 mb-8">
+                    <div class="md:flex md:gap-8">
+                        <div class="md:w-1/5 w-full mb-4 md:mb-0">
+                            <h2 class="text-xl font-semibold text-gray-800">책소개</h2>
+                        </div>
+                        <div class="whitespace-pre-line md:w-4/5 w-full text-gray-700 leading-relaxed space-y-4"
+                             th:text="${book.description}"></div>
                     </div>
+                </div>
 
-                    <!-- 목차 내용 -->
-                    <div class="whitespace-pre-line md:w-4/5 w-full text-gray-700 leading-relaxed space-y-4"
-                         th:text="${book.contents}"></div>
+                <!-- 목차 -->
+                <div class="rounded-lg shadow p-6">
+                    <div class="md:flex md:gap-8">
+                        <!-- 섹션 제목 -->
+                        <div class="md:w-1/5 w-full mb-4 md:mb-0">
+                            <h2 class="text-xl font-semibold text-gray-800">목차</h2>
+                        </div>
+
+                        <!-- 목차 내용 -->
+                        <div class="whitespace-pre-line md:w-4/5 w-full text-gray-700 leading-relaxed space-y-4"
+                             th:text="${book.contents}"></div>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <!-- 리뷰 영역 -->
-        <div id="tab-content-review" class="max-w-5xl mx-auto px-4 py-12 border-t border-gray-200 hidden">
-            <div class="block">
-                <!-- 리뷰 리스트 -->
-                <div class="flex justify-center">
-                    <div class="w-full max-w-4xl mx-auto mb-4">
-                        <div class="flex justify-end">
-                            <label class="flex items-center space-x-2 text-ms font-bold text-gray-700">
-                                <input type="checkbox" id="photo-only-checkbox" class="form-checkbox text-blue-600">
-                                <span>포토 리뷰만 보기</span>
-                            </label>
+            <!-- 리뷰 영역 -->
+            <div id="tab-content-review" class="max-w-5xl mx-auto px-4 py-12 border-t border-gray-200 hidden">
+                <div class="block">
+                    <!-- 리뷰 리스트 -->
+                    <div class="flex justify-center">
+                        <div class="w-full max-w-4xl mx-auto mb-4">
+                            <div class="flex justify-end">
+                                <label class="flex items-center space-x-2 text-ms font-bold text-gray-700">
+                                    <input type="checkbox" id="photo-only-checkbox" class="form-checkbox text-blue-600">
+                                    <span>포토 리뷰만 보기</span>
+                                </label>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="flex flex-col items-center">
-                    <div th:each="review : ${reviews}"
-                         th:attr="data-has-image=${review.images != null and !#lists.isEmpty(review.images)}"
-                         class="w-full max-w-4xl mx-auto border rounded-lg p-6 shadow bg-white mb-6 review-item">
-                        <!-- 제목 + 작성자 + 시간 -->
-                        <div class="flex justify-between items-center">
-                            <h3 class="text-lg font-semibold text-gray-800" th:text="${review.title}"></h3>
-                            <span class="text-sm text-gray-500"
-                                  th:text="${#temporals.format(review.createdAt, 'yyyy.MM.dd HH:mm')}"></span>
-                        </div>
+                    <div class="flex flex-col items-center">
+                        <div th:each="review : ${reviews}"
+                             th:attr="data-has-image=${review.images != null and !#lists.isEmpty(review.images)}"
+                             class="w-full max-w-4xl mx-auto border rounded-lg p-6 shadow bg-white mb-6 review-item">
+                            <!-- 제목 + 작성자 + 시간 -->
+                            <div class="flex justify-between items-center">
+                                <h3 class="text-lg font-semibold text-gray-800" th:text="${review.title}"></h3>
+                                <span class="text-sm text-gray-500"
+                                      th:text="${#temporals.format(review.createdAt, 'yyyy.MM.dd HH:mm')}"></span>
+                            </div>
 
-                        <!-- 수정일 -->
-                        <div class="text-xs text-gray-400" th:if="${review.modifiedAt != null}">
-                            (수정됨: <span
-                                th:text="${#temporals.format(review.modifiedAt, 'yyyy.MM.dd HH:mm')}"></span>)
-                        </div>
+                            <!-- 수정일 -->
+                            <div class="text-xs text-gray-400" th:if="${review.modifiedAt != null}">
+                                (수정됨: <span
+                                    th:text="${#temporals.format(review.modifiedAt, 'yyyy.MM.dd HH:mm')}"></span>)
+                            </div>
 
-                        <!-- 작성자 이름 -->
-                        <div class="text-sm text-gray-600 font-medium" th:text="${review.userName}">작성자</div>
+                            <!-- 작성자 이름 -->
+                            <div class="text-sm text-gray-600 font-medium" th:text="${review.userName}">작성자</div>
 
-                        <!-- 별점 -->
-                        <div class="flex space-x-1">
+                            <!-- 별점 -->
+                            <div class="flex space-x-1">
                                 <span th:each="i : ${#numbers.sequence(1, review.rating)}" class="text-yellow-400">
                                 <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
                                     <path d="M12 2.25l3.09 6.26 6.91 1-5 4.87 1.18 6.87L12 17.77l-6.18 3.25 1.18-6.87-5-4.87 6.91-1L12 2.25z"/>
                                 </svg>
                                 </span>
-                        </div>
+                            </div>
 
-                        <!-- 내용 -->
-                        <p class="text-gray-700" th:text="${review.content}"></p>
+                            <!-- 내용 -->
+                            <p class="text-gray-700" th:text="${review.content}"></p>
 
-                        <!-- 이미지 -->
-                        <div class="flex flex-wrap gap-2 mt-2" th:if="${review.images != null}">
-                            <img th:each="img : ${review.images}"
-                                 th:src="${img.imageUrl}"
-                                 class="w-28 h-28 object-cover rounded">
-                        </div>
+                            <!-- 이미지 -->
+                            <div class="flex flex-wrap gap-2 mt-2" th:if="${review.images != null}">
+                                <img th:each="img : ${review.images}"
+                                     th:src="${img.imageUrl}"
+                                     class="w-28 h-28 object-cover rounded">
+                            </div>
 
-                        <!-- 본인 리뷰일 때만 수정/삭제 가능 -->
-                        <div th:if="${review.userId == userId}" class="mt-4 space-y-2">
-                            <!-- 수정 버튼 -->
-                            <button type="button"
-                                    class="toggle-edit px-3 py-1 ink-btn-primary text-white rounded hover:bg-yellow-500"
-                                    th:attr="data-review-id=${review.id}">
-                                리뷰 수정
-                            </button>
-
-                            <!-- 수정 폼 -->
-                            <form th:id="'edit-form-' + ${review.id}"
-                                  th:action="@{'/books/' + ${book.id} + '/reviews/' + ${review.id} + '/update'}"
-                                  method="post" enctype="multipart/form-data"
-                                  class="review-edit-form hidden space-y-2 mt-4">
-
-                                <input type="text" name="title" th:value="${review.title}" required
-                                       class="w-full border rounded p-1 bg-white"/>
-                                <textarea name="content" th:text="${review.content}" required
-                                          class="w-full border rounded p-1 bg-white"></textarea>
-                                <input type="number" name="rating" min="1" max="5" th:value="${review.rating}"
-                                       required
-                                       class="w-20 border rounded p-1 bg-white"/>
-
-                                <label class="inline-block px-4 py-2 ink-btn-primary text-white rounded cursor-pointer hover:bg-yellow-500">
-                                    파일 선택
-                                    <input type="file" name="images" multiple class="hidden"
-                                           onchange="previewFileNames(this)"/>
-                                </label>
-                                <span th:id="'file-names-' + ${review.id}"
-                                      class="text-sm text-gray-600 ml-2">선택된 파일 없음</span>
-
-                                <button type="submit"
-                                        class="edit-button px-3 py-1 ink-btn-primary text-white rounded hover:bg-yellow-500">
-                                    수정
+                            <!-- 본인 리뷰일 때만 수정/삭제 가능 -->
+                            <div th:if="${review.userId == userId}" class="mt-4 space-y-2">
+                                <!-- 수정 버튼 -->
+                                <button type="button"
+                                        class="toggle-edit px-3 py-1 ink-btn-primary text-white rounded hover:bg-yellow-500"
+                                        th:attr="data-review-id=${review.id}">
+                                    리뷰 수정
                                 </button>
-                            </form>
-                        </div>
-                    </div>
 
-                    <div class="text-center text-gray-500 mt-[-16px] text-lg font-medium"
-                         th:if="${#lists.isEmpty(reviews)}">
-                        작성된 리뷰가 없습니다.
+                                <!-- 수정 폼 -->
+                                <form th:id="'edit-form-' + ${review.id}"
+                                      th:action="@{'/books/' + ${book.id} + '/reviews/' + ${review.id} + '/update'}"
+                                      method="post" enctype="multipart/form-data"
+                                      class="review-edit-form hidden space-y-2 mt-4">
+
+                                    <input type="text" name="title" th:value="${review.title}" required
+                                           class="w-full border rounded p-1 bg-white"/>
+                                    <textarea name="content" th:text="${review.content}" required
+                                              class="w-full border rounded p-1 bg-white"></textarea>
+                                    <input type="number" name="rating" min="1" max="5" th:value="${review.rating}"
+                                           required
+                                           class="w-20 border rounded p-1 bg-white"/>
+
+                                    <label class="inline-block px-4 py-2 ink-btn-primary text-white rounded cursor-pointer hover:bg-yellow-500">
+                                        파일 선택
+                                        <input type="file" name="images" multiple class="hidden"
+                                               onchange="previewFileNames(this)"/>
+                                    </label>
+                                    <span th:id="'file-names-' + ${review.id}"
+                                          class="text-sm text-gray-600 ml-2">선택된 파일 없음</span>
+
+                                    <button type="submit"
+                                            class="edit-button px-3 py-1 ink-btn-primary text-white rounded hover:bg-yellow-500">
+                                        수정
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <div class="text-center text-gray-500 mt-[-16px] text-lg font-medium"
+                             th:if="${#lists.isEmpty(reviews)}">
+                            작성된 리뷰가 없습니다.
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="w-full flex justify-center mt-6">
-                <ul class="flex gap-1 text-gray-900">
-                    <!-- 이전 -->
-                    <li>
-                        <a th:href="@{/books/{id}(id=${bookId}, page=${reviewPage.hasPrevious()} ? ${reviewPage.page()-1} : 0)}"
-                           class="ink-page-item-arrow" aria-label="prev">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="size-4" viewBox="0 0 20 20"
-                                 fill="currentColor">
-                                <path fill-rule="evenodd"
-                                      d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
-                                      clip-rule="evenodd"/>
-                            </svg>
-                        </a>
-                    </li>
+                <div class="w-full flex justify-center mt-6">
+                    <ul class="flex gap-1 text-gray-900">
+                        <!-- 이전 -->
+                        <li>
+                            <a th:href="@{/books/{id}(id=${bookId}, page=${reviewPage.hasPrevious()} ? ${reviewPage.page()-1} : 0)}"
+                               class="ink-page-item-arrow" aria-label="prev">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="size-4" viewBox="0 0 20 20"
+                                     fill="currentColor">
+                                    <path fill-rule="evenodd"
+                                          d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
+                                          clip-rule="evenodd"/>
+                                </svg>
+                            </a>
+                        </li>
 
-                    <!-- 번호 -->
-                    <li th:each="i : ${#numbers.sequence(pageInfo.startPage(), pageInfo.endPage())}">
-                        <a th:href="@{/books/{id}(id=${bookId}, page=${i})}"
-                           th:class="${i == reviewPage.page()} ? 'ink-page-item-current' : 'ink-page-item'"
-                           th:text="${i + 1}">1</a>
-                    </li>
+                        <!-- 번호 -->
+                        <li th:each="i : ${#numbers.sequence(pageInfo.startPage(), pageInfo.endPage())}">
+                            <a th:href="@{/books/{id}(id=${bookId}, page=${i})}"
+                               th:class="${i == reviewPage.page()} ? 'ink-page-item-current' : 'ink-page-item'"
+                               th:text="${i + 1}">1</a>
+                        </li>
 
-                    <!-- 다음 -->
-                    <li>
-                        <a th:href="@{/books/{id}(id=${bookId}, page=${reviewPage.hasNext()} ? ${reviewPage.page()+1} : ${reviewPage.page()})}"
-                           class="ink-page-item-arrow" aria-label="next">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="size-4" viewBox="0 0 20 20"
-                                 fill="currentColor">
-                                <path fill-rule="evenodd"
-                                      d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                                      clip-rule="evenodd"/>
-                            </svg>
-                        </a>
-                    </li>
-                </ul>
+                        <!-- 다음 -->
+                        <li>
+                            <a th:href="@{/books/{id}(id=${bookId}, page=${reviewPage.hasNext()} ? ${reviewPage.page()+1} : ${reviewPage.page()})}"
+                               class="ink-page-item-arrow" aria-label="next">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="size-4" viewBox="0 0 20 20"
+                                     fill="currentColor">
+                                    <path fill-rule="evenodd"
+                                          d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                                          clip-rule="evenodd"/>
+                                </svg>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
             </div>
         </div>
     </section>
