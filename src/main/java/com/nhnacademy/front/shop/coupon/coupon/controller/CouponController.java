@@ -43,7 +43,7 @@ public class CouponController {
     ) {
         model.addAttribute("policies", policyClient.getAllPolicies(size, page).data());
         model.addAttribute("books",    bookClient.getBooks(0, 10).data());
-        model.addAttribute("categories", categoryClient.getCategories().data());
+        model.addAttribute("categories", categoryClient.getCategories(100, 0).data());
         return "admin/coupon/coupon-register";
     }
 
@@ -116,7 +116,7 @@ public class CouponController {
         model.addAttribute("couponId", id);
         model.addAttribute("policies", policyClient.getAllPolicies(10, 0).data());
         model.addAttribute("books",    bookClient.getBooks(0, 10).data());
-        model.addAttribute("categories", categoryClient.getCategories().data());
+        model.addAttribute("categories", categoryClient.getCategories(100, 0).data());
 
         return "admin/coupon/coupon-update";
     }

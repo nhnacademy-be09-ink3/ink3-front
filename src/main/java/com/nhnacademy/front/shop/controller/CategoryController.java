@@ -25,7 +25,7 @@ public class CategoryController {
     @GetMapping("/admin/categories")
     public String getCategories(Model model) {
         CommonResponse<List<CategoryResponse>> categoryTree = categoryClient.getCategoryTree();
-        CommonResponse<PageResponse<CategoryResponse>> categories = categoryClient.getCategories();
+        CommonResponse<PageResponse<CategoryResponse>> categories = categoryClient.getCategories(100, 0);
 
         model.addAttribute("categoryTree", categoryTree.data());
         model.addAttribute("categories", categories.data());

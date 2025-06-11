@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @FeignClient(name = "categoryClient", url = "${feign.url.shop}")
 public interface CategoryClient {
@@ -19,7 +20,8 @@ public interface CategoryClient {
     CommonResponse<List<CategoryResponse>> getCategoryTree();
 
     @GetMapping("/categories")
-    CommonResponse<PageResponse<CategoryResponse>> getCategories();
+    CommonResponse<PageResponse<CategoryResponse>> getCategories(@RequestParam int size,
+                                                                 @RequestParam int page);
 
     @PostMapping("/categories")
     CommonResponse<CategoryResponse> createCategory(@RequestBody CategoryCreateRequest request);
