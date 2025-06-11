@@ -63,15 +63,12 @@
                                 수정
                             </button>
                         </form>
-
                         <!-- 삭제 버튼 -->
-                        <form th:action="@{'/admin/books/' + ${book.id}}" method="post" class="inline">
-                            <input type="hidden" name="_method" value="delete"/>
-                            <button type="submit"
-                                    class="bg-red-500 px-2 py-1 text-white rounded-xl hover:bg-red-400">
-                                삭제
-                            </button>
-                        </form>
+                        <button type="button"
+                                class="bg-red-500 px-2 py-1 text-white rounded-xl hover:bg-red-400"
+                                th:onclick="'deleteBook(' + ${book.id} + ')'">
+                            삭제
+                        </button>
                     </td>
                 </tr>
                 </tbody>
@@ -107,6 +104,32 @@
             </ul>
         </div>
     </main>
+    <script th:inline="javascript">
+
+        const contextPath = /*[[@{/}]]*/ '';
+
+
+        function deleteBook(bookId) {
+            if (!confirm('정말 삭제하시겠습니까?')) return;
+
+            fetch(contextPath + 'admin/books/' + bookId + '/soft-delete', {
+                method: 'delete',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    status: 'DELETED'
+                })
+            }).then(res => {
+                if (res.ok) {
+                    alert('삭제 성공');
+                    window.location.reload();
+                } else {
+                    alert('삭제 실패');
+                }
+            });
+        }
+    </script>
 </div>
 </body>
 </html>

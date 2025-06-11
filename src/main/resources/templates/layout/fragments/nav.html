@@ -37,7 +37,7 @@
 
         function goToCategory(name) {
             const encoded = encodeURIComponent(name);
-            location.href = `${navContext}books/category?name=${encoded}`;
+            location.href = `${navContext}books/search-by-category?category=${encoded}`;
         }
 
         document.addEventListener('DOMContentLoaded', () => {
