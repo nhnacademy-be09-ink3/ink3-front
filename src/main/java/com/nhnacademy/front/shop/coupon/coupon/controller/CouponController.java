@@ -114,8 +114,8 @@ public class CouponController {
         // 3) 모델에 폼 바인딩 객체와 셀렉트 옵션들 추가
         model.addAttribute("couponUpdateRequest", updateReq);
         model.addAttribute("couponId", id);
-        model.addAttribute("policies", policyClient.getAllPolicies(10, 0).data());
-        model.addAttribute("books",    bookClient.getBooks(0, 10).data());
+        model.addAttribute("policies", policyClient.getAllPolicies(100, 0).data());
+        model.addAttribute("books",    bookClient.getBooks(0, 10000).data());
         model.addAttribute("categories", categoryClient.getCategories().data());
 
         return "admin/coupon/coupon-update";
