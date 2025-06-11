@@ -38,7 +38,7 @@ public class CouponController {
     @GetMapping("/coupon-register")
     public String showRegisterForm(
             @RequestParam(name = "page", defaultValue = "0") int page,
-            @RequestParam(name = "size", defaultValue = "10") int size,
+            @RequestParam(name = "size", defaultValue = "100") int size,
             Model model
     ) {
         model.addAttribute("policies", policyClient.getAllPolicies(size, page).data());

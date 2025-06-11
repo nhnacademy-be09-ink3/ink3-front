@@ -103,7 +103,7 @@
                         <tr th:each="coupon, stat : ${coupons.content()}"
                             class="hover:bg-gray-50 transition-colors duration-200">
                             <td class="py-3 px-4 text-sm text-gray-700"
-                                th:text="${stat.count}">1</td>
+                                th:text="${stat.count}+(*{pageNum}*10)">1</td>
                             <td class="py-3 px-4 text-sm text-gray-700" th:text="${coupon.couponId}">123</td>
                             <td class="py-3 px-4 text-sm text-gray-700" th:text="${coupon.name}">SPRING</td>
                             <td class="py-3 px-4 text-sm text-gray-700" th:text="${coupon.policyName}">POLICY</td>
