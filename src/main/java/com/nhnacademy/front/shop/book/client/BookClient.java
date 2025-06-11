@@ -5,6 +5,8 @@ import com.nhnacademy.front.shop.book.dto.BookResponse;
 import com.nhnacademy.front.shop.book.dto.BookUpdateRequest;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -62,6 +64,13 @@ public interface BookClient {
     @PutMapping("/books/{bookId}")
     CommonResponse<BookResponse> updateBook(@PathVariable Long bookId, @RequestBody BookUpdateRequest request);
 
-    @GetMapping("/books/category")
-    CommonResponse<java.util.List<BookResponse>> getBooksByCategory(@RequestParam("name") String categoryName);
+    @DeleteMapping("/books/{bookId}")
+    CommonResponse<Void> deleteBook(@PathVariable Long bookId);
+
+
+    @GetMapping("/books/search-by-category")
+    CommonResponse<PageResponse<BookResponse>> getBooksByCategory(
+            @RequestParam("category") String categoryName,
+            @RequestParam("page") int page,
+            @RequestParam("size") int size);
 }

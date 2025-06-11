@@ -18,7 +18,6 @@ import com.nhnacademy.front.shop.category.client.dto.CategoryResponse;
 import com.nhnacademy.front.shop.coupon.coupon.client.CouponClient;
 import com.nhnacademy.front.shop.coupon.coupon.client.dto.CouponResponse;
 import com.nhnacademy.front.shop.coupon.coupon.client.dto.CouponView;
-import com.nhnacademy.front.shop.coupon.policy.client.CouponPolicyClient;
 import com.nhnacademy.front.shop.coupon.store.client.CouponStore;
 import com.nhnacademy.front.shop.coupon.store.client.dto.CouponIssueRequest;
 import com.nhnacademy.front.shop.coupon.store.client.dto.StoresResponse;
@@ -42,10 +41,12 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
 import org.springframework.http.MediaType;
 import java.util.Map;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.CookieValue;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -268,17 +269,22 @@ public class BookController {
         return "redirect:/admin/book-register";
     }
 
-    @GetMapping("/books/category")
-    public String booksByCategory(Model model) {
-        CommonResponse<PageResponse<BookResponse>> response = bookClient.getBooks(0, 10);
-        List<BookResponse> books = response.data().content();
+    @GetMapping("/books/search-by-category")
+    public String getBooksByCategory(
+            @RequestParam("category") String categoryName,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            Model model
+    ) {
+        CommonResponse<PageResponse<BookResponse>> response = bookClient.getBooksByCategory(categoryName, page, size);
+        PageResponse<BookResponse> pageData = response.data();
+        List<BookResponse> books = pageData.content();
 
         Map<Long, Integer> reviewCounts = new HashMap<>();
         Map<Long, Double> averageRatings = new HashMap<>();
 
         for (BookResponse book : books) {
             Long bookId = book.id();
-
             try {
                 PageResponse<ReviewListResponse> page0 = reviewClient.getReviewsByBookId(bookId, 0, 1);
                 int totalReviews = (int) page0.totalElements();
@@ -286,9 +292,8 @@ public class BookController {
 
                 int totalPages = page0.totalPages();
                 List<ReviewListResponse> allReviews = new ArrayList<>();
-
-                for (int page = 0; page < totalPages; page++) {
-                    PageResponse<ReviewListResponse> reviewPage = reviewClient.getReviewsByBookId(bookId, page, 100);
+                for (int p = 0; p < totalPages; p++) {
+                    PageResponse<ReviewListResponse> reviewPage = reviewClient.getReviewsByBookId(bookId, p, 100);
                     allReviews.addAll(reviewPage.content());
                 }
 
@@ -388,6 +393,39 @@ public class BookController {
         model.addAttribute("books", books);
         model.addAttribute("pageInfo", pageInfo);
         return "admin/book/list";
+    }
+
+    @DeleteMapping("/admin/books/{bookId}/soft-delete")
+    public String softDeleteBook(@PathVariable Long bookId) {
+        bookClient.deleteBook(bookId);
+
+//        BookResponse book = bookClient.getBookDetail(bookId).data();
+
+//        BookUpdateRequest request = new BookUpdateRequest(
+//                book.isbn(),
+//                book.title(),
+//                book.contents(),
+//                book.description(),
+//                book.publishedAt(),
+//                book.originalPrice(),
+//                book.salePrice(),
+//                book.quantity(),
+//                BookStatus.DELETED,
+//                book.isPackable(),
+//                publisherClient.getPublishers(100, 0)
+//                        .data().content().stream()
+//                        .filter(p -> p.name().equals(book.publisherName()))
+//                        .findFirst()
+//                        .orElseThrow().id(),
+//                book.categories().stream().map(CategoryResponse::id).toList(),
+//                book.authors().stream()
+//                        .map(a -> new AuthorRoleRequest(a.authorId(), a.role()))
+//                        .toList(),
+//                book.tags().stream().map(TagResponse::id).toList()
+//        );
+//
+//        bookClient.updateBook(bookId, request);
+        return "redirect:/admin/list";
     }
 
     @PostMapping("/books/{bookId}")

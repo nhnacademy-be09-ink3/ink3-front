@@ -85,7 +85,7 @@
 
     function goToCategory(name) {
         const encoded = encodeURIComponent(name);
-        location.href = `${contextPath}books/category?name=${encoded}`;
+        location.href = `${navContext}books/search-by-category?category=${encoded}`;
     }
 
     function fetchBooks() {
@@ -100,8 +100,10 @@
                     console.error('검색 결과가 없습니다:', data);
                     return;
                 }
-                totalItems = result.totalElements;
-                renderBooks(result.content);
+                const filtered = result.content.filter(book => book.status !== 'DELETED');
+
+                totalItems = filtered.length;
+                renderBooks(filtered.length);
                 renderPagination();
             })
             .catch(err => console.error('검색 API 에러:', err));
