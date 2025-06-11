@@ -1,10 +1,12 @@
 package com.nhnacademy.front.shop.controller;
 
 import com.nhnacademy.front.common.dto.CommonResponse;
+import com.nhnacademy.front.shop.cart.client.CartClient;
 import com.nhnacademy.front.shop.order.client.OrderClient;
 import com.nhnacademy.front.shop.order.dto.OrderFormCreateRequest;
 import com.nhnacademy.front.shop.order.dto.OrderResponse;
 import com.nhnacademy.front.shop.order.service.OrderService;
+import com.nhnacademy.front.shop.payment.dto.PaymentCancelRequest;
 import com.nhnacademy.front.shop.payment.dto.PaymentConfirmRequest;
 import com.nhnacademy.front.shop.payment.dto.PaymentResponse;
 import com.nhnacademy.front.shop.payment.dto.PaymentType;
@@ -19,6 +21,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,11 +32,12 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @Controller
 @RequestMapping("/payments")
 public class PaymentController {
+    //TODO 확장성을 위해서 TossUrlProperty 수정해야함.
+    private final TossUrlProperty tossUrlProperty;
     private final PaymentService paymentService;
     private final OrderClient orderClient;
     private final UserService userService;
-    //TODO 확장성을 위해서 TossUrlProperty 수정해야함.
-    private final TossUrlProperty tossUrlProperty;
+    private final CartClient cartClient;
 
     @PostMapping
     @ResponseBody
@@ -90,6 +94,8 @@ public class PaymentController {
                 .paymentType(PaymentType.TOSS)
                 .build();
         PaymentResponse paymentResponse = paymentService.confirmPayment(paymentConfirmRequest);
+        //TODO : 바로 구매 시 장바구니 안비움
+        cartClient.deleteCarts();
         model.addAttribute("paymentResponse", paymentResponse);
         return "payment/payment-success";
     }
@@ -101,8 +107,10 @@ public class PaymentController {
     }
 
     @PostMapping("/cancel")
-    public String paymentCancel(@RequestParam long orderId) {
-        paymentService.dealWithPaymentCancel(orderId);
+    public String paymentCancel(
+            @RequestParam long orderId,
+            @RequestBody  PaymentCancelRequest cancelRequest) {
+        paymentService.dealWithPaymentCancel(orderId, cancelRequest);
         return "order/order-cancel";
     }
 
@@ -125,7 +133,7 @@ public class PaymentController {
                 .amount(orderFormCreateRequest.paymentAmount())
                 .build();
         PaymentResponse zeroPaymentResponse = paymentService.createZeroPayment(zeroPaymentRequest);
-
+        cartClient.deleteCarts();
         model.addAttribute("paymentResponse", zeroPaymentResponse);
         return "payment/payment-success";
     }

@@ -15,6 +15,13 @@ import com.nhnacademy.front.shop.book.dto.BookCreateRequest;
 import com.nhnacademy.front.shop.book.dto.SortType;
 import com.nhnacademy.front.shop.category.client.CategoryClient;
 import com.nhnacademy.front.shop.category.client.dto.CategoryResponse;
+import com.nhnacademy.front.shop.coupon.coupon.client.CouponClient;
+import com.nhnacademy.front.shop.coupon.coupon.client.dto.CouponResponse;
+import com.nhnacademy.front.shop.coupon.coupon.client.dto.CouponView;
+import com.nhnacademy.front.shop.coupon.policy.client.CouponPolicyClient;
+import com.nhnacademy.front.shop.coupon.store.client.CouponStore;
+import com.nhnacademy.front.shop.coupon.store.client.dto.CouponIssueRequest;
+import com.nhnacademy.front.shop.coupon.store.client.dto.StoresResponse;
 import com.nhnacademy.front.shop.like.client.dto.LikeResponse;
 import com.nhnacademy.front.shop.like.service.LikeService;
 import com.nhnacademy.front.shop.publisher.client.PublisherClient;
@@ -22,6 +29,7 @@ import com.nhnacademy.front.shop.publisher.client.dto.PublisherResponse;
 import com.nhnacademy.front.shop.tag.client.TagClient;
 import com.nhnacademy.front.shop.tag.client.dto.TagResponse;
 
+import feign.FeignException;
 import jakarta.validation.Valid;
 
 import java.util.ArrayList;
@@ -31,6 +39,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
+import java.util.stream.Stream;
 import org.springframework.http.MediaType;
 import java.util.Map;
 import org.springframework.stereotype.Controller;
@@ -42,6 +51,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.auth0.jwt.JWT;
@@ -56,6 +66,7 @@ import com.nhnacademy.front.util.PageUtil;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -67,20 +78,24 @@ public class BookController {
     private final AuthorClient authorClient;
     private final PublisherClient publisherClient;
     private final TagClient tagClient;
-    private final LikeService likeService;
     private final ObjectMapper objectMapper;
+    private final CouponStore couponStore;
+    private final CouponClient couponClient;
+    private final CouponPolicyClient couponPolicyClient;
+    private final LikeService likeService;
+
 
     @GetMapping("/books/{bookId}")
     public String getBookDetail(@PathVariable Long bookId,
-        @RequestParam(defaultValue = "0") int page,
-        @RequestParam(defaultValue = "10") int size,
-        Model model, @CookieValue(name = "accessToken", required = false) String accessToken) {
-        CommonResponse<BookResponse> response = bookClient.getBookDetail(bookId);
+                                @RequestParam(defaultValue = "0") int  page,
+                                @RequestParam(defaultValue = "10") int  size,
+                                Model model, @CookieValue(name = "accessToken", required = false) String accessToken) {
+        CommonResponse<BookResponse> books = bookClient.getBookDetail(bookId);
         PageResponse<ReviewListResponse> reviews =
-            reviewClient.getReviewsByBookId(bookId, page, size);
+                reviewClient.getReviewsByBookId(bookId, page, size);
 
         PageUtil.PageInfo pageInfo = PageUtil.calculatePageRange(
-            reviews.page(), reviews.totalPages(), 5);
+                reviews.page(), reviews.totalPages(), 5);
 
         Long userId = null;
         try {
@@ -92,29 +107,75 @@ public class BookController {
             log.warn("비회원 사용자 도서 상세페이지 접근: {}", e.getMessage());
         }
 
+        List<CouponResponse> bookCoupons = new ArrayList<>();
+        List<CouponResponse> categoryCoupons = new ArrayList<>();
+
+
+        try{
+            bookCoupons = couponClient.getByBookId(bookId, 0, 10).data().content();
+            categoryCoupons = books.data().categories().stream()
+                    .flatMap(cat ->
+                            couponClient.getByCategoryId(cat.id(), 0, 10)
+                                    .data().content().stream()
+                    )
+                    .toList();
+        } catch (FeignException e) {
+            log.error("쿠폰리스트 예외발생: {}", e.getMessage());
+        }
+
+        log.info(">>> bookCoupons (size={}): {}", bookCoupons.size(), bookCoupons);
+        log.info(">>> categoryCoupons (size={}): {}", categoryCoupons.size(), categoryCoupons);
+
+
+        List<CouponView> coupons = Stream.concat(bookCoupons.stream(), categoryCoupons.stream())
+                .map(c -> {
+                    boolean isBook = !c.books().isEmpty();
+                    String originType = isBook
+                            ? c.books().get(0).originType()
+                            : c.categories().get(0).originType();
+                    Long originId = isBook
+                            ? c.books().get(0).originId()
+                            : c.categories().get(0).originId();
+                    return new CouponView(
+                            c.couponId(),
+                            c.name(),
+                            c.discountRate(),
+                            c.discountValue(),
+                            c.expiresAt(),
+                            originType,
+                            originId
+                    );
+                })
+                .toList();
+
+        log.info(">>> coupons (combined, size={}): {}", coupons.size(), coupons);
+
+
+
         AtomicBoolean liked = new AtomicBoolean(false);
         AtomicReference<Long> likeId = new AtomicReference<>(null);
 
         if (userId != null) {
             PageResponse<LikeResponse> likes = likeService.getCurrentUserLikes(0, 100, null);
             likes.content().stream()
-                .filter(like -> like.bookId().equals(bookId))
-                .findFirst()
-                .ifPresent(like -> {
-                    liked.set(true);
-                    likeId.set(like.id());
-                });
+                    .filter(like -> like.bookId().equals(bookId))
+                    .findFirst()
+                    .ifPresent(like -> {
+                        liked.set(true);
+                        likeId.set(like.id());
+                    });
         }
 
-        model.addAttribute("book", response.data());
-        model.addAttribute("reviews", reviews.content());
+
+        model.addAttribute("book",      books.data());
+        model.addAttribute("reviews",   reviews.content());
         model.addAttribute("reviewPage", reviews);
-        model.addAttribute("pageInfo", pageInfo);
-        model.addAttribute("bookId", bookId);
-        model.addAttribute("userId", userId);
+        model.addAttribute("pageInfo",  pageInfo);
+        model.addAttribute("bookId",    bookId);
+        model.addAttribute("userId",    userId);
         model.addAttribute("liked", liked);
         model.addAttribute("likeId", likeId);
-        model.addAttribute("likeCount", response.data().likeCount());
+        model.addAttribute("coupons", coupons);
 
         return "book/book-detail";
     }
@@ -330,5 +391,39 @@ public class BookController {
         model.addAttribute("books", books);
         model.addAttribute("pageInfo", pageInfo);
         return "admin/book/list";
+    }
+
+    @PostMapping("/books/{bookId}")
+    public String issueCoupon(@PathVariable Long bookId,
+                              @RequestParam Long couponId,
+                              @RequestParam String originType,
+                              @RequestParam Long originId,
+                              @RequestParam(defaultValue = "0") int page,
+                              @RequestParam(defaultValue = "10") int size,
+                              Model model,
+                              @CookieValue(name = "accessToken", required = false) String accessToken) {
+
+        try {
+            CouponIssueRequest req = new CouponIssueRequest(couponId, originType, originId);
+            CommonResponse<StoresResponse> resp = couponStore.issueCoupon(req);
+            model.addAttribute("successMessage", resp.data().couponName() + " 쿠폰이 발급되었습니다.");
+        } catch (FeignException e) {
+            String err = e.status() == 409
+                    ? extractMessageFromFeignBody(e.contentUTF8())
+                    : "쿠폰 발급 중 오류가 발생했습니다.";
+            model.addAttribute("errorMessage", err);
+        }
+
+        return getBookDetail(bookId, page, size, model, accessToken);
+    }
+
+
+    private String extractMessageFromFeignBody(String body) {
+        try {
+            var tree = new com.fasterxml.jackson.databind.ObjectMapper().readTree(body);
+            return tree.path("message").asText();
+        } catch (Exception ex) {
+            return "알 수 없는 오류가 발생했습니다.";
+        }
     }
 }

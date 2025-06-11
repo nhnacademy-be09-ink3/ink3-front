@@ -103,16 +103,68 @@
                             주문 내역
                         </a>
                     </li>
-                    <li>
+<!--                    <li>
                         <a th:href="@{/admin/products/payments}"
                            class="block px-3 py-2 rounded-md hover:bg-gray-700 text-sm">
                             결제 내역
                         </a>
-                    </li>
+                    </li>-->
                     <li>
                         <a th:href="@{/admin-order/refunds}"
                            class="block px-3 py-2 rounded-md hover:bg-gray-700 text-sm">
                             반품 내역
+                        </a>
+                    </li>
+                    <li>
+                        <a th:href="@{/admin-order/packagings}"
+                           class="block px-3 py-2 rounded-md hover:bg-gray-700 text-sm">
+                            포장지 정책
+                        </a>
+                    </li>
+                    <li>
+                        <a th:href="@{/admin-order/shipping-policies}"
+                           class="block px-3 py-2 rounded-md hover:bg-gray-700 text-sm">
+                            배송 정책
+                        </a>
+                    </li>
+                    <li>
+                        <a th:href="@{/admin-order/refund-policies}"
+                           class="block px-3 py-2 rounded-md hover:bg-gray-700 text-sm">
+                            반품 정책
+                        </a>
+                    </li>
+                </ul>
+                <button type="button" onclick="toggleMenu('coupon-submenu')"
+                        class="w-full text-left flex justify-between items-center px-3 py-2 rounded-md hover:bg-gray-700">
+                    <span>쿠폰 관리</span>
+                    <svg id="icon-coupon-submenu" class="w-4 h-4 transition-transform" fill="none"
+                         viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                </button>
+                <ul id="coupon-submenu" class="pl-4 mt-1 space-y-1 hidden">
+                    <li>
+                        <a th:href="@{/admin/coupon/policy-register}"
+                           class="block px-3 py-2 rounded-md hover:bg-gray-700 text-sm">
+                            쿠폰 정책 등록
+                        </a>
+                    </li>
+                    <li>
+                        <a th:href="@{/admin/coupon/policies}"
+                           class="block px-3 py-2 rounded-md hover:bg-gray-700 text-sm">
+                            쿠폰 정책 조회
+                        </a>
+                    </li>
+                    <li>
+                        <a th:href="@{/admin/coupon/coupon-register}"
+                           class="block px-3 py-2 rounded-md hover:bg-gray-700 text-sm">
+                            쿠폰 등록
+                        </a>
+                    </li>
+                    <li>
+                        <a th:href="@{/admin/coupon/coupon-list}"
+                           class="block px-3 py-2 rounded-md hover:bg-gray-700 text-sm">
+                            쿠폰 조회
                         </a>
                     </li>
                 </ul>

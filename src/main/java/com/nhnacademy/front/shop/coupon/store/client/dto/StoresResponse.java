@@ -1,11 +1,11 @@
-package com.nhnacademy.front.shop.couponStore.client.dto;
+package com.nhnacademy.front.shop.coupon.store.client.dto;
 
 import java.time.LocalDateTime;
-
 import lombok.Builder;
 
+
 @Builder
-public record CouponStoreResponse(
+public record StoresResponse(
         Long storeId,
         Long userId,
         String userName,

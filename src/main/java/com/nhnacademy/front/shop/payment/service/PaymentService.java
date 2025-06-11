@@ -2,6 +2,7 @@ package com.nhnacademy.front.shop.payment.service;
 
 import com.nhnacademy.front.common.dto.CommonResponse;
 import com.nhnacademy.front.shop.payment.client.PaymentClient;
+import com.nhnacademy.front.shop.payment.dto.PaymentCancelRequest;
 import com.nhnacademy.front.shop.payment.dto.PaymentConfirmRequest;
 import com.nhnacademy.front.shop.payment.dto.PaymentResponse;
 import com.nhnacademy.front.shop.payment.dto.ZeroPaymentRequest;
@@ -33,7 +34,7 @@ public class PaymentService {
         paymentClient.dealWithPaymentFail(orderId);
     }
 
-    public void dealWithPaymentCancel(long orderId) {
-        paymentClient.dealWithPaymentCancel(orderId);
+    public void dealWithPaymentCancel(long orderId, PaymentCancelRequest cancelRequest) {
+        paymentClient.dealWithPaymentCancel(orderId, cancelRequest);
     }
 }

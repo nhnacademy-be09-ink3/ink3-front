@@ -1,5 +1,6 @@
 package com.nhnacademy.front.shop.payment.client;
 import com.nhnacademy.front.common.dto.CommonResponse;
+import com.nhnacademy.front.shop.payment.dto.PaymentCancelRequest;
 import com.nhnacademy.front.shop.payment.dto.PaymentConfirmRequest;
 import com.nhnacademy.front.shop.payment.dto.PaymentResponse;
 import com.nhnacademy.front.shop.payment.dto.ZeroPaymentRequest;
@@ -25,5 +26,5 @@ public interface PaymentClient {
     CommonResponse<Void> dealWithPaymentFail(@PathVariable("orderId") long orderId);
 
     @PostMapping("/payments/{orderId}/cancel")
-    CommonResponse<Void> dealWithPaymentCancel(@PathVariable("orderId") long orderId);
+    CommonResponse<Void> dealWithPaymentCancel(@PathVariable("orderId") long orderId, PaymentCancelRequest request);
 }

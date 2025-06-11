@@ -1,6 +1,7 @@
 package com.nhnacademy.front.shop.controller;
 
 import com.nhnacademy.front.common.dto.PageResponse;
+import com.nhnacademy.front.shop.cart.client.CartClient;
 import com.nhnacademy.front.shop.guest.dto.GuestOrderDetailsResponse;
 import com.nhnacademy.front.shop.guest.dto.GuestOrderFormCreateRequest;
 import com.nhnacademy.front.shop.guest.dto.GuestOrderResponse;
@@ -12,8 +13,10 @@ import com.nhnacademy.front.shop.guest.service.GuestOrderService;
 import com.nhnacademy.front.shop.payment.dto.PaymentResponse;
 import com.nhnacademy.front.shop.payment.dto.PaymentType;
 import com.nhnacademy.front.shop.payment.dto.TossUrlProperty;
+import jakarta.servlet.http.HttpServletResponse;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -29,9 +32,10 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @Controller
 @RequestMapping("/guest")
 public class GuestOrderController {
+    private final TossUrlProperty tossUrlProperty;
     private final GuestOrderService guestOrderService;
     private final GuestPaymentService guestPaymentService;
-    private final TossUrlProperty tossUrlProperty;
+    private final CartClient cartClient;
 
     // 비회원 주문 조회 로그인
     @GetMapping("/login")
@@ -99,6 +103,7 @@ public class GuestOrderController {
     @GetMapping("/payments/success")
     public String paymentSuccess(
             Model model,
+            HttpServletResponse response,
             @RequestParam("paymentKey") String paymentKey,
             @RequestParam("amount") int amount,
             @RequestParam("orderId") String orderUUID,
@@ -113,6 +118,11 @@ public class GuestOrderController {
                 .paymentType(PaymentType.TOSS)
                 .build();
         PaymentResponse paymentResponse = guestPaymentService.confirmPayment(guestPaymentConfirmRequest);
+        ResponseCookie deleteCookie = ResponseCookie.from("guest_cart", "")
+                .path("/")
+                .maxAge(0)
+                .build();
+        response.addHeader("Set-Cookie", deleteCookie.toString());
         model.addAttribute("paymentResponse", paymentResponse);
         model.addAttribute("email", email);
         return "payment/payment-guest-success";
