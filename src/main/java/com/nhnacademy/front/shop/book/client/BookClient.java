@@ -61,12 +61,9 @@ public interface BookClient {
             @RequestPart("book") String bookUpdateRequestJson,
             @RequestPart("coverImage") MultipartFile coverImage
     );
-    @PutMapping("/books/{bookId}")
-    CommonResponse<BookResponse> updateBook(@PathVariable Long bookId, @RequestBody BookUpdateRequest request);
 
     @DeleteMapping("/books/{bookId}")
     CommonResponse<Void> deleteBook(@PathVariable Long bookId);
-
 
     @GetMapping("/books/search-by-category")
     CommonResponse<PageResponse<BookResponse>> getBooksByCategory(

@@ -66,6 +66,7 @@ import com.nhnacademy.front.util.PageUtil;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -395,37 +396,11 @@ public class BookController {
         return "admin/book/list";
     }
 
-    @DeleteMapping("/admin/books/{bookId}/soft-delete")
-    public String softDeleteBook(@PathVariable Long bookId) {
+    @DeleteMapping("/admin/books/{bookId}")
+    @ResponseBody
+    public ResponseEntity<Void> deleteBook(@PathVariable Long bookId) {
         bookClient.deleteBook(bookId);
-
-//        BookResponse book = bookClient.getBookDetail(bookId).data();
-
-//        BookUpdateRequest request = new BookUpdateRequest(
-//                book.isbn(),
-//                book.title(),
-//                book.contents(),
-//                book.description(),
-//                book.publishedAt(),
-//                book.originalPrice(),
-//                book.salePrice(),
-//                book.quantity(),
-//                BookStatus.DELETED,
-//                book.isPackable(),
-//                publisherClient.getPublishers(100, 0)
-//                        .data().content().stream()
-//                        .filter(p -> p.name().equals(book.publisherName()))
-//                        .findFirst()
-//                        .orElseThrow().id(),
-//                book.categories().stream().map(CategoryResponse::id).toList(),
-//                book.authors().stream()
-//                        .map(a -> new AuthorRoleRequest(a.authorId(), a.role()))
-//                        .toList(),
-//                book.tags().stream().map(TagResponse::id).toList()
-//        );
-//
-//        bookClient.updateBook(bookId, request);
-        return "redirect:/admin/list";
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/books/{bookId}")
@@ -451,7 +426,6 @@ public class BookController {
 
         return getBookDetail(bookId, page, size, model, accessToken);
     }
-
 
     private String extractMessageFromFeignBody(String body) {
         try {
