@@ -11,7 +11,6 @@ import com.nhnacademy.front.shop.coupon.coupon.client.dto.CouponResponse.BookInf
 import com.nhnacademy.front.shop.coupon.coupon.client.dto.CouponResponse.CategoryInfo;
 import com.nhnacademy.front.shop.coupon.coupon.client.dto.CouponUpdateRequest;
 import com.nhnacademy.front.shop.coupon.policy.client.CouponPolicyClient;
-import com.nhnacademy.front.shop.coupon.store.client.CouponStore;
 import com.nhnacademy.front.util.PageUtil;
 import feign.FeignException;
 import java.util.List;
@@ -32,7 +31,6 @@ public class CouponController {
     private final BookClient bookClient;
     private final CategoryClient categoryClient;
     private final CouponClient couponClient;
-    private final CouponStore couponStore;
 
     // (1) 등록 폼
     @GetMapping("/coupon-register")
@@ -42,7 +40,7 @@ public class CouponController {
             Model model
     ) {
         model.addAttribute("policies", policyClient.getAllPolicies(size, page).data());
-        model.addAttribute("books",    bookClient.getBooks(0, 10).data());
+        model.addAttribute("books",    bookClient.getBooks(0, 100).data());
         model.addAttribute("categories", categoryClient.getCategories(100, 0).data());
         return "admin/coupon/coupon-register";
     }
@@ -114,8 +112,8 @@ public class CouponController {
         // 3) 모델에 폼 바인딩 객체와 셀렉트 옵션들 추가
         model.addAttribute("couponUpdateRequest", updateReq);
         model.addAttribute("couponId", id);
-        model.addAttribute("policies", policyClient.getAllPolicies(10, 0).data());
-        model.addAttribute("books",    bookClient.getBooks(0, 10).data());
+        model.addAttribute("policies", policyClient.getAllPolicies(100, 0).data());
+        model.addAttribute("books",    bookClient.getBooks(0, 100).data());
         model.addAttribute("categories", categoryClient.getCategories(100, 0).data());
 
         return "admin/coupon/coupon-update";
