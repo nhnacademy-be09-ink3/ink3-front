@@ -42,7 +42,7 @@ public class CouponController {
             Model model
     ) {
         model.addAttribute("policies", policyClient.getAllPolicies(size, page).data());
-        model.addAttribute("books",    bookClient.getBooks(0, 10).data());
+        model.addAttribute("books",    bookClient.getBooks(0, 10000).data());
         model.addAttribute("categories", categoryClient.getCategories().data());
         return "admin/coupon/coupon-register";
     }

@@ -235,7 +235,7 @@ public class BookController {
     public String getBookRegister(Model model) {
         CommonResponse<PageResponse<AuthorResponse>> authors = authorClient.getAuthors(100, 0);
         CommonResponse<PageResponse<PublisherResponse>> publishers = publisherClient.getPublishers(100, 0);
-        CommonResponse<PageResponse<CategoryResponse>> categories = categoryClient.getCategories();
+        CommonResponse<PageResponse<CategoryResponse>> categories = categoryClient.getCategories(100, 0);
         CommonResponse<PageResponse<TagResponse>> tags = tagClient.getTags(100, 0);
 
         model.addAttribute("authors", authors.data().content());
@@ -321,7 +321,7 @@ public class BookController {
         CommonResponse<BookResponse> response = bookClient.getBookDetail(bookId);
         CommonResponse<PageResponse<AuthorResponse>> authorList = authorClient.getAuthors(100, 0);
         CommonResponse<PageResponse<PublisherResponse>> publisherList = publisherClient.getPublishers(100, 0);
-        CommonResponse<PageResponse<CategoryResponse>> categoryList = categoryClient.getCategories();
+        CommonResponse<PageResponse<CategoryResponse>> categoryList = categoryClient.getCategories(100, 0);
         CommonResponse<PageResponse<TagResponse>> tagList = tagClient.getTags(100, 0);
         List<Long> selectedTagIds = response.data().tags().stream()
             .map(TagResponse::id)

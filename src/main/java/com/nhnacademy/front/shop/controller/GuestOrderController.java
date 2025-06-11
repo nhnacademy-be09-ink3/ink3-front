@@ -13,8 +13,10 @@ import com.nhnacademy.front.shop.guest.service.GuestOrderService;
 import com.nhnacademy.front.shop.payment.dto.PaymentResponse;
 import com.nhnacademy.front.shop.payment.dto.PaymentType;
 import com.nhnacademy.front.shop.payment.dto.TossUrlProperty;
+import jakarta.servlet.http.HttpServletResponse;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -101,6 +103,7 @@ public class GuestOrderController {
     @GetMapping("/payments/success")
     public String paymentSuccess(
             Model model,
+            HttpServletResponse response,
             @RequestParam("paymentKey") String paymentKey,
             @RequestParam("amount") int amount,
             @RequestParam("orderId") String orderUUID,
@@ -115,8 +118,11 @@ public class GuestOrderController {
                 .paymentType(PaymentType.TOSS)
                 .build();
         PaymentResponse paymentResponse = guestPaymentService.confirmPayment(guestPaymentConfirmRequest);
-        //TODO : 바로 구매 시 장바구니 안비움
-        cartClient.deleteCarts();
+        ResponseCookie deleteCookie = ResponseCookie.from("guest_cart", "")
+                .path("/")
+                .maxAge(0)
+                .build();
+        response.addHeader("Set-Cookie", deleteCookie.toString());
         model.addAttribute("paymentResponse", paymentResponse);
         model.addAttribute("email", email);
         return "payment/payment-guest-success";

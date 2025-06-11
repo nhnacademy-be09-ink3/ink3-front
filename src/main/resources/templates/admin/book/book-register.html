@@ -161,13 +161,15 @@
             const contextPath = /*[[@{/}]]*/ '';
             const authors = /*[[${authors}]]*/ [];
             const rawCategories = /*[[${categories}]]*/ [];
-            const ROOT_ID = 15;
 
-            const categories = rawCategories.map(c => ({
-                id:        c.id,
-                name:      c.name,
-                parentId:  c.parentId
-            }));
+            const categories          = rawCategories
+                .filter(c => c.name !== 'ROOT')
+                .map(c => ({ id: c.id, name: c.name, parentId: c.parentId }));
+
+            // 'ROOT' 자체를 걸러낸 뒤, 루트 노드의 id를 구해 실제 최상위 부모 역할로 사용
+            const rootCategory = rawCategories.find(c => c.name === 'ROOT');
+            const rootId = rootCategory ? rootCategory.id : null;
+
             const selectedCategoryIds = /*[[${selectedCategoryIds}]]*/ [];
 
             let groupId = 0; // 각 카테고리 선택 그룹을 구분하기 위한 고유 ID
@@ -319,7 +321,7 @@
 
                 groupWrapper.appendChild(removeBtn);
                 container.appendChild(groupWrapper);
-                renderCategoryDropdown(ROOT_ID, 1, group);   // ROOT_ID = 15
+                renderCategoryDropdown(rootId, 1, group);
             });
             /*]]>*/
         </script>

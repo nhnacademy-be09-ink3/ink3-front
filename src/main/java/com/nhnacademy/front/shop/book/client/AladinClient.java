@@ -18,6 +18,6 @@ public interface AladinClient {
     @GetMapping("/aladin")
     CommonResponse<PageResponse<AladinBookResponse>> getBooksByKeyword(@RequestParam String keyword, @RequestParam int page, @RequestParam int size);
 
-    @PostMapping(value = "/aladin/register-book")
+    @PostMapping(value = "/aladin/book-register")
     CommonResponse<BookResponse> registerBookByAladin(@RequestBody @Valid BookRegisterRequest request);
 }
