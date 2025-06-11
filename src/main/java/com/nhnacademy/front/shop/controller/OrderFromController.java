@@ -65,7 +65,6 @@ public class OrderFromController {
             // 장바구니 리스트
             CommonResponse<List<CartCouponResponse>> cartResponse = cartClient.getCartsWithCoupon();
             List<CartCouponResponse> cart = cartResponse.data();
-            log.info("couponsize = {}", cart.getFirst().applicableCoupons().size());
             model.addAttribute("cart", cart);
             return "order/order-form-user-books";
         } else {
