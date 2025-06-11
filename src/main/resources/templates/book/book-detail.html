@@ -17,6 +17,7 @@
 
 <script th:inline="javascript">
     const contextPath = /*[[@{/}]]*/ '';
+    const isLoggedIn = /*[[${isLoggedIn}]]*/ false;
 </script>
 
 <main class="container mx-auto px-4 py-8">
@@ -168,7 +169,13 @@
                                                 class="w-20 px-2 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                                         />
                                     </div>
-
+                                    <button
+                                            type="button"
+                                            id="issue-coupon-btn"
+                                            class="ink-btn-primary bg-gray-300 text-gray-800 hover:bg-gray-400">
+                                        쿠폰발급 받기
+                                    </button>
+                                    <div class="flex gap-4 mt-0.5">
                                     <!-- 장바구니 -->
                                     <input type="hidden" name="bookId" th:value="${book.id}"/>
                                     <button type="submit"
@@ -217,6 +224,36 @@
                                 </a>
                             </div>
                         </form>
+
+                        <div class="flex items-center gap-4 mt-0.5">
+                            <a href="/books"
+                               class="ink-btn-primary bg-gray-300 text-gray-800 hover:bg-gray-400">목록으로</a>
+
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="currentColor"
+                                 viewBox="0 0 24 24">
+                                <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78L12 21.23l7.78-7.78a5.5 5.5 0 000-7.78z"/>
+                            </svg>
+                            <span class="flex ml-3 pl-3 py-2 border-l-2 border-gray-200 space-x-2s"
+                                  th:text="${book.likeCount}"></span>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="flex items-baseline gap-2 mb-6">
+                            <!-- 정가 -->
+                            <span class="title-font font-medium text-gray-400 line-through text-lg"
+                                  th:text="${#numbers.formatDecimal(book.originalPrice(), 0, 'COMMA', 0, 'POINT')} + '원'"></span>
+
+                            <!-- 할인가 -->
+                            <span class="title-font font-medium text-2xl text-gray-900"
+                                  th:text="${#numbers.formatDecimal(book.salePrice(), 0, 'COMMA', 0, 'POINT')} + '원'"></span>
+
+                            <!-- 할인률 -->
+                            <span class="title-font font-medium bg-red-100 text-red-600 text-sm font-bold px-2 py-1 rounded-md"
+                                  th:if="${book.discountRate != null && book.discountRate > 0}"
+                                  th:text="${book.discountRate} + '%'">
+                            </span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -414,7 +451,80 @@
     </div>
 </div>
 
+<!-- 쿠폰 발급용 모달 -->
+<div id="coupon-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+    <div class="relative bg-white rounded-lg shadow-lg p-6 w-96">
+
+        <h3 class="text-xl font-semibold mb-4">이 상품에 적용 가능한 쿠폰</h3>
+
+        <!-- 쿠폰 리스트 -->
+        <ul th:if="${!#lists.isEmpty(coupons)}" class="space-y-3 mb-6">
+            <li th:each="coupon : ${coupons}"
+                class="p-3 border rounded flex justify-between items-center">
+                <div>
+                    <div class="font-medium" th:text="${coupon.name}">쿠폰 이름</div>
+                    <div class="text-sm text-gray-500">
+                        <span th:if="${coupon.discountRate > 0}">할인율: <span th:text="${coupon.discountRate}"></span>%&nbsp;|&nbsp;</span>
+                        <span th:if="${coupon.discountValue > 0}">할인금액: <span th:text="${coupon.discountValue}"></span>₩&nbsp;|&nbsp;</span>
+                        만료: <span th:text="${#temporals.format(coupon.expiresAt, 'yyyy.MM.dd')}">2025.12.31</span>
+                    </div>
+                </div>
+                <!-- ★ 발급 폼 -->
+                <form id="issueCoupon" th:action="@{/books/{bookId}(bookId=${bookId})}" method="post">
+                    <input type="hidden" name="couponId"   th:value="${coupon.couponId}"/>
+                    <input type="hidden" name="originType" th:value="${coupon.originType}"/>
+                    <input type="hidden" name="originId"   th:value="${coupon.originId}"/>
+                    <button type="submit"
+                            class="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700">
+                        발급받기
+                    </button>
+                </form>
+            </li>
+        </ul>
+
+        <!-- 뒤로가기/취소 버튼 -->
+        <div class="flex justify-end space-x-2">
+            <button type="button"
+                    class="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 close-modal">
+                뒤로가기
+            </button>
+        </div>
+
+    </div>
+</div>
+
+
+<!-- 예시 JavaScript -->
+<script>
+    document.querySelectorAll('.close-modal').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.getElementById('coupon-modal').classList.add('hidden');
+        });
+    });
+</script>
+
+
+
 <div th:replace="~{layout/fragments/footer :: footerFragment}"></div>
+
+<script>
+    const issueBtn      = document.getElementById('issue-coupon-btn');
+    const couponModal   = document.getElementById('coupon-modal');
+    const cancelIssue   = document.getElementById('cancel-issue-btn');
+    // 모달 열기
+    issueBtn.addEventListener('click', () => {
+        couponModal.classList.remove('hidden');
+    });
+
+    // 모달 닫기
+    cancelIssue.addEventListener('click', () => {
+        couponModal.classList.add('hidden');
+    });
+    couponModal.addEventListener('click', e => {
+        if (e.target === couponModal) couponModal.classList.add('hidden');
+    });
+
+</script>
 
 <script>
     function showConfirmModal(message, onConfirm) {
@@ -551,10 +661,10 @@
     /* ---------- 공통 util ---------- */
     function updateLikeButton(isLiked) {
         const btn = document.getElementById('like-btn');
-        btn.classList.toggle('bg-red-100', isLiked);
-        btn.classList.toggle('text-red-500', isLiked);
+        btn.classList.toggle('bg-red-100',  isLiked);
+        btn.classList.toggle('text-red-500',isLiked);
         btn.classList.toggle('bg-gray-200', !isLiked);
-        btn.classList.toggle('text-gray-500', !isLiked);
+        btn.classList.toggle('text-gray-500',!isLiked);
     }
 
     function updateLikeCount(increment) {
