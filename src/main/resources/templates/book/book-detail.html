@@ -175,7 +175,6 @@
                                             class="ink-btn-primary bg-gray-300 text-gray-800 hover:bg-gray-400">
                                         쿠폰발급 받기
                                     </button>
-                                    <div class="flex gap-4 mt-0.5">
                                     <!-- 장바구니 -->
                                     <input type="hidden" name="bookId" th:value="${book.id}"/>
                                     <button type="submit"
@@ -224,36 +223,6 @@
                                 </a>
                             </div>
                         </form>
-
-                        <div class="flex items-center gap-4 mt-0.5">
-                            <a href="/books"
-                               class="ink-btn-primary bg-gray-300 text-gray-800 hover:bg-gray-400">목록으로</a>
-
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="currentColor"
-                                 viewBox="0 0 24 24">
-                                <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78L12 21.23l7.78-7.78a5.5 5.5 0 000-7.78z"/>
-                            </svg>
-                            <span class="flex ml-3 pl-3 py-2 border-l-2 border-gray-200 space-x-2s"
-                                  th:text="${book.likeCount}"></span>
-                        </div>
-                    </div>
-
-                    <div>
-                        <div class="flex items-baseline gap-2 mb-6">
-                            <!-- 정가 -->
-                            <span class="title-font font-medium text-gray-400 line-through text-lg"
-                                  th:text="${#numbers.formatDecimal(book.originalPrice(), 0, 'COMMA', 0, 'POINT')} + '원'"></span>
-
-                            <!-- 할인가 -->
-                            <span class="title-font font-medium text-2xl text-gray-900"
-                                  th:text="${#numbers.formatDecimal(book.salePrice(), 0, 'COMMA', 0, 'POINT')} + '원'"></span>
-
-                            <!-- 할인률 -->
-                            <span class="title-font font-medium bg-red-100 text-red-600 text-sm font-bold px-2 py-1 rounded-md"
-                                  th:if="${book.discountRate != null && book.discountRate > 0}"
-                                  th:text="${book.discountRate} + '%'">
-                            </span>
-                        </div>
                     </div>
                 </div>
             </div>
