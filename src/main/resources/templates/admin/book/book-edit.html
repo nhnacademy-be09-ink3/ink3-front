@@ -207,7 +207,7 @@
                     <label for="coverImage">표지 이미지</label>
                     <div th:if="*{thumbnailUrl != null}">
                         <img th:src="${book.thumbnailUrl}" alt="기존 표지 이미지"
-                             class="mb-2 w-32 h-48 object-cover rounded shadow"/>
+                             class="mb-2 h-48 w-auto object-cover rounded shadow"/>
                     </div>
                     <input
                             type="file"

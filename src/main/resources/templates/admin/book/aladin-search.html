@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ink3</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/output.css(v=${#dates.createNow().getTime()})}">
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Select2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <!-- Select2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        #bookRegisterFormContainer {
+            display: none;
+        }
+    </style>
+    <script>
+        $(document).ready(function() {
+            $('.js-select').select2({
+                allowClear: true,
+                minimumResultsForSearch: 0,
+                dropdownAutoWidth: true,
+                width: '100%'
+            });
+        });
+    </script>
+</head>
+<body class="bg-gray-100">
+<div th:replace="~{admin/layout/fragments/header :: headerFragment}"></div>
+<div class="flex flex-1 min-h-[calc(100vh-64px)]">
+    <div th:replace="~{admin/layout/fragments/sidebar :: sidebarFragment}"></div>
+
+    <main class="main-content-area flex-1 p-6 bg-gray-100 overflow-y-auto">
+        <div class="bg-white p-6 rounded-lg shadow-md mb-6">
+            <!-- 검색창 -->
+            <h1 class="text-3xl font-bold text-gray-800 mb-8 text-center">알라딘 도서 검색</h1>
+            <div style="text-align: center;">
+                <form method="get" th:action="@{/admin/aladin/book-search}">
+                    <input class="ink-input-field" type="text" name="keyword" placeholder="도서 키워드" th:value="${keyword}" />
+                    <button type="submit" class="ink-btn-primary">검색</button>
+                </form>
+            </div>
+            <br>
+
+            <!-- 검색한 도서 목록 -->
+            <table class="min-w-full bg-white rounded-lg overflow-hidden">
+                <thead class="bg-gray-100 border-b border-gray-200">
+                <tr>
+                    <th class="w-16 py-3 px-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider rounded-tl-lg">순번</th>
+                    <th class="py-3 px-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">표지</th>
+                    <th class="py-3 px-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">ISBN</th>
+                    <th class="py-3 px-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">제목</th>
+                    <th class="w-56 py-3 px-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">작가</th>
+                    <th class="w-28 y-3 px-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">출판사</th>
+                    <th class="w-32 py-3 px-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">출판일</th>
+                    <th class="py-3 px-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">카테고리</th>
+                    <th class="py-3 px-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">정가 (원)</th>
+                    <th class="w-24 py-3 px-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider rounded-tr-lg">선택</th>
+                </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                <tr class="hover:bg-gray-50 transition-colors duration-200" th:each="book, stat : ${aladinBooks.content()}">
+                    <td class="w-16 py-3 px-4 text-sm text-gray-700" th:text="${stat.count}"></td>
+                    <td class="py-3 px-4 text-sm text-gray-700">
+                        <img th:src="${book.cover}" alt="표지" class="w-12 h-16 object-cover rounded shadow">
+                    </td>
+                    <td class="py-3 px-4 text-sm text-gray-700" th:text="${book.isbn13}"></td>
+                    <td class="py-3 px-4 text-sm text-gray-700" th:text="${book.title}"></td>
+                    <td class="w-56 py-3 px-4 text-sm text-gray-700" th:text="${book.author}"></td>
+                    <td class="w-28 py-3 px-4 text-sm text-gray-700" th:text="${book.publisher}"></td>
+                    <td class="w-32 py-3 px-4 text-sm text-gray-700" th:text="${book.pubDate}"></td>
+                    <td class="py-3 px-4 text-sm text-gray-700" th:text="${book.categoryName}"></td>
+                    <td class="py-3 px-4 text-sm text-gray-700" th:text="${#numbers.formatDecimal(book.priceStandard, 0, 'COMMA', 0, 'POINT')}"></td>
+                    <td class="py-3 px-4 text-sm text-gray-700">
+                        <button type="button"
+                                class="select-book-btn ink-btn-primary text-xs py-1 px-2 rounded"
+                                th:attr="
+                                data-isbn13=${book.isbn13},
+                                data-title=${book.title},
+                                data-author=${book.author},
+                                data-publisher=${book.publisher},
+                                data-pubDate=${book.pubDate},
+                                data-categoryName=${book.categoryName},
+                                data-priceStandard=${book.priceStandard},
+                                data-cover=${book.cover},
+                                data-description=${book.description},
+                                data-toc=${book.toc}
+                                ">
+                                선택
+                        </button>
+                    </td>
+                </tr>
+                <tr th:if="${aladinBooks.content().isEmpty()}">
+                    <td colspan="10" class="py-8 text-center text-gray-500 text-lg">
+                        도서 검색 결과가 없습니다.
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+            <!-- 페이지네이션 -->
+            <ul class="flex justify-center gap-1 text-gray-900 mt-6" th:if="${aladinBooks != null and aladinBooks.totalPages > 1}">
+                <li>
+                    <a th:href="@{/admin/aladin/book-search(keyword=${keyword}, page=${aladinBooks.hasPrevious()} ? ${aladinBooks.page - 1} : ${aladinBooks.page})}"
+                       class="ink-page-item-arrow" aria-label="Previous page">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="size-4" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd"
+                                  d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
+                                  clip-rule="evenodd"/>
+                        </svg>
+                    </a>
+                </li>
+                <li th:each="i : ${#numbers.sequence(pageInfo.startPage, pageInfo.endPage)}">
+                    <a th:href="@{/admin/aladin/book-search(keyword=${keyword}, page=${i})}"
+                       th:class="${i == aladinBooks.page} ? 'ink-page-item-current' : 'ink-page-item'"
+                       th:text="${i + 1}"></a>
+                </li>
+                <li>
+                    <a th:href="@{/admin/aladin/book-search(keyword=${keyword}, page=${aladinBooks.hasNext()} ? ${aladinBooks.page + 1} : ${aladinBooks.page})}"
+                       class="ink-page-item-arrow" aria-label="Next page">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="size-4" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd"
+                                  d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                                  clip-rule="evenodd"/>
+                        </svg>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <hr class="my-8 border-gray-300"/>
+
+        <div id="bookRegisterFormContainer" class="bg-white p-6 rounded-lg shadow-md max-w-4xl mx-auto">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">선택된 도서 정보</h2>
+
+            <form id="bookRegisterForm" th:action="@{/admin/aladin/book-register}" method="post" class="space-y-4">
+
+                <div class="flex justify-center items-center">
+                    <img id="aladin_cover_preview" src="" alt="표지 미리보기"
+                         class="h-64 w-auto object-contain rounded shadow-lg border border-gray-200">
+                    <p id="no_cover_text" class="text-xs text-gray-500 mt-2 hidden">표지 이미지가 없습니다.</p>
+                </div>
+
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">ISBN</label>
+                        <input type="text" id="aladin_isbn13" name="aladinBookResponse.isbn13" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 bg-gray-100" readonly>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">제목</label>
+                        <input type="text" id="aladin_title" name="aladinBookResponse.title" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 bg-gray-100" readonly>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">작가</label>
+                        <input type="text" id="aladin_author" name="aladinBookResponse.author" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 bg-gray-100" readonly>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">출판사</label>
+                        <input type="text" id="aladin_publisher" name="aladinBookResponse.publisher" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 bg-gray-100" readonly>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">출판일</label>
+                        <input type="text" id="aladin_pubDate" name="aladinBookResponse.pubDate" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 bg-gray-100" readonly>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">카테고리</label>
+                        <input type="text" id="aladin_categoryName" name="aladinBookResponse.categoryName" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 bg-gray-100" readonly>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">정가 (원)</label>
+                        <input type="number" id="aladin_priceStandard" name="aladinBookResponse.priceStandard" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 bg-gray-100" readonly>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">설명</label>
+                        <input type="text" id="aladin_description" name="aladinBookResponse.description" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 bg-gray-100" readonly>
+                    </div>
+                </div>
+                <input type="hidden" id="aladin_toc" name="aladinBookResponse.toc">
+                <input type="hidden" id="aladin_cover" name="aladinBookResponse.cover">
+
+                <hr class="my-6 border-gray-200"/>
+
+                <h3 class="text-xl font-semibold text-gray-800 mb-4 text-center">추가 등록 정보 입력</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="priceSales" class="block text-sm font-medium text-gray-700">판매 가격 (원)</label>
+                        <input type="number" id="priceSales" name="priceSales" class="mt-1 block w-full border ink-input-field sm:text-sm" required min="0">
+                    </div>
+                    <div>
+                        <label for="quantity" class="block text-sm font-medium text-gray-700">수량</label>
+                        <input type="number" id="quantity" name="quantity" class="mt-1 block w-full border ink-input-field sm:text-sm" required min="0">
+                    </div>
+                    <div>
+                        <label for="status" class="block text-sm font-medium text-gray-700">도서 상태</label>
+                        <select id="status" name="status" class="ink-input-field w-full sm:text-sm" required>
+                            <option value="">상태 선택</option>
+                            <option value="AVAILABLE">판매 중</option>
+                            <option value="OUT_OF_STOCK">수량 부족</option>
+                            <option value="SOLD_OUT">판매 종료</option>
+                            <option value="DELETED">삭제</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">포장 가능 여부</label>
+                        <div class="mt-2 space-x-4">
+                            <label class="inline-flex items-center">
+                                <input type="radio" name="isPackable" value="true" class="form-radio" required>
+                                <span class="ml-2 text-sm text-gray-700">가능</span>
+                            </label>
+                            <label class="inline-flex items-center">
+                                <input type="radio" name="isPackable" value="false" class="form-radio">
+                                <span class="ml-2 text-sm text-gray-700">불가능</span>
+                            </label>
+                        </div>
+                    </div>
+<!--                    <div class="md:col-span-2"> <label for="tagIds" class="block text-sm font-medium text-gray-700">태그 ID (콤마로 구분)</label>-->
+<!--                        <input type="text" id="tagIds" name="tagIdsString" placeholder="예: 1, 5, 10 (태그 ID들을 콤마로 구분)"-->
+<!--                               class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">-->
+<!--                        <p class="mt-1 text-xs text-gray-500">쉼표(,)로 여러 개의 태그 ID를 입력할 수 있습니다.</p>-->
+<!--                    </div>-->
+
+                    <div class="md:col-span-2">
+                        <label for="tagIds" class="block text-sm font-medium text-gray-700">태그</label>
+                        <select id="tagIds" name="tagIds" class="js-select mt-1 block border w-full" multiple>
+                            <option th:each="tag : ${tags.content}" th:value="${tag.id}" th:text="${tag.name}"></option>
+                        </select>
+                        <p class="mt-1 text-xs text-gray-500">Ctrl 키를 누른 채로 선택하여 여러 태그를 선택할 수 있습니다.</p>
+                    </div>
+
+                </div>
+
+                <div class="flex justify-end space-x-3 mt-6">
+                    <button type="submit" class="ink-btn-primary text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">도서 등록</button>
+                </div>
+            </form>
+        </div>
+
+    </main>
+</div>
+<script th:inline="javascript">
+    /* <![CDATA[ */
+    document.addEventListener('DOMContentLoaded', function() {
+        const selectButtons = document.querySelectorAll('.select-book-btn');
+        const formContainer = document.getElementById('bookRegisterFormContainer');
+        const registerForm = document.getElementById('bookRegisterForm'); // 폼 초기화용
+
+        selectButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const isbn13 = button.dataset.isbn13;
+                const title = button.dataset.title;
+                const author = button.dataset.author;
+                const publisher = button.dataset.publisher;
+                const pubDate = button.dataset.pubdate;
+                const categoryName = button.dataset.categoryname;
+                const priceStandard = button.dataset.pricestandard;
+                const cover = button.dataset.cover;
+                const description = button.dataset.description;
+                const toc = button.dataset.toc;
+
+                // AladinBookResponse 필드 채우기
+                document.getElementById('aladin_isbn13').value = isbn13 || '';
+                document.getElementById('aladin_title').value = title || '';
+                document.getElementById('aladin_author').value = author || '';
+                document.getElementById('aladin_publisher').value = publisher || '';
+                document.getElementById('aladin_pubDate').value = pubDate || '';
+                document.getElementById('aladin_categoryName').value = categoryName || '';
+                document.getElementById('aladin_priceStandard').value = priceStandard || 0;
+                document.getElementById('aladin_description').value = description || '';
+                document.getElementById('aladin_toc').value = toc || '';
+                document.getElementById('aladin_cover').value = cover || '';
+
+                // 표지 이미지 미리보기 업데이트
+                const coverPreview = document.getElementById('aladin_cover_preview');
+                if (cover) {
+                    coverPreview.src = cover;
+                    coverPreview.style.display = 'block';
+                } else {
+                    coverPreview.src = '';
+                    coverPreview.style.display = 'none';
+                }
+
+                // 추가 정보 필드 초기화 및 기본값 설정
+                document.getElementById('priceSales').value = priceStandard || 0; // 정가로 초기 판매가 설정
+                document.getElementById('quantity').value = 1; // 수량 기본값 1
+                document.getElementById('status').value = ''; // 상태 선택 초기화
+                document.querySelector('input[name="isPackable"][value="true"]').checked = true; // 포장 가능 '가능'으로 설정
+                document.getElementById('tagIds').value = ''; // 태그 초기화
+
+                // 폼 컨테이너 표시
+                formContainer.style.display = 'block';
+
+                // 폼 컨테이너로 부드럽게 스크롤 이동
+                formContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            });
+        });
+    });
+    /* ]]> */
+</script>
+</body>
+</html>

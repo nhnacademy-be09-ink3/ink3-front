@@ -34,19 +34,25 @@
                 </ul>
             </li>
             <li>
-                <button type="button" onclick="toggleMenu('orders-submenu')"
+                <button type="button" onclick="toggleMenu('books-submenu')"
                         class="w-full text-left flex justify-between items-center px-3 py-2 rounded-md hover:bg-gray-700">
                     <span>도서 관리</span>
-                    <svg id="icon-orders-submenu" class="w-4 h-4 transition-transform" fill="none"
+                    <svg id="icon-books-submenu" class="w-4 h-4 transition-transform" fill="none"
                          viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                     </svg>
                 </button>
-                <ul id="orders-submenu" class="pl-4 mt-1 space-y-1 hidden">
+                <ul id="books-submenu" class="pl-4 mt-1 space-y-1 hidden">
                     <li>
                         <a th:href="@{/admin/book-register}"
                            class="block px-3 py-2 rounded-md hover:bg-gray-700 text-sm">
                             도서 등록
+                        </a>
+                    </li>
+                    <li>
+                        <a th:href="@{/admin/aladin/book-search}"
+                           class="block px-3 py-2 rounded-md hover:bg-gray-700 text-sm">
+                            알라딘 도서 등록
                         </a>
                     </li>
                     <li>
