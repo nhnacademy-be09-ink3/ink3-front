@@ -443,8 +443,8 @@
                     </div>
                 </div>
 
-                <button type="button" onclick="submitOrderForm()" class="ink-btn-primary mt-8 w-full text-base py-2">
-                    결제하기
+                <button type="button" onclick="submitOrderForm('TOSS')" class="ink-btn-primary mt-8 w-full text-base py-2">
+                    TOSS로 결제하기
                 </button>
 
             </div>
@@ -515,25 +515,7 @@
         updateSummary(); // 결제 금액 계산
     });
 
-    // 📌 희망 배송일 초기화
-    function initDeliveryDate() {
-        const checkbox = document.getElementById("enablePreferredDate");
-        const dateInput = document.getElementById("preferredDeliveryDateInput");
-
-        checkbox?.addEventListener("change", () => {
-            dateInput.disabled = !checkbox.checked;
-        });
-
-        const defaultDate = new Date();
-        defaultDate.setDate(defaultDate.getDate() + 2);
-        const formatted = defaultDate.toISOString().split('T')[0];
-
-        document.getElementById("defaultDeliveryDate").textContent = formatted;
-        dateInput.min = formatted;
-        dateInput.value = formatted;
-
-        window.getPreferredDeliveryDate = () => checkbox.checked ? dateInput.value : formatted;
-    }
+    /** --------------------------------------- 유틸 --------------------------------------------- */
 
     // 📌 전화번호 하이픈 자동 입력
     function initAutoHyphen(ids) {
@@ -549,6 +531,13 @@
         });
     }
 
+    // 📌 화면 내 통화 포맷
+    function formatCurrency(num) {
+        return new Intl.NumberFormat('ko-KR').format(num) + '원';
+    }
+
+    /** --------------------------------------- 내정보 입력 --------------------------------------------- */
+
     // 📌 내 정보 자동 입력 버튼
     function initMyInfoBtn() {
         const btn = document.getElementById("loadMyInfoBtn");
@@ -558,6 +547,8 @@
             document.getElementById("ordererEmail").value = document.getElementById("userEmail")?.value || "";
         });
     }
+
+    /** --------------------------------------- 배송지 입력  --------------------------------------------- */
 
     // 📌 주소 입력 방식 (검색/주소록) 라디오 처리
     function initAddressRadio() {
@@ -590,6 +581,47 @@
         });
     }
 
+    // 📌 다음 주소 API 호출
+    function execDaumPostcode() {
+        new daum.Postcode({
+            oncomplete: function (data) {
+                const addr = data.userSelectedType === 'R' ? data.roadAddress : data.jibunAddress;
+                let extraAddr = '';
+                if (data.userSelectedType === 'R') {
+                    if (data.bname && /[동|로|가]$/g.test(data.bname)) extraAddr += data.bname;
+                    if (data.buildingName && data.apartment === 'Y')
+                        extraAddr += (extraAddr ? ', ' : '') + data.buildingName;
+                    if (extraAddr) extraAddr = ' (' + extraAddr + ')';
+                }
+                document.getElementById("postalCode").value = data.zonecode;
+                document.getElementById("defaultAddress").value = addr;
+                document.getElementById("extraAddress").value = extraAddr;
+                document.getElementById("detailAddress").focus();
+            }
+        }).open();
+    }
+
+    // 📌 희망 배송일 초기화
+    function initDeliveryDate() {
+        const checkbox = document.getElementById("enablePreferredDate");
+        const dateInput = document.getElementById("preferredDeliveryDateInput");
+
+        checkbox?.addEventListener("change", () => {
+            dateInput.disabled = !checkbox.checked;
+        });
+
+        const defaultDate = new Date();
+        defaultDate.setDate(defaultDate.getDate() + 2);
+        const formatted = defaultDate.toISOString().split('T')[0];
+
+        document.getElementById("defaultDeliveryDate").textContent = formatted;
+        dateInput.min = formatted;
+        dateInput.value = formatted;
+
+        window.getPreferredDeliveryDate = () => checkbox.checked ? dateInput.value : formatted;
+    }
+
+    /** --------------------------------------- 쿠폰 및 포인트  --------------------------------------------- */
     // 📌 쿠폰 선택 시 다른 항목 disable 처리
     function initCouponSelect() {
         document.querySelectorAll('select[name="couponId"]').forEach(select => {
@@ -618,13 +650,6 @@
         });
     }
 
-    // 📌 포장지 선택 시 총합 갱신
-    function initPackagingSelect() {
-        document.querySelectorAll('select.packaging-select').forEach(select =>
-            select.addEventListener('change', updateSummary)
-        );
-    }
-
     // 📌 포인트 적용 및 전체 사용 처리
     function initPointEvents() {
         const input = document.querySelector('input[name="usedPoint"]');
@@ -636,7 +661,6 @@
     }
 
     let usedPoint = 0;
-
     // 📌 포인트 적용 버튼 처리
     function handlePointApply(input, checkbox) {
         const max = parseInt(input.getAttribute("max") || "0", 10);
@@ -677,11 +701,14 @@
         alert(`${reason}으로 인해 포인트 사용 금액이 ${formatCurrency(amount)}으로 조정되었습니다.`);
     }
 
-    // 📌 화면 내 통화 포맷
-    function formatCurrency(num) {
-        return new Intl.NumberFormat('ko-KR').format(num) + '원';
+    // 📌 포장지 선택 시 총합 갱신
+    function initPackagingSelect() {
+        document.querySelectorAll('select.packaging-select').forEach(select =>
+            select.addEventListener('change', updateSummary)
+        );
     }
 
+    /** --------------------------------------- 결제 요약 화면 업데이트 --------------------------------------------- */
     // 📌 결제 요약 업데이트
     function updateSummary() {
         const {
@@ -770,94 +797,104 @@
         };
     }
 
-    // 📌 다음 주소 API 호출
-    function execDaumPostcode() {
-        new daum.Postcode({
-            oncomplete: function (data) {
-                const addr = data.userSelectedType === 'R' ? data.roadAddress : data.jibunAddress;
-                let extraAddr = '';
-                if (data.userSelectedType === 'R') {
-                    if (data.bname && /[동|로|가]$/g.test(data.bname)) extraAddr += data.bname;
-                    if (data.buildingName && data.apartment === 'Y')
-                        extraAddr += (extraAddr ? ', ' : '') + data.buildingName;
-                    if (extraAddr) extraAddr = ' (' + extraAddr + ')';
-                }
-                document.getElementById("postalCode").value = data.zonecode;
-                document.getElementById("defaultAddress").value = addr;
-                document.getElementById("extraAddress").value = extraAddr;
-                document.getElementById("detailAddress").focus();
-            }
-        }).open();
-    }
 
-    // 📌 주문서 전송 및 결제 요청
-    function submitOrderForm() {
-        const getVal = id => document.getElementById(id)?.value.trim();
+    /** --------------------------------------- 결제 요청 --------------------------------------------- */
+    // 📌 공통 메인 결제 함수
+    function submitOrderForm(requestPaymentType) {
         const requiredFields = ["ordererName", "ordererPhone", "ordererEmail", "recipientName", "recipientPhone", "postalCode", "defaultAddress", "detailAddress"];
-
         for (const id of requiredFields) {
-            if (!getVal(id)) return alert("모든 정보를 입력해주세요.");
+            if (!document.getElementById(id)?.value.trim()) {
+                return alert("모든 정보를 입력해주세요.");
+            }
         }
 
         const selectedCoupons = Array.from(document.querySelectorAll('select[name="couponId"]'))
-            .filter(select => !select.disabled && select.value);  // 실제로 선택된 쿠폰만 필터링
-
+            .filter(select => !select.disabled && select.value);
         if (selectedCoupons.length > 1) {
             return alert("쿠폰은 한 개만 사용할 수 있습니다.");
         }
 
+        const { payload, amount, discountAmount, usedPoint, paymentType } = createOrderPayload(requestPaymentType);
+
+        // 실행하는 paymentType에 따라 함수 실행하면 됨.
+        switch (paymentType) {
+            case "TOSS":
+                tossRequestPayment(payload);
+                break;
+            case "POINT":
+                openZeroPaymentModal(usedPoint, discountAmount);
+                window.__cachedZeroPayload = payload; // 모달 확인 후 사용할 수 있도록 임시 저장
+                return;
+            default:
+                console.error("지원하지 않는 결제 방식입니다:", paymentType);
+        }
+    }
+
+    // 📌 공통 요청 payload 만들기
+    function createOrderPayload(initialType) {
+
+        const getVal = id => document.getElementById(id)?.value.trim();
         const userId = parseInt(getVal("userId"), 10);
         const preferredDate = window.getPreferredDeliveryDate();
         const items = [];
 
         document.querySelectorAll(".cart-item").forEach(item => {
-            const packagingSelect = item.querySelector("select.packaging-select");
-            const packagingValue = packagingSelect?.value;
-            const packagingId = packagingValue ? parseInt(packagingValue) : null;
-
+            const packagingId = parseInt(item.querySelector("select.packaging-select")?.value || 0) || null;
             const couponSelect = item.querySelector("select[name='couponId']");
-            const couponValue = couponSelect?.value;
-            const couponStoreId = (couponSelect && !couponSelect.disabled && couponValue)
-                ? parseInt(couponValue)
+            const couponStoreId = (couponSelect && !couponSelect.disabled && couponSelect.value)
+                ? parseInt(couponSelect.value)
                 : null;
 
             items.push({
                 bookId: parseInt(item.dataset.bookId),
                 quantity: parseInt(item.dataset.quantity),
                 price: parseInt(item.dataset.price),
-                packagingId: packagingId,
-                couponStoreId: couponStoreId
+                packagingId,
+                couponStoreId
             });
         });
 
-        const {productTotal, packagingTotal, couponDiscountTotal, shippingFee, paymentAmountBeforePoint} = getSummary();
-        const usedPointAmount = usedPoint;
-        const finalAmount = Math.max(paymentAmountBeforePoint - usedPointAmount, 0);
+        const { shippingFee, couponDiscountTotal, paymentAmountBeforePoint } = getSummary();
+        const finalAmount = Math.max(paymentAmountBeforePoint - usedPoint, 0);
 
-        if (finalAmount === 0) {
-            openZeroPaymentModal(usedPointAmount, couponDiscountTotal);
-            return;
-        }
+        const paymentType = finalAmount === 0 ? "POINT" : initialType;
 
-        const payload = {
-            orderCreateRequest: {userId, ordererName: getVal("ordererName"), ordererPhone: getVal("ordererPhone")},
-            shipmentCreateRequest: {
-                preferredDeliveryDate: preferredDate,
-                recipientName: getVal("recipientName"),
-                recipientPhone: getVal("recipientPhone"),
-                postalCode: parseInt(getVal("postalCode")),
-                defaultAddress: getVal("defaultAddress"),
-                detailAddress: getVal("detailAddress"),
-                extraAddress: getVal("extraAddress"),
-                shippingFee,
-                shippingCode: null
+        return {
+            payload: {
+                orderCreateRequest: {
+                    userId,
+                    ordererName: getVal("ordererName"),
+                    ordererPhone: getVal("ordererPhone")
+                },
+                shipmentCreateRequest: {
+                    preferredDeliveryDate: preferredDate,
+                    recipientName: getVal("recipientName"),
+                    recipientPhone: getVal("recipientPhone"),
+                    postalCode: parseInt(getVal("postalCode")),
+                    defaultAddress: getVal("defaultAddress"),
+                    detailAddress: getVal("detailAddress"),
+                    extraAddress: getVal("extraAddress"),
+                    shippingFee,
+                    shippingCode: null
+                },
+                createRequestList: items,
+                discountAmount: couponDiscountTotal,
+                usedPointAmount: usedPoint,
+                paymentAmount: finalAmount,
+                paymentType: paymentType
             },
-            createRequestList: items,
+            amount: finalAmount,
             discountAmount: couponDiscountTotal,
-            usedPointAmount,
-            paymentAmount: finalAmount
+            usedPoint,
+            paymentType
         };
+    }
 
+    /** --------------------------------------- 페이먼트 결제 확장  --------------------------------------------- */
+
+    /** --------------------------------------- 토스 페이먼트 결제 --------------------------------------------- */
+    // 📌 토스 페이먼트 결제 처리
+    function tossRequestPayment(payload) {
         const toss = TossPayments("test_ck_ALnQvDd2VJ2jvnEdDeLnVMj7X41m");
         const contextPath = /*[[@{/}]]*/ '';
 
@@ -875,11 +912,7 @@
                     throw new Error(errorBody);
                 }
 
-                if (isJson) {
-                    return res.json();
-                } else {
-                    return res.text(); // HTML로 온 경우 처리
-                }
+                return isJson ? res.json() : res.text();
             })
             .then(data => toss.requestPayment("카드", {
                 amount: data.amount,
@@ -889,37 +922,10 @@
                 successUrl: data.successUrl,
                 failUrl: data.failUrl
             }))
-            .catch(err => {
-                console.log("🔥 error 메세지:", err.message);
-                const errorMessage = err.message || "";
-
-                try {
-                    // 1차: 전체 메시지가 JSON 문자열이면 파싱
-                    const outer = JSON.parse(errorMessage);
-
-                    // 2차: trace 내부에서 [{...}] 부분만 정규식으로 추출
-                    const match = outer.trace.match(/\[({.*?})\]/);
-                    if (match && match[1]) {
-                        const innerError = JSON.parse(match[1]);
-                        if (innerError.message === "BOOK_INSUFFICIENT_STOCK.") {
-                            alert(innerError.data || "도서 재고가 부족합니다.");
-                            window.location.href = `${contextPath}carts`;
-                            return;
-                        }
-                    }
-
-                } catch (e) {
-                    console.warn("에러 응답 JSON 파싱 실패:", e);
-                }
-
-                if (err.code === "USER_CANCEL") {
-                    alert("결제를 취소했습니다.");
-                } else {
-                    alert("결제 중 오류가 발생했습니다.");
-                }
-            });
+            .catch(handlePaymentError);
     }
 
+    /** --------------------------------------- 0원 결제 --------------------------------------------- */
     // 📌 0원 결제시 모달 열기
     function openZeroPaymentModal(usedPoint, discountAmount) {
         console.log('✅ 0원 결제 모달 열기 시도');
@@ -943,54 +949,9 @@
         document.getElementById("zeroPaymentModal").classList.add("hidden");
     }
 
-    // 📌 0원 결제시
+    // 📌 0원 결제
     function submitZeroPayment() {
-        const getVal = id => document.getElementById(id)?.value.trim();
-        const userId = parseInt(getVal("userId"), 10);
-        const preferredDate = window.getPreferredDeliveryDate();
-        const items = [];
-
-        document.querySelectorAll(".cart-item").forEach(item => {
-            const packagingSelect = item.querySelector("select.packaging-select");
-            const packagingValue = packagingSelect?.value;
-            const packagingId = packagingValue ? parseInt(packagingValue) : null;
-
-            const couponSelect = item.querySelector("select[name='couponId']");
-            const couponValue = couponSelect?.value;
-            const couponStoreId = (couponSelect && !couponSelect.disabled && couponValue)
-                ? parseInt(couponValue)
-                : null;
-
-            items.push({
-                bookId: parseInt(item.dataset.bookId),
-                quantity: parseInt(item.dataset.quantity),
-                price: parseInt(item.dataset.price),
-                packagingId: packagingId,
-                couponStoreId: couponStoreId
-            });
-        });
-
-        const { shippingFee, couponDiscountTotal, packagingTotal, productTotal, paymentAmountBeforePoint } = getSummary();
-
-        const payload = {
-            orderCreateRequest: { userId, ordererName: getVal("ordererName"), ordererPhone: getVal("ordererPhone") },
-            shipmentCreateRequest: {
-                preferredDeliveryDate: preferredDate,
-                recipientName: getVal("recipientName"),
-                recipientPhone: getVal("recipientPhone"),
-                postalCode: parseInt(getVal("postalCode")),
-                defaultAddress: getVal("defaultAddress"),
-                detailAddress: getVal("detailAddress"),
-                extraAddress: getVal("extraAddress"),
-                shippingFee,
-                shippingCode: null
-            },
-            createRequestList: items,
-            discountAmount: couponDiscountTotal,
-            usedPointAmount: usedPoint,
-            paymentAmount: 0 // 반드시 0원으로 설정
-        };
-
+        const payload = window.__cachedZeroPayload;
         const contextPath = /*[[@{/}]]*/ '';
 
         fetch(`${contextPath}payments/zero`, {
@@ -1007,44 +968,43 @@
                     throw new Error(errorBody);
                 }
 
-                if (isJson) {
-                    return res.json();
-                } else {
-                    return res.text(); // HTML로 온 경우 처리
-                }
+                return isJson ? res.json() : res.text();
             })
             .then(html => {
-                // 결제 성공 페이지 HTML로 전환
                 document.open();
                 document.write(html);
                 document.close();
             })
-            .catch(err => {
-                const errorMessage = err.message || "";
-                console.log("🔥 error message:", errorMessage);
-
-                try {
-                    // 1단계: 전체 errorMessage가 JSON 문자열인지 시도
-                    const outer = JSON.parse(errorMessage);
-
-                    // 2단계: trace 필드에서 [{...}] 구조 추출
-                    const match = outer.trace.match(/\[({.*?})\]/);
-                    if (match && match[1]) {
-                        const innerError = JSON.parse(match[1]);
-
-                        if (innerError.message === "BOOK_INSUFFICIENT_STOCK.") {
-                            alert(innerError.data || "도서 재고가 부족합니다.");
-                            window.location.href = `${contextPath}carts`;
-                            return;
-                        }
-                    }
-                } catch (e) {
-                    console.warn("에러 JSON 파싱 실패:", e);
-                }
-
-                // 기본 오류 처리
-                alert("0원 결제 중 오류가 발생했습니다.");
-                console.error(err);
-            });
+            .catch(handlePaymentError);
     }
+
+    /** --------------------------------------- 결제 에러 처리 --------------------------------------------- */
+    // 📌 공통 에러 처리
+    function handlePaymentError(err) {
+        console.log("🔥 error 메세지:", err.message);
+        const errorMessage = err.message || "";
+        const contextPath = /*[[@{/}]]*/ '';
+
+        try {
+            const outer = JSON.parse(errorMessage);
+            const match = outer.trace?.match(/\[({.*?})\]/);
+            if (match && match[1]) {
+                const innerError = JSON.parse(match[1]);
+                if (innerError.message === "BOOK_INSUFFICIENT_STOCK.") {
+                    alert(innerError.data || "도서 재고가 부족합니다.");
+                    window.location.href = `${contextPath}carts`;
+                    return;
+                }
+            }
+        } catch (e) {
+            console.warn("에러 JSON 파싱 실패:", e);
+        }
+
+        if (err.code === "USER_CANCEL") {
+            alert("결제를 취소했습니다.");
+        } else {
+            alert("결제 중 오류가 발생했습니다.");
+        }
+    }
+
 </script>

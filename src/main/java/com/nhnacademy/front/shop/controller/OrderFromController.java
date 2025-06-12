@@ -30,7 +30,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-//TODO : 쿠폰 적용 (회원)
 @Slf4j
 @RequiredArgsConstructor
 @Controller
@@ -46,7 +45,6 @@ public class OrderFromController {
 
     /**
      * 장바구니 -> 주문서 작성 페이지 return
-     *
      * @param model model
      * @return 주문서 작성 페이지 return
      */
