@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 
 @Getter
 @Component
-public class TossUrlProperty {
+public class PaymentUrlProperty {
     @Value("${toss.url.success}")
     private String successURL;
 

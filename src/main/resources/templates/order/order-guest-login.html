@@ -23,7 +23,7 @@
             <span class="block sm:inline">입력한 정보와 일치하는 주문을 찾을 수 없습니다.</span>
         </div>
         <P class="my-6">비회원 주문시 입력했던 이메일과 비밀번호를 입력해주세요.</P>
-        <form method="post" th:action="@{/guest/orders}">
+        <form method="post" th:action="@{/guest-order/orders}">
             <div>
                 <label for="orderId" class="block text-gray-700 text-sm font-bold mb-2">주문번호</label>
                 <input type="text" id="orderId" name="orderId" placeholder="주문번호를 입력해주세요"
