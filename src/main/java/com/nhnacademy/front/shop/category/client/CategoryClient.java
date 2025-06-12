@@ -28,4 +28,9 @@ public interface CategoryClient {
 
     @DeleteMapping("/categories/{categoryId}")
     CommonResponse<Void> deleteCategory(@PathVariable Long categoryId);
+
+    @GetMapping("/parentCategory")
+    CommonResponse<List<CategoryResponse>> getParentCategory(
+            @RequestParam("categoryId") Long categoryId
+    );
 }

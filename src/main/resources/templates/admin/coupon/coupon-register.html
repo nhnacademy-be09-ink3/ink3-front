@@ -50,16 +50,27 @@
 
                     <!-- 3) 발급 가능 시작일 -->
                     <div class="ink-input-group">
-                        <label for="issuableFrom">발급 가능 시작일</label>
-                        <input type="datetime-local" id="issuableFrom" name="issuableFrom"
-                               required class="ink-input-field w-full"/>
+                        <label for="issuableFrom">쿠폰 시작일</label>
+                        <input
+                                type="datetime-local"
+                                id="issuableFrom"
+                                name="issuableFrom"
+                                required
+                                class="ink-input-field w-full"
+                        />
                     </div>
 
                     <!-- 4) 만료일 -->
                     <div class="ink-input-group">
                         <label for="expiresAt">만료일</label>
-                        <input type="datetime-local" id="expiresAt" name="expiresAt"
-                               required class="ink-input-field w-full"/>
+                        <input
+                                type="datetime-local"
+                                id="expiresAt"
+                                name="expiresAt"
+                                required
+                                class="ink-input-field w-full"
+                                min=""
+                        />
                     </div>
 
                     <!-- 6) 도서 멀티셀렉트 -->
@@ -109,6 +120,24 @@
             placeholder: "항목을 선택하세요",
             allowClear: true,
             width: "100%"
+        });
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const fromInput = document.getElementById('issuableFrom');
+        const toInput   = document.getElementById('expiresAt');
+
+        // 초기에는 expiresAt을 비활성화하거나 today 이상의 값만 허용하고 싶다면
+        // toInput.min = new Date().toISOString().slice(0,16);
+
+        fromInput.addEventListener('change', () => {
+            // issuableFrom 값(ISO format)을 expiresAt.min에 세팅
+            toInput.min = fromInput.value;
+
+            // 이미 채워진 expiresAt 값이 더 이전이면 자동 보정
+            if (toInput.value && toInput.value < toInput.min) {
+                toInput.value = toInput.min;
+            }
         });
     });
 </script>

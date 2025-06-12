@@ -2,6 +2,7 @@ package com.nhnacademy.front.shop.couponStore.client;
 
 import java.util.List;
 import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -37,5 +38,11 @@ public interface CouponStoreClient {
     CommonResponse<List<CouponStoreDto>> getApplicableCoupons(
             @RequestParam long userId,
             @RequestParam long bookId
+    );
+
+    @GetMapping("coupon-stores/exists")
+    Boolean existsCouponStore(
+            @RequestParam long userId,
+            @RequestParam long originId
     );
 }

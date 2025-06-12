@@ -22,6 +22,7 @@ import com.nhnacademy.front.shop.coupon.policy.client.CouponPolicyClient;
 import com.nhnacademy.front.shop.coupon.store.client.CouponStore;
 import com.nhnacademy.front.shop.coupon.store.client.dto.CouponIssueRequest;
 import com.nhnacademy.front.shop.coupon.store.client.dto.StoresResponse;
+import com.nhnacademy.front.shop.couponStore.client.CouponStoreClient;
 import com.nhnacademy.front.shop.like.client.dto.LikeResponse;
 import com.nhnacademy.front.shop.like.service.LikeService;
 import com.nhnacademy.front.shop.publisher.client.PublisherClient;
@@ -34,6 +35,7 @@ import jakarta.validation.Valid;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -80,6 +82,7 @@ public class BookController {
     private final CouponStore couponStore;
     private final CouponClient couponClient;
     private final LikeService likeService;
+    private final CouponStoreClient couponStoreClient;
 
 
     @GetMapping("/books/{bookId}")
@@ -106,34 +109,62 @@ public class BookController {
 
         List<CouponResponse> bookCoupons = new ArrayList<>();
         List<CouponResponse> categoryCoupons = new ArrayList<>();
-
+        List<CouponResponse> parentCategoryCoupons = new ArrayList<>();
+        List<CouponView> coupons = new ArrayList<>();
 
         try{
             bookCoupons = couponClient.getByBookId(bookId, 0, 10).data().content();
             categoryCoupons = books.data().categories().stream()
                     .flatMap(cat ->
-                            couponClient.getByCategoryId(cat.id(), 0, 10)
+                            couponClient.getByCategoryId(cat.id(), 0, 20)
                                     .data().content().stream()
                     )
                     .toList();
+            // 3) 부모 카테고리 쿠폰
+            parentCategoryCoupons = books.data().categories().stream()
+                    // 각 카테고리의 부모 카테고리 리스트 조회
+                    .flatMap(cat ->
+                            categoryClient
+                                    .getParentCategory(cat.id())
+                                    .data().stream()
+                    )
+                    // 부모 카테고리별 쿠폰 조회
+                    .flatMap(parentCat ->
+                            couponClient
+                                    .getByCategoryId(parentCat.id(), 0, 20)
+                                    .data().content().stream()
+                    )
+                    .toList();
+
         } catch (FeignException e) {
             log.error("쿠폰리스트 예외발생: {}", e.getMessage());
         }
 
         log.info(">>> bookCoupons (size={}): {}", bookCoupons.size(), bookCoupons);
         log.info(">>> categoryCoupons (size={}): {}", categoryCoupons.size(), categoryCoupons);
+        log.info(">>> parentCategoryCoupons (size={}): {}", parentCategoryCoupons.size(), parentCategoryCoupons);
 
+        List<List<CouponResponse>> allCouponLists = List.of(
+                bookCoupons,
+                categoryCoupons,
+                parentCategoryCoupons
+        );
 
-        List<CouponView> coupons = Stream.concat(bookCoupons.stream(), categoryCoupons.stream())
-                .map(c -> {
-                    boolean isBook = !c.books().isEmpty();
-                    String originType = isBook
-                            ? c.books().get(0).originType()
-                            : c.categories().get(0).originType();
-                    Long originId = isBook
-                            ? c.books().get(0).originId()
-                            : c.categories().get(0).originId();
-                    return new CouponView(
+        for (List<CouponResponse> couponList : allCouponLists) {
+            for (CouponResponse c : couponList) {
+                boolean isBook = !c.books().isEmpty();
+                String originType;
+                Long originId;
+
+                if (isBook) {
+                    originType = c.books().getFirst().originType();
+                    originId   = c.books().getFirst().originId();
+                } else {
+                    originType = c.categories().getFirst().originType();
+                    originId   = c.categories().getFirst().originId();
+                }
+                if (couponStoreClient.existsCouponStore(userId, originId)) {
+                    CouponView view = new CouponView(
                             c.couponId(),
                             c.name(),
                             c.discountRate(),
@@ -142,11 +173,12 @@ public class BookController {
                             originType,
                             originId
                     );
-                })
-                .toList();
+                    coupons.add(view);
+                }
+            }
+        }
 
         log.info(">>> coupons (combined, size={}): {}", coupons.size(), coupons);
-
 
 
         AtomicBoolean liked = new AtomicBoolean(false);
@@ -403,6 +435,7 @@ public class BookController {
         try {
             CouponIssueRequest req = new CouponIssueRequest(couponId, originType, originId);
             CommonResponse<StoresResponse> resp = couponStore.issueCoupon(req);
+            log.info("쿠폰 리스폰스: {}", resp);
             model.addAttribute("successMessage", resp.data().couponName() + " 쿠폰이 발급되었습니다.");
         } catch (FeignException e) {
             String err = e.status() == 409

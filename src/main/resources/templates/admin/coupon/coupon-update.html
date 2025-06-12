@@ -54,22 +54,29 @@
                                required/>
                     </div>
 
-                    <!-- 발급 가능 시작일 -->
+                    <!-- 3) 발급 가능 시작일 -->
                     <div class="ink-input-group">
-                        <label for="issuableFrom">발급 가능 시작일</label>
-                        <input type="datetime-local"
-                               th:field="*{issuableFrom}"
-                               class="ink-input-field w-full"
-                               required/>
+                        <label for="issuableFrom">쿠폰 시작일</label>
+                        <input
+                                type="datetime-local"
+                                id="issuableFrom"
+                                name="issuableFrom"
+                                required
+                                class="ink-input-field w-full"
+                        />
                     </div>
 
-                    <!-- 만료일 -->
+                    <!-- 4) 만료일 -->
                     <div class="ink-input-group">
                         <label for="expiresAt">만료일</label>
-                        <input type="datetime-local"
-                               th:field="*{expiresAt}"
-                               class="ink-input-field w-full"
-                               required/>
+                        <input
+                                type="datetime-local"
+                                id="expiresAt"
+                                name="expiresAt"
+                                required
+                                class="ink-input-field w-full"
+                                min=""
+                        />
                     </div>
 
                     <!-- 도서 멀티셀렉트 -->
