@@ -6,9 +6,19 @@
     <title>ink3</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/output.css(v=${#dates.createNow().getTime()})}">
+    <!-- TOAST UI Editor CSS -->
+    <link rel="stylesheet" href="https://uicdn.toast.com/editor/latest/toastui-editor.min.css" />
+    <!-- TOAST UI Editor JS -->
+    <script src="https://uicdn.toast.com/editor/latest/toastui-editor-all.min.js"></script>
+
     <style>
         body {
             font-family: 'Inter', sans-serif;
+        }
+        #description-viewer .toastui-editor-contents,
+        #contents-viewer .toastui-editor-contents {
+            font-family: 'Inter', sans-serif;
+            font-size: 16px;
         }
     </style>
 </head>
@@ -247,10 +257,10 @@
                 <div class="rounded-lg shadow p-6 mb-8">
                     <div class="md:flex md:gap-8">
                         <div class="md:w-1/5 w-full mb-4 md:mb-0">
-                            <h2 class="text-xl font-semibold text-gray-800">책소개</h2>
+                            <h2 class="text-xl font-semibold text-gray-800">책 소개</h2>
                         </div>
-                        <div class="whitespace-pre-line md:w-4/5 w-full text-gray-700 leading-relaxed space-y-4"
-                             th:text="${book.description}"></div>
+                        <div id="description-viewer" class="md:w-4/5 w-full">
+                        </div>
                     </div>
                 </div>
 
@@ -261,10 +271,8 @@
                         <div class="md:w-1/5 w-full mb-4 md:mb-0">
                             <h2 class="text-xl font-semibold text-gray-800">목차</h2>
                         </div>
-
-                        <!-- 목차 내용 -->
-                        <div class="whitespace-pre-line md:w-4/5 w-full text-gray-700 leading-relaxed space-y-4"
-                             th:text="${book.contents}"></div>
+                        <div id="contents-viewer" class="md:w-4/5 w-full">
+                        </div>
                     </div>
                 </div>
             </div>
@@ -733,5 +741,22 @@
         }
     });
 </script>
+
+<script th:inline="javascript">
+    const descriptionMarkdown = /*[[${book.description}]]*/ '';
+    const contentsMarkdown = /*[[${book.contents}]]*/ '';
+
+    const descriptionViewer = new toastui.Editor.factory({
+        el: document.querySelector('#description-viewer'),
+        viewer: true,
+        initialValue: descriptionMarkdown
+    });
+    const contentsViewer = new toastui.Editor.factory({
+        el: document.querySelector('#contents-viewer'),
+        viewer: true,
+        initialValue: contentsMarkdown
+    });
+</script>
+
 </body>
 </html>

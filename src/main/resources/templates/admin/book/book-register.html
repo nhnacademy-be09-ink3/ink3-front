@@ -12,6 +12,11 @@
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <!-- Select2 JS -->
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <!-- TOAST UI Editor CSS -->
+    <link rel="stylesheet" href="https://uicdn.toast.com/editor/latest/toastui-editor.min.css" />
+    <!-- TOAST UI Editor JS -->
+    <script src="https://uicdn.toast.com/editor/latest/toastui-editor-all.min.js"></script>
+
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -63,14 +68,14 @@
 
                 <div class="grid grid-cols-1 gap-2">
                     <label for="contents" class="text-gray-700 font-medium">책 목차</label>
-                    <textarea id="contents" name="contents" rows="5"
-                              class="ink-input-field w-full"></textarea>
+                    <div id="contents-editor"></div>
+                    <textarea id="contents" name="contents" hidden></textarea>
                 </div>
 
                 <div class="grid grid-cols-1 gap-2">
                     <label for="description" class="text-gray-700 font-medium">책 소개</label>
-                    <textarea id="description" name="description" rows="5"
-                              class="ink-input-field w-full"></textarea>
+                    <div id="description-editor"></div>
+                    <textarea id="description" name="description" hidden></textarea>
                 </div>
 
                 <div class="grid grid-cols-1 gap-2">
@@ -324,6 +329,24 @@
                 renderCategoryDropdown(rootId, 1, group);
             });
             /*]]>*/
+
+            const contentsEditor = new toastui.Editor({
+                el: document.querySelector('#contents-editor'),
+                previewStyle: 'tab',
+                height: '400px',
+                initialEditType: 'wysiwyg'
+            });
+            const descriptionEditor = new toastui.Editor({
+                el: document.querySelector('#description-editor'),
+                previewStyle: 'tab',
+                height: '400px',
+                initialEditType: 'wysiwyg'
+            });
+
+            document.querySelector('form').addEventListener('submit', function () {
+                document.querySelector('#contents').value = contentsEditor.getMarkdown();
+                document.querySelector('#description').value = descriptionEditor.getMarkdown();
+            });
         </script>
     </main>
 </div>
