@@ -34,7 +34,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 @RequiredArgsConstructor
 @Controller
 @RequestMapping("/order-form")
-public class OrderFromController {
+public class OrderFormController {
     private final GuestOrderService guestOrderService;
     private final OrderService orderService;
     private final AddressService addressService;

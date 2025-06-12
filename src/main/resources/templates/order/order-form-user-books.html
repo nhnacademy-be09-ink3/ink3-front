@@ -115,32 +115,36 @@
                                 <option th:each="c : ${item.applicableCoupons}"
                                         th:value="${c.storeId}"
                                         th:utext="${c.couponName + ' - ' +
-                                          (c.discountType == 'FIXED' ?
-                                            #numbers.formatInteger(c.discountValue, 0, 'COMMA') + '원 할인' :
-                                            c.discountPercentage + '% 할인' +
-                                            (c.maximumDiscountAmount != null ? ' (최대 ' + #numbers.formatInteger(c.maximumDiscountAmount, 0, 'COMMA') + '원)' : '')
-                                          ) + '&#10;만료일: ' + #temporals.format(c.expiresAt, 'yyyy-MM-dd HH:mm')}"
+                                                  (c.discountType == 'FIXED' ?
+                                                    #numbers.formatInteger(c.discountValue, 0, 'COMMA') + '원 할인' :
+                                                    c.discountPercentage + '% 할인' +
+                                                    (c.maximumDiscountAmount != null ? ' (최대 ' + #numbers.formatInteger(c.maximumDiscountAmount, 0, 'COMMA') + '원)' : '')
+                                                  ) +
+                                                  '&#10;사용 가능일: ' + #temporals.format(c.issuableFrom, 'yyyy-MM-dd HH:mm') +
+                                                  '&#10;최소 주문금액: ' + #numbers.formatInteger(c.minimumOrderAmount, 0, 'COMMA') + '원' +
+                                                  '&#10;만료일: ' + #temporals.format(c.expiresAt, 'yyyy-MM-dd HH:mm')}"
                                         th:attr="data-coupon-id=${c.couponId},
-                                         data-discount-type=${c.discountType},
-                                         data-discount-value=${c.discountValue},
-                                         data-discount-percentage=${c.discountPercentage},
-                                         data-max-discount=${c.maximumDiscountAmount}">
+                                                 data-discount-type=${c.discountType},
+                                                 data-discount-value=${c.discountValue},
+                                                 data-discount-percentage=${c.discountPercentage},
+                                                 data-max-discount=${c.maximumDiscountAmount},
+                                                 data-min-order-amount=${c.minimumOrderAmount}">
                                 </option>
                             </select>
-                            <style>
-                                select option {
-                                    white-space: pre-line;
-                                    font-size: 14px;
-                                    line-height: 1.4;
-                                    padding: 4px 8px;
-                                }
-                                .disabled-select {
-                                    background-color: #f3f4f6;
-                                    cursor: not-allowed;
-                                    color: #9ca3af;
-                                }
-                            </style>
                         </div>
+                        <style>
+                            select option {
+                                white-space: pre-line;
+                                font-size: 14px;
+                                line-height: 1.4;
+                                padding: 4px 8px;
+                            }
+                            .disabled-select {
+                                background-color: #f3f4f6;
+                                cursor: not-allowed;
+                                color: #9ca3af;
+                            }
+                        </style>
 
                     </div>
 
@@ -624,25 +628,47 @@
     /** --------------------------------------- 쿠폰 및 포인트  --------------------------------------------- */
     // 📌 쿠폰 선택 시 다른 항목 disable 처리
     function initCouponSelect() {
+        const { productTotal } = getSummary();  // 상품 총액을 getSummary()로 안전하게 가져옴
+
         document.querySelectorAll('select[name="couponId"]').forEach(select => {
-            select.addEventListener('change', () => {
+            // ❌ 이모티콘 조건 적용
+            Array.from(select.options).forEach(option => {
+                const minAmount = parseInt(option.dataset.minOrderAmount || "0", 10);
+                if (minAmount > productTotal && option.value !== "") {
+                    if (!option.textContent.startsWith("❌")) {
+                        option.textContent = `❌ ${option.textContent}`;
+                    }
+                }
+            });
+
+            // 선택 제한
+            select.addEventListener('change', (e) => {
+                const option = e.target.selectedOptions[0];
+                const minAmount = parseInt(option?.dataset?.minOrderAmount || "0", 10);
+
+                if (minAmount > productTotal) {
+                    alert(`이 쿠폰은 ${minAmount.toLocaleString()}원 이상 주문 시에만 사용할 수 있습니다.`);
+                    e.target.value = ""; // 선택 취소
+                    updateSummary();
+                    return;
+                }
+
+                // 기존 로직 유지
                 const selected = select.value;
                 document.querySelectorAll('select[name="couponId"]').forEach(other => {
                     other.disabled = selected && other !== select;
                     other.classList.toggle('disabled-select', selected && other !== select);
                 });
 
-                // 🔥 포인트 전체 사용 적용 여부 반영
                 const input = document.querySelector('input[name="usedPoint"]');
                 const before = usedPoint;
                 const useAllChk = document.getElementById('useAllPointChk');
                 if (useAllChk?.checked) {
-                    handlePointToggle(input, useAllChk); // ✅ 다시 계산
+                    handlePointToggle(input, useAllChk);
                 } else {
-                    updateSummary(); // 그냥 갱신
+                    updateSummary();
                 }
 
-                // 🔥 포인트가 줄었다면 알림
                 if (usedPoint < before) {
                     showPointAdjustedAlert(usedPoint, "할인 쿠폰 적용");
                 }
@@ -904,15 +930,11 @@
             body: JSON.stringify(payload)
         })
             .then(async res => {
-                const contentType = res.headers.get("Content-Type") || "";
-                const isJson = contentType.includes("application/json");
-
                 if (!res.ok) {
-                    const errorBody = await res.text();
-                    throw new Error(errorBody);
+                    const errorText = await res.text();
+                    throw new Error(errorText);
                 }
-
-                return isJson ? res.json() : res.text();
+                return res.json();
             })
             .then(data => toss.requestPayment("카드", {
                 amount: data.amount,
@@ -960,15 +982,11 @@
             body: JSON.stringify(payload)
         })
             .then(async res => {
-                const contentType = res.headers.get("Content-Type") || "";
-                const isJson = contentType.includes("application/json");
-
                 if (!res.ok) {
-                    const errorBody = await res.text();
-                    throw new Error(errorBody);
+                    const errorText = await res.text();
+                    throw new Error(errorText);
                 }
-
-                return isJson ? res.json() : res.text();
+                return res.json();
             })
             .then(html => {
                 document.open();
@@ -982,29 +1000,50 @@
     // 📌 공통 에러 처리
     function handlePaymentError(err) {
         console.log("🔥 error 메세지:", err.message);
-        const errorMessage = err.message || "";
         const contextPath = /*[[@{/}]]*/ '';
 
         try {
-            const outer = JSON.parse(errorMessage);
-            const match = outer.trace?.match(/\[({.*?})\]/);
-            if (match && match[1]) {
-                const innerError = JSON.parse(match[1]);
-                if (innerError.message === "BOOK_INSUFFICIENT_STOCK.") {
-                    alert(innerError.data || "도서 재고가 부족합니다.");
+            // 1. message가 JSON이 아닌 경우 전체 응답에서 message 필드를 추출
+            const errorJson = JSON.parse(err.message); // Feign 예외 전체를 감싼 JSON (status, message, trace 등)
+            const rawMessage = errorJson.message;
+
+            // 2. 이 안에 있는 JSON 문자열 배열을 다시 추출
+            const arrayMatch = rawMessage.match(/\[\{.*?\}\]/); // [ { ... } ] 형태 추출
+            if (!arrayMatch || !arrayMatch[0]) {
+                throw new Error("에러 본문에서 JSON 배열을 찾을 수 없습니다.");
+            }
+
+            // 3. JSON 파싱
+            const errorArray = JSON.parse(arrayMatch[0]);
+            const errorBody = errorArray[0]; // 첫 번째 에러 객체
+
+            const code = errorBody.message;
+            const detail = errorBody.data;
+
+            console.log("1️⃣ 전체 에러 메시지:", err.message);
+            console.log("2️⃣ 파싱된 에러 JSON:", errorJson);
+            console.log("3️⃣ message 내부:", rawMessage);
+            console.log("4️⃣ 추출된 JSON 배열:", arrayMatch[0]);
+            console.log("5️⃣ 최종 에러 객체:", errorBody);
+
+            switch (code) {
+                case "BOOK_INSUFFICIENT_STOCK":
+                    alert(detail || "도서 재고가 부족합니다.");
                     window.location.href = `${contextPath}carts`;
-                    return;
-                }
+                    break;
+                case "COUPON_INVALID_PERIOD":
+                    alert(detail || "쿠폰 사용 기간이 아닙니다.");
+                    break;
+                default:
+                    alert("오류가 발생했습니다: " + (detail || code));
             }
         } catch (e) {
-            console.warn("에러 JSON 파싱 실패:", e);
-        }
-
-        if (err.code === "USER_CANCEL") {
-            alert("결제를 취소했습니다.");
-        } else {
-            alert("결제 중 오류가 발생했습니다.");
+            console.warn("에러 처리 실패:", e);
+            if (err.code === "USER_CANCEL") {
+                alert("결제를 취소했습니다.");
+            } else {
+                alert("알 수 없는 오류가 발생했습니다.");
+            }
         }
     }
-
 </script>
