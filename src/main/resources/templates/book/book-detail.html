@@ -175,7 +175,8 @@
                                         쿠폰발급 받기
                                     </button>
                                     <!-- 장바구니 -->
-                                    <input type="hidden" name="bookId" th:value="${book.id}"/>
+                                    <input type="hidden" name="bookId" th:value="${book.id}" />
+                                    <input type="hidden" id="stockQuantity" th:value="${book.quantity}" />
                                     <button type="submit"
                                             class="ink-btn-primary px-4 py-2 bg-green-300 text-gray-800 rounded-md hover:bg-green-400">
                                         장바구니에 넣기
@@ -209,7 +210,8 @@
                                 </div>
 
                                 <!-- 장바구니 -->
-                                <input type="hidden" name="bookId" th:value="${book.id}"/>
+                                <input type="hidden" name="bookId" th:value="${book.id}" />
+                                <input type="hidden" id="stockQuantity" th:value="${book.quantity}" />
                                 <button type="submit"
                                         class="ink-btn-primary px-4 py-2 bg-green-300 text-gray-800 rounded-md hover:bg-green-400">
                                     장바구니에 넣기
@@ -731,6 +733,20 @@
             const isLiked = form.dataset.liked === 'true';
             updateLikeButton(isLiked);
         }
+    });
+
+    document.querySelectorAll('form[action$="/carts"], form[action$="/guest-carts"]').forEach(form => {
+        form.addEventListener('submit', function (e) {
+            const quantityInput = form.querySelector('input[name="quantity"]');
+            const stockInput = form.querySelector('#stockQuantity');
+            const requested = parseInt(quantityInput.value, 10);
+            const stock = parseInt(stockInput.value, 10);
+
+            if (isNaN(stock) || requested > stock) {
+                e.preventDefault();
+                alert('재고가 부족합니다.');
+            }
+        });
     });
 </script>
 </body>
