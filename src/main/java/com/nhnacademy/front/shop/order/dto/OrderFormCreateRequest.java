@@ -1,5 +1,6 @@
 package com.nhnacademy.front.shop.order.dto;
 
+import com.nhnacademy.front.shop.payment.dto.PaymentType;
 import java.util.List;
 
 public record OrderFormCreateRequest(
@@ -9,6 +10,7 @@ public record OrderFormCreateRequest(
     List<OrderBookCreateRequest> createRequestList,
     int discountAmount,
     int usedPointAmount,
-    int paymentAmount
+    int paymentAmount,
+    PaymentType paymentType
 ){
 }

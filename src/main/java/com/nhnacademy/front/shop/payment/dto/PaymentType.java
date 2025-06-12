@@ -3,7 +3,7 @@ package com.nhnacademy.front.shop.payment.dto;
 import com.fasterxml.jackson.annotation.JsonCreator;
 
 public enum PaymentType {
-    TOSS, KAKAOPAY, NAVERPAY, POINT;
+    TOSS, KAKAO_PAY, NAVER_PAY, POINT;
 
     @JsonCreator
     public static PaymentType from(String str){

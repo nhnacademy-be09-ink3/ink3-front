@@ -24,12 +24,6 @@ public class PaymentService {
         return paymentResponse.data();
     }
 
-    // 결제 생성 (0원 결제 시)
-    public PaymentResponse createZeroPayment(ZeroPaymentRequest zeroPaymentRequest){
-        CommonResponse<PaymentResponse> paymentResponse = paymentClient.createZeroPayment(zeroPaymentRequest);
-        return paymentResponse.data();
-    }
-
     public void dealWithPaymentFail(long orderId) {
         paymentClient.dealWithPaymentFail(orderId);
     }
