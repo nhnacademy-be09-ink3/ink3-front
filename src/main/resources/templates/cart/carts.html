@@ -230,10 +230,11 @@
                                     </div>
                                 </dl>
 
-                                <div class="flex justify-end">
-                                    <a th:href="@{/order-form/from-cart}"
-                                       class="ink-btn-primary bg-gray-700 px-5 py-3 text-sm text-gray-100 transition hover:bg-gray-600">주문하기</a>
-                                </div>
+                                <button id="orderBtn"
+                                        type="button"
+                                        class="ink-btn-primary bg-gray-700 px-5 py-3 text-sm text-gray-100 transition hover:bg-gray-600">
+                                    주문하기
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -366,6 +367,18 @@
                     });
             });
         });
+    });
+
+    document.getElementById('orderBtn')?.addEventListener('click', () => {
+        const selected = [...document.querySelectorAll('.guest-cart-checkbox:checked')]
+            .map(cb => cb.value);
+        if (selected.length === 0) {
+            alert("주문할 항목을 선택하세요.");
+            return;
+        }
+
+        const query = selected.map(id => `cartIds=${id}`).join('&');
+        window.location.href = `${contextPath}order-form/from-cart?${query}`;
     });
 </script>
 
