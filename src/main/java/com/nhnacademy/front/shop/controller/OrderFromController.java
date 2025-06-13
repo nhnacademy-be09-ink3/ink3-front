@@ -50,23 +50,24 @@ public class OrderFromController {
      */
     @GetMapping("/from-cart")
     public String getUserOrderFromCarts(
-            Model model,
-            HttpServletRequest request,
-            @CookieValue(value = "guest_cart", required = false) String guestCartCookie
+        @RequestParam(required = false) List<Long> cartIds,
+        Model model,
+        HttpServletRequest request,
+        @CookieValue(value = "guest_cart", required = false) String guestCartCookie
     ) {
+        System.out.println("📦 [Controller] cartIds = " + cartIds);
         addPackagingList(model);
         addShippingPolicy(model);
 
         if (orderService.isLoggedIn(request)) {
             addUserInfo(model);
+            List<CartCouponResponse> cart = (cartIds != null && !cartIds.isEmpty())
+                ? cartClient.getSelectedCartsWithCoupon(cartIds).data()
+                : cartClient.getCartsWithCoupon().data();
 
-            // 장바구니 리스트
-            CommonResponse<List<CartCouponResponse>> cartResponse = cartClient.getCartsWithCoupon();
-            List<CartCouponResponse> cart = cartResponse.data();
             model.addAttribute("cart", cart);
             return "order/order-form-user-books";
         } else {
-            // 비회원 장바구니 리스트
             List<GuestCartView> guestCartViews = guestOrderService.getGuestCartViews(guestCartCookie);
             model.addAttribute("cart", guestCartViews);
             return "order/order-form-guest-books";
