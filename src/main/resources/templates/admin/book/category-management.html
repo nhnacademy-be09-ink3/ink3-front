@@ -166,7 +166,7 @@
             <p class="text-gray-700 leading-relaxed my-6">해당 카테고리를 삭제하시겠습니까? 해당 작업은 되돌릴 수 없습니다.</p>
             <form method="post" th:action="@{/admin/category/delete}">
                 <input type="hidden" id="deleteId" name="id">
-                <button type="button"
+                <button type="submit"
                         class="bg-red-500 text-white px-4 py-2 rounded-md font-semibold transition duration-300 hover:bg-red-400 w-full">
                     삭제
                 </button>
