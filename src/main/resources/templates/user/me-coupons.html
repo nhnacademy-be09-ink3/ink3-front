@@ -68,10 +68,11 @@
                             <div class="text-sm text-gray-600 mb-3">
                                 할인 혜택:
                                 <span class="text-lg font-bold text-[#86EF7D]">
-                                    <span class="right-10" th:if="${coupon.discountPercentage != null}" th:text="'-' + ${coupon.discountPercentage} + '%'">-10%</span>
-                                    <span class="right-10" th:unless="${coupon.discountPercentage != null}" th:text="'-' + ${coupon.discountValue} + '원'">-3000원</span>
+                                    <span th:if="${coupon.discountPercentage != null and coupon.discountPercentage > 0}" th:text="${coupon.discountPercentage} + '%'">0%</span>
+                                    <span th:if="${(coupon.discountPercentage == null or coupon.discountPercentage == 0) and coupon.discountValue != null}" th:text="${coupon.discountValue} + '원'">0원</span>
                                 </span>
                             </div>
+
                             <span class="absolute bottom-2 right-3 text-sm text-gray-500"
                                   th:if="${coupon.status == T(com.nhnacademy.front.shop.couponStore.dto.CouponStatus).USED}">사용됨</span>
                             <span class="absolute bottom-2 right-3 text-sm text-gray-500"
