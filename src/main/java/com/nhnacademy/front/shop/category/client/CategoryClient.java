@@ -1,31 +1,43 @@
 package com.nhnacademy.front.shop.category.client;
 
 import com.nhnacademy.front.common.dto.CommonResponse;
-import com.nhnacademy.front.common.dto.PageResponse;
+import com.nhnacademy.front.shop.category.client.dto.CategoryChangeParentRequest;
 import com.nhnacademy.front.shop.category.client.dto.CategoryCreateRequest;
-import com.nhnacademy.front.shop.category.client.dto.CategoryResponse;
+import com.nhnacademy.front.shop.category.client.dto.CategoryFlatDto;
+import com.nhnacademy.front.shop.category.client.dto.CategoryTreeDto;
+import com.nhnacademy.front.shop.category.client.dto.CategoryUpdateNameRequest;
 import java.util.List;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
 
-@FeignClient(name = "categoryClient", url = "${feign.url.shop}")
+@FeignClient(name = "categoryClient", url = "${feign.url.shop}/categories")
 public interface CategoryClient {
+    @GetMapping("/tree")
+    CommonResponse<List<CategoryTreeDto>> getAllCategoriesTree();
 
-    @GetMapping("/categories/tree")
-    CommonResponse<List<CategoryResponse>> getCategoryTree();
+    @GetMapping("/flat")
+    CommonResponse<List<CategoryFlatDto>> getAllCategoriesFlat();
 
-    @GetMapping("/categories")
-    CommonResponse<PageResponse<CategoryResponse>> getCategories(@RequestParam int size,
-                                                                 @RequestParam int page);
+    @GetMapping("/{id}/descendants")
+    CommonResponse<CategoryTreeDto> getAllCDescendant(@PathVariable Long id);
 
-    @PostMapping("/categories")
-    CommonResponse<CategoryResponse> createCategory(@RequestBody CategoryCreateRequest request);
+    @GetMapping("/{id}/ancestor")
+    CommonResponse<List<CategoryFlatDto>> getAllAncestor(@PathVariable Long id);
 
-    @DeleteMapping("/categories/{categoryId}")
-    CommonResponse<Void> deleteCategory(@PathVariable Long categoryId);
+    @PostMapping
+    CommonResponse<CategoryTreeDto> createCategory(@RequestBody CategoryCreateRequest request);
+
+    @PatchMapping("/{id}/name")
+    void updateName(@PathVariable long id, @RequestBody CategoryUpdateNameRequest request);
+
+    @PatchMapping("/{id}/parent")
+    void changeParent(@PathVariable long id, @RequestBody CategoryChangeParentRequest request);
+
+    @DeleteMapping("/{id}")
+    void delete(@PathVariable long id);
 }

@@ -17,12 +17,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 @FeignClient(name = "authorClient", url = "${feign.url.shop}")
 public interface AuthorClient {
 
+    @GetMapping("/authors")
+    CommonResponse<PageResponse<AuthorResponse>> getAuthors(@RequestParam int size, @RequestParam int page);
+
     @PostMapping("/authors")
     CommonResponse<AuthorResponse> createAuthor(@RequestBody AuthorCreateRequest request);
-
-    @GetMapping("/authors")
-    CommonResponse<PageResponse<AuthorResponse>> getAuthors(@RequestParam int size,
-                                                            @RequestParam int page);
 
     @PutMapping("/authors/{authorId}")
     CommonResponse<AuthorResponse> updateAuthor(@PathVariable Long authorId,

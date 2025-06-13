@@ -21,7 +21,7 @@ public class BookCreateForm {
     @NotBlank(message = "제목은 필수 입력값입니다.")
     private String title;
 
-    @NotBlank(message = "내용은 필수 입력값입니다.")
+    @NotBlank(message = "목차는 필수 입력값입니다.")
     private String contents;
 
     @NotBlank(message = "설명은 필수 입력값입니다.")
@@ -46,22 +46,21 @@ public class BookCreateForm {
     @NotNull(message = "상태를 선택해주세요.")
     private BookStatus status;
 
-    private boolean packable = false;
+    private boolean packable = true;
 
-    @NotNull(message = "출판사를 선택해주세요.")
-    private Long publisherId;
+    @NotBlank(message = "출판사를 입력해주세요.")
+    private String publisher;
 
     @NotEmpty(message = "카테고리를 최소 하나 이상 선택해주세요.")
     private List<@NotNull(message = "유효하지 않은 카테고리입니다.") Long> selectedCategoryIds = new ArrayList<>();
 
-    @NotEmpty(message = "저자를 최소 하나 이상 입력해주세요.")
-    private List<@NotNull(message = "유효하지 않은 저자입니다.") Long> authorIds = new ArrayList<>();
+    @NotEmpty(message = "작가를 최소 하나 이상 입력해주세요.")
+    private List<@NotBlank(message = "작가를 입력해주세요.") String> authorNames = new ArrayList<>();
 
-    @NotEmpty(message = "저자의 역할을 모두 입력해주세요.")
-    private List<@NotBlank(message = "저자의 역할이 비어있습니다.") String> authorRoles = new ArrayList<>();
+    @NotEmpty(message = "역할을 모두 입력해주세요.")
+    private List<@NotBlank(message = "역할을 입력해주세요.") String> authorRoles = new ArrayList<>();
 
-    private List<Long> tagIds = new ArrayList<>();
+    private List<String> tags = new ArrayList<>();
 
-    @NotNull(message = "썸네일 이미지를 첨부해주세요.")
     private MultipartFile coverImage;
 }

@@ -5,7 +5,7 @@ import com.nhnacademy.front.common.dto.PageResponse;
 import com.nhnacademy.front.shop.address.client.dto.AddressResponse;
 import com.nhnacademy.front.shop.address.service.AddressService;
 import com.nhnacademy.front.shop.book.client.BookClient;
-import com.nhnacademy.front.shop.book.dto.BookResponse;
+import com.nhnacademy.front.shop.book.dto.BookDetailResponse;
 import com.nhnacademy.front.shop.cart.client.CartClient;
 import com.nhnacademy.front.shop.cart.dto.CartBookResponse;
 import com.nhnacademy.front.shop.cart.dto.CartCouponResponse;
@@ -125,7 +125,7 @@ public class OrderFromController {
 
     // 상품 정보 (회원)
     private void addBookInfoForUser(Model model, long userId, long bookId, int quantity) {
-        BookResponse book = bookClient.getBookDetail(bookId).data();
+        BookDetailResponse book = bookClient.getBookByIdWithParentCategory(bookId).data();
         List<CouponStoreDto> applicableCoupons = couponStoreService.getApplicableCoupons(userId, bookId);
         CartCouponResponse cartCouponResponse = new CartCouponResponse(
                 0L,
@@ -146,7 +146,7 @@ public class OrderFromController {
 
     // 상품 정보 (비회원)
     private void addBookInfoForGuest(Model model, long bookId, int quantity) {
-        BookResponse book = bookClient.getBookDetail(bookId).data();
+        BookDetailResponse book = bookClient.getBookByIdWithParentCategory(bookId).data();
 
         CartBookResponse cartBookResponse = new CartBookResponse(
                 book.title(),

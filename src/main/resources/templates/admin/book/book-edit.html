@@ -43,15 +43,15 @@
 <div th:replace="~{admin/layout/fragments/header :: headerFragment}"></div>
 <div class="flex flex-1 min-h-[calc(100vh-64px)]">
     <div th:replace="~{admin/layout/fragments/sidebar :: sidebarFragment}"></div>
+
     <main class="main-content-area flex-1 p-6 bg-gray-100 overflow-y-auto">
-        <div class="bg-white w-3/5 px-10 py-12 rounded-md shadow-md max-w-3xl mx-auto">
+        <div class="bg-white p-6 rounded-lg shadow-md mb-6">
             <h1 class="text-3xl font-bold text-gray-800 mb-8 text-center">도서 수정</h1>
             <form th:action="@{/admin/books/{id}(id=${book.id})}"
                   method="post"
                   enctype="multipart/form-data"
                   th:object="${book}"
                   class="space-y-8">
-
 
                 <input type="hidden" name="_method" value="put"/>
 
@@ -94,6 +94,7 @@
                             id="publishedAt"
                             name="publishedAt"
                             th:value="${book.publishedAt}"
+                            required
                             class="ink-input-field w-full"
                     />
                 </div>
@@ -103,9 +104,9 @@
                             type="number"
                             id="originalPrice"
                             name="originalPrice"
+                            th:field="*{originalPrice}"
                             required
                             min="0"
-                            th:field="*{originalPrice}"
                             class="ink-input-field w-full"
                     />
                 </div>
@@ -130,7 +131,7 @@
                             name="quantity"
                             th:field="*{quantity}"
                             required
-                            min="1"
+                            min="0"
                             class="ink-input-field w-full"
                     />
                 </div>

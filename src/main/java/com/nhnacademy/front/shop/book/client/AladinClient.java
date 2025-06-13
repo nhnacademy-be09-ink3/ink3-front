@@ -3,8 +3,8 @@ package com.nhnacademy.front.shop.book.client;
 import com.nhnacademy.front.common.dto.CommonResponse;
 import com.nhnacademy.front.common.dto.PageResponse;
 import com.nhnacademy.front.shop.book.dto.AladinBookResponse;
+import com.nhnacademy.front.shop.book.dto.BookDetailResponse;
 import com.nhnacademy.front.shop.book.dto.BookRegisterRequest;
-import com.nhnacademy.front.shop.book.dto.BookResponse;
 import jakarta.validation.Valid;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,5 +19,5 @@ public interface AladinClient {
     CommonResponse<PageResponse<AladinBookResponse>> getBooksByKeyword(@RequestParam String keyword, @RequestParam int page, @RequestParam int size);
 
     @PostMapping(value = "/aladin/book-register")
-    CommonResponse<BookResponse> registerBookByAladin(@RequestBody @Valid BookRegisterRequest request);
+    CommonResponse<BookDetailResponse> registerBook(@RequestBody @Valid BookRegisterRequest request);
 }
