@@ -4,7 +4,9 @@ import com.nhnacademy.front.common.dto.CommonResponse;
 import com.nhnacademy.front.common.dto.PageResponse;
 import com.nhnacademy.front.shop.category.client.CategoryClient;
 import com.nhnacademy.front.shop.category.client.dto.CategoryCreateRequest;
-import com.nhnacademy.front.shop.category.client.dto.CategoryResponse;
+import com.nhnacademy.front.shop.category.client.dto.CategoryFlatDto;
+import com.nhnacademy.front.shop.category.client.dto.CategoryTreeDto;
+import com.nhnacademy.front.shop.category.service.CategoryService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -20,15 +22,15 @@ import org.springframework.web.bind.annotation.PostMapping;
 public class CategoryController {
 
     private final CategoryClient categoryClient;
-
+    private final CategoryService categoryService;
 
     @GetMapping("/admin/categories")
     public String getCategories(Model model) {
-        CommonResponse<List<CategoryResponse>> categoryTree = categoryClient.getCategoryTree();
-        CommonResponse<PageResponse<CategoryResponse>> categories = categoryClient.getCategories(100, 0);
+        List<CategoryTreeDto> categoryTree = categoryService.getAllCategoriesTree();
+        List<CategoryFlatDto> categories = categoryService.getAllCategoriesFlat();
 
-        model.addAttribute("categoryTree", categoryTree.data());
-        model.addAttribute("categories", categories.data());
+        model.addAttribute("categoryTree", categoryTree);
+        model.addAttribute("categories", categories);
 
         return "admin/book/categories";
     }
@@ -41,7 +43,7 @@ public class CategoryController {
 
     @DeleteMapping("/admin/categories/{categoryId}")
     public String deleteCategory(@PathVariable Long categoryId) {
-        categoryClient.deleteCategory(categoryId);
+        categoryClient.delete(categoryId);
         return "redirect:/admin/categories";
     }
 }

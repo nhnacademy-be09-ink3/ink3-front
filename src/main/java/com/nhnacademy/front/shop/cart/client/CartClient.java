@@ -1,7 +1,6 @@
 package com.nhnacademy.front.shop.cart.client;
 
-import com.nhnacademy.front.shop.book.dto.BookResponse;
-import com.nhnacademy.front.shop.book.dto.MainBookResponse;
+import com.nhnacademy.front.shop.book.dto.BookDetailResponse;
 import com.nhnacademy.front.shop.cart.dto.CartCouponResponse;
 import java.util.List;
 
@@ -46,5 +45,5 @@ public interface CartClient {
     void deleteCart(@PathVariable Long cartId);
 
     @GetMapping("/books/{bookId}")
-    CommonResponse<BookResponse> getBookById(@PathVariable Long bookId);
+    CommonResponse<BookDetailResponse> getBookById(@PathVariable Long bookId);
 }

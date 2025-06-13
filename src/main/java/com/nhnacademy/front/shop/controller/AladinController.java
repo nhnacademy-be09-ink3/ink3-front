@@ -57,7 +57,7 @@ public class AladinController {
 
     @PostMapping("/admin/aladin/book-register")
     public String registerBookByAladin(@ModelAttribute @Valid BookRegisterRequest request) {
-        aladinClient.registerBookByAladin(request);
+        aladinClient.registerBook(request);
         return "redirect:/admin/aladin/book-search";
     }
 }
