@@ -44,13 +44,11 @@ public class AladinController {
         PageInfo pageInfo = PageUtil.calculatePageRange(
                 aladinBooks.page(), aladinBooks.totalPages(), 5
         );
-        CommonResponse<PageResponse<TagResponse>> tags = tagClient.getTags(100, 0);
 
         model.addAttribute("currentPage", "aladinBooks");
         model.addAttribute("keyword", keyword);
         model.addAttribute("aladinBooks", aladinBooks);
         model.addAttribute("pageInfo", pageInfo);
-        model.addAttribute("tags", tags.data());
 
         return "admin/book/aladin-search";
     }

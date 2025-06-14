@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<th:block th:fragment="category-item(category)">
+    <div class="ml-4">
+        <label class="flex items-center gap-2">
+            <input type="checkbox" name="categoryIds"
+                   th:value="${category.id}"
+                   th:checked="${selectedCategoryIds != null and selectedCategoryIds.contains(category.id)}"
+                   class="form-checkbox">
+            <span th:text="${category.name}"></span>
+        </label>
+
+        <ul th:if="${category.children != null and !category.children.isEmpty()}">
+            <li th:each="child : ${category.children}">
+                <div th:replace="~{admin/layout/fragments/category-item :: category-item(category=${child})}"></div>
+            </li>
+        </ul>
+    </div>
+</th:block>
+</body>
+</html>

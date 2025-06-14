@@ -12,7 +12,7 @@ import java.util.List;
 public record BookUpdateRequest(
         @NotBlank @Size(max = 13) String isbn,
         @NotBlank String title,
-        @NotBlank String contents,
+        String contents,
         @NotBlank String description,
         @NotNull @PastOrPresent LocalDate publishedAt,
         @NotNull @PositiveOrZero Integer originalPrice,
@@ -40,8 +40,8 @@ public record BookUpdateRequest(
                         form.getQuantity(),
                         form.getStatus(),
                         form.isPackable(),
-                        form.getPublisher(),
-                        form.getSelectedCategoryIds(),
+                        form.getPublisherName(),
+                        form.getCategoryIds(),
                         bookAuthors,
                         form.getTags()
                 );
