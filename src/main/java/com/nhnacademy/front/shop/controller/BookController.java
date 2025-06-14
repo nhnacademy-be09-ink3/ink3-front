@@ -82,14 +82,14 @@ public class BookController {
     private final CouponStore couponStore;
     private final CouponClient couponClient;
     private final LikeService likeService;
-    private final CouponStoreClient couponStoreClient;
 
 
     @GetMapping("/books/{bookId}")
     public String getBookDetail(@PathVariable Long bookId,
-                                @RequestParam(defaultValue = "0") int  page,
-                                @RequestParam(defaultValue = "10") int  size,
-                                Model model, @CookieValue(name = "accessToken", required = false) String accessToken) {
+                                @RequestParam(defaultValue = "0") int page,
+                                @RequestParam(defaultValue = "10") int size,
+                                Model model,
+                                @CookieValue(name = "accessToken", required = false) String accessToken) {
         CommonResponse<BookResponse> books = bookClient.getBookDetail(bookId);
         PageResponse<ReviewListResponse> reviews =
                 reviewClient.getReviewsByBookId(bookId, page, size);
@@ -100,8 +100,8 @@ public class BookController {
         Long userId = null;
         try {
             if (accessToken != null) {
-                DecodedJWT decodedAccessToken = JWT.decode(accessToken);
-                userId = decodedAccessToken.getClaim("id").asLong();
+                DecodedJWT decoded = JWT.decode(accessToken);
+                userId = decoded.getClaim("id").asLong();
             }
         } catch (Exception e) {
             log.warn("비회원 사용자 도서 상세페이지 접근: {}", e.getMessage());
@@ -110,75 +110,43 @@ public class BookController {
         List<CouponResponse> bookCoupons = new ArrayList<>();
         List<CouponResponse> categoryCoupons = new ArrayList<>();
         List<CouponResponse> parentCategoryCoupons = new ArrayList<>();
-        List<CouponView> coupons = new ArrayList<>();
 
-        try{
-            bookCoupons = couponClient.getByBookId(bookId, 0, 10).data().content();
-            categoryCoupons = books.data().categories().stream()
-                    .flatMap(cat ->
-                            couponClient.getByCategoryId(cat.id(), 0, 20)
-                                    .data().content().stream()
-                    )
-                    .toList();
-            // 3) 부모 카테고리 쿠폰
-            parentCategoryCoupons = books.data().categories().stream()
-                    // 각 카테고리의 부모 카테고리 리스트 조회
-                    .flatMap(cat ->
-                            categoryClient
-                                    .getParentCategory(cat.id())
-                                    .data().stream()
-                    )
-                    // 부모 카테고리별 쿠폰 조회
-                    .flatMap(parentCat ->
-                            couponClient
-                                    .getByCategoryId(parentCat.id(), 0, 20)
-                                    .data().content().stream()
-                    )
-                    .toList();
-
+        // 1) 책 쿠폰
+        try {
+            bookCoupons = couponClient.getByBookId(bookId, 0, 20).data().content();
         } catch (FeignException e) {
-            log.error("쿠폰리스트 예외발생: {}", e.getMessage());
+            log.error("책 쿠폰 조회 실패: {}", e.getMessage());
         }
 
-        log.info(">>> bookCoupons (size={}): {}", bookCoupons.size(), bookCoupons);
-        log.info(">>> categoryCoupons (size={}): {}", categoryCoupons.size(), categoryCoupons);
-        log.info(">>> parentCategoryCoupons (size={}): {}", parentCategoryCoupons.size(), parentCategoryCoupons);
-
-        List<List<CouponResponse>> allCouponLists = List.of(
-                bookCoupons,
-                categoryCoupons,
-                parentCategoryCoupons
-        );
-
-        for (List<CouponResponse> couponList : allCouponLists) {
-            for (CouponResponse c : couponList) {
-                boolean isBook = !c.books().isEmpty();
-                String originType;
-                Long originId;
-
-                if (isBook) {
-                    originType = c.books().getFirst().originType();
-                    originId   = c.books().getFirst().originId();
-                } else {
-                    originType = c.categories().getFirst().originType();
-                    originId   = c.categories().getFirst().originId();
-                }
-                if (couponStoreClient.existsCouponStore(userId, originId)) {
-                    CouponView view = new CouponView(
-                            c.couponId(),
-                            c.name(),
-                            c.discountRate(),
-                            c.discountValue(),
-                            c.expiresAt(),
-                            originType,
-                            originId
-                    );
-                    coupons.add(view);
-                }
-            }
+// 2) 카테고리 쿠폰
+        try {
+            categoryCoupons = books.data().categories().stream()
+                    .flatMap(cat -> couponClient.getByCategoryId(cat.id(), 0, 20).data().content().stream())
+                    .toList();
+        } catch (FeignException e) {
+            log.error("카테고리 쿠폰 조회 실패: {}", e.getMessage());
         }
+
+// 3) 부모 카테고리 쿠폰
+        try{
+            parentCategoryCoupons = couponClient.getParentCategoryCoupons(bookId, 0, 20).data().content();
+        }catch (FeignException e){
+            log.error("부모 카테고리 쿠폰 조회 실패: {}", e.getMessage());
+        }
+
+        // 3) 세 리스트 합치기 & 중복 제거(optional)
+        List<CouponResponse> coupons = Stream.of(
+                        bookCoupons.stream(),
+                        categoryCoupons.stream(),
+                        parentCategoryCoupons.stream()
+                )
+                .flatMap(s -> s)
+                .distinct()  // couponId 기준 equals/hashCode 구현이 되어 있다면 중복 제거
+                .toList();
 
         log.info(">>> coupons (combined, size={}): {}", coupons.size(), coupons);
+
+
 
 
         AtomicBoolean liked = new AtomicBoolean(false);
@@ -195,19 +163,19 @@ public class BookController {
                     });
         }
 
-
         model.addAttribute("book",      books.data());
         model.addAttribute("reviews",   reviews.content());
-        model.addAttribute("reviewPage", reviews);
+        model.addAttribute("reviewPage",reviews);
         model.addAttribute("pageInfo",  pageInfo);
         model.addAttribute("bookId",    bookId);
         model.addAttribute("userId",    userId);
-        model.addAttribute("liked", liked);
-        model.addAttribute("likeId", likeId);
-        model.addAttribute("coupons", coupons);
+        model.addAttribute("liked",     liked);
+        model.addAttribute("likeId",    likeId);
+        model.addAttribute("coupons",   coupons);
 
         return "book/book-detail";
     }
+
 
     @GetMapping("/books/bestseller")
     public String getBestsellerBooks(@RequestParam(defaultValue = "REVIEW") SortType sortType,

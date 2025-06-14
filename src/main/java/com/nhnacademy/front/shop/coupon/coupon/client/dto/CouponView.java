@@ -8,6 +8,7 @@ public record CouponView(
         int discountRate,
         int discountValue,
         LocalDateTime expiresAt,
+        boolean isActive,
         String originType,
         Long originId
 ) {}

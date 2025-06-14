@@ -42,7 +42,7 @@ public class CouponController {
         model.addAttribute("policies", policyClient.getAllPolicies(size, page).data());
         model.addAttribute("books",    bookClient.getBooks(0, 100).data());
         model.addAttribute("categories", categoryClient.getCategories(100, 0).data());
-        return "admin/coupon/coupon-register";
+        return "/admin/coupon/coupon-register";
     }
 
     // (2) 등록 처리
@@ -75,7 +75,7 @@ public class CouponController {
             model.addAttribute("pageInfo", pageInfo);
             model.addAttribute("pageNum", page);
         }
-        return "admin/coupon/coupons";
+        return "/admin/coupon/coupons";
     }
 
     @PutMapping("/coupon-list/{id}")
@@ -105,6 +105,7 @@ public class CouponController {
                 cr.name(),
                 cr.issuableFrom(),
                 cr.expiresAt(),
+                cr.isActive(),
                 selectedBookIds,
                 selectedCategoryIds
         );

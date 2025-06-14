@@ -12,6 +12,7 @@ public record CouponResponse(
         int discountValue,
         LocalDateTime issuableFrom,
         LocalDateTime expiresAt,
+        boolean isActive,
         LocalDateTime createdAt,
         List<BookInfo> books,
         List<CategoryInfo> categories
