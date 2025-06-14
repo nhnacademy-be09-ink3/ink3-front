@@ -3,7 +3,6 @@ package com.nhnacademy.front.shop.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nhnacademy.front.shop.author.client.AuthorClient;
-import com.nhnacademy.front.shop.author.client.dto.AuthorResponse;
 import com.nhnacademy.front.shop.book.dto.AdminBookResponse;
 import com.nhnacademy.front.shop.book.dto.BookAuthorDto;
 import com.nhnacademy.front.shop.book.dto.BookCreateForm;
@@ -27,9 +26,7 @@ import com.nhnacademy.front.shop.coupon.store.client.dto.StoresResponse;
 import com.nhnacademy.front.shop.like.client.dto.LikeResponse;
 import com.nhnacademy.front.shop.like.service.LikeService;
 import com.nhnacademy.front.shop.publisher.client.PublisherClient;
-import com.nhnacademy.front.shop.publisher.client.dto.PublisherResponse;
 import com.nhnacademy.front.shop.tag.client.TagClient;
-import com.nhnacademy.front.shop.tag.client.dto.TagResponse;
 
 import feign.FeignException;
 import jakarta.validation.Valid;
@@ -77,10 +74,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 public class BookController {
     private final BookClient bookClient;
     private final ReviewClient reviewClient;
-    private final CategoryClient categoryClient;
-    private final AuthorClient authorClient;
-    private final PublisherClient publisherClient;
-    private final TagClient tagClient;
     private final ObjectMapper objectMapper;
     private final CouponStore couponStore;
     private final CouponClient couponClient;
@@ -114,17 +107,17 @@ public class BookController {
         List<CouponResponse> categoryCoupons = new ArrayList<>();
 
 
-//        try{
-//            bookCoupons = couponClient.getByBookId(bookId, 0, 10).data().content();
-//            categoryCoupons = books.data().categories().stream()
-//                    .flatMap(cat ->
-//                            couponClient.getByCategoryId(cat.id(), 0, 10)
-//                                    .data().content().stream()
-//                    )
-//                    .toList();
-//        } catch (FeignException e) {
-//            log.error("쿠폰리스트 예외발생: {}", e.getMessage());
-//        }
+        try{
+            bookCoupons = couponClient.getByBookId(bookId, 0, 10).data().content();
+            categoryCoupons = books.data().categories().stream()
+                    .flatMap(cat ->
+                            couponClient.getByCategoryId(cat.getLast().id(), 0, 10)
+                                    .data().content().stream()
+                    )
+                    .toList();
+        } catch (FeignException e) {
+            log.error("쿠폰리스트 예외발생: {}", e.getMessage());
+        }
 
         log.info(">>> bookCoupons (size={}): {}", bookCoupons.size(), bookCoupons);
         log.info(">>> categoryCoupons (size={}): {}", categoryCoupons.size(), categoryCoupons);
@@ -394,29 +387,29 @@ public class BookController {
         return ResponseEntity.ok().build();
     }
 
-//    @PostMapping("/books/{bookId}")
-//    public String issueCoupon(@PathVariable Long bookId,
-//                              @RequestParam Long couponId,
-//                              @RequestParam String originType,
-//                              @RequestParam Long originId,
-//                              @RequestParam(defaultValue = "0") int page,
-//                              @RequestParam(defaultValue = "10") int size,
-//                              Model model,
-//                              @CookieValue(name = "accessToken", required = false) String accessToken) {
-//
-//        try {
-//            CouponIssueRequest req = new CouponIssueRequest(couponId, originType, originId);
-//            CommonResponse<StoresResponse> resp = couponStore.issueCoupon(req);
-//            model.addAttribute("successMessage", resp.data().couponName() + " 쿠폰이 발급되었습니다.");
-//        } catch (FeignException e) {
-//            String err = e.status() == 409
-//                    ? extractMessageFromFeignBody(e.contentUTF8())
-//                    : "쿠폰 발급 중 오류가 발생했습니다.";
-//            model.addAttribute("errorMessage", err);
-//        }
-//
-//        return getBookDetail(bookId, page, size, model, accessToken);
-//    }
+    @PostMapping("/books/{bookId}")
+    public String issueCoupon(@PathVariable Long bookId,
+                              @RequestParam Long couponId,
+                              @RequestParam String originType,
+                              @RequestParam Long originId,
+                              @RequestParam(defaultValue = "0") int page,
+                              @RequestParam(defaultValue = "10") int size,
+                              Model model,
+                              @CookieValue(name = "accessToken", required = false) String accessToken) {
+
+        try {
+            CouponIssueRequest req = new CouponIssueRequest(couponId, originType, originId);
+            CommonResponse<StoresResponse> resp = couponStore.issueCoupon(req);
+            model.addAttribute("successMessage", resp.data().couponName() + " 쿠폰이 발급되었습니다.");
+        } catch (FeignException e) {
+            String err = e.status() == 409
+                    ? extractMessageFromFeignBody(e.contentUTF8())
+                    : "쿠폰 발급 중 오류가 발생했습니다.";
+            model.addAttribute("errorMessage", err);
+        }
+
+        return getBookDetail(bookId, page, size, model, accessToken);
+    }
 
     private String extractMessageFromFeignBody(String body) {
         try {
