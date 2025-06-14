@@ -22,7 +22,6 @@ import com.nhnacademy.front.shop.coupon.policy.client.CouponPolicyClient;
 import com.nhnacademy.front.shop.coupon.store.client.CouponStore;
 import com.nhnacademy.front.shop.coupon.store.client.dto.CouponIssueRequest;
 import com.nhnacademy.front.shop.coupon.store.client.dto.StoresResponse;
-import com.nhnacademy.front.shop.couponStore.client.CouponStoreClient;
 import com.nhnacademy.front.shop.like.client.dto.LikeResponse;
 import com.nhnacademy.front.shop.like.service.LikeService;
 import com.nhnacademy.front.shop.publisher.client.PublisherClient;
@@ -35,7 +34,6 @@ import jakarta.validation.Valid;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -180,8 +178,8 @@ public class BookController {
     @GetMapping("/books/bestseller")
     public String getBestsellerBooks(@RequestParam(defaultValue = "REVIEW") SortType sortType,
         @RequestParam(defaultValue = "0") int page, Model model) {
-        CommonResponse<PageResponse<MainBookResponse>> response = bookClient.getAllBestsellerBooks(sortType, page, 10);
-        PageResponse<MainBookResponse> pageData = response.data();
+        CommonResponse<PageResponse<BookPreviewResponse>> response = bookClient.getAllBestsellerBooks(sortType, page, 10);
+        PageResponse<BookPreviewResponse> pageData = response.data();
 
         PageUtil.PageInfo pageInfo = PageUtil.calculatePageRange(
             pageData.page(), pageData.totalPages(), 5
@@ -198,8 +196,8 @@ public class BookController {
     @GetMapping("/books/new")
     public String getNewBooks(@RequestParam(defaultValue = "REVIEW") SortType sortType,
         @RequestParam(defaultValue = "0") int page, Model model) {
-        CommonResponse<PageResponse<MainBookResponse>> response = bookClient.getAllNewBooks(sortType, page, 10);
-        PageResponse<MainBookResponse> pageData = response.data();
+        CommonResponse<PageResponse<BookPreviewResponse>> response = bookClient.getAllNewBooks(sortType, page, 10);
+        PageResponse<BookPreviewResponse> pageData = response.data();
 
         PageUtil.PageInfo pageInfo = PageUtil.calculatePageRange(
             pageData.page(), pageData.totalPages(), 5
@@ -216,8 +214,8 @@ public class BookController {
     @GetMapping("/books/recommend")
     public String getRecommendBooks(@RequestParam(defaultValue = "REVIEW") SortType sortType,
         @RequestParam(defaultValue = "0") int page, Model model) {
-        CommonResponse<PageResponse<MainBookResponse>> response = bookClient.getAllRecommendedBooks(sortType, page, 10);
-        PageResponse<MainBookResponse> pageData = response.data();
+        CommonResponse<PageResponse<BookPreviewResponse>> response = bookClient.getAllRecommendedBooks(sortType, page, 10);
+        PageResponse<BookPreviewResponse> pageData = response.data();
 
         PageUtil.PageInfo pageInfo = PageUtil.calculatePageRange(
             pageData.page(), pageData.totalPages(), 5
@@ -235,12 +233,12 @@ public class BookController {
     public String getBookRegister(Model model) {
         CommonResponse<PageResponse<AuthorResponse>> authors = authorClient.getAuthors(100, 0);
         CommonResponse<PageResponse<PublisherResponse>> publishers = publisherClient.getPublishers(100, 0);
-        CommonResponse<PageResponse<CategoryResponse>> categories = categoryClient.getCategories(100, 0);
+        List<CategoryTreeDto> categories = categoryService.getAllCategoriesTree();
         CommonResponse<PageResponse<TagResponse>> tags = tagClient.getTags(100, 0);
 
         model.addAttribute("authors", authors.data().content());
         model.addAttribute("publishers", publishers.data());
-        model.addAttribute("categories", categories.data().content());
+        model.addAttribute("categories", categories);
         model.addAttribute("tags", tags.data());
 
         return "admin/book/book-register";
@@ -248,13 +246,13 @@ public class BookController {
 
     @PostMapping(value = "/admin/book-register", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public String registerBook(@ModelAttribute @Valid BookCreateForm bookCreateForm) {
-        List<AuthorRoleRequest> authorRequests = new ArrayList<>();
-        for (int i = 0; i < bookCreateForm.getAuthorIds().size(); i++) {
-            Long authorId = bookCreateForm.getAuthorIds().get(i);
+        List<BookAuthorDto> bookAuthors = new ArrayList<>();
+        for (int i = 0; i < bookCreateForm.getAuthorNames().size(); i++) {
+            String name = bookCreateForm.getAuthorNames().get(i);
             String role = bookCreateForm.getAuthorRoles().get(i);
-            authorRequests.add(new AuthorRoleRequest(authorId, role));
+            bookAuthors.add(new BookAuthorDto(name, role));
         }
-        BookCreateRequest request = BookCreateRequest.from(bookCreateForm, authorRequests);
+        BookCreateRequest request = BookCreateRequest.from(bookCreateForm, bookAuthors);
 
         try {
             String jsonRequest = objectMapper.writeValueAsString(request);
@@ -268,94 +266,46 @@ public class BookController {
         return "redirect:/admin/book-register";
     }
 
-    @GetMapping("/books/category")
-    public String booksByCategory(Model model) {
-        CommonResponse<PageResponse<BookResponse>> response = bookClient.getBooks(0, 10);
-        List<BookResponse> books = response.data().content();
-
-        Map<Long, Integer> reviewCounts = new HashMap<>();
-        Map<Long, Double> averageRatings = new HashMap<>();
-
-        for (BookResponse book : books) {
-            Long bookId = book.id();
-
-            try {
-                PageResponse<ReviewListResponse> page0 = reviewClient.getReviewsByBookId(bookId, 0, 1);
-                int totalReviews = (int) page0.totalElements();
-                reviewCounts.put(bookId, totalReviews);
-
-                int totalPages = page0.totalPages();
-                List<ReviewListResponse> allReviews = new ArrayList<>();
-
-                for (int page = 0; page < totalPages; page++) {
-                    PageResponse<ReviewListResponse> reviewPage = reviewClient.getReviewsByBookId(bookId, page, 100);
-                    allReviews.addAll(reviewPage.content());
-                }
-
-                double avg = allReviews.stream()
-                        .mapToDouble(ReviewListResponse::rating)
-                        .average()
-                        .orElse(0.0);
-                averageRatings.put(bookId, avg);
-
-            } catch (Exception e) {
-                reviewCounts.put(bookId, 0);
-                averageRatings.put(bookId, 0.0);
-            }
-        }
-
-        model.addAttribute("bookList", books);
-        model.addAttribute("reviewCounts", reviewCounts);
-        model.addAttribute("averageRatings", averageRatings);
-
-        return "book/category-list";
-    }
-
-    @GetMapping("/books/search")
-    public String getSearchList() {
-        return "book/search-list";
-    }
-
-    @GetMapping("/admin/book-edit/{book-id}")
-    public String getBookEdit(@PathVariable(name = "book-id") Long bookId, Model model) {
-        CommonResponse<BookResponse> response = bookClient.getBookDetail(bookId);
-        CommonResponse<PageResponse<AuthorResponse>> authorList = authorClient.getAuthors(100, 0);
-        CommonResponse<PageResponse<PublisherResponse>> publisherList = publisherClient.getPublishers(100, 0);
-        CommonResponse<PageResponse<CategoryResponse>> categoryList = categoryClient.getCategories(100, 0);
-        CommonResponse<PageResponse<TagResponse>> tagList = tagClient.getTags(100, 0);
-        List<Long> selectedTagIds = response.data().tags().stream()
-            .map(TagResponse::id)
-            .toList();
-        List<AuthorDto> initialAuthors = response.data().authors();
-        List<Long> selectedCategoryIds = response.data().categories().stream()
-            .map(CategoryResponse::id)
-            .toList();
-
-        model.addAttribute("book", response.data());
-        model.addAttribute("authors", authorList.data().content());
-        model.addAttribute("publishers", publisherList.data().content());
-        model.addAttribute("categories", categoryList.data().content());
-        model.addAttribute("tags", tagList.data().content());
-        model.addAttribute("selectedTagIds", selectedTagIds);
-        model.addAttribute("initialAuthors", initialAuthors);
-        model.addAttribute("selectedCategoryIds", selectedCategoryIds);
-        model.addAttribute("statuses", Arrays.asList(BookStatus.values()));
-
-        return "admin/book/book-edit";
-    }
+//    @GetMapping("/admin/book-edit/{book-id}")
+//    public String getBookEdit(@PathVariable(name = "book-id") Long bookId, Model model) {
+//        CommonResponse<BookDetailResponse> response = bookClient.getBookByIdWithParentCategory(bookId);
+//        CommonResponse<PageResponse<AuthorResponse>> authorList = authorClient.getAuthors(100, 0);
+//        CommonResponse<PageResponse<PublisherResponse>> publisherList = publisherClient.getPublishers(100, 0);
+//        List<CategoryTreeDto> categories = categoryService.getAllCategoriesTree();
+//        CommonResponse<PageResponse<TagResponse>> tagList = tagClient.getTags(100, 0);
+//        List<String> selectedTags = response.data().tags().stream()
+//                .map(TagResponse::id)
+//                .toList();
+//        List<BookAuthorDto> initialAuthors = response.data().authors();
+//        List<Long> selectedCategoryIds = response.data().categories().stream()
+//                .map(CategoryResponse::id)
+//                .toList();
+//
+//        model.addAttribute("book", response.data());
+//        model.addAttribute("authors", authorList.data().content());
+//        model.addAttribute("publishers", publisherList.data().content());
+//        model.addAttribute("categories", categories);
+//        model.addAttribute("tags", tagList.data().content());
+//        model.addAttribute("selectedTagIds", selectedTagIds);
+//        model.addAttribute("initialAuthors", initialAuthors);
+//        model.addAttribute("selectedCategoryIds", selectedCategoryIds);
+//        model.addAttribute("statuses", Arrays.asList(BookStatus.values()));
+//
+//        return "admin/book/book-edit";
+//    }
 
     @PutMapping("/admin/books/{bookId}")
     public String updateBook(
-        @PathVariable("bookId") Long bookId,
-        @ModelAttribute("book") @Valid BookUpdateForm bookUpdateForm,
-        BindingResult bindingResult
+            @PathVariable("bookId") Long bookId,
+            @ModelAttribute("book") @Valid BookUpdateForm bookUpdateForm,
+            BindingResult bindingResult
     ) {
 
-        List<AuthorRoleRequest> authorRequests = new ArrayList<>();
-        for (int i = 0; i < bookUpdateForm.getAuthorIds().size(); i++) {
-            Long aId = bookUpdateForm.getAuthorIds().get(i);
+        List<BookAuthorDto> bookAuthors = new ArrayList<>();
+        for (int i = 0; i < bookUpdateForm.getAuthorNames().size(); i++) {
+            String name = bookUpdateForm.getAuthorNames().get(i);
             String role = bookUpdateForm.getAuthorRoles().get(i);
-            authorRequests.add(new AuthorRoleRequest(aId, role));
+            bookAuthors.add(new BookAuthorDto(name, role));
         }
         BookUpdateRequest request = new BookUpdateRequest(bookUpdateForm, authorRequests);
 
@@ -376,10 +326,62 @@ public class BookController {
         return "redirect:/admin/book-edit/" + bookId;
     }
 
+//    @GetMapping("/books/search-by-category")
+//    public String getBooksByCategory(
+//            @RequestParam("category") String categoryName,
+//            @RequestParam(defaultValue = "0") int page,
+//            @RequestParam(defaultValue = "10") int size,
+//            Model model
+//    ) {
+//        CommonResponse<PageResponse<BookResponse>> response = bookClient.getBooksByCategory(categoryName, page, size);
+//        PageResponse<BookResponse> pageData = response.data();
+//        List<BookResponse> books = pageData.content();
+//
+//        Map<Long, Integer> reviewCounts = new HashMap<>();
+//        Map<Long, Double> averageRatings = new HashMap<>();
+//
+//        for (BookResponse book : books) {
+//            Long bookId = book.id();
+//            try {
+//                PageResponse<ReviewListResponse> page0 = reviewClient.getReviewsByBookId(bookId, 0, 1);
+//                int totalReviews = (int) page0.totalElements();
+//                reviewCounts.put(bookId, totalReviews);
+//
+//                int totalPages = page0.totalPages();
+//                List<ReviewListResponse> allReviews = new ArrayList<>();
+//                for (int p = 0; p < totalPages; p++) {
+//                    PageResponse<ReviewListResponse> reviewPage = reviewClient.getReviewsByBookId(bookId, p, 100);
+//                    allReviews.addAll(reviewPage.content());
+//                }
+//
+//                double avg = allReviews.stream()
+//                        .mapToDouble(ReviewListResponse::rating)
+//                        .average()
+//                        .orElse(0.0);
+//                averageRatings.put(bookId, avg);
+//
+//            } catch (Exception e) {
+//                reviewCounts.put(bookId, 0);
+//                averageRatings.put(bookId, 0.0);
+//            }
+//        }
+//
+//        model.addAttribute("bookList", books);
+//        model.addAttribute("reviewCounts", reviewCounts);
+//        model.addAttribute("averageRatings", averageRatings);
+//
+//        return "book/category-list";
+//    }
+
+    @GetMapping("/books/search")
+    public String getSearchList() {
+        return "book/search-list";
+    }
+
     @GetMapping("/admin/list")
     public String showBookList(@RequestParam(defaultValue = "0") int page, Model model) {
-        CommonResponse<PageResponse<BookResponse>> response = bookClient.getBooks(page, 10);
-        PageResponse<BookResponse> books = response.data();
+        CommonResponse<PageResponse<AdminBookResponse>> response = bookClient.getBooksByAdmin(page, 10);
+        PageResponse<AdminBookResponse> books = response.data();
         PageUtil.PageInfo pageInfo = PageUtil.calculatePageRange(
             books.page(), books.totalPages(), 5
         );
@@ -390,6 +392,12 @@ public class BookController {
         return "admin/book/list";
     }
 
+    @DeleteMapping("/admin/books/{bookId}")
+    @ResponseBody
+    public ResponseEntity<Void> deleteBook(@PathVariable Long bookId) {
+        bookClient.deleteBook(bookId);
+        return ResponseEntity.ok().build();
+    }
     @PostMapping("/books/{bookId}")
     public String issueCoupon(@PathVariable Long bookId,
                               @RequestParam Long couponId,
@@ -412,9 +420,29 @@ public class BookController {
             model.addAttribute("errorMessage", err);
         }
 
-        return getBookDetail(bookId, page, size, model, accessToken);
-    }
-
+//    @PostMapping("/books/{bookId}")
+//    public String issueCoupon(@PathVariable Long bookId,
+//                              @RequestParam Long couponId,
+//                              @RequestParam String originType,
+//                              @RequestParam Long originId,
+//                              @RequestParam(defaultValue = "0") int page,
+//                              @RequestParam(defaultValue = "10") int size,
+//                              Model model,
+//                              @CookieValue(name = "accessToken", required = false) String accessToken) {
+//
+//        try {
+//            CouponIssueRequest req = new CouponIssueRequest(couponId, originType, originId);
+//            CommonResponse<StoresResponse> resp = couponStore.issueCoupon(req);
+//            model.addAttribute("successMessage", resp.data().couponName() + " 쿠폰이 발급되었습니다.");
+//        } catch (FeignException e) {
+//            String err = e.status() == 409
+//                    ? extractMessageFromFeignBody(e.contentUTF8())
+//                    : "쿠폰 발급 중 오류가 발생했습니다.";
+//            model.addAttribute("errorMessage", err);
+//        }
+//
+//        return getBookDetail(bookId, page, size, model, accessToken);
+//    }
 
     private String extractMessageFromFeignBody(String body) {
         try {

@@ -51,6 +51,10 @@
                             class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer">
                             리뷰 작성시 적립 포인트 <span class="sort-icon" data-sort-key="conditionAmount"></span>
                         </th>
+                        <th data-sort-key="conditionAmount"
+                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer">
+                            이미지 리뷰 작성시 적립 포인트 <span class="sort-icon" data-sort-key="conditionAmount"></span>
+                        </th>
                         <th data-sort-key="pointRate"
                             class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer">
                             기본 포인트 적립률 (%) <span class="sort-icon" data-sort-key="pointRate"></span>
@@ -79,6 +83,8 @@
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"
                             th:text="${#numbers.formatInteger(policy.reviewPoint(), 0, 'COMMA') + ' 원'}"></td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"
+                            th:text="${#numbers.formatInteger(policy.imageReviewPoint(), 0, 'COMMA') + ' 원'}"></td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"
                             th:text="${policy.defaultRate() + ' %'}"></td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm">
                         <span th:if="${policy.isActive()}"
@@ -99,6 +105,7 @@
                                     th:data-name="${policy.name()}"
                                     th:data-join-point="${policy.joinPoint()}"
                                     th:data-review-point="${policy.reviewPoint()}"
+                                    th:data-image-review-point="${policy.imageReviewPoint()}"
                                     th:data-default-rate="${policy.defaultRate()}"
                                     th:data-is-active="${policy.isActive()}">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
@@ -225,6 +232,15 @@
                        required>
             </div>
             <div>
+                <label for="imageReviewPoint" class="block text-gray-700 text-sm font-bold mb-2">이미지 리뷰 작성시 적립 포인트</label>
+                <input type="text" id="imageReviewPoint" name="imageReviewPoint"
+                       placeholder="이미지 리뷰 작성시 적립될 포인트를 입력해주세요"
+                       class="ink-input-field w-full"
+                       inputmode="numeric"
+                       oninput="this.value = this.value.replace(/^0+(?=\d)/, '').replace(/[^0-9]/g, '')"
+                       required>
+            </div>
+            <div>
                 <label for="defaultRate" class="block text-gray-700 text-sm font-bold mb-2">기본 적립률</label>
                 <input type="text" id="defaultRate" name="defaultRate"
                        placeholder="기본 적립률을 입력해주세요"
@@ -272,6 +288,15 @@
                 <label for="newReviewPoint" class="block text-gray-700 text-sm font-bold mb-2">리뷰 작성시 적립 포인트</label>
                 <input type="text" id="newReviewPoint" name="reviewPoint"
                        placeholder="리뷰 작성시 적립될 포인트를 입력해주세요"
+                       class="ink-input-field w-full"
+                       inputmode="numeric"
+                       oninput="this.value = this.value.replace(/^0+(?=\d)/, '').replace(/[^0-9]/g, '')"
+                       required>
+            </div>
+            <div>
+                <label for="newImageReviewPoint" class="block text-gray-700 text-sm font-bold mb-2">이미지 리뷰 작성시 적립 포인트</label>
+                <input type="text" id="newImageReviewPoint" name="imageReviewPoint"
+                       placeholder="이미지 리뷰 작성시 적립될 포인트를 입력해주세요"
                        class="ink-input-field w-full"
                        inputmode="numeric"
                        oninput="this.value = this.value.replace(/^0+(?=\d)/, '').replace(/[^0-9]/g, '')"
@@ -383,6 +408,7 @@
         const name = button.getAttribute('data-name');
         const joinPoint = button.getAttribute('data-join-point');
         const reviewPoint = button.getAttribute('data-review-point');
+        const imageReviewPoint = button.getAttribute('data-image-review-point');
         const defaultRate = button.getAttribute('data-default-rate')
         const isActive = button.getAttribute('data-is-active') === 'true';
 
@@ -390,6 +416,7 @@
         document.getElementById('newName').value = name;
         document.getElementById('newJoinPoint').value = joinPoint;
         document.getElementById('newReviewPoint').value = reviewPoint;
+        document.getElementById('newImageReviewPoint').value = imageReviewPoint;
         document.getElementById('newDefaultRate').value = defaultRate;
 
 

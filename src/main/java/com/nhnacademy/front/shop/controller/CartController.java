@@ -1,7 +1,6 @@
 package com.nhnacademy.front.shop.controller;
 
-import com.nhnacademy.front.shop.book.dto.BookResponse;
-import com.nhnacademy.front.shop.book.dto.MainBookResponse;
+import com.nhnacademy.front.shop.book.dto.BookDetailResponse;
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
@@ -180,7 +179,7 @@ public class CartController {
 
         for (MeCartRequest item : guestItems) {
             try {
-                BookResponse data = cartClient.getBookById(item.bookId()).data();
+                BookDetailResponse data = cartClient.getBookById(item.bookId()).data();
                 CartBookResponse book = new CartBookResponse(data.title(), data.originalPrice(), data.salePrice(),
                     data.discountRate(), data.thumbnailUrl(), data.isPackable());
                 log.info("🔍 응답 book = {}", book);

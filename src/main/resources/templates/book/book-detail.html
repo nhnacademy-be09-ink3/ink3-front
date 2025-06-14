@@ -6,9 +6,19 @@
     <title>ink3</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/output.css(v=${#dates.createNow().getTime()})}">
+    <!-- TOAST UI Editor CSS -->
+    <link rel="stylesheet" href="https://uicdn.toast.com/editor/latest/toastui-editor.min.css" />
+    <!-- TOAST UI Editor JS -->
+    <script src="https://uicdn.toast.com/editor/latest/toastui-editor-all.min.js"></script>
+
     <style>
         body {
             font-family: 'Inter', sans-serif;
+        }
+        #description-viewer .toastui-editor-contents,
+        #contents-viewer .toastui-editor-contents {
+            font-family: 'Inter', sans-serif;
+            font-size: 16px;
         }
     </style>
 </head>
@@ -40,10 +50,10 @@
                                 <button type="button" id="like-btn"
                                         class="rounded-full w-8 h-8 p-0 border-0 inline-flex items-center justify-center mr-1"
                                         th:classappend="${liked} == true ? 'bg-red-100 text-red-500' : 'bg-gray-200 text-gray-500'">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="currentColor"
-                                         viewBox="0 0 24 24">
-                                        <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78L12 21.23l7.78-7.78a5.5 5.5 0 000-7.78z"/>
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="currentColor" viewBox="0 0 32 32">
+                                        <path d="M23.6,4c-3,0-5.6,1.8-7.6,4.4C14,5.8,11.4,4,8.4,4C3.8,4,0,7.8,0,12.4C0,19.2,8,24,16,30c8-6,16-10.8,16-17.6 C32,7.8,28.2,4,23.6,4z"/>
                                     </svg>
+
                                 </button>
                             </form>
                             <span th:text="${book.likeCount}" class="text-sm font-bold text-gray-600"></span>
@@ -51,9 +61,8 @@
 
                         <div th:unless="${loginUser != null}" class="flex items-center gap-1 mt-1">
                             <div class="rounded-full w-8 h-8 flex items-center justify-center bg-gray-200 text-gray-400 mr-1">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="currentColor"
-                                     viewBox="0 0 24 24">
-                                    <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78L12 21.23l7.78-7.78a5.5 5.5 0 000-7.78z"/>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="currentColor" viewBox="0 0 32 32">
+                                    <path d="M23.6,4c-3,0-5.6,1.8-7.6,4.4C14,5.8,11.4,4,8.4,4C3.8,4,0,7.8,0,12.4C0,19.2,8,24,16,30c8-6,16-10.8,16-17.6 C32,7.8,28.2,4,23.6,4z"/>
                                 </svg>
                             </div>
                             <span th:text="${book.likeCount}" class="text-sm font-bold text-gray-600"></span>
@@ -170,7 +179,8 @@
                                         />
                                     </div>
                                     <!-- 장바구니 -->
-                                    <input type="hidden" name="bookId" th:value="${book.id}"/>
+                                    <input type="hidden" name="bookId" th:value="${book.id}" />
+                                    <input type="hidden" id="stockQuantity" th:value="${book.quantity}" />
                                     <button type="submit"
                                             class="ink-btn-primary px-4 py-2 bg-green-300 text-gray-800 rounded-md hover:bg-green-400">
                                         장바구니에 넣기
@@ -207,7 +217,8 @@
                                 </div>
 
                                 <!-- 장바구니 -->
-                                <input type="hidden" name="bookId" th:value="${book.id}"/>
+                                <input type="hidden" name="bookId" th:value="${book.id}" />
+                                <input type="hidden" id="stockQuantity" th:value="${book.quantity}" />
                                 <button type="submit"
                                         class="ink-btn-primary px-4 py-2 bg-green-300 text-gray-800 rounded-md hover:bg-green-400">
                                     장바구니에 넣기
@@ -245,10 +256,10 @@
                 <div class="rounded-lg shadow p-6 mb-8">
                     <div class="md:flex md:gap-8">
                         <div class="md:w-1/5 w-full mb-4 md:mb-0">
-                            <h2 class="text-xl font-semibold text-gray-800">책소개</h2>
+                            <h2 class="text-xl font-semibold text-gray-800">책 소개</h2>
                         </div>
-                        <div class="whitespace-pre-line md:w-4/5 w-full text-gray-700 leading-relaxed space-y-4"
-                             th:text="${book.description}"></div>
+                        <div id="description-viewer" class="md:w-4/5 w-full">
+                        </div>
                     </div>
                 </div>
 
@@ -259,10 +270,8 @@
                         <div class="md:w-1/5 w-full mb-4 md:mb-0">
                             <h2 class="text-xl font-semibold text-gray-800">목차</h2>
                         </div>
-
-                        <!-- 목차 내용 -->
-                        <div class="whitespace-pre-line md:w-4/5 w-full text-gray-700 leading-relaxed space-y-4"
-                             th:text="${book.contents}"></div>
+                        <div id="contents-viewer" class="md:w-4/5 w-full">
+                        </div>
                     </div>
                 </div>
             </div>
@@ -757,6 +766,37 @@
             updateLikeButton(isLiked);
         }
     });
+
+    document.querySelectorAll('form[action$="/carts"], form[action$="/guest-carts"]').forEach(form => {
+        form.addEventListener('submit', function (e) {
+            const quantityInput = form.querySelector('input[name="quantity"]');
+            const stockInput = form.querySelector('#stockQuantity');
+            const requested = parseInt(quantityInput.value, 10);
+            const stock = parseInt(stockInput.value, 10);
+
+            if (isNaN(stock) || requested > stock) {
+                e.preventDefault();
+                alert('재고가 부족합니다.');
+            }
+        });
+    });
 </script>
+
+<script th:inline="javascript">
+    const descriptionMarkdown = /*[[${book.description}]]*/ '';
+    const contentsMarkdown = /*[[${book.contents}]]*/ '';
+
+    const descriptionViewer = new toastui.Editor.factory({
+        el: document.querySelector('#description-viewer'),
+        viewer: true,
+        initialValue: descriptionMarkdown
+    });
+    const contentsViewer = new toastui.Editor.factory({
+        el: document.querySelector('#contents-viewer'),
+        viewer: true,
+        initialValue: contentsMarkdown
+    });
+</script>
+
 </body>
 </html>

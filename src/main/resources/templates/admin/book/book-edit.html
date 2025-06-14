@@ -6,9 +6,16 @@
     <title>ink3</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" th:href="@{/css/output.css(v=${#dates.createNow().getTime()})}" />
+    <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Select2 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <!-- Select2 JS -->
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <!-- TOAST UI Editor CSS -->
+    <link rel="stylesheet" href="https://uicdn.toast.com/editor/latest/toastui-editor.min.css" />
+    <!-- TOAST UI Editor JS -->
+    <script src="https://uicdn.toast.com/editor/latest/toastui-editor-all.min.js"></script>
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -36,15 +43,15 @@
 <div th:replace="~{admin/layout/fragments/header :: headerFragment}"></div>
 <div class="flex flex-1 min-h-[calc(100vh-64px)]">
     <div th:replace="~{admin/layout/fragments/sidebar :: sidebarFragment}"></div>
+
     <main class="main-content-area flex-1 p-6 bg-gray-100 overflow-y-auto">
-        <div class="bg-white w-3/5 px-10 py-12 rounded-md shadow-md max-w-3xl mx-auto">
+        <div class="bg-white p-6 rounded-lg shadow-md mb-6">
             <h1 class="text-3xl font-bold text-gray-800 mb-8 text-center">도서 수정</h1>
             <form th:action="@{/admin/books/{id}(id=${book.id})}"
                   method="post"
                   enctype="multipart/form-data"
                   th:object="${book}"
                   class="space-y-8">
-
 
                 <input type="hidden" name="_method" value="put"/>
 
@@ -72,23 +79,13 @@
                 </div>
                 <div class="grid grid-cols-1 gap-2">
                     <label for="contents" class="text-gray-700 font-medium">책 목차</label>
-                    <textarea
-                            id="contents"
-                            name="contents"
-                            rows="5"
-                            th:field="*{contents}"
-                            class="ink-input-field w-full"
-                    ></textarea>
+                    <div id="contents-editor"></div>
+                    <textarea id="contents" name="contents" hidden></textarea>
                 </div>
                 <div class="grid grid-cols-1 gap-2">
                     <label for="description" class="text-gray-700 font-medium">책 소개</label>
-                    <textarea
-                            id="description"
-                            name="description"
-                            rows="5"
-                            th:field="*{description}"
-                            class="ink-input-field w-full"
-                    ></textarea>
+                    <div id="description-editor"></div>
+                    <textarea id="description" name="description" hidden></textarea>
                 </div>
                 <div class="grid grid-cols-1 gap-2">
                     <label for="publishedAt" class="text-gray-700 font-medium">출간일</label>
@@ -97,6 +94,7 @@
                             id="publishedAt"
                             name="publishedAt"
                             th:value="${book.publishedAt}"
+                            required
                             class="ink-input-field w-full"
                     />
                 </div>
@@ -106,9 +104,9 @@
                             type="number"
                             id="originalPrice"
                             name="originalPrice"
+                            th:field="*{originalPrice}"
                             required
                             min="0"
-                            th:field="*{originalPrice}"
                             class="ink-input-field w-full"
                     />
                 </div>
@@ -133,7 +131,7 @@
                             name="quantity"
                             th:field="*{quantity}"
                             required
-                            min="1"
+                            min="0"
                             class="ink-input-field w-full"
                     />
                 </div>
@@ -398,6 +396,29 @@
                         }
                     });
                 });
+            });
+
+            const descriptionMarkdown = /*[[${book.description}]]*/ '';
+            const contentsMarkdown = /*[[${book.contents}]]*/ '';
+
+            const contentsEditor = new toastui.Editor({
+                el: document.querySelector('#contents-editor'),
+                previewStyle: 'tab',
+                height: '400px',
+                initialEditType: 'wysiwyg',
+                initialValue: contentsMarkdown
+            });
+            const descriptionEditor = new toastui.Editor({
+                el: document.querySelector('#description-editor'),
+                previewStyle: 'tab',
+                height: '400px',
+                initialEditType: 'wysiwyg',
+                initialValue: descriptionMarkdown
+            });
+
+            document.querySelector('form').addEventListener('submit', function () {
+                document.querySelector('#contents').value = contentsEditor.getMarkdown();
+                document.querySelector('#description').value = descriptionEditor.getMarkdown();
             });
         </script>
     </main>

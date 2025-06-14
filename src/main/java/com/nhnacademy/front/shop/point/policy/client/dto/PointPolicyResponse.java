@@ -7,6 +7,7 @@ public record PointPolicyResponse(
         String name,
         Integer joinPoint,
         Integer reviewPoint,
+        Integer imageReviewPoint,
         Integer defaultRate,
         Boolean isActive,
         LocalDateTime createdAt

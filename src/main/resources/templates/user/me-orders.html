@@ -209,6 +209,7 @@
     document.querySelectorAll('.open-review-modal').forEach(button => {
         button.addEventListener('click', () => {
             document.getElementById('modalOrderBookId').value = button.getAttribute('data-order-book-id');
+            document.getElementById('modalBookId').value = button.getAttribute('data-book-id');
             document.getElementById('reviewModal').classList.remove('hidden');
         });
     });
@@ -236,7 +237,7 @@
                 body: formData
             });
 
-            if (response.ok || response.status === 302) {
+            if (response.ok) {
                 window.location.href = `${contextPath}me/orders`;
             } else {
                 alert('리뷰 등록 실패: ' + response.status);

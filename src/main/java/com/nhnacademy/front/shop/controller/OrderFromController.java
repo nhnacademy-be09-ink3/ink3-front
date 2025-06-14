@@ -5,7 +5,7 @@ import com.nhnacademy.front.common.dto.PageResponse;
 import com.nhnacademy.front.shop.address.client.dto.AddressResponse;
 import com.nhnacademy.front.shop.address.service.AddressService;
 import com.nhnacademy.front.shop.book.client.BookClient;
-import com.nhnacademy.front.shop.book.dto.BookResponse;
+import com.nhnacademy.front.shop.book.dto.BookDetailResponse;
 import com.nhnacademy.front.shop.cart.client.CartClient;
 import com.nhnacademy.front.shop.cart.dto.CartBookResponse;
 import com.nhnacademy.front.shop.cart.dto.CartCouponResponse;
@@ -30,7 +30,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-//TODO : 쿠폰 적용 (회원)
 @Slf4j
 @RequiredArgsConstructor
 @Controller
@@ -46,30 +45,29 @@ public class OrderFromController {
 
     /**
      * 장바구니 -> 주문서 작성 페이지 return
-     *
      * @param model model
      * @return 주문서 작성 페이지 return
      */
     @GetMapping("/from-cart")
     public String getUserOrderFromCarts(
-            Model model,
-            HttpServletRequest request,
-            @CookieValue(value = "guest_cart", required = false) String guestCartCookie
+        @RequestParam(required = false) List<Long> cartIds,
+        Model model,
+        HttpServletRequest request,
+        @CookieValue(value = "guest_cart", required = false) String guestCartCookie
     ) {
+        System.out.println("📦 [Controller] cartIds = " + cartIds);
         addPackagingList(model);
         addShippingPolicy(model);
 
         if (orderService.isLoggedIn(request)) {
             addUserInfo(model);
+            List<CartCouponResponse> cart = (cartIds != null && !cartIds.isEmpty())
+                ? cartClient.getSelectedCartsWithCoupon(cartIds).data()
+                : cartClient.getCartsWithCoupon().data();
 
-            // 장바구니 리스트
-            CommonResponse<List<CartCouponResponse>> cartResponse = cartClient.getCartsWithCoupon();
-            List<CartCouponResponse> cart = cartResponse.data();
-            log.info("couponsize = {}", cart.getFirst().applicableCoupons().size());
             model.addAttribute("cart", cart);
             return "order/order-form-user-books";
         } else {
-            // 비회원 장바구니 리스트
             List<GuestCartView> guestCartViews = guestOrderService.getGuestCartViews(guestCartCookie);
             model.addAttribute("cart", guestCartViews);
             return "order/order-form-guest-books";
@@ -128,7 +126,7 @@ public class OrderFromController {
 
     // 상품 정보 (회원)
     private void addBookInfoForUser(Model model, long userId, long bookId, int quantity) {
-        BookResponse book = bookClient.getBookDetail(bookId).data();
+        BookDetailResponse book = bookClient.getBookByIdWithParentCategory(bookId).data();
         List<CouponStoreDto> applicableCoupons = couponStoreService.getApplicableCoupons(userId, bookId);
         CartCouponResponse cartCouponResponse = new CartCouponResponse(
                 0L,
@@ -149,7 +147,7 @@ public class OrderFromController {
 
     // 상품 정보 (비회원)
     private void addBookInfoForGuest(Model model, long bookId, int quantity) {
-        BookResponse book = bookClient.getBookDetail(bookId).data();
+        BookDetailResponse book = bookClient.getBookByIdWithParentCategory(bookId).data();
 
         CartBookResponse cartBookResponse = new CartBookResponse(
                 book.title(),

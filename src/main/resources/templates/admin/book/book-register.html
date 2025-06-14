@@ -12,6 +12,11 @@
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <!-- Select2 JS -->
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <!-- TOAST UI Editor CSS -->
+    <link rel="stylesheet" href="https://uicdn.toast.com/editor/latest/toastui-editor.min.css" />
+    <!-- TOAST UI Editor JS -->
+    <script src="https://uicdn.toast.com/editor/latest/toastui-editor-all.min.js"></script>
+
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -41,18 +46,17 @@
     <div th:replace="~{admin/layout/fragments/sidebar :: sidebarFragment}"></div>
 
     <main class="main-content-area flex-1 p-6 bg-gray-100 overflow-y-auto">
-        <div class="bg-white w-3/5 px-10 py-12 rounded-md shadow-md max-w-3xl mx-auto">
+        <div class="bg-white p-6 rounded-lg shadow-md mb-6">
             <h1 class="text-3xl font-bold text-gray-800 mb-8 text-center">도서 등록</h1>
             <form th:action="@{/admin/book-register}"
                   method="post"
                   enctype="multipart/form-data"
                   class="space-y-8">
 
-                <!-- 공통 스타일: label + input 그룹 -->
                 <div class="grid grid-cols-1 gap-2">
                     <label for="isbn" class="text-gray-700 font-medium">ISBN</label>
                     <input type="text" id="isbn" name="isbn" required
-                           class="ink-input-field w-full">
+                           class="ink-input-field w-full" placeholder="13자리 숫자">
                 </div>
 
                 <div class="grid grid-cols-1 gap-2">
@@ -63,20 +67,20 @@
 
                 <div class="grid grid-cols-1 gap-2">
                     <label for="contents" class="text-gray-700 font-medium">책 목차</label>
-                    <textarea id="contents" name="contents" rows="5"
-                              class="ink-input-field w-full"></textarea>
+                    <div id="contents-editor"></div>
+                    <textarea id="contents" name="contents" hidden></textarea>
                 </div>
 
                 <div class="grid grid-cols-1 gap-2">
                     <label for="description" class="text-gray-700 font-medium">책 소개</label>
-                    <textarea id="description" name="description" rows="5"
-                              class="ink-input-field w-full"></textarea>
+                    <div id="description-editor"></div>
+                    <textarea id="description" name="description" hidden></textarea>
                 </div>
 
                 <div class="grid grid-cols-1 gap-2">
                     <label for="publishedAt" class="text-gray-700 font-medium">출간일</label>
-                    <input type="date" id="publishedAt" name="publishedAt"
-                           class="ink-input-field w-full">
+                    <input type="date" id="publishedAt" name="publishedAt" required
+                           class="ink-input-field w-full" th:value="${#dates.format(#dates.createNow(), 'yyyy-MM-dd')}" />
                 </div>
 
                 <div class="grid grid-cols-1 gap-2">
@@ -93,7 +97,7 @@
 
                 <div class="grid grid-cols-1 gap-2">
                     <label for="quantity" class="text-gray-700 font-medium">수량 (개)</label>
-                    <input type="number" id="quantity" name="quantity" required min="1"
+                    <input type="number" id="quantity" name="quantity" required min="0"
                            class="ink-input-field w-full">
                 </div>
 
@@ -129,14 +133,24 @@
                     <p class="text-sm text-gray-500">Ctrl 키를 누른 채로 선택하여 여러 태그를 선택할 수 있습니다.</p>
                 </div>
 
-                <div class="grid grid-cols-2 gap-2 items-center">
-                    <label for="packable" class="text-gray-700 font-medium">포장 가능</label>
-                    <input type="checkbox" id="packable" name="packable" class="w-5 h-5" style="accent-color: #86ef7d;">
+                <div>
+                    <label class="block font-medium text-gray-700">포장 가능 여부</label>
+                    <div class="mt-2 space-x-4">
+                        <label class="inline-flex items-center">
+                            <input type="radio" name="packable" value="true" class="form-radio" required checked>
+                            <span class="ml-2 text-sm text-gray-700">가능</span>
+                        </label>
+                        <label class="inline-flex items-center">
+                            <input type="radio" name="packable" value="false" class="form-radio">
+                            <span class="ml-2 text-sm text-gray-700">불가능</span>
+                        </label>
+                    </div>
                 </div>
+
 
                 <div class="grid grid-cols-1 gap-2">
                     <label for="status" class="text-gray-700 font-medium">도서 상태</label>
-                    <select id="status" name="status" class="ink-input-field w-1/3" required>
+                    <select id="status" name="status" class="ink-input-field w-56" required>
                         <option value="">상태 선택</option>
                         <option value="AVAILABLE">판매 중</option>
                         <option value="OUT_OF_STOCK">수량 부족</option>
@@ -324,6 +338,24 @@
                 renderCategoryDropdown(rootId, 1, group);
             });
             /*]]>*/
+
+            const contentsEditor = new toastui.Editor({
+                el: document.querySelector('#contents-editor'),
+                previewStyle: 'tab',
+                height: '400px',
+                initialEditType: 'wysiwyg'
+            });
+            const descriptionEditor = new toastui.Editor({
+                el: document.querySelector('#description-editor'),
+                previewStyle: 'tab',
+                height: '400px',
+                initialEditType: 'wysiwyg'
+            });
+
+            document.querySelector('form').addEventListener('submit', function () {
+                document.querySelector('#contents').value = contentsEditor.getMarkdown();
+                document.querySelector('#description').value = descriptionEditor.getMarkdown();
+            });
         </script>
     </main>
 </div>

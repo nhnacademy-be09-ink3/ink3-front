@@ -4,6 +4,7 @@ import com.nhnacademy.front.common.dto.CommonResponse;
 import com.nhnacademy.front.common.dto.PageResponse;
 import com.nhnacademy.front.shop.book.client.BookClient;
 import com.nhnacademy.front.shop.category.client.CategoryClient;
+import com.nhnacademy.front.shop.category.service.CategoryService;
 import com.nhnacademy.front.shop.coupon.coupon.client.CouponClient;
 import com.nhnacademy.front.shop.coupon.coupon.client.dto.CouponCreateRequest;
 import com.nhnacademy.front.shop.coupon.coupon.client.dto.CouponResponse;
@@ -31,6 +32,7 @@ public class CouponController {
     private final BookClient bookClient;
     private final CategoryClient categoryClient;
     private final CouponClient couponClient;
+    private final CategoryService categoryService;
 
     // (1) 등록 폼
     @GetMapping("/coupon-register")
@@ -41,8 +43,8 @@ public class CouponController {
     ) {
         model.addAttribute("policies", policyClient.getAllPolicies(size, page).data());
         model.addAttribute("books",    bookClient.getBooks(0, 100).data());
-        model.addAttribute("categories", categoryClient.getCategories(100, 0).data());
-        return "/admin/coupon/coupon-register";
+        model.addAttribute("categories", categoryService.getAllCategoriesFlat());
+        return "admin/coupon/coupon-register";
     }
 
     // (2) 등록 처리
@@ -75,7 +77,7 @@ public class CouponController {
             model.addAttribute("pageInfo", pageInfo);
             model.addAttribute("pageNum", page);
         }
-        return "/admin/coupon/coupons";
+        return "admin/coupon/coupons";
     }
 
     @PutMapping("/coupon-list/{id}")
@@ -105,7 +107,6 @@ public class CouponController {
                 cr.name(),
                 cr.issuableFrom(),
                 cr.expiresAt(),
-                cr.isActive(),
                 selectedBookIds,
                 selectedCategoryIds
         );
@@ -115,7 +116,7 @@ public class CouponController {
         model.addAttribute("couponId", id);
         model.addAttribute("policies", policyClient.getAllPolicies(100, 0).data());
         model.addAttribute("books",    bookClient.getBooks(0, 100).data());
-        model.addAttribute("categories", categoryClient.getCategories(100, 0).data());
+        model.addAttribute("categories", categoryService.getAllCategoriesFlat());
 
         return "admin/coupon/coupon-update";
     }
