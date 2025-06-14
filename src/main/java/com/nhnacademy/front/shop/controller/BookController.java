@@ -15,6 +15,7 @@ import com.nhnacademy.front.shop.book.dto.BookUpdateRequest;
 import com.nhnacademy.front.shop.book.dto.BookCreateRequest;
 import com.nhnacademy.front.shop.book.dto.SortType;
 import com.nhnacademy.front.shop.category.client.CategoryClient;
+import com.nhnacademy.front.shop.category.client.dto.CategoryFlatDto;
 import com.nhnacademy.front.shop.category.client.dto.CategoryTreeDto;
 import com.nhnacademy.front.shop.category.service.CategoryService;
 import com.nhnacademy.front.shop.coupon.coupon.client.CouponClient;
@@ -40,6 +41,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.springframework.http.MediaType;
 import java.util.Map;
@@ -86,32 +88,32 @@ public class BookController {
     private final CategoryService categoryService;
 
 
-//    @GetMapping("/books/{bookId}")
-//    public String getBookDetail(@PathVariable Long bookId,
-//                                @RequestParam(defaultValue = "0") int  page,
-//                                @RequestParam(defaultValue = "10") int  size,
-//                                Model model, @CookieValue(name = "accessToken", required = false) String accessToken) {
-//        CommonResponse<BookDetailResponse> books = bookClient.getBookByIdWithParentCategory(bookId);
-//        PageResponse<ReviewListResponse> reviews =
-//                reviewClient.getReviewsByBookId(bookId, page, size);
-//
-//        PageUtil.PageInfo pageInfo = PageUtil.calculatePageRange(
-//                reviews.page(), reviews.totalPages(), 5);
-//
-//        Long userId = null;
-//        try {
-//            if (accessToken != null) {
-//                DecodedJWT decodedAccessToken = JWT.decode(accessToken);
-//                userId = decodedAccessToken.getClaim("id").asLong();
-//            }
-//        } catch (Exception e) {
-//            log.warn("비회원 사용자 도서 상세페이지 접근: {}", e.getMessage());
-//        }
-//
-//        List<CouponResponse> bookCoupons = new ArrayList<>();
-//        List<CouponResponse> categoryCoupons = new ArrayList<>();
-//
-//
+    @GetMapping("/books/{bookId}")
+    public String getBookDetail(@PathVariable Long bookId,
+                                @RequestParam(defaultValue = "0") int  page,
+                                @RequestParam(defaultValue = "10") int  size,
+                                Model model, @CookieValue(name = "accessToken", required = false) String accessToken) {
+        CommonResponse<BookDetailResponse> books = bookClient.getBookByIdWithParentCategory(bookId);
+        PageResponse<ReviewListResponse> reviews =
+                reviewClient.getReviewsByBookId(bookId, page, size);
+
+        PageUtil.PageInfo pageInfo = PageUtil.calculatePageRange(
+                reviews.page(), reviews.totalPages(), 5);
+
+        Long userId = null;
+        try {
+            if (accessToken != null) {
+                DecodedJWT decodedAccessToken = JWT.decode(accessToken);
+                userId = decodedAccessToken.getClaim("id").asLong();
+            }
+        } catch (Exception e) {
+            log.warn("비회원 사용자 도서 상세페이지 접근: {}", e.getMessage());
+        }
+
+        List<CouponResponse> bookCoupons = new ArrayList<>();
+        List<CouponResponse> categoryCoupons = new ArrayList<>();
+
+
 //        try{
 //            bookCoupons = couponClient.getByBookId(bookId, 0, 10).data().content();
 //            categoryCoupons = books.data().categories().stream()
@@ -123,62 +125,62 @@ public class BookController {
 //        } catch (FeignException e) {
 //            log.error("쿠폰리스트 예외발생: {}", e.getMessage());
 //        }
-//
-//        log.info(">>> bookCoupons (size={}): {}", bookCoupons.size(), bookCoupons);
-//        log.info(">>> categoryCoupons (size={}): {}", categoryCoupons.size(), categoryCoupons);
-//
-//
-//        List<CouponView> coupons = Stream.concat(bookCoupons.stream(), categoryCoupons.stream())
-//                .map(c -> {
-//                    boolean isBook = !c.books().isEmpty();
-//                    String originType = isBook
-//                            ? c.books().get(0).originType()
-//                            : c.categories().get(0).originType();
-//                    Long originId = isBook
-//                            ? c.books().get(0).originId()
-//                            : c.categories().get(0).originId();
-//                    return new CouponView(
-//                            c.couponId(),
-//                            c.name(),
-//                            c.discountRate(),
-//                            c.discountValue(),
-//                            c.expiresAt(),
-//                            originType,
-//                            originId
-//                    );
-//                })
-//                .toList();
-//
-//        log.info(">>> coupons (combined, size={}): {}", coupons.size(), coupons);
-//
-//
-//
-//        AtomicBoolean liked = new AtomicBoolean(false);
-//        AtomicReference<Long> likeId = new AtomicReference<>(null);
-//
-//        if (userId != null) {
-//            PageResponse<LikeResponse> likes = likeService.getCurrentUserLikes(0, 100, null);
-//            likes.content().stream()
-//                    .filter(like -> like.bookId().equals(bookId))
-//                    .findFirst()
-//                    .ifPresent(like -> {
-//                        liked.set(true);
-//                        likeId.set(like.id());
-//                    });
-//        }
-//
-//        model.addAttribute("book",      books.data());
-//        model.addAttribute("reviews",   reviews.content());
-//        model.addAttribute("reviewPage", reviews);
-//        model.addAttribute("pageInfo",  pageInfo);
-//        model.addAttribute("bookId",    bookId);
-//        model.addAttribute("userId",    userId);
-//        model.addAttribute("liked", liked);
-//        model.addAttribute("likeId", likeId);
-//        model.addAttribute("coupons", coupons);
-//
-//        return "book/book-detail";
-//    }
+
+        log.info(">>> bookCoupons (size={}): {}", bookCoupons.size(), bookCoupons);
+        log.info(">>> categoryCoupons (size={}): {}", categoryCoupons.size(), categoryCoupons);
+
+
+        List<CouponView> coupons = Stream.concat(bookCoupons.stream(), categoryCoupons.stream())
+                .map(c -> {
+                    boolean isBook = !c.books().isEmpty();
+                    String originType = isBook
+                            ? c.books().get(0).originType()
+                            : c.categories().get(0).originType();
+                    Long originId = isBook
+                            ? c.books().get(0).originId()
+                            : c.categories().get(0).originId();
+                    return new CouponView(
+                            c.couponId(),
+                            c.name(),
+                            c.discountRate(),
+                            c.discountValue(),
+                            c.expiresAt(),
+                            originType,
+                            originId
+                    );
+                })
+                .toList();
+
+        log.info(">>> coupons (combined, size={}): {}", coupons.size(), coupons);
+
+
+
+        AtomicBoolean liked = new AtomicBoolean(false);
+        AtomicReference<Long> likeId = new AtomicReference<>(null);
+
+        if (userId != null) {
+            PageResponse<LikeResponse> likes = likeService.getCurrentUserLikes(0, 100, null);
+            likes.content().stream()
+                    .filter(like -> like.bookId().equals(bookId))
+                    .findFirst()
+                    .ifPresent(like -> {
+                        liked.set(true);
+                        likeId.set(like.id());
+                    });
+        }
+
+        model.addAttribute("book",      books.data());
+        model.addAttribute("reviews",   reviews.content());
+        model.addAttribute("reviewPage", reviews);
+        model.addAttribute("pageInfo",  pageInfo);
+        model.addAttribute("bookId",    bookId);
+        model.addAttribute("userId",    userId);
+        model.addAttribute("liked", liked);
+        model.addAttribute("likeId", likeId);
+        model.addAttribute("coupons", coupons);
+
+        return "book/book-detail";
+    }
 
     @GetMapping("/books/bestseller")
     public String getBestsellerBooks(@RequestParam(defaultValue = "REVIEW") SortType sortType,
@@ -236,15 +238,9 @@ public class BookController {
 
     @GetMapping("/admin/book-register")
     public String getBookRegister(Model model) {
-        CommonResponse<PageResponse<AuthorResponse>> authors = authorClient.getAuthors(100, 0);
-        CommonResponse<PageResponse<PublisherResponse>> publishers = publisherClient.getPublishers(100, 0);
         List<CategoryTreeDto> categories = categoryService.getAllCategoriesTree();
-        CommonResponse<PageResponse<TagResponse>> tags = tagClient.getTags(100, 0);
 
-        model.addAttribute("authors", authors.data().content());
-        model.addAttribute("publishers", publishers.data());
         model.addAttribute("categories", categories);
-        model.addAttribute("tags", tags.data());
 
         return "admin/book/book-register";
     }
@@ -271,33 +267,27 @@ public class BookController {
         return "redirect:/admin/book-register";
     }
 
-//    @GetMapping("/admin/book-edit/{book-id}")
-//    public String getBookEdit(@PathVariable(name = "book-id") Long bookId, Model model) {
-//        CommonResponse<BookDetailResponse> response = bookClient.getBookByIdWithParentCategory(bookId);
-//        CommonResponse<PageResponse<AuthorResponse>> authorList = authorClient.getAuthors(100, 0);
-//        CommonResponse<PageResponse<PublisherResponse>> publisherList = publisherClient.getPublishers(100, 0);
-//        List<CategoryTreeDto> categories = categoryService.getAllCategoriesTree();
-//        CommonResponse<PageResponse<TagResponse>> tagList = tagClient.getTags(100, 0);
-//        List<String> selectedTags = response.data().tags().stream()
-//                .map(TagResponse::id)
-//                .toList();
-//        List<BookAuthorDto> initialAuthors = response.data().authors();
-//        List<Long> selectedCategoryIds = response.data().categories().stream()
-//                .map(CategoryResponse::id)
-//                .toList();
-//
-//        model.addAttribute("book", response.data());
-//        model.addAttribute("authors", authorList.data().content());
-//        model.addAttribute("publishers", publisherList.data().content());
-//        model.addAttribute("categories", categories);
-//        model.addAttribute("tags", tagList.data().content());
-//        model.addAttribute("selectedTagIds", selectedTagIds);
-//        model.addAttribute("initialAuthors", initialAuthors);
-//        model.addAttribute("selectedCategoryIds", selectedCategoryIds);
-//        model.addAttribute("statuses", Arrays.asList(BookStatus.values()));
-//
-//        return "admin/book/book-edit";
-//    }
+    @GetMapping("/admin/book-edit/{book-id}")
+    public String getBookEdit(@PathVariable(name = "book-id") Long bookId, Model model) {
+        CommonResponse<BookDetailResponse> response = bookClient.getBookByIdWithParentCategory(bookId);
+        List<CategoryTreeDto> categories = categoryService.getAllCategoriesTree();
+
+        List<String> selectedTags = response.data().tags();
+        List<BookAuthorDto> initialAuthors = response.data().authors();
+        List<Long> selectedCategoryIds = response.data().categories().stream()
+                .map(List::getLast)
+                .map(CategoryFlatDto::id)
+                .collect(Collectors.toList());
+
+        model.addAttribute("book", response.data());
+        model.addAttribute("categories", categories);
+        model.addAttribute("selectedTags", selectedTags);
+        model.addAttribute("initialAuthors", initialAuthors);
+        model.addAttribute("selectedCategoryIds", selectedCategoryIds);
+        model.addAttribute("statuses", Arrays.asList(BookStatus.values()));
+
+        return "admin/book/book-edit";
+    }
 
     @PutMapping("/admin/books/{bookId}")
     public String updateBook(

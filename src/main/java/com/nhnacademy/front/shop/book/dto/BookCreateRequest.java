@@ -13,7 +13,7 @@ import java.util.List;
 public record BookCreateRequest(
         @NotBlank @Size(max = 13) String isbn,
         @NotBlank String title,
-        @NotBlank String contents,
+        String contents,
         @NotBlank String description,
         @NotNull @PastOrPresent @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd") LocalDate publishedAt,
         @NotNull @PositiveOrZero Integer originalPrice,
@@ -42,7 +42,7 @@ public record BookCreateRequest(
                         form.getStatus(),
                         form.isPackable(),
                         form.getPublisher(),
-                        form.getSelectedCategoryIds(),
+                        form.getCategoryIds(),
                         bookAuthors,
                         form.getTags()
                 );
