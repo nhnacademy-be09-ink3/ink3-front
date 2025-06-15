@@ -3,7 +3,6 @@ package com.nhnacademy.front.shop.book.dto;
 public record AladinBookResponse(
         String title,
         String description,
-        String toc,
         String author,
         String publisher,
         String pubDate,

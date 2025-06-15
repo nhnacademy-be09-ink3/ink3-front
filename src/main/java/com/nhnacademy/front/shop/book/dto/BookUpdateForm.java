@@ -21,7 +21,6 @@ public class BookUpdateForm {
     @NotBlank(message = "제목은 필수 입력값입니다.")
     private String title;
 
-    @NotBlank(message = "목차는 필수 입력값입니다.")
     private String contents;
 
     @NotBlank(message = "설명은 필수 입력값입니다.")
@@ -49,10 +48,10 @@ public class BookUpdateForm {
     private boolean packable = true;
 
     @NotBlank(message = "출판사를 입력해주세요.")
-    private String publisher;
+    private String publisherName;
 
     @NotEmpty(message = "카테고리를 최소 하나 이상 선택해주세요.")
-    private List<@NotNull(message = "유효하지 않은 카테고리입니다.") Long> selectedCategoryIds = new ArrayList<>();
+    private List<@NotNull(message = "유효하지 않은 카테고리입니다.") Long> categoryIds = new ArrayList<>();
 
     @NotEmpty(message = "작가를 최소 하나 이상 입력해주세요.")
     private List<@NotBlank(message = "작가를 입력해주세요.") String> authorNames = new ArrayList<>();
