@@ -38,6 +38,7 @@ import java.util.stream.Stream;
 import org.springframework.http.MediaType;
 import java.util.Map;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.CookieValue;
@@ -60,11 +61,11 @@ import com.nhnacademy.front.util.PageUtil;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 @Slf4j
 @RequiredArgsConstructor
-@RestController
+@Controller
 public class BookController {
     private final BookClient bookClient;
     private final ReviewClient reviewClient;
@@ -375,6 +376,7 @@ public class BookController {
     }
 
     @DeleteMapping("/admin/books/{bookId}")
+    @ResponseBody
     public ResponseEntity<Void> deleteBook(@PathVariable Long bookId) {
         bookClient.deleteBook(bookId);
         return ResponseEntity.ok().build();
