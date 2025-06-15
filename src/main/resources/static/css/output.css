@@ -64,10 +64,7 @@
     --color-black: #000;
     --color-white: #fff;
     --spacing: 0.25rem;
-    --breakpoint-md: 48rem;
     --breakpoint-xl: 80rem;
-    --container-3xs: 16rem;
-    --container-2xs: 18rem;
     --container-xs: 20rem;
     --container-sm: 24rem;
     --container-md: 28rem;
@@ -592,15 +589,6 @@
   }
   .h-px {
     height: 1px;
-  }
-  .max-h-10 {
-    max-height: calc(var(--spacing) * 10);
-  }
-  .max-h-40 {
-    max-height: calc(var(--spacing) * 40);
-  }
-  .max-h-56 {
-    max-height: calc(var(--spacing) * 56);
   }
   .max-h-96 {
     max-height: calc(var(--spacing) * 96);
