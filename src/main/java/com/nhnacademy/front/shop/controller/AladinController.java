@@ -5,8 +5,6 @@ import com.nhnacademy.front.common.dto.PageResponse;
 import com.nhnacademy.front.shop.book.client.AladinClient;
 import com.nhnacademy.front.shop.book.dto.AladinBookResponse;
 import com.nhnacademy.front.shop.book.dto.BookRegisterRequest;
-import com.nhnacademy.front.shop.tag.client.TagClient;
-import com.nhnacademy.front.shop.tag.client.dto.TagResponse;
 import com.nhnacademy.front.util.PageUtil;
 import com.nhnacademy.front.util.PageUtil.PageInfo;
 import jakarta.validation.Valid;
@@ -24,7 +22,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class AladinController {
 
     private final AladinClient aladinClient;
-    private final TagClient tagClient;
 
     @GetMapping("/admin/aladin/book-search")
     public String getBooksByAladin(@RequestParam(required = false) String keyword,
