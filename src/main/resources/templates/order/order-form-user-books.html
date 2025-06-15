@@ -115,32 +115,36 @@
                                 <option th:each="c : ${item.applicableCoupons}"
                                         th:value="${c.storeId}"
                                         th:utext="${c.couponName + ' - ' +
-                                          (c.discountType == 'FIXED' ?
-                                            #numbers.formatInteger(c.discountValue, 0, 'COMMA') + '원 할인' :
-                                            c.discountPercentage + '% 할인' +
-                                            (c.maximumDiscountAmount != null ? ' (최대 ' + #numbers.formatInteger(c.maximumDiscountAmount, 0, 'COMMA') + '원)' : '')
-                                          ) + '&#10;만료일: ' + #temporals.format(c.expiresAt, 'yyyy-MM-dd HH:mm')}"
+                                                  (c.discountType.name() == 'FIXED' ?
+                                                    #numbers.formatInteger(c.discountValue, 0, 'COMMA') + '원 할인' :
+                                                    c.discountPercentage + '% 할인' +
+                                                    (c.maximumDiscountAmount != null ? ' (최대 ' + #numbers.formatInteger(c.maximumDiscountAmount, 0, 'COMMA') + '원)' : '')
+                                                  ) +
+                                                  '&#10;사용 가능일: ' + #temporals.format(c.issuableFrom, 'yyyy-MM-dd HH:mm') +
+                                                  '&#10;최소 주문금액: ' + #numbers.formatInteger(c.minimumOrderAmount, 0, 'COMMA') + '원' +
+                                                  '&#10;만료일: ' + #temporals.format(c.expiresAt, 'yyyy-MM-dd HH:mm')}"
                                         th:attr="data-coupon-id=${c.couponId},
-                                         data-discount-type=${c.discountType},
-                                         data-discount-value=${c.discountValue},
-                                         data-discount-percentage=${c.discountPercentage},
-                                         data-max-discount=${c.maximumDiscountAmount}">
+                                                 data-discount-type=${c.discountType},
+                                                 data-discount-value=${c.discountValue},
+                                                 data-discount-percentage=${c.discountPercentage},
+                                                 data-max-discount=${c.maximumDiscountAmount},
+                                                 data-min-order-amount=${c.minimumOrderAmount}">
                                 </option>
                             </select>
-                            <style>
-                                select option {
-                                    white-space: pre-line;
-                                    font-size: 14px;
-                                    line-height: 1.4;
-                                    padding: 4px 8px;
-                                }
-                                .disabled-select {
-                                    background-color: #f3f4f6;
-                                    cursor: not-allowed;
-                                    color: #9ca3af;
-                                }
-                            </style>
                         </div>
+                        <style>
+                            select option {
+                                white-space: pre-line;
+                                font-size: 14px;
+                                line-height: 1.4;
+                                padding: 4px 8px;
+                            }
+                            .disabled-select {
+                                background-color: #f3f4f6;
+                                cursor: not-allowed;
+                                color: #9ca3af;
+                            }
+                        </style>
 
                     </div>
 

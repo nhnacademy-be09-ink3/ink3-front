@@ -6,6 +6,7 @@ public record CouponStoreDto(
         Long storeId,
         Long couponId,
         String couponName,
+        LocalDateTime issuableFrom,
         LocalDateTime expiresAt,
         OriginType originType,
         Long originId,
@@ -13,5 +14,6 @@ public record CouponStoreDto(
         DiscountType discountType,
         Integer discountValue,
         Integer discountPercentage,
+        Integer minimumOrderAmount,
         Integer maximumDiscountAmount
 ) {}
