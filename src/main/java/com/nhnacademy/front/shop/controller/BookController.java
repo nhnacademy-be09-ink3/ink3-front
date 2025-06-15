@@ -2,7 +2,6 @@ package com.nhnacademy.front.shop.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.nhnacademy.front.shop.author.client.AuthorClient;
 import com.nhnacademy.front.shop.book.dto.AdminBookResponse;
 import com.nhnacademy.front.shop.book.dto.BookAuthorDto;
 import com.nhnacademy.front.shop.book.dto.BookCreateForm;
@@ -13,7 +12,6 @@ import com.nhnacademy.front.shop.book.dto.BookUpdateForm;
 import com.nhnacademy.front.shop.book.dto.BookUpdateRequest;
 import com.nhnacademy.front.shop.book.dto.BookCreateRequest;
 import com.nhnacademy.front.shop.book.dto.SortType;
-import com.nhnacademy.front.shop.category.client.CategoryClient;
 import com.nhnacademy.front.shop.category.client.dto.CategoryFlatDto;
 import com.nhnacademy.front.shop.category.client.dto.CategoryTreeDto;
 import com.nhnacademy.front.shop.category.service.CategoryService;
@@ -25,8 +23,6 @@ import com.nhnacademy.front.shop.coupon.store.client.dto.CouponIssueRequest;
 import com.nhnacademy.front.shop.coupon.store.client.dto.StoresResponse;
 import com.nhnacademy.front.shop.like.client.dto.LikeResponse;
 import com.nhnacademy.front.shop.like.service.LikeService;
-import com.nhnacademy.front.shop.publisher.client.PublisherClient;
-import com.nhnacademy.front.shop.tag.client.TagClient;
 
 import feign.FeignException;
 import jakarta.validation.Valid;
@@ -38,7 +34,6 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.springframework.http.MediaType;
 import java.util.Map;
@@ -270,7 +265,7 @@ public class BookController {
         List<Long> selectedCategoryIds = response.data().categories().stream()
                 .map(List::getLast)
                 .map(CategoryFlatDto::id)
-                .collect(Collectors.toList());
+                .toList();
 
         model.addAttribute("book", response.data());
         model.addAttribute("categories", categories);
