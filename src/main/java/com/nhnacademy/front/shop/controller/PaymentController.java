@@ -43,7 +43,7 @@ public class PaymentController {
         CommonResponse<OrderResponse> commonOrderResponse = orderClient.createOrder(orderFormCreateRequest);
         OrderResponse orderResponse = commonOrderResponse.data();
         String orderUUID = orderResponse.getOrderUUID();
-        String orderName = "도서 " + orderFormCreateRequest.createRequestList().size() + "종 외";
+        String orderName = "도서 " + orderFormCreateRequest.createRequestList()   .size() + "종 외";
         String customerName = orderFormCreateRequest.orderCreateRequest().getOrdererName();
 
         String successUrl = tossUrlProperty.getSuccessURL()
