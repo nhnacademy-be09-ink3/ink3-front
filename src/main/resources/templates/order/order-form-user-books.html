@@ -115,7 +115,7 @@
                                 <option th:each="c : ${item.applicableCoupons}"
                                         th:value="${c.storeId}"
                                         th:utext="${c.couponName + ' - ' +
-                                                  (c.discountType == 'FIXED' ?
+                                                  (c.discountType.name() == 'FIXED' ?
                                                     #numbers.formatInteger(c.discountValue, 0, 'COMMA') + '원 할인' :
                                                     c.discountPercentage + '% 할인' +
                                                     (c.maximumDiscountAmount != null ? ' (최대 ' + #numbers.formatInteger(c.maximumDiscountAmount, 0, 'COMMA') + '원)' : '')
