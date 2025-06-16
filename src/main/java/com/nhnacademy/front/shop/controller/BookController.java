@@ -32,8 +32,6 @@ import com.nhnacademy.front.shop.like.service.LikeService;
 import com.nhnacademy.front.shop.review.client.ReviewClient;
 import com.nhnacademy.front.shop.review.dto.ReviewListResponse;
 import com.nhnacademy.front.util.PageUtil;
-import com.nhnacademy.front.shop.publisher.client.PublisherClient;
-import com.nhnacademy.front.shop.tag.client.TagClient;
 
 import feign.FeignException;
 import jakarta.validation.Valid;
@@ -68,9 +66,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 public class BookController {
     private final BookClient bookClient;
     private final ReviewClient reviewClient;
-    private final AuthorClient authorClient;
-    private final PublisherClient publisherClient;
-    private final TagClient tagClient;
     private final ObjectMapper objectMapper;
     private final CouponStore couponStore;
     private final CouponClient couponClient;
