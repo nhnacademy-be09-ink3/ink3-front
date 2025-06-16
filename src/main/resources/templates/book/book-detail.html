@@ -43,7 +43,7 @@
                         <h1 class="text-gray-900 text-2xl title-font font-medium" th:text="${book.title}"></h1>
 
                         <!-- 찜 버튼 -->
-                        <div th:if="${loginUser != null}" class="flex items-center gap-1 mt-1">
+                        <div th:if="${loginUser != null and isAdmin == false}" class="flex items-center gap-1 mt-1">
                             <form id="like-form"
                                   th:attr="data-liked=${liked.get()}, data-like-id=${likeId.get()}, data-book-id=${bookId}"
                                   onsubmit="return false;">
@@ -60,6 +60,15 @@
                         </div>
 
                         <div th:unless="${loginUser != null}" class="flex items-center gap-1 mt-1">
+                            <div class="rounded-full w-8 h-8 flex items-center justify-center bg-gray-200 text-gray-400 mr-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="currentColor" viewBox="0 0 32 32">
+                                    <path d="M23.6,4c-3,0-5.6,1.8-7.6,4.4C14,5.8,11.4,4,8.4,4C3.8,4,0,7.8,0,12.4C0,19.2,8,24,16,30c8-6,16-10.8,16-17.6 C32,7.8,28.2,4,23.6,4z"/>
+                                </svg>
+                            </div>
+                            <span th:text="${book.likeCount}" class="text-sm font-bold text-gray-600"></span>
+                        </div>
+
+                        <div th:if="${isAdmin}" class="flex items-center gap-1 mt-1">
                             <div class="rounded-full w-8 h-8 flex items-center justify-center bg-gray-200 text-gray-400 mr-1">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="currentColor" viewBox="0 0 32 32">
                                     <path d="M23.6,4c-3,0-5.6,1.8-7.6,4.4C14,5.8,11.4,4,8.4,4C3.8,4,0,7.8,0,12.4C0,19.2,8,24,16,30c8-6,16-10.8,16-17.6 C32,7.8,28.2,4,23.6,4z"/>

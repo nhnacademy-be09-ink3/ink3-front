@@ -89,10 +89,13 @@ public class BookController {
                 reviews.page(), reviews.totalPages(), 5);
 
         Long userId = null;
+        String userType = null;
         try {
             if (accessToken != null) {
                 DecodedJWT decodedAccessToken = JWT.decode(accessToken);
                 userId = decodedAccessToken.getClaim("id").asLong();
+                userType = decodedAccessToken.getClaim("userType").asString();
+                log.warn("userType={}", userType);
             }
         } catch (Exception e) {
             log.warn("비회원 사용자 도서 상세페이지 접근: {}", e.getMessage());
@@ -166,7 +169,12 @@ public class BookController {
         AtomicBoolean liked = new AtomicBoolean(false);
         AtomicReference<Long> likeId = new AtomicReference<>(null);
 
-        if (userId != null) {
+        boolean isAdmin = false;
+        if (userType.equals("ADMIN")) {
+            isAdmin = true;
+        }
+
+        if (userId != null && !isAdmin) {
             PageResponse<LikeResponse> likes = likeService.getCurrentUserLikes(0, 100, null);
             likes.content().stream()
                     .filter(like -> like.bookId().equals(bookId))
@@ -185,6 +193,7 @@ public class BookController {
         model.addAttribute("pageInfo", pageInfo);
         model.addAttribute("bookId", bookId);
         model.addAttribute("userId", userId);
+        model.addAttribute("isAdmin", isAdmin);
         model.addAttribute("liked", liked);
         model.addAttribute("likeId", likeId);
         model.addAttribute("coupons", flatCoupons);
