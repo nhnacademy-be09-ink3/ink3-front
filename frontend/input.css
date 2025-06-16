@@ -25,11 +25,11 @@
 }
 
 .ink-page-item {
-    @apply block size-8 rounded border border-gray-200 text-center text-sm/8 font-medium transition-colors hover:bg-gray-50
+    @apply block size-8 rounded bg-white border border-gray-200 text-center text-sm/8 font-medium transition-colors hover:bg-gray-50
 }
 
 .ink-page-item-arrow {
-    @apply grid size-8 place-content-center rounded border border-gray-200 transition-colors hover:bg-gray-50 rtl:rotate-180
+    @apply grid size-8 place-content-center rounded bg-white border border-gray-200 transition-colors hover:bg-gray-50 rtl:rotate-180
 }
 
 .ink-page-item-current {
