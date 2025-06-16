@@ -12,9 +12,11 @@
                         <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                     </svg>
                 </button>
-                <input type="text" id="search-input"
-                       class="hidden w-0 opacity-0 border-b-2 border-ink-primary bg-transparent text-gray-800 h-8 text-base transition-all duration-300 outline-none"
-                       placeholder="검색어를 입력하세요"/>
+                <form method="get" th:action="@{/search/books/by-keyword}">
+                    <input type="text" id="search-input" name="keyword"
+                           class="hidden w-0 opacity-0 border-b-2 border-ink-primary bg-transparent text-gray-800 h-8 text-base transition-all duration-300 outline-none"
+                           placeholder="검색어를 입력하세요"/>
+                </form>
                 <div th:if="${loginUser != null}">
                     <a th:href="@{/carts}" class="text-gray-700 transition-transform duration-300 hover:scale-110">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
