@@ -1,13 +1,10 @@
 package com.nhnacademy.front.shop.controller;
 
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.interfaces.DecodedJWT;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nhnacademy.front.common.dto.CommonResponse;
 import com.nhnacademy.front.common.dto.PageResponse;
 import com.nhnacademy.front.shop.book.client.BookClient;
-import com.nhnacademy.front.shop.author.client.AuthorClient;
 import com.nhnacademy.front.shop.book.dto.AdminBookResponse;
 import com.nhnacademy.front.shop.book.dto.BookAuthorDto;
 import com.nhnacademy.front.shop.book.dto.BookCreateForm;
@@ -27,20 +24,16 @@ import com.nhnacademy.front.shop.coupon.coupon.client.dto.CouponView;
 import com.nhnacademy.front.shop.coupon.store.client.CouponStore;
 import com.nhnacademy.front.shop.coupon.store.client.dto.CouponIssueRequest;
 import com.nhnacademy.front.shop.coupon.store.client.dto.StoresResponse;
-import com.nhnacademy.front.shop.like.client.dto.LikeResponse;
 import com.nhnacademy.front.shop.like.service.LikeService;
 import com.nhnacademy.front.shop.review.client.ReviewClient;
 import com.nhnacademy.front.shop.review.dto.ReviewListResponse;
 import com.nhnacademy.front.util.PageUtil;
-
 import feign.FeignException;
 import jakarta.validation.Valid;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
@@ -88,23 +81,9 @@ public class BookController {
         PageUtil.PageInfo pageInfo = PageUtil.calculatePageRange(
                 reviews.page(), reviews.totalPages(), 5);
 
-        Long userId = null;
-        String userType = null;
-        try {
-            if (accessToken != null) {
-                DecodedJWT decodedAccessToken = JWT.decode(accessToken);
-                userId = decodedAccessToken.getClaim("id").asLong();
-                userType = decodedAccessToken.getClaim("userType").asString();
-                log.warn("userType={}", userType);
-            }
-        } catch (Exception e) {
-            log.warn("비회원 사용자 도서 상세페이지 접근: {}", e.getMessage());
-        }
-
         List<CouponResponse> bookCoupons = new ArrayList<>();
         List<CouponResponse> categoryCoupons = new ArrayList<>();
         List<CouponResponse> parentCategoryCoupons = new ArrayList<>();
-
 
         // 1) 책 쿠폰
         try {
@@ -123,10 +102,10 @@ public class BookController {
         }
 
         // 3) 부모 카테고리 쿠폰
-        try{
+        try {
             parentCategoryCoupons = couponClient.getParentCategoryCoupons(bookId, 0, 20).data().content();
             log.info("부모카테고리 id: {}", parentCategoryCoupons);
-        }catch (FeignException e){
+        } catch (FeignException e) {
             log.error("부모 카테고리 쿠폰 조회 실패: {}", e.getMessage());
         }
 
@@ -165,36 +144,19 @@ public class BookController {
 
         model.addAttribute("coupons", flatCoupons);
 
-
-        AtomicBoolean liked = new AtomicBoolean(false);
-        AtomicReference<Long> likeId = new AtomicReference<>(null);
-
-        boolean isAdmin = false;
-        if (userType.equals("ADMIN")) {
-            isAdmin = true;
-        }
-
-        if (userId != null && !isAdmin) {
-            PageResponse<LikeResponse> likes = likeService.getCurrentUserLikes(0, 100, null);
-            likes.content().stream()
-                    .filter(like -> like.bookId().equals(bookId))
-                    .findFirst()
-                    .ifPresent(like -> {
-                        liked.set(true);
-                        likeId.set(like.id());
-                    });
-        }
-
         bookClient.increaseViewCount(bookId);
+
+        Long likeId = null;
+        try {
+            likeId = likeService.checkLiked(bookId).likeId();
+        } catch (FeignException ignored) {
+        }
 
         model.addAttribute("book", books.data());
         model.addAttribute("reviews", reviews.content());
         model.addAttribute("reviewPage", reviews);
         model.addAttribute("pageInfo", pageInfo);
         model.addAttribute("bookId", bookId);
-        model.addAttribute("userId", userId);
-        model.addAttribute("isAdmin", isAdmin);
-        model.addAttribute("liked", liked);
         model.addAttribute("likeId", likeId);
         model.addAttribute("coupons", flatCoupons);
 

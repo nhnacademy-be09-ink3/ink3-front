@@ -3,6 +3,7 @@ package com.nhnacademy.front.shop.like.client;
 import com.nhnacademy.front.common.dto.CommonResponse;
 import com.nhnacademy.front.common.dto.PageResponse;
 import com.nhnacademy.front.shop.like.client.dto.LikeCreateRequest;
+import com.nhnacademy.front.shop.like.client.dto.LikeExistResponse;
 import com.nhnacademy.front.shop.like.client.dto.LikeResponse;
 import jakarta.validation.Valid;
 import org.springframework.cloud.openfeign.FeignClient;
@@ -22,6 +23,9 @@ public interface LikeClient {
             @RequestParam int size,
             @RequestParam(required = false) String sort
     );
+
+    @GetMapping("/books/{bookId}")
+    CommonResponse<LikeExistResponse> checkLiked(@PathVariable long bookId);
 
     @PostMapping
     CommonResponse<LikeResponse> createCurrentUserLike(@RequestBody @Valid LikeCreateRequest request);
