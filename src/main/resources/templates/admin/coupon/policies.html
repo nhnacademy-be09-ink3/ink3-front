@@ -110,14 +110,14 @@
                                 </form>
 
                                 <!-- ② 삭제: POST + _method=delete 로 보내야 DELETE 매핑이 동작 -->
-                                <form th:action="@{/admin/coupon/policies/{id}(id=${policy.policyId})}"
-                                      method="post" class="inline">
-                                    <input type="hidden" name="_method" value="delete"/>
-                                    <button type="submit"
-                                            class="bg-red-500 px-2 py-1 text-white rounded-xl hover:bg-red-400">
-                                        삭제
-                                    </button>
-                                </form>
+<!--                                <form th:action="@{/admin/coupon/policies/{id}(id=${policy.policyId})}"-->
+<!--                                      method="post" class="inline">-->
+<!--                                    <input type="hidden" name="_method" value="delete"/>-->
+<!--                                    <button type="submit"-->
+<!--                                            class="bg-red-500 px-2 py-1 text-white rounded-xl hover:bg-red-400">-->
+<!--                                        삭제-->
+<!--                                    </button>-->
+<!--                                </form>-->
                             </td>
                         </tr>
                         </tbody>

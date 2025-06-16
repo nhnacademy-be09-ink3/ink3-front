@@ -3,7 +3,9 @@ package com.nhnacademy.front.shop.coupon.coupon.controller;
 import com.nhnacademy.front.common.dto.CommonResponse;
 import com.nhnacademy.front.common.dto.PageResponse;
 import com.nhnacademy.front.shop.book.client.BookClient;
+import com.nhnacademy.front.shop.book.dto.BookPreviewResponse;
 import com.nhnacademy.front.shop.category.client.CategoryClient;
+import com.nhnacademy.front.shop.category.client.dto.CategoryFlatDto;
 import com.nhnacademy.front.shop.category.service.CategoryService;
 import com.nhnacademy.front.shop.coupon.coupon.client.CouponClient;
 import com.nhnacademy.front.shop.coupon.coupon.client.dto.CouponCreateRequest;
@@ -12,9 +14,11 @@ import com.nhnacademy.front.shop.coupon.coupon.client.dto.CouponResponse.BookInf
 import com.nhnacademy.front.shop.coupon.coupon.client.dto.CouponResponse.CategoryInfo;
 import com.nhnacademy.front.shop.coupon.coupon.client.dto.CouponUpdateRequest;
 import com.nhnacademy.front.shop.coupon.policy.client.CouponPolicyClient;
+import com.nhnacademy.front.shop.coupon.policy.client.dto.PolicyResponse;
 import com.nhnacademy.front.util.PageUtil;
 import feign.FeignException;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
@@ -30,9 +34,9 @@ public class CouponController {
 
     private final CouponPolicyClient policyClient;
     private final BookClient bookClient;
-    private final CategoryClient categoryClient;
     private final CouponClient couponClient;
     private final CategoryService categoryService;
+    private final CategoryClient categoryClient;
 
     // (1) 등록 폼
     @GetMapping("/coupon-register")
@@ -41,11 +45,14 @@ public class CouponController {
             @RequestParam(name = "size", defaultValue = "100") int size,
             Model model
     ) {
+        // 정책은 페이지 형식을 그대로
         model.addAttribute("policies", policyClient.getAllPolicies(size, page).data());
-        model.addAttribute("books",    bookClient.getBooks(0, 100).data());
+        // 도서와 카테고리는 List로 꺼내서 넘김
+        model.addAttribute("books", bookClient.getBooks(0, 100).data().content());
         model.addAttribute("categories", categoryService.getAllCategoriesFlat());
         return "admin/coupon/coupon-register";
     }
+
 
     // (2) 등록 처리
     @PostMapping("/coupon-register")
@@ -98,19 +105,20 @@ public class CouponController {
         List<Long> selectedBookIds = cr.books().stream()
                 .map(BookInfo::id)
                 .toList();
+        log.info("selectedBookIds: {}", selectedBookIds);
         List<Long> selectedCategoryIds = cr.categories().stream()
                 .map(CategoryInfo::id)
                 .toList();
-
+        log.info("selectedCategoryIds: {}", selectedCategoryIds);
         CouponUpdateRequest updateReq = new CouponUpdateRequest(
                 cr.policyId(),
                 cr.name(),
                 cr.issuableFrom(),
                 cr.expiresAt(),
+                cr.isActive(),
                 selectedBookIds,
                 selectedCategoryIds
         );
-
         // 3) 모델에 폼 바인딩 객체와 셀렉트 옵션들 추가
         model.addAttribute("couponUpdateRequest", updateReq);
         model.addAttribute("couponId", id);
@@ -120,6 +128,8 @@ public class CouponController {
 
         return "admin/coupon/coupon-update";
     }
+
+
 
     @DeleteMapping("/coupon-list/{id}")
     public String deleteCoupon(

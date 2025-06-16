@@ -2,6 +2,7 @@ package com.nhnacademy.front.shop.coupon.coupon.client.dto;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import lombok.Getter;
 
 public record CouponResponse(
         Long couponId,
@@ -12,6 +13,7 @@ public record CouponResponse(
         int discountValue,
         LocalDateTime issuableFrom,
         LocalDateTime expiresAt,
+        boolean isActive,
         LocalDateTime createdAt,
         List<BookInfo> books,
         List<CategoryInfo> categories

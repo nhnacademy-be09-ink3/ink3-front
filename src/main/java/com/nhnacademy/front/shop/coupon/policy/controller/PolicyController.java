@@ -74,7 +74,7 @@ public class PolicyController {
             @ModelAttribute PolicyUpdateRequest req
     ) {
         couponPolicyClient.updatePolicy(id, req);
-        return "redirect:/admin/policies";
+        return "redirect:/admin/coupon/policies";
     }
 
     // (4) 삭제

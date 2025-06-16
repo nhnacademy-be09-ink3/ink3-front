@@ -13,6 +13,11 @@
         body { font-family: 'Inter', sans-serif; }
         .ink-input-group { @apply grid grid-cols-1 gap-2 mb-6; }
         .ink-input-group label { @apply text-gray-700 font-medium block mb-2; }
+        .ink-input-field[multiple] {
+            min-height: 8rem;
+            max-height: 12rem;
+            overflow-y: auto;
+        }
     </style>
 </head>
 
@@ -50,38 +55,63 @@
 
                     <!-- 3) 발급 가능 시작일 -->
                     <div class="ink-input-group">
-                        <label for="issuableFrom">발급 가능 시작일</label>
-                        <input type="datetime-local" id="issuableFrom" name="issuableFrom"
-                               required class="ink-input-field w-full"/>
+                        <label for="issuableFrom">쿠폰 시작일</label>
+                        <input
+                                type="datetime-local"
+                                id="issuableFrom"
+                                name="issuableFrom"
+                                required
+                                class="ink-input-field w-full"
+                        />
                     </div>
 
                     <!-- 4) 만료일 -->
                     <div class="ink-input-group">
                         <label for="expiresAt">만료일</label>
-                        <input type="datetime-local" id="expiresAt" name="expiresAt"
-                               required class="ink-input-field w-full"/>
+                        <input
+                                type="datetime-local"
+                                id="expiresAt"
+                                name="expiresAt"
+                                required
+                                class="ink-input-field w-full"
+                                min=""
+                        />
                     </div>
 
-                    <!-- 6) 도서 멀티셀렉트 -->
+                    <!-- 5) 활성화 여부 -->
+                    <div class="ink-input-group">
+                        <label for="isActive">활성화 여부</label>
+                        <select id="isActive" name="isActive" class="ink-input-field">
+                            <option value="true">활성</option>
+                            <option value="false">비활성</option>
+                        </select>
+                    </div>
+                    <!-- (6) 도서 멀티셀렉트 -->
                     <div class="ink-input-group">
                         <label for="bookIds">도서 선택 (자동 발급)</label>
-                        <select id="bookIds" name="bookIdList"
-                                class="js-multi-select w-full" multiple>
+                        <select id="bookIds"
+                                name="bookIdList"
+                                class="ink-input-field js-multi-select w-full"
+                                multiple>
                             <option value="" disabled>도서를 선택하세요</option>
-                            <th:block th:each="book : ${books.content}">
+                            <!-- 이제 books 는 List<BookDto> 이므로 바로 반복 -->
+                            <th:block th:each="book : ${books}">
                                 <option th:value="${book.id}"
                                         th:text="${book.title}">도서명</option>
                             </th:block>
                         </select>
                     </div>
 
-                    <!-- 7) 카테고리 멀티셀렉트 -->
+                    <!-- (7) 카테고리 멀티셀렉트 -->
                     <div class="ink-input-group">
                         <label for="categoryIds">카테고리 선택 (자동 발급)</label>
-                        <select id="categoryIds" name="categoryIdList"
-                                class="js-multi-select w-full" multiple>
+                        <select id="categoryIds"
+                                name="categoryIdList"
+                                class="ink-input-field js-multi-select w-full"
+                                multiple>
                             <option value="" disabled>카테고리를 선택하세요</option>
-                            <th:block th:each="category : ${categories.content}">
+                            <!-- categories 도 List<CategoryDto> -->
+                            <th:block th:each="category : ${categories}">
                                 <option th:value="${category.id}"
                                         th:text="${category.name}">카테고리명</option>
                             </th:block>
@@ -109,6 +139,24 @@
             placeholder: "항목을 선택하세요",
             allowClear: true,
             width: "100%"
+        });
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const fromInput = document.getElementById('issuableFrom');
+        const toInput   = document.getElementById('expiresAt');
+
+        // 초기에는 expiresAt을 비활성화하거나 today 이상의 값만 허용하고 싶다면
+        // toInput.min = new Date().toISOString().slice(0,16);
+
+        fromInput.addEventListener('change', () => {
+            // issuableFrom 값(ISO format)을 expiresAt.min에 세팅
+            toInput.min = fromInput.value;
+
+            // 이미 채워진 expiresAt 값이 더 이전이면 자동 보정
+            if (toInput.value && toInput.value < toInput.min) {
+                toInput.value = toInput.min;
+            }
         });
     });
 </script>

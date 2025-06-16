@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nhnacademy.front.common.dto.CommonResponse;
 import com.nhnacademy.front.common.dto.PageResponse;
 import com.nhnacademy.front.shop.book.client.BookClient;
+import com.nhnacademy.front.shop.author.client.AuthorClient;
 import com.nhnacademy.front.shop.book.dto.AdminBookResponse;
 import com.nhnacademy.front.shop.book.dto.BookAuthorDto;
 import com.nhnacademy.front.shop.book.dto.BookCreateForm;
@@ -31,11 +32,13 @@ import com.nhnacademy.front.shop.like.service.LikeService;
 import com.nhnacademy.front.shop.review.client.ReviewClient;
 import com.nhnacademy.front.shop.review.dto.ReviewListResponse;
 import com.nhnacademy.front.util.PageUtil;
+
 import feign.FeignException;
 import jakarta.validation.Valid;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
@@ -97,44 +100,68 @@ public class BookController {
 
         List<CouponResponse> bookCoupons = new ArrayList<>();
         List<CouponResponse> categoryCoupons = new ArrayList<>();
+        List<CouponResponse> parentCategoryCoupons = new ArrayList<>();
 
+
+        // 1) 책 쿠폰
         try {
-            bookCoupons = couponClient.getByBookId(bookId, 0, 10).data().content();
-            categoryCoupons = books.data().categories().stream()
-                    .flatMap(cat ->
-                            couponClient.getByCategoryId(cat.getLast().id(), 0, 10)
-                                    .data().content().stream()
-                    )
-                    .toList();
+            bookCoupons = couponClient.getByBookId(bookId, 0, 20).data().content();
         } catch (FeignException e) {
-            log.error("쿠폰리스트 예외발생: {}", e.getMessage());
+            log.error("책 쿠폰 조회 실패: {}", e.getMessage());
         }
 
-        log.info(">>> bookCoupons (size={}): {}", bookCoupons.size(), bookCoupons);
-        log.info(">>> categoryCoupons (size={}): {}", categoryCoupons.size(), categoryCoupons);
+        // 2) 카테고리 쿠폰
+        try {
+            categoryCoupons = books.data().categories().stream()
+                    .flatMap(cat -> couponClient.getByCategoryId(cat.getFirst().id(), 0, 20).data().content().stream())
+                    .toList();
+        } catch (FeignException e) {
+            log.error("카테고리 쿠폰 조회 실패: {}", e.getMessage());
+        }
 
-        List<CouponView> coupons = Stream.concat(bookCoupons.stream(), categoryCoupons.stream())
-                .map(c -> {
-                    boolean isBook = !c.books().isEmpty();
-                    String originType = isBook
-                            ? c.books().get(0).originType()
-                            : c.categories().get(0).originType();
-                    Long originId = isBook
-                            ? c.books().get(0).originId()
-                            : c.categories().get(0).originId();
-                    return new CouponView(
-                            c.couponId(),
-                            c.name(),
-                            c.discountRate(),
-                            c.discountValue(),
-                            c.expiresAt(),
-                            originType,
-                            originId
-                    );
-                })
+        // 3) 부모 카테고리 쿠폰
+        try{
+            parentCategoryCoupons = couponClient.getParentCategoryCoupons(bookId, 0, 20).data().content();
+            log.info("부모카테고리 id: {}", parentCategoryCoupons);
+        }catch (FeignException e){
+            log.error("부모 카테고리 쿠폰 조회 실패: {}", e.getMessage());
+        }
+
+        // 3) 세 리스트 합치기 & 중복 제거(optional)
+        List<CouponResponse> coupons = Stream.of(
+                        bookCoupons.stream(),
+                        categoryCoupons.stream(),
+                        parentCategoryCoupons.stream()
+                )
+                .flatMap(s -> s)
+                .distinct()
                 .toList();
 
-        log.info(">>> coupons (combined, size={}): {}", coupons.size(), coupons);
+        List<CouponView> flatCoupons = coupons.stream()
+                .map(c -> {
+                    if (!c.books().isEmpty()) {
+                        var b = c.books().getFirst();
+                        return new CouponView(
+                                c.couponId(), c.name(),
+                                c.discountRate(), c.discountValue(),
+                                c.expiresAt(), c.isActive(),
+                                b.originType(), b.originId());
+                    }
+                    if (!c.categories().isEmpty()) {            // CATEGORY 쿠폰
+                        var cat = c.categories().getFirst();
+                        return new CouponView(
+                                c.couponId(), c.name(),
+                                c.discountRate(), c.discountValue(),
+                                c.expiresAt(), c.isActive(),
+                                cat.originType(), cat.originId());
+                    }
+                    return null;
+                })
+                .filter(Objects::nonNull)
+                .toList();
+
+        model.addAttribute("coupons", flatCoupons);
+
 
         AtomicBoolean liked = new AtomicBoolean(false);
         AtomicReference<Long> likeId = new AtomicReference<>(null);
@@ -160,7 +187,7 @@ public class BookController {
         model.addAttribute("userId", userId);
         model.addAttribute("liked", liked);
         model.addAttribute("likeId", likeId);
-        model.addAttribute("coupons", coupons);
+        model.addAttribute("coupons", flatCoupons);
 
         return "book/book-detail";
     }
@@ -396,7 +423,7 @@ public class BookController {
         } catch (FeignException e) {
             String err = e.status() == 409
                     ? extractMessageFromFeignBody(e.contentUTF8())
-                    : "쿠폰 발급 중 오류가 발생했습니다.";
+                    : "중복 쿠폰 입니다.";
             model.addAttribute("errorMessage", err);
         }
 
