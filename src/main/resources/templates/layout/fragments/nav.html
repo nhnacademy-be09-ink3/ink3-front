@@ -46,8 +46,7 @@
     <script th:inline="javascript">
         const navContext = /*[[@{/}]]*/ '';
 
-        // fetch(`${window.api.gatewayBaseUrl}/shop/categories/tree`)
-        fetch(`http://localhost:8081/shop/categories/tree`)
+        fetch(`${window.api.gatewayBaseUrl}/shop/categories/tree`)
             .then(res => res.json())
             .then(data => {
                 const rootList = document.getElementById("category-list");
