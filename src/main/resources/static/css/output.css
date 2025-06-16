@@ -1,4 +1,4 @@
-/*! tailwindcss v4.1.8 | MIT License | https://tailwindcss.com */
+/*! tailwindcss v4.1.6 | MIT License | https://tailwindcss.com */
 @layer properties;
 @layer theme, base, components, utilities;
 @layer theme {
@@ -322,8 +322,8 @@
   .top-6 {
     top: calc(var(--spacing) * 6);
   }
-  .top-full {
-    top: 100%;
+  .top-\[64px\] {
+    top: 64px;
   }
   .right-0 {
     right: calc(var(--spacing) * 0);
@@ -593,15 +593,6 @@
   .h-px {
     height: 1px;
   }
-  .max-h-10 {
-    max-height: calc(var(--spacing) * 10);
-  }
-  .max-h-40 {
-    max-height: calc(var(--spacing) * 40);
-  }
-  .max-h-56 {
-    max-height: calc(var(--spacing) * 56);
-  }
   .max-h-96 {
     max-height: calc(var(--spacing) * 96);
   }
@@ -742,6 +733,9 @@
   }
   .w-max {
     width: max-content;
+  }
+  .w-md {
+    width: var(--container-md);
   }
   .w-screen {
     width: 100vw;
@@ -1490,6 +1484,9 @@
   }
   .text-\[12px\] {
     font-size: 12px;
+  }
+  .text-\[16px\] {
+    font-size: 16px;
   }
   .leading-5 {
     --tw-leading: calc(var(--spacing) * 5);
@@ -2406,6 +2403,7 @@
   border-style: var(--tw-border-style);
   border-width: 1px;
   border-color: var(--color-gray-200);
+  background-color: var(--color-white);
   text-align: center;
   font-size: var(--text-sm);
   line-height: calc(var(--spacing) * 8);
@@ -2429,6 +2427,7 @@
   border-style: var(--tw-border-style);
   border-width: 1px;
   border-color: var(--color-gray-200);
+  background-color: var(--color-white);
   transition-property: color, background-color, border-color, outline-color, text-decoration-color, fill, stroke, --tw-gradient-from, --tw-gradient-via, --tw-gradient-to;
   transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
   transition-duration: var(--tw-duration, var(--default-transition-duration));

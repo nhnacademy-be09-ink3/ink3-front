@@ -15,17 +15,19 @@
 
 <div th:replace="~{layout/fragments/header :: headerFragment}"></div>
 
-<main class="container mx-auto px-4 py-8">
-    <h2 class="text-2xl font-bold mb-6 text-center" th:text="${title}"></h2>
+<main class="container mx-auto px-4 py-8 min-h-[calc(100vh-72px-64px)]">
+    <h2 class="text-2xl font-bold mb-6 text-center" th:text="'『' + ${keyword} + '』 검색 결과'"></h2>
 
     <div class="max-w-5xl mx-auto flex justify-end mb-4">
-        <form method="get" class="flex items-center gap-2">
+        <form method="get" th:action="@{/search/books/by-keyword}"
+              class="flex items-center gap-2">
+            <input type="hidden" name="keyword" th:value="${keyword}"/>
             <label for="sort" class="text-sm text-gray-600">정렬:</label>
-            <select id="sort" name="sortType"
+            <select id="sort" name="sort"
                     class="px-2 py-1 border border-gray-300 rounded-md"
                     onchange="this.form.submit()">
                 <option th:each="sort : ${sorts}"
-                        th:value="sort.name"
+                        th:value="${sort.name()}"
                         th:text="${sort.getLabel()}"
                         th:selected="${currentSort == sort}">
                 </option>
@@ -124,7 +126,7 @@
     <ul class="flex justify-center gap-1 text-gray-900 mt-6">
         <!-- 이전 페이지 -->
         <li>
-            <a th:href="@{/search/books(page=${books.hasPrevious()} ? ${books.page() - 1} : ${books.page()}, sort=${currentSort.name()})}"
+            <a th:href="@{/search/books/by-keyword(keyword=${keyword}, page=${books.hasPrevious()} ? ${books.page() - 1} : ${books.page()}, sort=${currentSort.name()})}"
                class="ink-page-item-arrow"
                aria-label="Previous page">
                 <svg xmlns="http://www.w3.org/2000/svg" class="size-4" viewBox="0 0 20 20" fill="currentColor">
@@ -137,14 +139,14 @@
 
         <!-- 페이지 번호 -->
         <li th:each="i : ${#numbers.sequence(pageInfo.startPage(), pageInfo.endPage())}">
-            <a th:href="@{/books/bestseller(page=${i}, sortType=${currentSort})}"
+            <a th:href="@{/search/books/by-keyword(keyword=${keyword}, page=${i}, sort=${currentSort.name()})}"
                th:class="${i == books.page()} ? 'ink-page-item-current' : 'ink-page-item'"
                th:text="${i + 1}"></a>
         </li>
 
         <!-- 다음 페이지 -->
         <li>
-            <a th:href="@{/books/bestseller(page=${books.hasNext()} ? ${books.page() + 1} : ${books.page()}, sort=${currentSort.name()})}"
+            <a th:href="@{/search/books/by-keyword(keyword=${keyword}, page=${books.hasNext()} ? ${books.page() + 1} : ${books.page()}, sort=${currentSort.name()})}"
                class="ink-page-item-arrow" aria-label="Next page">
                 <svg xmlns="http://www.w3.org/2000/svg" class="size-4" viewBox="0 0 20 20" fill="currentColor">
                     <path fill-rule="evenodd"
