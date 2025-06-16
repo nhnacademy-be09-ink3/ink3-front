@@ -1,23 +1,19 @@
 package com.nhnacademy.front.shop.book.client;
 
+import com.nhnacademy.front.common.dto.CommonResponse;
+import com.nhnacademy.front.common.dto.PageResponse;
 import com.nhnacademy.front.shop.book.dto.AdminBookResponse;
 import com.nhnacademy.front.shop.book.dto.BookDetailResponse;
 import com.nhnacademy.front.shop.book.dto.BookPreviewResponse;
+import com.nhnacademy.front.shop.book.dto.SortType;
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-
-import com.nhnacademy.front.common.dto.CommonResponse;
-import com.nhnacademy.front.common.dto.PageResponse;
-import com.nhnacademy.front.shop.book.dto.SortType;
-
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -37,19 +33,22 @@ public interface BookClient {
     CommonResponse<PageResponse<BookPreviewResponse>> getTop5BestsellerBooks();
 
     @GetMapping("/books/bestseller-all")
-    CommonResponse<PageResponse<BookPreviewResponse>> getAllBestsellerBooks(@RequestParam(defaultValue = "REVIEW") SortType sortType, @RequestParam int page, @RequestParam int size);
+    CommonResponse<PageResponse<BookPreviewResponse>> getAllBestsellerBooks(
+            @RequestParam(defaultValue = "REVIEW") SortType sortType, @RequestParam int page, @RequestParam int size);
 
     @GetMapping("/books/new")
     CommonResponse<PageResponse<BookPreviewResponse>> getTop5NewBooks();
 
     @GetMapping("/books/new-all")
-    CommonResponse<PageResponse<BookPreviewResponse>> getAllNewBooks(@RequestParam(defaultValue = "REVIEW") SortType sortType, @RequestParam int page, @RequestParam int size);
+    CommonResponse<PageResponse<BookPreviewResponse>> getAllNewBooks(
+            @RequestParam(defaultValue = "REVIEW") SortType sortType, @RequestParam int page, @RequestParam int size);
 
     @GetMapping("/books/recommend")
     CommonResponse<PageResponse<BookPreviewResponse>> getTop5RecommendedBooks();
 
     @GetMapping("/books/recommend-all")
-    CommonResponse<PageResponse<BookPreviewResponse>> getAllRecommendedBooks(@RequestParam(defaultValue = "REVIEW") SortType sortType, @RequestParam int page, @RequestParam int size);
+    CommonResponse<PageResponse<BookPreviewResponse>> getAllRecommendedBooks(
+            @RequestParam(defaultValue = "REVIEW") SortType sortType, @RequestParam int page, @RequestParam int size);
 
     @PostMapping(value = "/books", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     CommonResponse<BookDetailResponse> createBook(
@@ -66,4 +65,10 @@ public interface BookClient {
 
     @DeleteMapping("/books/{bookId}")
     CommonResponse<Void> deleteBook(@PathVariable Long bookId);
+
+    @PostMapping("/books/{bookId}/view")
+    void increaseViewCount(@PathVariable Long bookId);
+
+    @PostMapping("/books/{bookId}/search")
+    void increaseSearchCount(@PathVariable Long bookId);
 }

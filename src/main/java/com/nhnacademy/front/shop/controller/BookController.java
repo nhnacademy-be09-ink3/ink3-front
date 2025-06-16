@@ -1,20 +1,23 @@
 package com.nhnacademy.front.shop.controller;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nhnacademy.front.common.dto.CommonResponse;
+import com.nhnacademy.front.common.dto.PageResponse;
+import com.nhnacademy.front.shop.book.client.BookClient;
 import com.nhnacademy.front.shop.author.client.AuthorClient;
-import com.nhnacademy.front.shop.author.client.dto.AuthorResponse;
 import com.nhnacademy.front.shop.book.dto.AdminBookResponse;
 import com.nhnacademy.front.shop.book.dto.BookAuthorDto;
 import com.nhnacademy.front.shop.book.dto.BookCreateForm;
+import com.nhnacademy.front.shop.book.dto.BookCreateRequest;
 import com.nhnacademy.front.shop.book.dto.BookDetailResponse;
 import com.nhnacademy.front.shop.book.dto.BookPreviewResponse;
 import com.nhnacademy.front.shop.book.dto.BookStatus;
 import com.nhnacademy.front.shop.book.dto.BookUpdateForm;
 import com.nhnacademy.front.shop.book.dto.BookUpdateRequest;
-import com.nhnacademy.front.shop.book.dto.BookCreateRequest;
 import com.nhnacademy.front.shop.book.dto.SortType;
-import com.nhnacademy.front.shop.category.client.CategoryClient;
 import com.nhnacademy.front.shop.category.client.dto.CategoryFlatDto;
 import com.nhnacademy.front.shop.category.client.dto.CategoryTreeDto;
 import com.nhnacademy.front.shop.category.service.CategoryService;
@@ -26,26 +29,25 @@ import com.nhnacademy.front.shop.coupon.store.client.dto.CouponIssueRequest;
 import com.nhnacademy.front.shop.coupon.store.client.dto.StoresResponse;
 import com.nhnacademy.front.shop.like.client.dto.LikeResponse;
 import com.nhnacademy.front.shop.like.service.LikeService;
+import com.nhnacademy.front.shop.review.client.ReviewClient;
+import com.nhnacademy.front.shop.review.dto.ReviewListResponse;
+import com.nhnacademy.front.util.PageUtil;
 import com.nhnacademy.front.shop.publisher.client.PublisherClient;
-import com.nhnacademy.front.shop.publisher.client.dto.PublisherResponse;
 import com.nhnacademy.front.shop.tag.client.TagClient;
-import com.nhnacademy.front.shop.tag.client.dto.TagResponse;
 
 import feign.FeignException;
 import jakarta.validation.Valid;
-
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
-
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
-import java.util.Map;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -55,21 +57,9 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.interfaces.DecodedJWT;
-import com.nhnacademy.front.common.dto.CommonResponse;
-import com.nhnacademy.front.common.dto.PageResponse;
-import com.nhnacademy.front.shop.book.client.BookClient;
-import com.nhnacademy.front.shop.review.client.ReviewClient;
-import com.nhnacademy.front.shop.review.dto.ReviewListResponse;
-import com.nhnacademy.front.util.PageUtil;
-
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 @Slf4j
@@ -89,10 +79,13 @@ public class BookController {
 
 
     @GetMapping("/books/{bookId}")
-    public String getBookDetail(@PathVariable Long bookId,
-                                @RequestParam(defaultValue = "0") int  page,
-                                @RequestParam(defaultValue = "10") int  size,
-                                Model model, @CookieValue(name = "accessToken", required = false) String accessToken) {
+    public String getBookDetail(
+            @PathVariable Long bookId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            Model model,
+            @CookieValue(name = "accessToken", required = false) String accessToken
+    ) {
         CommonResponse<BookDetailResponse> books = bookClient.getBookByIdWithParentCategory(bookId);
         PageResponse<ReviewListResponse> reviews =
                 reviewClient.getReviewsByBookId(bookId, page, size);
@@ -189,12 +182,14 @@ public class BookController {
                     });
         }
 
-        model.addAttribute("book",      books.data());
-        model.addAttribute("reviews",   reviews.content());
+        bookClient.increaseViewCount(bookId);
+
+        model.addAttribute("book", books.data());
+        model.addAttribute("reviews", reviews.content());
         model.addAttribute("reviewPage", reviews);
-        model.addAttribute("pageInfo",  pageInfo);
-        model.addAttribute("bookId",    bookId);
-        model.addAttribute("userId",    userId);
+        model.addAttribute("pageInfo", pageInfo);
+        model.addAttribute("bookId", bookId);
+        model.addAttribute("userId", userId);
         model.addAttribute("liked", liked);
         model.addAttribute("likeId", likeId);
         model.addAttribute("coupons", flatCoupons);
@@ -204,12 +199,13 @@ public class BookController {
 
     @GetMapping("/books/bestseller")
     public String getBestsellerBooks(@RequestParam(defaultValue = "REVIEW") SortType sortType,
-        @RequestParam(defaultValue = "0") int page, Model model) {
-        CommonResponse<PageResponse<BookPreviewResponse>> response = bookClient.getAllBestsellerBooks(sortType, page, 10);
+                                     @RequestParam(defaultValue = "0") int page, Model model) {
+        CommonResponse<PageResponse<BookPreviewResponse>> response = bookClient.getAllBestsellerBooks(sortType, page,
+                10);
         PageResponse<BookPreviewResponse> pageData = response.data();
 
         PageUtil.PageInfo pageInfo = PageUtil.calculatePageRange(
-            pageData.page(), pageData.totalPages(), 5
+                pageData.page(), pageData.totalPages(), 5
         );
 
         model.addAttribute("bookList", pageData.content());
@@ -222,12 +218,12 @@ public class BookController {
 
     @GetMapping("/books/new")
     public String getNewBooks(@RequestParam(defaultValue = "REVIEW") SortType sortType,
-        @RequestParam(defaultValue = "0") int page, Model model) {
+                              @RequestParam(defaultValue = "0") int page, Model model) {
         CommonResponse<PageResponse<BookPreviewResponse>> response = bookClient.getAllNewBooks(sortType, page, 10);
         PageResponse<BookPreviewResponse> pageData = response.data();
 
         PageUtil.PageInfo pageInfo = PageUtil.calculatePageRange(
-            pageData.page(), pageData.totalPages(), 5
+                pageData.page(), pageData.totalPages(), 5
         );
 
         model.addAttribute("bookList", pageData.content());
@@ -240,12 +236,13 @@ public class BookController {
 
     @GetMapping("/books/recommend")
     public String getRecommendBooks(@RequestParam(defaultValue = "REVIEW") SortType sortType,
-        @RequestParam(defaultValue = "0") int page, Model model) {
-        CommonResponse<PageResponse<BookPreviewResponse>> response = bookClient.getAllRecommendedBooks(sortType, page, 10);
+                                    @RequestParam(defaultValue = "0") int page, Model model) {
+        CommonResponse<PageResponse<BookPreviewResponse>> response = bookClient.getAllRecommendedBooks(sortType, page,
+                10);
         PageResponse<BookPreviewResponse> pageData = response.data();
 
         PageUtil.PageInfo pageInfo = PageUtil.calculatePageRange(
-            pageData.page(), pageData.totalPages(), 5
+                pageData.page(), pageData.totalPages(), 5
         );
 
         model.addAttribute("bookList", pageData.content());
@@ -258,15 +255,9 @@ public class BookController {
 
     @GetMapping("/admin/book-register")
     public String getBookRegister(Model model) {
-        CommonResponse<PageResponse<AuthorResponse>> authors = authorClient.getAuthors(100, 0);
-        CommonResponse<PageResponse<PublisherResponse>> publishers = publisherClient.getPublishers(100, 0);
         List<CategoryTreeDto> categories = categoryService.getAllCategoriesTree();
-        CommonResponse<PageResponse<TagResponse>> tags = tagClient.getTags(100, 0);
 
-        model.addAttribute("authors", authors.data().content());
-        model.addAttribute("publishers", publishers.data());
         model.addAttribute("categories", categories);
-        model.addAttribute("tags", tags.data());
 
         return "admin/book/book-register";
     }
@@ -404,7 +395,7 @@ public class BookController {
         CommonResponse<PageResponse<AdminBookResponse>> response = bookClient.getBooksByAdmin(page, 10);
         PageResponse<AdminBookResponse> books = response.data();
         PageUtil.PageInfo pageInfo = PageUtil.calculatePageRange(
-            books.page(), books.totalPages(), 5
+                books.page(), books.totalPages(), 5
         );
 
         model.addAttribute("currentPage", "list");
