@@ -1232,12 +1232,6 @@
   .bg-green-600 {
     background-color: var(--color-green-600);
   }
-  .bg-green-900\/40 {
-    background-color: color-mix(in srgb, oklch(39.3% 0.095 152.535) 40%, transparent);
-    @supports (color: color-mix(in lab, red, red)) {
-      background-color: color-mix(in oklab, var(--color-green-900) 40%, transparent);
-    }
-  }
   .bg-indigo-600 {
     background-color: var(--color-indigo-600);
   }
