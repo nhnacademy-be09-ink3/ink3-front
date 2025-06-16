@@ -32,7 +32,7 @@ public class AuthorController {
 
     @GetMapping("/admin/authors")
     public String getAuthors(@RequestParam(required = false, defaultValue = "0") int page,
-                                Model model) {
+                             Model model) {
         CommonResponse<PageResponse<AuthorResponse>> response = authorClient.getAuthors(10, page);
         PageResponse<AuthorResponse> authors = response.data();
         PageUtil.PageInfo pageInfo = PageUtil.calculatePageRange(
@@ -48,7 +48,7 @@ public class AuthorController {
 
     @PutMapping("/admin/authors/{authorId}")
     public String updateAuthor(@PathVariable Long authorId,
-                            @ModelAttribute AuthorUpdateRequest request) {
+                               @ModelAttribute AuthorUpdateRequest request) {
         authorClient.updateAuthor(authorId, request);
         return "redirect:/admin/authors";
     }
