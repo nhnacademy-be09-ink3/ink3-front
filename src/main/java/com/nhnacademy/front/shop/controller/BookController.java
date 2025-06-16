@@ -134,7 +134,7 @@ public class BookController {
                         parentCategoryCoupons.stream()
                 )
                 .flatMap(s -> s)
-                .distinct()  // couponId 기준 equals/hashCode 구현이 되어 있다면 중복 제거
+                .distinct()
                 .toList();
 
         List<CouponView> flatCoupons = coupons.stream()
