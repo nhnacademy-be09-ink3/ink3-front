@@ -70,4 +70,13 @@ public interface CouponClient {
             @PathVariable("categoryId") Long categoryId,
             @RequestParam("page") int page,
             @RequestParam("size") int size);
+
+    @GetMapping("/coupons/by-book/{bookId}/parent-categories")
+    CommonResponse<PageResponse<CouponResponse>> getParentCategoryCoupons(
+            @PathVariable("bookId") Long bookId,
+            @RequestParam("page") int page,
+            @RequestParam("size") int size
+    );
+
 }
+
