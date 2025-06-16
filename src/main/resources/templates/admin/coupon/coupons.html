@@ -4,8 +4,10 @@
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>쿠폰 관리</title>
-    <link rel="stylesheet" th:href="@{/css/output.css(v=${#dates.createNow().time})}"/>
-    <style>body { font-family: 'Inter', sans-serif; }</style>
+    <link rel="stylesheet" th:href="@{/css/output.css}">
+    <style>body {
+        font-family: 'Inter', sans-serif;
+    }</style>
 </head>
 <body class="bg-gray-100">
 <div th:replace="~{admin/layout/fragments/header :: headerFragment}"></div>
@@ -50,12 +52,14 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-600">발급 가능 시작일</label>
                             <p class="mt-1 text-gray-900"
-                               th:text="${#temporals.format(singleCoupon.issuableFrom, 'yyyy-MM-dd HH:mm')}">2025-06-01 00:00</p>
+                               th:text="${#temporals.format(singleCoupon.issuableFrom, 'yyyy-MM-dd HH:mm')}">2025-06-01
+                                00:00</p>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-600">만료일</label>
                             <p class="mt-1 text-gray-900"
-                               th:text="${#temporals.format(singleCoupon.expiresAt, 'yyyy-MM-dd HH:mm')}">2025-06-10 00:00</p>
+                               th:text="${#temporals.format(singleCoupon.expiresAt, 'yyyy-MM-dd HH:mm')}">2025-06-10
+                                00:00</p>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-600">생성일</label>
@@ -109,19 +113,23 @@
                         <tr th:each="coupon, stat : ${coupons.content()}"
                             class="hover:bg-gray-50 transition-colors duration-200">
                             <td class="py-3 px-4 text-sm text-gray-700"
-                                th:text="${stat.count}+(*{pageNum}*10)">1</td>
+                                th:text="${stat.count}+(*{pageNum}*10)">1
+                            </td>
                             <td class="py-3 px-4 text-sm text-gray-700" th:text="${coupon.couponId}">123</td>
                             <td class="py-3 px-4 text-sm text-gray-700" th:text="${coupon.name}">SPRING</td>
                             <td class="py-3 px-4 text-sm text-gray-700" th:text="${coupon.policyName}">POLICY</td>
                             <td class="py-3 px-4 text-sm text-gray-700"
-                                th:text="${#temporals.format(coupon.issuableFrom, 'yyyy-MM-dd')}">2025-06-01</td>
+                                th:text="${#temporals.format(coupon.issuableFrom, 'yyyy-MM-dd')}">2025-06-01
+                            </td>
                             <td class="py-3 px-4 text-sm text-gray-700"
-                                th:text="${#temporals.format(coupon.expiresAt, 'yyyy-MM-dd')}">2025-06-10</td>
+                                th:text="${#temporals.format(coupon.expiresAt, 'yyyy-MM-dd')}">2025-06-10
+                            </td>
                             <td class="py-3 px-4 text-sm text-gray-700"
                                 th:text="${coupon.isActive} ? '활성화' : '비활성화'"></td>
 
                             <td class="py-3 px-4 text-sm text-gray-700"
-                                th:text="${#temporals.format(coupon.createdAt, 'yyyy-MM-dd')}">2025-05-31</td>
+                                th:text="${#temporals.format(coupon.createdAt, 'yyyy-MM-dd')}">2025-05-31
+                            </td>
                             <td class="py-3 px-4 text-sm text-gray-700 space-x-2">
                                 <a th:href="@{/admin/coupon/coupon-list/{id}/edit(id=${coupon.couponId})}"
                                    class="bg-ink-primary px-2 py-1 text-white rounded-xl hover:bg-ink-primary-hover">

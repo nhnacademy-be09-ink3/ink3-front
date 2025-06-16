@@ -5,15 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ink3</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" th:href="@{/css/output.css(v=${#dates.createNow().getTime()})}">
+    <link rel="stylesheet" th:href="@{/css/output.css}">
     <!-- TOAST UI Editor CSS -->
-    <link rel="stylesheet" href="https://uicdn.toast.com/editor/latest/toastui-editor.min.css" />
+    <link rel="stylesheet" href="https://uicdn.toast.com/editor/latest/toastui-editor.min.css"/>
     <!-- TOAST UI Editor JS -->
     <script src="https://uicdn.toast.com/editor/latest/toastui-editor-all.min.js"></script>
     <style>
         body {
             font-family: 'Inter', sans-serif;
         }
+
         .ink-input-group {
             @apply grid grid-cols-1 gap-2 mb-6;
         }
@@ -63,7 +64,8 @@
                 <div class="grid grid-cols-1 gap-2">
                     <label for="publishedAt" class="text-gray-700 font-medium">출간일</label>
                     <input type="date" id="publishedAt" name="publishedAt" required
-                           class="ink-input-field w-full" th:value="${#dates.format(#dates.createNow(), 'yyyy-MM-dd')}" />
+                           class="ink-input-field w-full"
+                           th:value="${#dates.format(#dates.createNow(), 'yyyy-MM-dd')}"/>
                 </div>
 
                 <div class="grid grid-cols-1 gap-2">
@@ -219,7 +221,7 @@
             const tagInput = document.getElementById('tag-input');
             const tagContainer = document.getElementById('tag-container');
 
-            tagInput.addEventListener('keydown', function(e) {
+            tagInput.addEventListener('keydown', function (e) {
                 if (e.key === 'Enter' || e.key === ',') {
                     e.preventDefault();
                     const tag = tagInput.value.trim();

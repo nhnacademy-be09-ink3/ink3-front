@@ -3,12 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <title>포장지 정책 관리</title>
-    <link rel="stylesheet" th:href="@{/css/output.css(v=${#dates.createNow().getTime()})}">
+    <link rel="stylesheet" th:href="@{/css/output.css}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Inter', sans-serif;
         }
+
         .modal-bg {
             background-color: rgba(0, 0, 0, 0.4);
         }
@@ -39,7 +40,8 @@
             <div class="mb-6">
                 <h2 class="text-xl font-semibold mb-2">활성화된 포장지 정책</h2>
                 <div th:if="${#lists.isEmpty(activatePackagings.content)}"
-                     class="text-gray-500 py-4">활성화된 포장지 정책이 없습니다.</div>
+                     class="text-gray-500 py-4">활성화된 포장지 정책이 없습니다.
+                </div>
                 <table th:if="${!#lists.isEmpty(activatePackagings.content)}"
                        class="min-w-full table-auto border border-gray-200 divide-y divide-gray-200">
                     <thead class="bg-gray-50 text-sm text-gray-600 text-left">
@@ -159,8 +161,10 @@
                            class="w-full mb-4 border rounded px-3 py-2"/>
                     <div class="flex justify-end gap-2">
                         <button type="button" onclick="closeModal('createModal')"
-                                class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">취소</button>
-                        <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">등록</button>
+                                class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">취소
+                        </button>
+                        <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">등록
+                        </button>
                     </div>
                 </form>
             </div>
@@ -178,8 +182,10 @@
                            class="w-full mb-4 border rounded px-3 py-2"/>
                     <div class="flex justify-end gap-2">
                         <button type="button" onclick="closeModal('editModal')"
-                                class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">취소</button>
-                        <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">수정</button>
+                                class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">취소
+                        </button>
+                        <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">수정
+                        </button>
                     </div>
                 </form>
             </div>
@@ -194,8 +200,10 @@
                 <form id="deleteForm" method="get">
                     <div class="flex justify-end gap-2">
                         <button type="button" onclick="closeModal('deleteModal')"
-                                class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">취소</button>
-                        <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">삭제</button>
+                                class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">취소
+                        </button>
+                        <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">삭제
+                        </button>
                     </div>
                 </form>
             </div>

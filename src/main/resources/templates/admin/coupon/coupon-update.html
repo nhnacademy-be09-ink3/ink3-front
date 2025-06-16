@@ -5,14 +5,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>쿠폰 수정</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet"/>
-    <link rel="stylesheet" th:href="@{/css/output.css(v=${#dates.createNow().time})}"/>
+    <link rel="stylesheet" th:href="@{/css/output.css}">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet"/>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <style>
-        body { font-family: 'Inter', sans-serif; }
-        .ink-input-group { @apply grid grid-cols-1 gap-2 mb-6; }
-        .ink-input-group label { @apply text-gray-700 font-medium block mb-2; }
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .ink-input-group {
+            @apply grid grid-cols-1 gap-2 mb-6;
+        }
+
+        .ink-input-group label {
+            @apply text-gray-700 font-medium block mb-2;
+        }
+
         .ink-input-field[multiple] {
             min-height: 8rem;
             max-height: 12rem;
@@ -76,7 +85,8 @@
                     <!-- 도서 선택 -->
                     <div class="ink-input-group">
                         <label for="bookIdList">도서 자동 발급</label>
-                        <select id="bookIdList" th:field="*{bookIdList}" class="ink-input-field js-multi-select w-full" multiple>
+                        <select id="bookIdList" th:field="*{bookIdList}" class="ink-input-field js-multi-select w-full"
+                                multiple>
                             <th:block th:each="book : ${books.content}">
                                 <option th:value="${book.id}" th:text="${book.title}"></option>
                             </th:block>
@@ -86,7 +96,8 @@
                     <!-- 카테고리 선택 -->
                     <div class="ink-input-group">
                         <label for="categoryIdList">카테고리 자동 발급</label>
-                        <select id="categoryIdList" th:field="*{categoryIdList}" class="ink-input-field js-multi-select w-full" multiple>
+                        <select id="categoryIdList" th:field="*{categoryIdList}"
+                                class="ink-input-field js-multi-select w-full" multiple>
                             <th:block th:each="category : ${categories}">
                                 <option th:value="${category.id}" th:text="${category.name}"></option>
                             </th:block>
@@ -103,8 +114,8 @@
 </div>
 <script>
     $(function () {
-        $('.js-select').select2({ placeholder: '정책을 선택하세요', allowClear: true, width: '100%' });
-        $('.js-multi-select').select2({ placeholder: '항목을 선택하세요', allowClear: true, width: '100%' });
+        $('.js-select').select2({placeholder: '정책을 선택하세요', allowClear: true, width: '100%'});
+        $('.js-multi-select').select2({placeholder: '항목을 선택하세요', allowClear: true, width: '100%'});
     });
 </script>
 </body>

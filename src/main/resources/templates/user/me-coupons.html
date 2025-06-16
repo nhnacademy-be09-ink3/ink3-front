@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ink3</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" th:href="@{/css/output.css(v=${#dates.createNow().getTime()})}">
+    <link rel="stylesheet" th:href="@{/css/output.css}">
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -68,8 +68,10 @@
                             <div class="text-sm text-gray-600 mb-3">
                                 할인 혜택:
                                 <span class="text-lg font-bold text-[#86EF7D]">
-                                    <span th:if="${coupon.discountPercentage != null and coupon.discountPercentage > 0}" th:text="${coupon.discountPercentage} + '%'">0%</span>
-                                    <span th:if="${(coupon.discountPercentage == null or coupon.discountPercentage == 0) and coupon.discountValue != null}" th:text="${coupon.discountValue} + '원'">0원</span>
+                                    <span th:if="${coupon.discountPercentage != null and coupon.discountPercentage > 0}"
+                                          th:text="${coupon.discountPercentage} + '%'">0%</span>
+                                    <span th:if="${(coupon.discountPercentage == null or coupon.discountPercentage == 0) and coupon.discountValue != null}"
+                                          th:text="${coupon.discountValue} + '원'">0원</span>
                                 </span>
                             </div>
 

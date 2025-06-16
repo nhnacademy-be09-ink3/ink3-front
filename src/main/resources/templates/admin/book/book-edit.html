@@ -1,22 +1,24 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>ink3</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" th:href="@{/css/output.css(v=${#dates.createNow().getTime()})}" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" th:href="@{/css/output.css}"/>
     <!-- TOAST UI Editor CSS -->
-    <link rel="stylesheet" href="https://uicdn.toast.com/editor/latest/toastui-editor.min.css" />
+    <link rel="stylesheet" href="https://uicdn.toast.com/editor/latest/toastui-editor.min.css"/>
     <!-- TOAST UI Editor JS -->
     <script src="https://uicdn.toast.com/editor/latest/toastui-editor-all.min.js"></script>
     <style>
         body {
             font-family: 'Inter', sans-serif;
         }
+
         .ink-input-group {
             @apply grid grid-cols-1 gap-2 mb-6;
         }
+
         .ink-input-group label {
             @apply text-gray-700 font-medium block mb-2;
         }
@@ -153,11 +155,13 @@
                     <label class="block font-medium text-gray-700">포장 가능 여부</label>
                     <div class="mt-2 space-x-4">
                         <label class="inline-flex items-center">
-                            <input type="radio" name="packable" value="true" class="form-radio" th:checked="${book.isPackable}">
+                            <input type="radio" name="packable" value="true" class="form-radio"
+                                   th:checked="${book.isPackable}">
                             <span class="ml-2 text-sm text-gray-700">가능</span>
                         </label>
                         <label class="inline-flex items-center">
-                            <input type="radio" name="packable" value="false" class="form-radio" th:checked="!${book.isPackable}">
+                            <input type="radio" name="packable" value="false" class="form-radio"
+                                   th:checked="!${book.isPackable}">
                             <span class="ml-2 text-sm text-gray-700">불가능</span>
                         </label>
                     </div>
@@ -206,11 +210,11 @@
 
             function addAuthorField() {
                 const container = document.getElementById('authors-container');
-                const groupId   = authorGroupId++;
+                const groupId = authorGroupId++;
 
                 const wrapper = document.createElement('div');
                 wrapper.className = 'bg-white border border-gray-200 rounded-lg p-4 flex flex-col justify-between';
-                wrapper.id        = `author-group-${groupId}`;
+                wrapper.id = `author-group-${groupId}`;
 
                 // 작가 이름 입력
                 const nameInput = document.createElement('input');
@@ -227,10 +231,10 @@
                 roleInput.className = 'ink-input-field w-full';
 
                 const removeBtn = document.createElement('button');
-                removeBtn.type        = 'button';
-                removeBtn.className   = 'text-sm text-red-600 hover:text-red-800 mt-4 self-end';
+                removeBtn.type = 'button';
+                removeBtn.className = 'text-sm text-red-600 hover:text-red-800 mt-4 self-end';
                 removeBtn.textContent = '❌';
-                removeBtn.onclick     = () => {
+                removeBtn.onclick = () => {
                     container.removeChild(wrapper);
                 };
 
@@ -241,7 +245,7 @@
                 container.appendChild(wrapper);
             }
 
-            document.addEventListener('DOMContentLoaded', function() {
+            document.addEventListener('DOMContentLoaded', function () {
                 initialAuthors.forEach(author => {
                     addAuthorField();
                     const wrapper = document.getElementById(`author-group-${authorGroupId - 1}`);
@@ -280,7 +284,7 @@
             const tagInput = document.getElementById('tag-input');
             const tagContainer = document.getElementById('tag-container');
 
-            tagInput.addEventListener('keydown', function(e) {
+            tagInput.addEventListener('keydown', function (e) {
                 if (e.key === 'Enter' || e.key === ',') {
                     e.preventDefault();
                     const tag = tagInput.value.trim();

@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>반품 정책 관리</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" th:href="@{/css/output.css(v=${#dates.createNow().getTime()})}">
+    <link rel="stylesheet" th:href="@{/css/output.css}">
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -21,7 +21,8 @@
         <div class="bg-white p-6 rounded-lg shadow-md mb-6">
             <div class="flex justify-between mb-6">
                 <h1 class="text-3xl font-bold text-gray-900 flex items-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="mr-2" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="mr-2" width="24" height="24" fill="none"
+                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M3 3v18h18M8 17v-5m4 5v-9m4 9V7"/>
                     </svg>
                     반품 정책 관리
@@ -36,11 +37,13 @@
                     <p class="text-sm text-gray-600">
                         <strong th:text="${activateRefundPolicy.name}">정책명</strong><br>
                         일반 반품 가능 기간: <span th:text="${activateRefundPolicy.returnDeadLine} + '일 이내'">7일</span><br>
-                        파손 반품 가능 기간: <span th:text="${activateRefundPolicy.defectReturnDeadLine} + '일 이내'">14일</span><br>
+                        파손 반품 가능 기간: <span
+                            th:text="${activateRefundPolicy.defectReturnDeadLine} + '일 이내'">14일</span><br>
                         반품 배송비: <span th:text="${activateRefundPolicy.refundShippingFee} + '원'">3000원</span>
                     </p>
                 </div>
-                <div th:if="${activateRefundPolicy == null}" class="p-4 border border-yellow-300 bg-yellow-50 rounded-lg text-sm text-yellow-700">
+                <div th:if="${activateRefundPolicy == null}"
+                     class="p-4 border border-yellow-300 bg-yellow-50 rounded-lg text-sm text-yellow-700">
                     현재 활성화된 반품 정책이 없습니다.
                 </div>
             </div>
@@ -68,13 +71,15 @@
                         <td class="px-6 py-4 text-sm text-gray-900" th:text="${policy.id}">1</td>
                         <td class="px-6 py-4 text-sm text-gray-900" th:text="${policy.name}">기본 반품 정책</td>
                         <td class="px-6 py-4 text-sm text-gray-500" th:text="${policy.returnDeadLine} + '일 이내'"></td>
-                        <td class="px-6 py-4 text-sm text-gray-500" th:text="${policy.defectReturnDeadLine} + '일 이내'"></td>
+                        <td class="px-6 py-4 text-sm text-gray-500"
+                            th:text="${policy.defectReturnDeadLine} + '일 이내'"></td>
                         <td class="px-6 py-4 text-sm text-gray-500" th:text="${policy.refundShippingFee} + '원'"></td>
                         <td class="px-6 py-4 text-sm">
                             <span th:if="${policy.isAvailable}" class="text-green-600 font-semibold">활성</span>
                             <span th:unless="${policy.isAvailable}" class="text-gray-500">비활성</span>
                         </td>
-                        <td class="px-6 py-4 text-sm text-gray-500" th:text="${#temporals.format(policy.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
+                        <td class="px-6 py-4 text-sm text-gray-500"
+                            th:text="${#temporals.format(policy.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
                         <td class="px-6 py-4 text-sm">
                             <button class="text-blue-600 hover:underline" onclick="openUpdateRefundModal(this)"
                                     th:data-id="${policy.id}"
@@ -98,7 +103,9 @@
                     <a th:href="@{/admin-order/refund-policies(page=${refundPolicyList.hasPrevious()} ? ${refundPolicyList.page() - 1} : ${refundPolicyList.page()})}"
                        class="ink-page-item-arrow" aria-label="Previous page">
                         <svg xmlns="http://www.w3.org/2000/svg" class="size-4" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                            <path fill-rule="evenodd"
+                                  d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
+                                  clip-rule="evenodd"/>
                         </svg>
                     </a>
                 </li>
@@ -111,7 +118,9 @@
                     <a th:href="@{/admin-order/refund-policies(page=${refundPolicyList.hasNext()} ? ${refundPolicyList.page() + 1} : ${refundPolicyList.page()})}"
                        class="ink-page-item-arrow" aria-label="Next page">
                         <svg xmlns="http://www.w3.org/2000/svg" class="size-4" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
+                            <path fill-rule="evenodd"
+                                  d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                                  clip-rule="evenodd"/>
                         </svg>
                     </a>
                 </li>
@@ -126,7 +135,8 @@
         <div class="flex justify-between items-center">
             <h2 class="text-xl font-bold">반품 정책 등록</h2>
             <button onclick="closeModal('create-refund-policy')" class="text-gray-400 hover:text-gray-600">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                     stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
                 </svg>
             </button>
@@ -141,12 +151,15 @@
                 <input type="number" id="returnDeadLine" name="returnDeadLine" class="ink-input-field w-full" required>
             </div>
             <div>
-                <label for="defectReturnDeadLine" class="block text-sm font-semibold text-gray-700">파손 반품 가능 기간 (일)</label>
-                <input type="number" id="defectReturnDeadLine" name="defectReturnDeadLine" class="ink-input-field w-full" required>
+                <label for="defectReturnDeadLine" class="block text-sm font-semibold text-gray-700">파손 반품 가능 기간
+                    (일)</label>
+                <input type="number" id="defectReturnDeadLine" name="defectReturnDeadLine"
+                       class="ink-input-field w-full" required>
             </div>
             <div>
                 <label for="refundShippingFee" class="block text-sm font-semibold text-gray-700">반품 배송비 (원)</label>
-                <input type="number" id="refundShippingFee" name="refundShippingFee" class="ink-input-field w-full" required>
+                <input type="number" id="refundShippingFee" name="refundShippingFee" class="ink-input-field w-full"
+                       required>
             </div>
             <div class="text-right">
                 <button type="submit" class="ink-btn-primary">등록</button>
@@ -160,7 +173,8 @@
         <div class="flex justify-between items-center">
             <h2 class="text-xl font-bold">반품 정책 수정</h2>
             <button onclick="closeModal('update-refund-policy')" class="text-gray-400 hover:text-gray-600">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                     stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
                 </svg>
             </button>
@@ -172,11 +186,13 @@
                 <input type="text" id="update-name" class="ink-input-field w-full" required>
             </div>
             <div>
-                <label for="update-return-deadline" class="block text-sm font-semibold text-gray-700">일반 반품 가능 기간 (일)</label>
+                <label for="update-return-deadline" class="block text-sm font-semibold text-gray-700">일반 반품 가능 기간
+                    (일)</label>
                 <input type="number" id="update-return-deadline" class="ink-input-field w-full" required>
             </div>
             <div>
-                <label for="update-defect-deadline" class="block text-sm font-semibold text-gray-700">파손 반품 가능 기간 (일)</label>
+                <label for="update-defect-deadline" class="block text-sm font-semibold text-gray-700">파손 반품 가능 기간
+                    (일)</label>
                 <input type="number" id="update-defect-deadline" class="ink-input-field w-full" required>
             </div>
             <div>
@@ -186,7 +202,9 @@
             <div class="flex justify-between items-center pt-4 border-t border-gray-200">
                 <button type="button" class="text-red-600 hover:underline" onclick="deleteRefundPolicy()">삭제</button>
                 <div class="space-x-2">
-                    <button type="button" class="bg-blue-500 text-white px-3 py-2 rounded hover:bg-blue-600" onclick="activateRefundPolicy()">활성화</button>
+                    <button type="button" class="bg-blue-500 text-white px-3 py-2 rounded hover:bg-blue-600"
+                            onclick="activateRefundPolicy()">활성화
+                    </button>
                     <button type="submit" class="ink-btn-primary">수정</button>
                 </div>
             </div>
@@ -233,7 +251,7 @@
 
         const res = await fetch(`${contextPath}admin-order/refund-policies/${id}`, {
             method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {'Content-Type': 'application/json'},
             body: JSON.stringify(data)
         });
 
