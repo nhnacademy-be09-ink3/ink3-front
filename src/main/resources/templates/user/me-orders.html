@@ -227,7 +227,6 @@
         const orderBookId = document.getElementById('modalOrderBookId').value;
         const formData = new FormData(form);
 
-        // MeReviewRequest 형태에 맞춰 추가 필드 조작
         formData.append('orderBookId', orderBookId);
         formData.append('bookId', bookId);
 
@@ -237,13 +236,16 @@
                 body: formData
             });
 
+            console.log('response status:', response.status);
+            console.log('response ok:', response.ok);
+
             if (response.ok) {
                 window.location.href = `${contextPath}me/orders`;
             } else {
                 alert('리뷰 등록 실패: ' + response.status);
             }
         } catch (error) {
-            alert('리뷰 등록 실패: ' + error);
+            alert('리뷰 등록 실패: ' + error.message);
         }
     });
 </script>
