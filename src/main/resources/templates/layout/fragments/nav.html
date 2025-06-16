@@ -44,9 +44,10 @@
     </ul>
 
     <script th:inline="javascript">
+        const navGateway = /*[[${gatewayBaseUrl}]]*/ "";
         const navContext = /*[[@{/}]]*/ '';
 
-        fetch(`${window.api.gatewayBaseUrl}/shop/categories/tree`)
+        fetch(`${navGateway}/shop/categories/tree`)
             .then(res => res.json())
             .then(data => {
                 const rootList = document.getElementById("category-list");
