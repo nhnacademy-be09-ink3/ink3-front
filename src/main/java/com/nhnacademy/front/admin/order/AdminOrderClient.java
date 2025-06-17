@@ -18,6 +18,7 @@ import com.nhnacademy.front.shop.order.dto.ShippingPolicyUpdateRequest;
 import java.time.LocalDateTime;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.data.domain.Pageable;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -69,8 +70,8 @@ public interface AdminOrderClient {
     @PatchMapping("/shipments/{orderId}/delivered-at")
     CommonResponse<ShipmentResponse> updateShipmentDeliveredAt(
             @PathVariable("orderId") long orderId,
-            @RequestParam LocalDateTime deliveredAt);
-
+            @RequestParam
+            @DateTimeFormat(pattern = "yy. MM. dd. a h:mm") LocalDateTime deliveredAt);
 
 
 
