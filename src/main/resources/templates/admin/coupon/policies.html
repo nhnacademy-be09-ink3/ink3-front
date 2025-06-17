@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8" />
+    <meta charset="UTF-8"/>
     <title>쿠폰 정책 관리</title>
-    <link rel="stylesheet" th:href="@{/css/output.css(v=${#dates.createNow().getTime()})}" />
-    <style>body { font-family: 'Inter', sans-serif; }</style>
+    <link rel="stylesheet" th:href="@{/css/output.css}">
+    <style>body {
+        font-family: 'Inter', sans-serif;
+    }</style>
 </head>
 <body class="bg-gray-100">
 <div th:replace="~{admin/layout/fragments/header :: headerFragment}"></div>
@@ -91,14 +93,23 @@
                         <tr class="hover:bg-gray-50 transition-colors duration-200"
                             th:each="policy, stat : ${policies.content()}">
                             <td class="py-3 px-4 text-sm text-gray-700" th:text="${stat.count}+(*{pageNum}*10)">1</td>
-                            <td class="py-3 px-4 text-sm text-gray-700" th:text="${policy.policyName}">SPRING_SALE2025</td>
-                            <td class="py-3 px-4 text-sm text-gray-700" th:text="${policy.minimumOrderAmount} +' ₩'">10000</td>
+                            <td class="py-3 px-4 text-sm text-gray-700" th:text="${policy.policyName}">SPRING_SALE2025
+                            </td>
+                            <td class="py-3 px-4 text-sm text-gray-700" th:text="${policy.minimumOrderAmount} +' ₩'">
+                                10000
+                            </td>
                             <td class="py-3 px-4 text-sm text-gray-700" th:text="${policy.discountType}">RATE</td>
-                            <td class="py-3 px-4 text-sm text-gray-700" th:text="${policy.discountValue == 0}? '-' : ${policy.discountValue} + ' ₩'">-</td>
-                            <td class="py-3 px-4 text-sm text-gray-700" th:text="${policy.discountPercentage==0} ? '-' : ${policy.discountPercentage} + ' %'">-</td>
-                            <td class="py-3 px-4 text-sm text-gray-700" th:text="${policy.maximumDiscountAmount == 0} ? '-' : ${policy.maximumDiscountAmount} + ' ₩'"></td>
                             <td class="py-3 px-4 text-sm text-gray-700"
-                                th:text="${#temporals.format(policy.createdAt, 'yyyy-MM-dd')}">2025-06-05</td>
+                                th:text="${policy.discountValue == 0}? '-' : ${policy.discountValue} + ' ₩'">-
+                            </td>
+                            <td class="py-3 px-4 text-sm text-gray-700"
+                                th:text="${policy.discountPercentage==0} ? '-' : ${policy.discountPercentage} + ' %'">-
+                            </td>
+                            <td class="py-3 px-4 text-sm text-gray-700"
+                                th:text="${policy.maximumDiscountAmount == 0} ? '-' : ${policy.maximumDiscountAmount} + ' ₩'"></td>
+                            <td class="py-3 px-4 text-sm text-gray-700"
+                                th:text="${#temporals.format(policy.createdAt, 'yyyy-MM-dd')}">2025-06-05
+                            </td>
                             <td class="py-3 px-4 text-sm text-gray-700 space-x-2">
                                 <!-- ① 수정: GET /admin/policies/{id}/edit 로 이동 -->
                                 <form th:action="@{/admin/coupon/policies/{id}/edit(id=${policy.policyId})}"
@@ -110,14 +121,14 @@
                                 </form>
 
                                 <!-- ② 삭제: POST + _method=delete 로 보내야 DELETE 매핑이 동작 -->
-<!--                                <form th:action="@{/admin/coupon/policies/{id}(id=${policy.policyId})}"-->
-<!--                                      method="post" class="inline">-->
-<!--                                    <input type="hidden" name="_method" value="delete"/>-->
-<!--                                    <button type="submit"-->
-<!--                                            class="bg-red-500 px-2 py-1 text-white rounded-xl hover:bg-red-400">-->
-<!--                                        삭제-->
-<!--                                    </button>-->
-<!--                                </form>-->
+                                <!--                                <form th:action="@{/admin/coupon/policies/{id}(id=${policy.policyId})}"-->
+                                <!--                                      method="post" class="inline">-->
+                                <!--                                    <input type="hidden" name="_method" value="delete"/>-->
+                                <!--                                    <button type="submit"-->
+                                <!--                                            class="bg-red-500 px-2 py-1 text-white rounded-xl hover:bg-red-400">-->
+                                <!--                                        삭제-->
+                                <!--                                    </button>-->
+                                <!--                                </form>-->
                             </td>
                         </tr>
                         </tbody>

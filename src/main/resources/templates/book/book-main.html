@@ -5,10 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ink3</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" th:href="@{/css/output.css(v=${#dates.createNow().getTime()})}">
+    <link rel="stylesheet" th:href="@{/css/output.css}">
 
     <!-- Swiper CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"/>
     <!-- Swiper JS -->
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 
@@ -36,14 +36,14 @@
                     <div class="max-w-3xl p-10 rounded-md">
                         <h2 class="text-4xl font-extrabold text-white mb-6 leading-tight"
                             style="text-shadow: 0 2px 4px rgba(0,0,0,0.6);">
-                            잉크처럼 스며드는 이야기,<br />
+                            잉크처럼 스며드는 이야기,<br/>
                             <span class="text-5xl">ink3</span>
                         </h2>
                         <p class="text-xl text-white opacity-90 leading-relaxed"
                            style="text-shadow: 0 2px 4px rgba(0,0,0,0.5);">
                             <br><br><br><br>
-                            시원한 숲속에서,<br />
-                            당신만의 공간에서<br class="sm:hidden" />
+                            시원한 숲속에서,<br/>
+                            당신만의 공간에서<br class="sm:hidden"/>
                             당신만의 이야기를 만나보세요.
                         </p>
                     </div>
@@ -51,17 +51,17 @@
 
                 <!-- 슬라이드 2 -->
                 <div class="swiper-slide flex justify-center items-center h-[300px]">
-                    <img th:src="@{/img/slider2.jpg}" alt="슬라이드 이미지 2" class="object-cover w-full h-full rounded-md" />
+                    <img th:src="@{/img/slider2.jpg}" alt="슬라이드 이미지 2" class="object-cover w-full h-full rounded-md"/>
                 </div>
 
                 <!-- 슬라이드 3 -->
                 <div class="swiper-slide flex justify-center items-center h-[300px]">
-                    <img th:src="@{/img/slider3.jpg}" alt="슬라이드 이미지 2" class="object-cover w-full h-full rounded-md" />
+                    <img th:src="@{/img/slider3.jpg}" alt="슬라이드 이미지 2" class="object-cover w-full h-full rounded-md"/>
                 </div>
 
                 <!-- 슬라이드 4 -->
                 <div class="swiper-slide flex justify-center items-center h-[300px]">
-                    <img th:src="@{/img/slider4.jpg}" alt="슬라이드 이미지 2" class="object-cover w-full h-full rounded-md" />
+                    <img th:src="@{/img/slider4.jpg}" alt="슬라이드 이미지 2" class="object-cover w-full h-full rounded-md"/>
                 </div>
             </div>
 
@@ -219,7 +219,7 @@
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         new Swiper('.swiper', {
-            loop: false ,
+            loop: false,
             autoplay: {
                 delay: 3000,
             },

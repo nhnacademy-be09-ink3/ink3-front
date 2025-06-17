@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ink3</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" th:href="@{/css/output.css(v=${#dates.createNow().getTime()})}">
+    <link rel="stylesheet" th:href="@{/css/output.css}">
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -25,19 +25,35 @@
             <table class="min-w-full bg-white rounded-lg overflow-hidden">
                 <thead class="bg-gray-100 border-b border-gray-200">
                 <tr>
-                    <th class="w-20 py-3 px-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider rounded-tl-lg">ID</th>
-                    <th class="w-20 py-3 px-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">표지</th>
-                    <th class="py-3 px-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">ISBN</th>
+                    <th class="w-20 py-3 px-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider rounded-tl-lg">
+                        ID
+                    </th>
+                    <th class="w-20 py-3 px-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">
+                        표지
+                    </th>
+                    <th class="py-3 px-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">ISBN
+                    </th>
                     <th class="py-3 px-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">제목</th>
-                    <th class="w-28 y-3 px-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">출판사</th>
-                    <th class="w-32 py-3 px-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">출판일</th>
-                    <th class="py-3 px-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">정가 (원)</th>
-                    <th class="py-3 px-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">판매가 (원)</th>
+                    <th class="w-28 y-3 px-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">
+                        출판사
+                    </th>
+                    <th class="w-32 py-3 px-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">
+                        출판일
+                    </th>
+                    <th class="py-3 px-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">정가
+                        (원)
+                    </th>
+                    <th class="py-3 px-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">판매가
+                        (원)
+                    </th>
                     <th class="py-3 px-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">수량</th>
-                    <th class="py-3 px-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">포장 여부</th>
+                    <th class="py-3 px-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">포장 여부
+                    </th>
                     <th class="py-3 px-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">별점</th>
                     <th class="py-3 px-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">상태</th>
-                    <th class="w-24 py-3 px-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider rounded-tr-lg">관리</th>
+                    <th class="w-24 py-3 px-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider rounded-tr-lg">
+                        관리
+                    </th>
                 </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-200">
@@ -50,8 +66,10 @@
                     <td class="py-3 px-4 text-sm text-gray-700" th:text="${book.title}"></td>
                     <td class="py-3 px-4 text-sm text-gray-700" th:text="${book.publisher}"></td>
                     <td class="w-32 py-3 px-4 text-sm text-gray-700" th:text="${book.publishedAt}"></td>
-                    <td class="py-3 px-4 text-sm text-gray-700" th:text="${#numbers.formatDecimal(book.originalPrice, 0, 'COMMA', 0, 'POINT')}"></td>
-                    <td class="py-3 px-4 text-sm text-gray-700" th:text="${#numbers.formatDecimal(book.salePrice, 0, 'COMMA', 0, 'POINT')}"></td>
+                    <td class="py-3 px-4 text-sm text-gray-700"
+                        th:text="${#numbers.formatDecimal(book.originalPrice, 0, 'COMMA', 0, 'POINT')}"></td>
+                    <td class="py-3 px-4 text-sm text-gray-700"
+                        th:text="${#numbers.formatDecimal(book.salePrice, 0, 'COMMA', 0, 'POINT')}"></td>
                     <td class="py-3 px-4 text-sm text-gray-700" th:text="${book.quantity}"></td>
                     <td class="py-3 px-4 text-sm text-gray-700" th:text="${book.packable} ? '가능' : '불가능'"></td>
                     <td class="py-3 px-4 text-sm text-gray-700" th:text="${book.averageRating}"></td>

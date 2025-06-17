@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>배송 정책 관리</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" th:href="@{/css/output.css(v=${#dates.createNow().getTime()})}">
+    <link rel="stylesheet" th:href="@{/css/output.css}">
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -54,13 +54,16 @@
                     <span th:if="${policy.isAvailable()}" class="text-green-600 font-semibold">활성</span>
                     <span th:unless="${policy.isAvailable()}" class="text-gray-500">비활성</span>
                 </td>
-                <td class="px-6 py-4 text-sm text-gray-500" th:text="${#temporals.format(policy.createdAt(), 'yyyy-MM-dd HH:mm')}"></td>
+                <td class="px-6 py-4 text-sm text-gray-500"
+                    th:text="${#temporals.format(policy.createdAt(), 'yyyy-MM-dd HH:mm')}"></td>
                 <td class="px-6 py-4 text-sm space-x-2">
-                    <button class="text-indigo-600 hover:underline" th:onclick="|location.href='@{/admin-order/shipping-policies/{id}/activate(id=${policy.id()})}'|"
+                    <button class="text-indigo-600 hover:underline"
+                            th:onclick="|location.href='@{/admin-order/shipping-policies/{id}/activate(id=${policy.id()})}'|"
                             th:if="${!policy.isAvailable()}">활성화
                     </button>
                     <button class="text-blue-600 hover:underline" onclick="openUpdateModal(/* 전달값 */)">수정</button>
-                    <form th:action="@{/admin-order/shipping-policies/{id}(id=${policy.id()})}" method="post" th:object="${policy}" class="inline">
+                    <form th:action="@{/admin-order/shipping-policies/{id}(id=${policy.id()})}" method="post"
+                          th:object="${policy}" class="inline">
                         <input type="hidden" name="_method" value="delete"/>
                         <button type="submit" class="text-red-600 hover:underline">삭제</button>
                     </form>
@@ -110,6 +113,7 @@
     function openModal(id) {
         document.getElementById(id).classList.remove('hidden');
     }
+
     function closeModal(id) {
         document.getElementById(id).classList.add('hidden');
     }
