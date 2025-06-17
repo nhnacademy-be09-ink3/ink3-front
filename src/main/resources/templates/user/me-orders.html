@@ -250,30 +250,50 @@
         formData.append('orderBookId', orderBookId);
         formData.append('bookId', bookId);
 
-        try {
-            const response = await fetch(`${contextPath}me/reviews`, {
-                method: 'POST',
-                body: formData,
-                credentials: 'include',
-                // redirect: 'manual'
-            });
+        const response = await fetch(`${contextPath}me/reviews`, {
+            method: 'POST',
+            body: formData,
+            credentials: 'include',
+            redirect: 'manual'
+        });
 
-            console.log('response status:', response.status);
-            console.log('response ok:', response.ok);
+        console.log('response status:', response.status);
+        console.log('response ok:', response.ok);
 
-            if (response.ok) {
-                const location = response.headers.get('Location');
-                if (location) {
-                    window.location.href = location;
-                } else {
-                    window.location.href = `${contextPath}me/orders`;
-                }
+        if (response.status < 400) {
+            const location = response.headers.get('Location');
+            if (location) {
+                window.location.href = location;
             } else {
-                alert('리뷰 등록 실패: ' + response.status);
+                window.location.href = `${contextPath}me/orders`;
             }
-        } catch (error) {
-            alert('리뷰 등록 실패: ' + error.message);
+        } else {
+            alert('리뷰 등록 실패: ' + response.status);
         }
+        // try {
+        //     const response = await fetch(`${contextPath}me/reviews`, {
+        //         method: 'POST',
+        //         body: formData,
+        //         credentials: 'include',
+        //         // redirect: 'manual'
+        //     });
+        //
+        //     console.log('response status:', response.status);
+        //     console.log('response ok:', response.ok);
+        //
+        //     if (response.ok) {
+        //         const location = response.headers.get('Location');
+        //         if (location) {
+        //             window.location.href = location;
+        //         } else {
+        //             window.location.href = `${contextPath}me/orders`;
+        //         }
+        //     } else {
+        //         alert('리뷰 등록 실패: ' + response.status);
+        //     }
+        // } catch (error) {
+        //     alert('리뷰 등록 실패: ' + error.message);
+        // }
     });
 </script>
 </html>
