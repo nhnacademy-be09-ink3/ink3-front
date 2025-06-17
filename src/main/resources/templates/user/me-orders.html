@@ -260,7 +260,7 @@
         console.log('response status:', response.status);
         console.log('response ok:', response.ok);
 
-        if (response.ok) {
+        if (response.status < 400) {
             const location = response.headers.get('Location');
             if (location) {
                 window.location.href = location;
