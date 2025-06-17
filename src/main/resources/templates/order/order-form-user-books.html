@@ -114,15 +114,15 @@
                                 </option>
                                 <option th:each="c : ${item.applicableCoupons}"
                                         th:value="${c.storeId}"
-                                        th:utext="${c.couponName + ' - ' +
+                                        th:text="${c.couponName + ' - ' +
                                                   (c.discountType.name() == 'FIXED' ?
                                                     #numbers.formatInteger(c.discountValue, 0, 'COMMA') + '원 할인' :
                                                     c.discountPercentage + '% 할인' +
                                                     (c.maximumDiscountAmount != null ? ' (최대 ' + #numbers.formatInteger(c.maximumDiscountAmount, 0, 'COMMA') + '원)' : '')
                                                   ) +
-                                                  '&#10;사용 가능일: ' + #temporals.format(c.issuableFrom, 'yyyy-MM-dd HH:mm') +
-                                                  '&#10;최소 주문금액: ' + #numbers.formatInteger(c.minimumOrderAmount, 0, 'COMMA') + '원' +
-                                                  '&#10;만료일: ' + #temporals.format(c.expiresAt, 'yyyy-MM-dd HH:mm')}"
+                                                  ' | 사용 가능일: ' + #temporals.format(c.issuableFrom, 'yyyy-MM-dd HH:mm') +
+                                                  ' | 최소 주문금액: ' + #numbers.formatInteger(c.minimumOrderAmount, 0, 'COMMA') + '원' +
+                                                  ' | 만료일: ' + #temporals.format(c.expiresAt, 'yyyy-MM-dd HH:mm') }"
                                         th:attr="data-coupon-id=${c.couponId},
                                                  data-discount-type=${c.discountType},
                                                  data-discount-value=${c.discountValue},
@@ -144,6 +144,7 @@
                                 cursor: not-allowed;
                                 color: #9ca3af;
                             }
+
                         </style>
 
                     </div>
@@ -628,27 +629,64 @@
     /** --------------------------------------- 쿠폰 및 포인트  --------------------------------------------- */
     // 📌 쿠폰 선택 시 다른 항목 disable 처리
     function initCouponSelect() {
+        updateCouponTexts();
         document.querySelectorAll('select[name="couponId"]').forEach(select => {
-            select.addEventListener('change', () => {
+            select.addEventListener('change', (e) => {
+                const selectedOption = select.selectedOptions[0];
+                const minAmount = parseInt(selectedOption?.dataset.minOrderAmount || "0", 10);
+                const price = parseInt(select.closest('.cart-item')?.dataset.price || "0", 10);
+                const quantity = parseInt(select.closest('.cart-item')?.dataset.quantity || "0", 10);
+                const productTotal = price * quantity;
+
+                // 최소 주문 금액 미달 시 선택 막기
+                if (select.value && productTotal < minAmount) {
+                    alert(`이 쿠폰은 최소 ${formatCurrency(minAmount)} 이상 주문 시 사용 가능합니다.`);
+                    select.value = ''; // 선택 초기화
+                    updateSummary();
+                    return;
+                }
+
+                // 나머지 기존 로직 유지
                 const selected = select.value;
                 document.querySelectorAll('select[name="couponId"]').forEach(other => {
                     other.disabled = selected && other !== select;
                     other.classList.toggle('disabled-select', selected && other !== select);
                 });
 
-                // 🔥 포인트 전체 사용 적용 여부 반영
                 const input = document.querySelector('input[name="usedPoint"]');
                 const before = usedPoint;
                 const useAllChk = document.getElementById('useAllPointChk');
                 if (useAllChk?.checked) {
-                    handlePointToggle(input, useAllChk); // ✅ 다시 계산
+                    handlePointToggle(input, useAllChk);
                 } else {
-                    updateSummary(); // 그냥 갱신
+                    updateSummary();
                 }
 
-                // 🔥 포인트가 줄었다면 알림
                 if (usedPoint < before) {
                     showPointAdjustedAlert(usedPoint, "할인 쿠폰 적용");
+                }
+            });
+        });
+    }
+
+    // 📌 쿠폰 초기 렌더링 시 ❌ 마크 동적 적용
+    function updateCouponTexts() {
+        document.querySelectorAll(".cart-item").forEach(item => {
+            const price = parseInt(item.dataset.price || "0");
+            const quantity = parseInt(item.dataset.quantity || "0");
+            const productTotal = price * quantity;
+
+            item.querySelectorAll('select[name="couponId"] option').forEach(option => {
+                const minAmount = parseInt(option.dataset.minOrderAmount || "0", 10);
+                if (option.value && productTotal < minAmount) {
+                    if (!option.textContent.startsWith("❌ ")) {
+                        option.textContent = "❌ " + option.textContent;
+                    }
+                } else {
+                    // ❌ 제거
+                    if (option.textContent.startsWith("❌ ")) {
+                        option.textContent = option.textContent.replace(/^❌\s*/, "");
+                    }
                 }
             });
         });
