@@ -66,7 +66,7 @@ public interface AdminOrderClient {
     @DeleteMapping("/shipping-policies/{shippingPolicyId}")
     CommonResponse<Void> deleteShippingPolicy(@PathVariable long shippingPolicyId);
 
-    @PatchMapping("/shipments/{orderId}/deliverea-at")
+    @PatchMapping("/shipments/{orderId}/delivered-at")
     CommonResponse<ShipmentResponse> updateShipmentDeliveredAt(
             @PathVariable("orderId") long orderId,
             @RequestParam LocalDateTime deliveredAt);
