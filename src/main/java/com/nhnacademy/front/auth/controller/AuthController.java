@@ -44,7 +44,7 @@ public class AuthController {
     @PostMapping("/register")
     public String postRegister(@ModelAttribute RegisterRequest request) {
         userService.registerUser(request);
-        return "redirect:/";
+        return "redirect:/login";
     }
 
     @GetMapping("/reactivate")
