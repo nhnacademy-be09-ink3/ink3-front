@@ -34,7 +34,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
 @WebMvcTest(AladinController.class)
-public class AladinControllerTest {
+class AladinControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -92,7 +92,7 @@ public class AladinControllerTest {
         );
         CommonResponse<PageResponse<AladinBookResponse>> response = CommonResponse.success(pageResponse);
 
-        given(aladinClient.getBooksByKeyword(eq(keyword), eq(page), eq(10))).willReturn(response);
+        given(aladinClient.getBooksByKeyword(keyword, page, 10)).willReturn(response);
 
         MvcResult result = mockMvc.perform(get("/admin/aladin/book-search")
                         .param("keyword", keyword)

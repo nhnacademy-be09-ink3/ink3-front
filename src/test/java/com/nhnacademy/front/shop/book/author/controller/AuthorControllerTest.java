@@ -27,7 +27,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(AuthorController.class)
-public class AuthorControllerTest {
+class AuthorControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
