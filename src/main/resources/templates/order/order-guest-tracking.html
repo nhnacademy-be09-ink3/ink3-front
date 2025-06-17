@@ -119,7 +119,7 @@
     <section class="space-y-4">
         <h2 class="text-lg font-semibold text-gray-800">주문 상품</h2>
         <div th:each="book : ${orderBookList.content}" class="bg-white rounded-xl shadow p-4 flex gap-4 items-start">
-            <img th:src="${book.thumbnailUrl}" alt="도서 이미지" class="w-20 h-auto rounded border border-gray-300">
+<!--            <img th:src="${book.thumbnailUrl}" alt="도서 이미지" class="w-20 h-auto rounded border border-gray-300">-->
             <div class="flex-1 space-y-1 text-sm text-gray-700">
                 <div class="font-medium text-base" th:text="${book.bookName}">도서명</div>
                 <div>수량: <span th:text="${book.quantity}"></span>개</div>

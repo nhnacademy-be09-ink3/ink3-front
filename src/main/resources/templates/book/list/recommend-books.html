@@ -90,12 +90,6 @@
             </div>
 
             <div class="flex flex-col items-center gap-2">
-                <div class="flex flex-col w-full mb-2">
-                    <label for="quantity-${book.id}" class="text-sm text-gray-700 mb-1">수량</label>
-                    <input type="number" id="quantity-${book.id}" name="quantity" min="1" value="1"
-                           class="w-14 px-2 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
-
                 <form th:action="@{/carts}" method="post" th:if="${loginUser != null}" class="w-full">
                     <input type="hidden" name="bookId" th:value="${book.id}"/>
                     <input type="hidden" name="quantity" th:value="1"/>

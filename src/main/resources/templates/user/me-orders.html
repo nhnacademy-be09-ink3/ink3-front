@@ -68,12 +68,12 @@
 
                         <!-- 대표 도서 정보 -->
                         <div class="p-4 flex gap-4">
-                            <img th:src="${summary.representativeThumbnailUrl}"
-                                 alt="도서 썸네일"
-                                 style="width: 80px; height: 112px; object-fit: cover; border-radius: 6px; border: 1px solid #ddd;"/>
+<!--                            <img th:src="@{${summary.representativeThumbnailUrl}}"-->
+<!--                                 alt="도서 썸네일"-->
+<!--                                 style="width: 80px; height: 112px; object-fit: cover; border-radius: 6px; border: 1px solid #ddd;"/>-->
                             <div class="flex-1 grid grid-cols-2 gap-2 text-sm text-gray-700">
                                 <div>
-                                    <p class="text-base font-semibold text-gray-900 mb-1"
+                                    <p class="text-sm font-semibold text-gray-900 mb-1"
                                        th:text="${summary.representativeBookName}">도서명</p>
                                     <p class="text-gray-600 mb-1" th:if="${summary.bookTypeCount > 1}"
                                        th:text="'외 ' + (${summary.bookTypeCount} - 1) + '종'">외 2종</p>
@@ -96,10 +96,6 @@
                                 <a th:href="@{'/orders/' + ${summary.id}}"
                                    class="px-3 py-1.5 border border-green-600 text-green-600 rounded hover:bg-green-100 text-sm">
                                     주문 상세
-                                </a>
-                                <a th:href="@{'/orders/' + ${summary.id} + '/shipment'}"
-                                   class="px-3 py-1.5 border border-green-600 text-green-600 rounded hover:bg-green-100 text-sm">
-                                    배송 정보
                                 </a>
                                 <!--                                <a th:href="@{'/orders/' + ${summary.id} + '/review'}"-->
                                 <!--                                   class="px-3 py-1.5 border border-green-600 text-green-600 rounded hover:bg-green-100 text-sm">-->
