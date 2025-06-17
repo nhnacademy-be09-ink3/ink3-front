@@ -3,7 +3,6 @@ import com.nhnacademy.front.common.dto.CommonResponse;
 import com.nhnacademy.front.shop.payment.dto.PaymentCancelRequest;
 import com.nhnacademy.front.shop.payment.dto.PaymentConfirmRequest;
 import com.nhnacademy.front.shop.payment.dto.PaymentResponse;
-import com.nhnacademy.front.shop.payment.dto.ZeroPaymentRequest;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;

@@ -14,11 +14,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.nhnacademy.front.common.dto.CommonResponse;
 import com.nhnacademy.front.common.dto.PageResponse;
-import com.nhnacademy.front.shop.review.dto.MeReviewRequest;
 import com.nhnacademy.front.shop.review.dto.ReviewListResponse;
 import com.nhnacademy.front.shop.review.dto.ReviewResponse;
-
-import jakarta.validation.Valid;
 
 @FeignClient(name = "reviewClient", url = "${feign.url.shop}")
 public interface ReviewClient {

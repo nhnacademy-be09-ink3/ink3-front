@@ -5,7 +5,6 @@ import com.nhnacademy.front.shop.payment.client.PaymentClient;
 import com.nhnacademy.front.shop.payment.dto.PaymentCancelRequest;
 import com.nhnacademy.front.shop.payment.dto.PaymentConfirmRequest;
 import com.nhnacademy.front.shop.payment.dto.PaymentResponse;
-import com.nhnacademy.front.shop.payment.dto.ZeroPaymentRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
