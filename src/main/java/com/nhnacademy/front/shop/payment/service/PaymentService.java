@@ -2,9 +2,9 @@ package com.nhnacademy.front.shop.payment.service;
 
 import com.nhnacademy.front.common.dto.CommonResponse;
 import com.nhnacademy.front.shop.payment.client.PaymentClient;
+import com.nhnacademy.front.shop.payment.dto.PaymentCancelRequest;
 import com.nhnacademy.front.shop.payment.dto.PaymentConfirmRequest;
 import com.nhnacademy.front.shop.payment.dto.PaymentResponse;
-import com.nhnacademy.front.shop.payment.dto.ZeroPaymentRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -23,17 +23,11 @@ public class PaymentService {
         return paymentResponse.data();
     }
 
-    // 결제 생성 (0원 결제 시)
-    public PaymentResponse createZeroPayment(ZeroPaymentRequest zeroPaymentRequest){
-        CommonResponse<PaymentResponse> paymentResponse = paymentClient.createZeroPayment(zeroPaymentRequest);
-        return paymentResponse.data();
-    }
-
     public void dealWithPaymentFail(long orderId) {
         paymentClient.dealWithPaymentFail(orderId);
     }
 
-    public void dealWithPaymentCancel(long orderId) {
-        paymentClient.dealWithPaymentCancel(orderId);
+    public void dealWithPaymentCancel(long orderId, PaymentCancelRequest cancelRequest) {
+        paymentClient.dealWithPaymentCancel(orderId, cancelRequest);
     }
 }

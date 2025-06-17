@@ -3,7 +3,6 @@ package com.nhnacademy.front.shop.guest.service;
 import com.nhnacademy.front.common.dto.CommonResponse;
 import com.nhnacademy.front.shop.guest.client.GuestPaymentClient;
 import com.nhnacademy.front.shop.guest.dto.GuestPaymentConfirmRequest;
-import com.nhnacademy.front.shop.payment.dto.PaymentConfirmRequest;
 import com.nhnacademy.front.shop.payment.dto.PaymentResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ink3</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" th:href="@{/css/output.css(v=${#dates.createNow().getTime()})}">
+    <link rel="stylesheet" th:href="@{/css/output.css}">
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -59,7 +59,8 @@
                                      class="w-28 h-28 object-cover rounded">
                             </div>
 
-                            <th:block th:with="daysElapsed=${T(java.time.temporal.ChronoUnit).DAYS.between(review.createdAt, T(java.time.LocalDateTime).now())}">
+                            <th:block
+                                    th:with="daysElapsed=${T(java.time.temporal.ChronoUnit).DAYS.between(review.createdAt, T(java.time.LocalDateTime).now())}">
                                 <button type="button"
                                         th:if="${daysElapsed <= 3}"
                                         class="toggle-edit px-3 py-1 ink-btn-primary text-white rounded hover:bg-yellow-500 mt-2"

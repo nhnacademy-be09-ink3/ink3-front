@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>쿠폰 수정</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" th:href="@{/css/output.css}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet"/>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .ink-input-group {
+            @apply grid grid-cols-1 gap-2 mb-6;
+        }
+
+        .ink-input-group label {
+            @apply text-gray-700 font-medium block mb-2;
+        }
+
+        .ink-input-field[multiple] {
+            min-height: 8rem;
+            max-height: 12rem;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+<div th:replace="~{admin/layout/fragments/header :: headerFragment}"></div>
+<div class="flex flex-1 min-h-[calc(100vh-64px)]">
+    <div th:replace="~{admin/layout/fragments/sidebar :: sidebarFragment}"></div>
+    <main class="flex-1 p-6 bg-gray-100 overflow-y-auto">
+        <div class="w-8/12 mx-auto space-y-6">
+            <div class="ink-card-white p-6">
+                <h1 class="text-xl font-semibold text-gray-800 mb-6">쿠폰 수정</h1>
+                <form th:action="@{/admin/coupon/coupon-list/{id}(id=${couponId})}"
+                      th:object="${couponUpdateRequest}"
+                      method="post"
+                      class="space-y-6">
+                    <input type="hidden" name="_method" value="put"/>
+
+                    <!-- 정책 선택 -->
+                    <div class="ink-input-group">
+                        <label for="policyId">쿠폰 정책</label>
+                        <select id="policyId" th:field="*{policyId}" class="js-select w-full" required>
+                            <option value="" disabled selected>정책을 선택하세요</option>
+                            <th:block th:each="p : ${policies.content}">
+                                <option th:value="${p.policyId}" th:text="${p.policyName}"></option>
+                            </th:block>
+                        </select>
+                    </div>
+
+                    <!-- 쿠폰 이름 -->
+                    <div class="ink-input-group">
+                        <label for="name">쿠폰 이름</label>
+                        <input type="text" th:field="*{name}" class="ink-input-field w-full"
+                               placeholder="예: SPRING_COUPON_01" required/>
+                    </div>
+
+                    <!-- 발급 시작일 -->
+                    <div class="ink-input-group">
+                        <label for="issuableFrom">발급 가능 시작일</label>
+                        <input type="datetime-local" id="issuableFrom" th:field="*{issuableFrom}"
+                               class="ink-input-field w-full" required/>
+                    </div>
+
+                    <!-- 만료일 -->
+                    <div class="ink-input-group">
+                        <label for="expiresAt">만료일</label>
+                        <input type="datetime-local" id="expiresAt" th:field="*{expiresAt}"
+                               class="ink-input-field w-full" required/>
+                    </div>
+                    <!-- 5) 활성화 여부 -->
+                    <div class="ink-input-group">
+                        <label for="isActive">활성화 여부</label>
+                        <select id="isActive" name="isActive" class="ink-input-field">
+                            <option value="true">활성</option>
+                            <option value="false">비활성</option>
+                        </select>
+                    </div>
+                    <!-- 도서 선택 -->
+                    <div class="ink-input-group">
+                        <label for="bookIdList">도서 자동 발급</label>
+                        <select id="bookIdList" th:field="*{bookIdList}" class="ink-input-field js-multi-select w-full"
+                                multiple>
+                            <th:block th:each="book : ${books.content}">
+                                <option th:value="${book.id}" th:text="${book.title}"></option>
+                            </th:block>
+                        </select>
+                    </div>
+
+                    <!-- 카테고리 선택 -->
+                    <div class="ink-input-group">
+                        <label for="categoryIdList">카테고리 자동 발급</label>
+                        <select id="categoryIdList" th:field="*{categoryIdList}"
+                                class="ink-input-field js-multi-select w-full" multiple>
+                            <th:block th:each="category : ${categories}">
+                                <option th:value="${category.id}" th:text="${category.name}"></option>
+                            </th:block>
+                        </select>
+                    </div>
+
+                    <div class="flex justify-end">
+                        <button type="submit" class="ink-btn-primary px-6 py-2">수정하기</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+</div>
+<script>
+    $(function () {
+        $('.js-select').select2({placeholder: '정책을 선택하세요', allowClear: true, width: '100%'});
+        $('.js-multi-select').select2({placeholder: '항목을 선택하세요', allowClear: true, width: '100%'});
+    });
+</script>
+</body>
+</html>

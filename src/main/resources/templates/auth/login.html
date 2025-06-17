@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ink3</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" th:href="@{/css/output.css(v=${#dates.createNow().getTime()})}">
+    <link rel="stylesheet" th:href="@{/css/output.css}">
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -38,7 +38,7 @@
         </form>
         <div class="mt-6 flex justify-center gap-6 text-sm text-gray-600 font-semibold">
             <a th:href="@{/register}" class="hover:text-gray-800 transition">회원가입</a>
-            <a th:href="@{/guest/login}" class="hover:text-gray-800 transition">비회원 주문조회</a>
+            <a th:href="@{/guest-order/login}" class="hover:text-gray-800 transition">비회원 주문조회</a>
         </div>
         <span class="flex items-center mt-6">
             <span class="h-px flex-1 bg-gray-400"></span>

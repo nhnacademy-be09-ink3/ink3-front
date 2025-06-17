@@ -2,147 +2,129 @@
     <ul class="flex items-center space-x-6 relative z-50">
         <li class="nav-item">
             <a th:href="@{/}" class="flex items-center">
-                <img src="https://i.imgur.com/QUuI5KG.png" alt="INK3 로고" class="h-10 w-auto object-contain mt-1" />
+                <img src="https://i.imgur.com/QUuI5KG.png" alt="INK3 로고" class="h-10 w-auto object-contain mt-1"/>
             </a>
         </li>
 
         <li class="nav-item relative group" id="category-nav-item">
-
             <button id="main-category-button"
-                    class="text-gray-700 hover:text-ink-primary transition-colors cursor-pointer">
+                    class="text-gray-700 hover:text-ink-primary transition-colors cursor-pointer"
+                    onclick="openModal('category-modal')">
                 카테고리
             </button>
-            <ul id="nav-category-menu"
-                class="absolute left-0 top-full mt-2 bg-white rounded shadow-lg invisible opacity-0 transition-opacity duration-200 z-50 min-w-max py-1 px-1 whitespace-nowrap">
-            </ul>
+            <div id="category-modal"
+                 class="absolute top-[64px] left-0 flex items-center justify-center z-50 hidden">
+                <div class="bg-white p-6 rounded-lg shadow-lg w-md space-y-4 border border-gray-400 overflow-y-auto">
+                    <div class="flex justify-between">
+                        <h2 class="text-xl font-bold">카테고리</h2>
+                        <button onclick="closeModal('category-modal')"
+                                class="text-gray-400 hover:text-gray-600">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
+                                 viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <ul id="category-list" class="space-y-2 text-gray-800 text-[16px]"></ul>
+                </div>
+            </div>
         </li>
         <li class="nav-item">
-            <a th:href="@{/books/bestseller}" class="text-gray-700 hover:text-ink-primary transition-colors category-item">베스트셀러</a>
+            <a th:href="@{/books/bestseller}"
+               class="text-gray-700 hover:text-ink-primary transition-colors category-item">베스트셀러</a>
         </li>
         <li class="nav-item">
-            <a th:href="@{/books/new}" class="text-gray-700 hover:text-ink-primary transition-colors category-item">신간</a>
+            <a th:href="@{/books/new}"
+               class="text-gray-700 hover:text-ink-primary transition-colors category-item">신간</a>
         </li>
         <li class="nav-item">
-            <a th:href="@{/books/recommend}" class="text-gray-700 hover:text-ink-primary transition-colors category-item">추천도서</a>
-        </li>
-        <li class="nav-item">
-            <a th:href="@{/component}"
-               class="text-gray-700 hover:text-ink-primary transition-colors category-item">이벤트</a>
+            <a th:href="@{/books/recommend}"
+               class="text-gray-700 hover:text-ink-primary transition-colors category-item">추천도서</a>
         </li>
     </ul>
 
     <script th:inline="javascript">
+        const navGateway = /*[[${gatewayBaseUrl}]]*/ "";
+        const navContext = /*[[@{/}]]*/ '';
 
-        const navContext = /*[[@{/}]]*/ "/";
-
-        function goToCategory(name) {
-            const encoded = encodeURIComponent(name);
-            location.href = `${navContext}books/category?name=${encoded}`;
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            let topLevelCategories = [];
-
-            fetch(`${window.api.gatewayBaseUrl}/shop/categories`)
-                .then(res => res.json())
-                .then(data => {
-                    const tree = buildCategoryTree(data.data.content);
-                    const rootNode = tree.find(cat => cat.name === 'ROOT');
-                    const filteredTree = rootNode?.children || tree.filter(cat => cat.name !== 'ROOT');
-                    topLevelCategories = filteredTree;
-                    renderNavCategoryMenu(filteredTree, document.getElementById('nav-category-menu'));
-                    applyHoverDelay();
-                });
-
-
-            document.getElementById('main-category-button').addEventListener('click', () => {
-                if (topLevelCategories.length > 0) {
-                    goToCategory(topLevelCategories[0].name);
-                }
+        fetch(`${navGateway}/shop/categories/tree`)
+            .then(res => res.json())
+            .then(data => {
+                const rootList = document.getElementById("category-list");
+                rootList.innerHTML = "";
+                renderCategoryTree(data.data, rootList);
             });
 
-            function buildCategoryTree(flatList) {
-                const map = {}, roots = [];
-                flatList.forEach(cat => { cat.children = []; map[cat.id] = cat; });
-                flatList.forEach(cat => {
-                    if (cat.parentId == null) roots.push(cat);
-                    else if (map[cat.parentId]) map[cat.parentId].children.push(cat);
-                });
-                return roots;
-            }
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.remove('hidden');
+        }
 
-            function renderNavCategoryMenu(categories, container) {
-                categories.forEach(cat => {
-                    const li = document.createElement('li');
-                    li.className = 'relative group';
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            modal.classList.add('hidden');
+        }
 
-                    const button = document.createElement('button');
-                    button.type = 'button';
-                    button.innerText = cat.name;
-                    button.className = 'block text-sm px-4 py-2 text-gray-700 hover:text-ink-primary whitespace-nowrap';
-                    button.onclick = () => goToCategory(cat.name);
-                    li.appendChild(button);
+        document.addEventListener('click', (event) => {
+            const modal = document.getElementById('category-modal');
+            const button = document.querySelector('button');
 
-                    if (cat.children.length > 0) {
-                        const subUl = document.createElement('ul');
-                        subUl.className = `
-              absolute top-0 left-full ml-2 bg-white shadow-md rounded px-1 py-1 z-50
-              invisible opacity-0 pointer-events-none transition-opacity duration-300 min-w-max whitespace-nowrap
-            `;
-                        li.appendChild(subUl);
-                        renderNavCategoryMenu(cat.children, subUl);
+            if (modal.classList.contains('hidden')) return;
 
-                        let closeTimer;
-
-                        li.addEventListener('mouseenter', () => {
-                            clearTimeout(closeTimer);
-                            subUl.classList.remove('invisible', 'opacity-0', 'pointer-events-none');
-                            subUl.classList.add('visible', 'opacity-100', 'pointer-events-auto');
-                        });
-
-                        li.addEventListener('mouseleave', () => {
-                            closeTimer = setTimeout(() => {
-                                subUl.classList.remove('visible', 'opacity-100', 'pointer-events-auto');
-                                subUl.classList.add('invisible', 'opacity-0', 'pointer-events-none');
-                            }, 500);
-                        });
-
-                        subUl.addEventListener('mouseenter', () => clearTimeout(closeTimer));
-                        subUl.addEventListener('mouseleave', () => {
-                            closeTimer = setTimeout(() => {
-                                subUl.classList.remove('visible', 'opacity-100', 'pointer-events-auto');
-                                subUl.classList.add('invisible', 'opacity-0', 'pointer-events-none');
-                            }, 500);
-                        });
-                    }
-
-                    container.appendChild(li);
-                });
-            }
-
-            function applyHoverDelay() {
-                const parent = document.getElementById('category-nav-item');
-                const root = document.getElementById('nav-category-menu');
-                let closeTimer;
-
-                const showMenu = () => {
-                    clearTimeout(closeTimer);
-                    root.classList.remove('invisible', 'opacity-0');
-                    root.classList.add('visible', 'opacity-100');
-                };
-
-                const hideMenu = () => {
-                    closeTimer = setTimeout(() => {
-                        root.classList.remove('visible', 'opacity-100');
-                        root.classList.add('invisible', 'opacity-0');
-                    }, 500);
-                };
-
-                parent.addEventListener('mouseenter', showMenu);
-                parent.addEventListener('mouseleave', hideMenu);
-                root.addEventListener('mouseenter', showMenu);
-                root.addEventListener('mouseleave', hideMenu);
+            if (!modal.contains(event.target) && !button.contains(event.target)) {
+                modal.classList.add('hidden'); // 바깥 클릭 시 모달 닫기
             }
         });
+
+        function renderCategoryTree(categories, container) {
+            categories.forEach(cat => {
+                const li = document.createElement("li");
+
+                const wrapper = document.createElement("div");
+                wrapper.className = "flex items-center justify-between";
+
+                const link = document.createElement("a");
+                link.href = `${navContext}search/books/by-category?category=${encodeURIComponent(cat.name)}`;
+                link.textContent = cat.name;
+                link.className = "hover:underline";
+
+                wrapper.appendChild(link);
+
+                if (cat.children && cat.children.length > 0) {
+                    const btn = document.createElement("button");
+                    btn.className = "hover:text-ink-primary";
+                    btn.onclick = function () {
+                        toggleSub(btn);
+                    };
+
+                    btn.innerHTML = `
+                <svg class="w-5 h-5 transition-transform duration-300 transform rotate-90" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd"
+      d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+      clip-rule="evenodd"/>
+                </svg>
+            `;
+                    wrapper.appendChild(btn);
+
+                    const childUl = document.createElement("ul");
+                    childUl.className = "ml-4 mt-1 hidden";
+                    renderCategoryTree(cat.children, childUl);
+                    li.appendChild(wrapper);
+                    li.appendChild(childUl);
+                } else {
+                    li.appendChild(wrapper);
+                }
+
+                container.appendChild(li);
+            });
+        }
+
+        function toggleSub(btn) {
+            const ul = btn.parentElement.nextElementSibling;
+            const svg = btn.querySelector('svg');
+            if (!ul || !svg) return;
+
+            ul.classList.toggle('hidden');
+            svg.classList.toggle('rotate-90');
+        }
     </script>
 </nav>

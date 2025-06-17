@@ -1,13 +1,15 @@
 package com.nhnacademy.front.shop.book.dto;
 
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
 import java.util.List;
-
 
 public record BookRegisterRequest(
         AladinBookResponse aladinBookResponse,
-        Integer priceSales,
-        Integer quantity,
-        BookStatus status,
+        String contents,
+        @NotNull @PositiveOrZero Integer priceSales,
+        @NotNull @PositiveOrZero Integer quantity,
+        @NotNull BookStatus status,
         Boolean isPackable,
-        List<Long> tagIds
+        List<String> tags
 ) {}

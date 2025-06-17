@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ink3</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" th:href="@{/css/output.css}" />
+    <link rel="stylesheet" th:href="@{/css/output.css}">
 </head>
 <body class="bg-gray-100">
 <div th:replace="~{layout/fragments/header :: headerFragment}"></div>
@@ -112,7 +112,7 @@
 
     function goToCategory(name) {
         const encoded = encodeURIComponent(name);
-        location.href = `${contextPath}books/category?name=${encoded}`;
+        location.href = `${navContext}books/search-by-category?category=${encoded}`;
     }
 
     function orderNow(bookId, quantity) {
@@ -141,7 +141,7 @@
 
         // ✅ 카테고리명 추출
         const urlParams = new URLSearchParams(window.location.search);
-        const categoryName = urlParams.get('name') || '';
+        const categoryName = urlParams.get('category') || '';
         document.getElementById('category-name').innerText = categoryName;
 
         fetchBooks();
@@ -401,11 +401,12 @@
         // ✅ 실제 API 호출
 
         function fetchBooks() {
-            fetch(`${window.api.gatewayBaseUrl}/shop/books?category=${encodeURIComponent(categoryName)}&page=${currentPage - 1}&size=${itemsPerPage}&sort=${currentSort}`)
+            fetch(`${window.api.gatewayBaseUrl}/shop/books/search-by-category?category=${encodeURIComponent(categoryName)}&page=${currentPage - 1}&size=${itemsPerPage}&sort=${currentSort}`)
                 .then(response => response.json())
                 .then(data => {
-                    renderBooks(data.data.content);
-                    renderPagination(data.data.totalElements);
+                    const filtered = data.data.content.filter(book => book.status !== 'DELETED');
+                    renderBooks(filtered);
+                    renderPagination(filtered.length);
                 })
                 .catch(err => console.error('도서 목록 불러오기 실패:', err));
         }

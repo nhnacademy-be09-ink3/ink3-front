@@ -1,6 +1,6 @@
 package com.nhnacademy.front.shop.cart.dto;
 
-import com.nhnacademy.front.shop.couponStore.client.dto.CouponStoreDto;
+import com.nhnacademy.front.shop.couponStore.dto.CouponStoreDto;
 import java.util.List;
 
 public record CartCouponResponse(

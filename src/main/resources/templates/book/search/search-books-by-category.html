@@ -1,0 +1,159 @@
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ink3</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/output.css}">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+
+<div th:replace="~{layout/fragments/header :: headerFragment}"></div>
+
+<main class="container mx-auto px-4 py-8 min-h-[calc(100vh-72px-64px)]">
+    <h2 class="text-2xl font-bold mb-6 text-center" th:text="${category}"></h2>
+
+    <div class="max-w-5xl mx-auto flex justify-end mb-4">
+        <form method="get" th:action="@{/search/books/by-category}"
+              class="flex items-center gap-2">
+            <input type="hidden" name="category" th:value="${category}"/>
+            <label for="sort" class="text-sm text-gray-600">정렬:</label>
+            <select id="sort" name="sort"
+                    class="px-2 py-1 border border-gray-300 rounded-md"
+                    onchange="this.form.submit()">
+                <option th:each="sort : ${sorts}"
+                        th:value="${sort.name()}"
+                        th:text="${sort.getLabel()}"
+                        th:selected="${currentSort == sort}">
+                </option>
+            </select>
+        </form>
+    </div>
+
+    <div class="space-y-6">
+        <div th:each="book, iterStat : ${books.content()}"
+             class="bg-white rounded-xl shadow p-6 flex gap-6 items-center w-full max-w-5xl mx-auto">
+
+            <div class="w-10 h-full flex items-center justify-center text-2xl font-bold text-gray-500">
+                <span th:text="${books.page * books.size + iterStat.index + 1}"></span>
+            </div>
+
+            <div class="w-[120px] h-[180px] shrink-0 rounded-md overflow-hidden bg-gray-100 flex items-center justify-center">
+                <img th:src="${book.thumbnailUrl()}" alt="thumbnail"
+                     class="max-h-full max-w-full object-contain"/>
+            </div>
+
+            <div class="flex flex-col justify-between w-full min-h-[180px]">
+                <div class="mb-3">
+                    <h3 class="text-lg font-bold text-gray-900 mb-1" th:text="${book.title()}"></h3>
+                    <p class="text-sm text-gray-600 mb-2"
+                       th:text="${#strings.arrayJoin(book.authors().toArray(), ', ')}">작가명</p>
+
+                    <div class="flex items-center text-sm font-bold text-gray-700 gap-6 mt-2">
+                        <div class="flex items-center gap-1 hover:text-pink-500 transition">
+                            <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5
+                     2 5.42 4.42 3 7.5 3c1.74 0 3.41 1.01 4.5
+                     2.09C13.09 4.01 14.76 3 16.5 3
+                     19.58 3 22 5.42 22 8.5c0
+                     3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                            </svg>
+                            <span th:text="${book.likeCount()} + '명 찜'"></span>
+                        </div>
+
+                        <div class="flex items-center gap-1 hover:text-yellow-500 transition">
+                            <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                                <path d="M12 17.27L18.18 21 16.54 13.97
+                     22 9.24l-7.19-.61L12 2
+                     9.19 8.63 2 9.24l5.46 4.73L5.82
+                     21z"/>
+                            </svg>
+                            <span th:text="${book.reviewCount()} + '개 리뷰'"></span>
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <p class="text-sm line-through text-gray-400"
+                           th:text="${#numbers.formatDecimal(book.originalPrice(), 0, 'COMMA', 0, 'POINT')} + '원'">
+                            정가
+                        </p>
+                        <p class="text-red-500 font-bold text-lg"
+                           th:text="${#numbers.formatDecimal(book.salePrice(), 0, 'COMMA', 0, 'POINT')} + '원'">
+                            할인가
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex flex-col items-center gap-2">
+                <div class="flex flex-col w-full mb-2">
+                    <label for="quantity-${book.id}" class="text-sm text-gray-700 mb-1">수량</label>
+                    <input type="number" id="quantity-${book.id}" name="quantity" min="1" value="1"
+                           class="w-14 px-2 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+
+                <form th:action="@{/carts}" method="post" th:if="${loginUser != null}" class="w-full">
+                    <input type="hidden" name="bookId" th:value="${book.id}"/>
+                    <input type="hidden" name="quantity" th:value="1"/>
+                    <button type="submit"
+                            class="w-32 bg-ink-primary text-white text-sm py-2 rounded-md hover:bg-gray-400 transition">
+                        장바구니에 넣기
+                    </button>
+                </form>
+
+                <form th:action="@{/guest-carts}" method="post" th:unless="${loginUser != null}" class="w-full">
+                    <input type="hidden" name="bookId" th:value="${book.id}"/>
+                    <input type="hidden" name="quantity" th:value="1"/>
+                    <button type="submit"
+                            class="w-32 bg-ink-primary text-white text-sm px-4 py-2 rounded-md hover:bg-gray-400 transition">
+                        장바구니에 넣기
+                    </button>
+                </form>
+
+                <a th:href="@{/books/{id}(id=${book.id})}"
+                   class="w-32 bg-ink-primary text-white text-sm px-4 py-2 rounded-md hover:bg-ink-primary-hover transition text-center">
+                    자세히 보기
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <ul class="flex justify-center gap-1 text-gray-900 mt-6">
+        <li>
+            <a th:href="@{/search/books/by-category(category=${category}, page=${books.hasPrevious()} ? ${books.page() - 1} : ${books.page()}, sort=${currentSort.name()})}"
+               class="ink-page-item-arrow"
+               aria-label="Previous page">
+                <svg xmlns="http://www.w3.org/2000/svg" class="size-4" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd"
+                          d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
+                          clip-rule="evenodd"/>
+                </svg>
+            </a>
+        </li>
+        <li th:each="i : ${#numbers.sequence(pageInfo.startPage(), pageInfo.endPage())}">
+            <a th:href="@{/search/books/by-category(category=${category}, page=${i}, sort=${currentSort.name()})}"
+               th:class="${i == books.page()} ? 'ink-page-item-current' : 'ink-page-item'"
+               th:text="${i + 1}"></a>
+        </li>
+        <li>
+            <a th:href="@{/search/books/by-category(category=${category}, page=${books.hasNext()} ? ${books.page() + 1} : ${books.page()}, sort=${currentSort.name()})}"
+               class="ink-page-item-arrow" aria-label="Next page">
+                <svg xmlns="http://www.w3.org/2000/svg" class="size-4" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd"
+                          d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                          clip-rule="evenodd"/>
+                </svg>
+            </a>
+        </li>
+    </ul>
+</main>
+
+<div th:replace="~{layout/fragments/footer :: footerFragment}"></div>
+
+</body>
+</html>

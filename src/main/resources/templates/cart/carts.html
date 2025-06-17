@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ink3</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" th:href="@{/css/output.css(v=${#dates.createNow().getTime()})}">
+    <link rel="stylesheet" th:href="@{/css/output.css}">
     <style>
         ul.space-y-4 > li {
             border-top: 1px solid #e5e7eb;
@@ -218,22 +218,26 @@
                                 <dl class="space-y-0.5 text-ml text-gray-700">
                                     <div class="flex justify-between items-center">
                                         <dt class="text-left w-full">주문 금액</dt>
-                                        <dd class="text-right w-full" th:text="${orderPrices != 0 ? #numbers.formatInteger(orderPrices, 3, 'COMMA') + ' 원' : '0 원'}"></dd>
+                                        <dd class="text-right w-full"
+                                            th:text="${orderPrices != 0 ? #numbers.formatInteger(orderPrices, 3, 'COMMA') + ' 원' : '0 원'}"></dd>
                                     </div>
                                     <div class="flex justify-between items-center">
                                         <dt class="text-left w-full">할인 금액</dt>
-                                        <dd class="text-right w-full" th:text="${discountPrices != 0 ? #numbers.formatInteger(discountPrices, 3, 'COMMA') + ' 원' : '0 원'}"></dd>
+                                        <dd class="text-right w-full"
+                                            th:text="${discountPrices != 0 ? #numbers.formatInteger(discountPrices, 3, 'COMMA') + ' 원' : '0 원'}"></dd>
                                     </div>
                                     <div class="flex justify-between items-center !text-base font-medium">
                                         <dt class="text-left w-full">총 주문 금액</dt>
-                                        <dd class="text-right w-full" th:text="${totalPrice != 0 ? #numbers.formatInteger(totalPrice, 3, 'COMMA') + ' 원' : '0 원'}"></dd>
+                                        <dd class="text-right w-full"
+                                            th:text="${totalPrice != 0 ? #numbers.formatInteger(totalPrice, 3, 'COMMA') + ' 원' : '0 원'}"></dd>
                                     </div>
                                 </dl>
 
-                                <div class="flex justify-end">
-                                    <a th:href="@{/order-form/from-cart}"
-                                       class="ink-btn-primary bg-gray-700 px-5 py-3 text-sm text-gray-100 transition hover:bg-gray-600">주문하기</a>
-                                </div>
+                                <button id="orderBtn"
+                                        type="button"
+                                        class="ink-btn-primary bg-gray-700 px-5 py-3 text-sm text-gray-100 transition hover:bg-gray-600">
+                                    주문하기
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -366,6 +370,18 @@
                     });
             });
         });
+    });
+
+    document.getElementById('orderBtn')?.addEventListener('click', () => {
+        const selected = [...document.querySelectorAll('.guest-cart-checkbox:checked')]
+            .map(cb => cb.value);
+        if (selected.length === 0) {
+            alert("주문할 항목을 선택하세요.");
+            return;
+        }
+
+        const query = selected.map(id => `cartIds=${id}`).join('&');
+        window.location.href = `${contextPath}order-form/from-cart?${query}`;
     });
 </script>
 

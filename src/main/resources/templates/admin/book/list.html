@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ink3</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" th:href="@{/css/output.css(v=${#dates.createNow().getTime()})}">
+    <link rel="stylesheet" th:href="@{/css/output.css}">
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -25,34 +25,54 @@
             <table class="min-w-full bg-white rounded-lg overflow-hidden">
                 <thead class="bg-gray-100 border-b border-gray-200">
                 <tr>
-                    <th class="py-3 px-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider rounded-tl-lg">순번</th>
-                    <th class="py-3 px-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">표지</th>
+                    <th class="w-20 py-3 px-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider rounded-tl-lg">
+                        ID
+                    </th>
+                    <th class="w-20 py-3 px-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">
+                        표지
+                    </th>
+                    <th class="py-3 px-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">ISBN
+                    </th>
                     <th class="py-3 px-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">제목</th>
-                    <th class="py-3 px-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">작가</th>
-                    <th class="py-3 px-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">출판사</th>
-                    <th class="py-3 px-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">카테고리</th>
+                    <th class="w-28 y-3 px-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">
+                        출판사
+                    </th>
+                    <th class="w-32 py-3 px-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">
+                        출판일
+                    </th>
+                    <th class="py-3 px-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">정가
+                        (원)
+                    </th>
+                    <th class="py-3 px-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">판매가
+                        (원)
+                    </th>
+                    <th class="py-3 px-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">수량</th>
+                    <th class="py-3 px-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">포장 여부
+                    </th>
+                    <th class="py-3 px-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">별점</th>
                     <th class="py-3 px-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">상태</th>
-                    <th class="py-3 px-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider rounded-tr-lg">관리</th>
+                    <th class="w-24 py-3 px-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider rounded-tr-lg">
+                        관리
+                    </th>
                 </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-200">
-                <tr class="hover:bg-gray-50 transition-colors duration-200" th:each="book, stat : ${books.content()}">
-                    <td class="py-3 px-4 text-sm text-gray-700" th:text="${stat.count}"></td>
+                <tr class="hover:bg-gray-50 transition-colors duration-200" th:each="book: ${books.content()}">
+                    <td class="py-3 px-4 text-sm text-gray-700" th:text="${book.id}"></td>
                     <td class="py-3 px-4 text-sm text-gray-700">
                         <img th:src="${book.thumbnailUrl}" alt="표지" class="w-12 h-16 object-cover rounded shadow">
                     </td>
+                    <td class="py-3 px-4 text-sm text-gray-700" th:text="${book.isbn}"></td>
                     <td class="py-3 px-4 text-sm text-gray-700" th:text="${book.title}"></td>
-                    <td class="py-3 px-4 text-sm text-gray-700">
-                        <th:block th:each="author, iterStat : ${book.authors}">
-                            <span th:text="${author.authorName + ' (' + author.role + ')'}"></span><th:block th:if="${!iterStat.last}">, </th:block>
-                        </th:block>
-                    </td>
-                    <td class="py-3 px-4 text-sm text-gray-700" th:text="${book.publisherName}"></td>
-                    <td class="py-3 px-4 text-sm text-gray-700">
-                        <th:block th:each="category, iterStat : ${book.categories}">
-                            <span th:text="${category.name}"></span><th:block th:if="${!iterStat.last}">, </th:block>
-                        </th:block>
-                    </td>
+                    <td class="py-3 px-4 text-sm text-gray-700" th:text="${book.publisher}"></td>
+                    <td class="w-32 py-3 px-4 text-sm text-gray-700" th:text="${book.publishedAt}"></td>
+                    <td class="py-3 px-4 text-sm text-gray-700"
+                        th:text="${#numbers.formatDecimal(book.originalPrice, 0, 'COMMA', 0, 'POINT')}"></td>
+                    <td class="py-3 px-4 text-sm text-gray-700"
+                        th:text="${#numbers.formatDecimal(book.salePrice, 0, 'COMMA', 0, 'POINT')}"></td>
+                    <td class="py-3 px-4 text-sm text-gray-700" th:text="${book.quantity}"></td>
+                    <td class="py-3 px-4 text-sm text-gray-700" th:text="${book.packable} ? '가능' : '불가능'"></td>
+                    <td class="py-3 px-4 text-sm text-gray-700" th:text="${book.averageRating}"></td>
                     <td class="py-3 px-4 text-sm text-gray-700" th:text="${book.status.getLabel()}"></td>
 
                     <td class="py-3 px-4 text-sm text-gray-700 space-x-2">
@@ -63,15 +83,12 @@
                                 수정
                             </button>
                         </form>
-
                         <!-- 삭제 버튼 -->
-                        <form th:action="@{'/admin/books/' + ${book.id}}" method="post" class="inline">
-                            <input type="hidden" name="_method" value="delete"/>
-                            <button type="submit"
-                                    class="bg-red-500 px-2 py-1 text-white rounded-xl hover:bg-red-400">
-                                삭제
-                            </button>
-                        </form>
+                        <button type="button"
+                                class="bg-red-500 px-2 py-1 text-white rounded-xl hover:bg-red-400"
+                                th:onclick="'deleteBook(' + ${book.id} + ')'">
+                            삭제
+                        </button>
                     </td>
                 </tr>
                 </tbody>
@@ -107,6 +124,30 @@
             </ul>
         </div>
     </main>
+    <script th:inline="javascript">
+
+        const contextPath = /*[[@{/}]]*/ '';
+
+        function deleteBook(bookId) {
+            if (!confirm('정말 삭제하시겠습니까?')) return;
+
+            fetch(contextPath + 'admin/books/' + bookId, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+            }).then(res => {
+                if (res.ok) {
+                    alert('삭제되었습니다.');
+                    const params = new URLSearchParams(window.location.search);
+                    const page = params.get('page') || 0;
+                    window.location.href = contextPath + 'admin/list?page=' + page;
+                } else {
+                    alert('삭제에 실패하였습니다.');
+                }
+            });
+        }
+    </script>
 </div>
 </body>
 </html>

@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ink3</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" th:href="@{/css/output.css(v=${#dates.createNow().getTime()})}">
+    <link rel="stylesheet" th:href="@{/css/output.css}">
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -70,7 +70,8 @@
         <h2 class="text-lg font-semibold text-gray-800">주문 정보</h2>
         <div class="text-sm text-gray-700 space-y-1">
             <div><span class="font-medium">주문번호:</span> <span th:text="${guestOrderDetails.orderUUId}"></span></div>
-            <div><span class="font-medium">주문일시:</span> <span th:text="${#temporals.format(guestOrderDetails.orderedAt, 'yyyy-MM-dd HH:mm')}"></span></div>
+            <div><span class="font-medium">주문일시:</span> <span
+                    th:text="${#temporals.format(guestOrderDetails.orderedAt, 'yyyy-MM-dd HH:mm')}"></span></div>
             <div><span class="font-medium">주문 상태:</span> <span th:text="${guestOrderDetails.status.label}"></span></div>
         </div>
     </section>
@@ -90,8 +91,11 @@
         <div class="text-sm text-gray-700 space-y-1">
             <div><span class="font-medium">이름:</span> <span th:text="${guestOrderDetails.recipientName}"></span></div>
             <div><span class="font-medium">연락처:</span> <span th:text="${guestOrderDetails.recipientPhone}"></span></div>
-            <div><span class="font-medium">주소:</span> <span th:text="|(${guestOrderDetails.postalCode}) ${guestOrderDetails.defaultAddress} ${guestOrderDetails.extraAddress}|"></span></div>
-            <div><span class="font-medium">희망 배송일:</span> <span th:text="${guestOrderDetails.preferredDeliveryDate}"></span></div>
+            <div><span class="font-medium">주소:</span> <span
+                    th:text="|(${guestOrderDetails.postalCode}) ${guestOrderDetails.defaultAddress} ${guestOrderDetails.extraAddress}|"></span>
+            </div>
+            <div><span class="font-medium">희망 배송일:</span> <span
+                    th:text="${guestOrderDetails.preferredDeliveryDate}"></span></div>
         </div>
     </section>
 
@@ -100,8 +104,10 @@
         <h2 class="text-lg font-semibold text-gray-800">결제 정보</h2>
         <div class="grid grid-cols-1 gap-2 text-sm text-gray-700">
             <div><span class="font-medium">결제수단:</span> <span th:text="${guestOrderDetails.paymentType}"></span></div>
-            <div><span class="font-medium">요청일시:</span> <span th:text="${#temporals.format(guestOrderDetails.requestedAt, 'yyyy-MM-dd HH:mm')}"></span></div>
-            <div><span class="font-medium">승인일시:</span> <span th:text="${#temporals.format(guestOrderDetails.approvedAt, 'yyyy-MM-dd HH:mm')}"></span></div>
+            <div><span class="font-medium">요청일시:</span> <span
+                    th:text="${#temporals.format(guestOrderDetails.requestedAt, 'yyyy-MM-dd HH:mm')}"></span></div>
+            <div><span class="font-medium">승인일시:</span> <span
+                    th:text="${#temporals.format(guestOrderDetails.approvedAt, 'yyyy-MM-dd HH:mm')}"></span></div>
         </div>
         <div class="bg-blue-50 mt-4 p-4 rounded-lg text-center text-blue-800 text-lg font-semibold">
             총 결제금액:
@@ -118,7 +124,9 @@
                 <div class="font-medium text-base" th:text="${book.bookName}">도서명</div>
                 <div>수량: <span th:text="${book.quantity}"></span>개</div>
                 <div>판매가: <span th:text="${#numbers.formatInteger(book.bookSalePrice, 0, 'COMMA') + '원'}"></span></div>
-                <div>총액: <span th:text="${#numbers.formatInteger(book.bookSalePrice * book.quantity, 0, 'COMMA') + '원'}"></span></div>
+                <div>총액: <span
+                        th:text="${#numbers.formatInteger(book.bookSalePrice * book.quantity, 0, 'COMMA') + '원'}"></span>
+                </div>
                 <div>포장지: <span th:text="${book.packagingName} ?: '없음'"></span></div>
                 <div>포장비: <span th:text="${#numbers.formatInteger(book.packagingPrice, 0, 'COMMA') + '원'}"></span></div>
                 <div>쿠폰: <span th:text="${book.couponName} ?: '없음'"></span></div>

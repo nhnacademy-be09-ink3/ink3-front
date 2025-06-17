@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ink3</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" th:href="@{/css/output.css(v=${#dates.createNow().getTime()})}">
+    <link rel="stylesheet" th:href="@{/css/output.css}">
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -29,51 +29,60 @@
                 반품 승인 요청 목록
             </h1>
 
-<!--            &lt;!&ndash; 검색 & 필터 &ndash;&gt;
-            <div class="mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
-                <h2 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="mr-2" width="20" height="20" fill="none"
-                         viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <circle cx="11" cy="11" r="8"/>
-                        <path d="m21 21-4.3-4.3"/>
-                    </svg>
-                    검색 & 필터
-                </h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label for="orderIdSearch" class="block text-sm font-medium text-gray-700 mb-1">주문 ID</label>
-                        <input type="text" id="orderIdSearch" name="orderIdSearch"
-                               class="block w-full pl-3 pr-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                               placeholder="주문 ID를 입력하세요"/>
-                    </div>
-                    <div>
-                        <label for="approvedFilter" class="block text-sm font-medium text-gray-700 mb-1">승인 여부</label>
-                        <select id="approvedFilter" name="approved"
-                                class="block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-                            <option value="">전체</option>
-                            <option value="true">승인됨</option>
-                            <option value="false">미승인</option>
-                        </select>
-                    </div>
-                </div>
-            </div>-->
+            <!--            &lt;!&ndash; 검색 & 필터 &ndash;&gt;
+                        <div class="mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                            <h2 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="mr-2" width="20" height="20" fill="none"
+                                     viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <circle cx="11" cy="11" r="8"/>
+                                    <path d="m21 21-4.3-4.3"/>
+                                </svg>
+                                검색 & 필터
+                            </h2>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label for="orderIdSearch" class="block text-sm font-medium text-gray-700 mb-1">주문 ID</label>
+                                    <input type="text" id="orderIdSearch" name="orderIdSearch"
+                                           class="block w-full pl-3 pr-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                           placeholder="주문 ID를 입력하세요"/>
+                                </div>
+                                <div>
+                                    <label for="approvedFilter" class="block text-sm font-medium text-gray-700 mb-1">승인 여부</label>
+                                    <select id="approvedFilter" name="approved"
+                                            class="block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                                        <option value="">전체</option>
+                                        <option value="true">승인됨</option>
+                                        <option value="false">미승인</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>-->
 
             <!-- 테이블 -->
             <div th:if="${#lists.isEmpty(refunds.content)}"
                  class="text-center text-gray-500 py-10 bg-white rounded shadow">현재 처리할 반품 요청이 없습니다.
             </div>
 
-            <div th:if="${!#lists.isEmpty(refunds.content)}" class="overflow-x-auto rounded-lg shadow border border-gray-200">
+            <div th:if="${!#lists.isEmpty(refunds.content)}"
+                 class="overflow-x-auto rounded-lg shadow border border-gray-200">
                 <table class="min-w-full divide-y divide-gray-200 text-sm text-left text-gray-700 bg-white">
                     <thead class="bg-gray-50">
                     <tr>
                         <th class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">#</th>
-                        <th data-sort-key="orderId" class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer">주문 ID</th>
+                        <th data-sort-key="orderId"
+                            class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer">
+                            주문 ID
+                        </th>
                         <th class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">사유</th>
                         <th class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">상세 내용</th>
                         <th class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">반품 배송비</th>
-                        <th data-sort-key="createdAt" class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer">신청일</th>
-                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">승인</th>
+                        <th data-sort-key="createdAt"
+                            class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer">
+                            신청일
+                        </th>
+                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            승인
+                        </th>
                     </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-200 bg-white">
@@ -88,12 +97,13 @@
                             <div th:if="${refund.approved}">
                                 <button type="button"
                                         class="px-3 py-1 bg-gray-400 text-white text-xs font-semibold rounded cursor-not-allowed"
-                                        disabled>승인 완료</button>
+                                        disabled>승인 완료
+                                </button>
                             </div>
                             <div th:if="${!refund.approved}">
                                 <form th:action="@{'/admin-order/refunds/' + ${refund.orderId}}" method="post"
                                       onsubmit="return confirmApprove(this);">
-                                    <input type="hidden" name="userId" th:value="${refund.userId}" />
+                                    <input type="hidden" name="userId" th:value="${refund.userId}"/>
                                     <button type="submit"
                                             class="px-3 py-1 bg-green-600 text-white text-xs font-semibold rounded hover:bg-green-700">
                                         승인
@@ -144,9 +154,11 @@
                 <p class="text-sm text-gray-600">해당 반품 요청을 정말 승인하시겠습니까?</p>
                 <div class="flex justify-end space-x-2">
                     <button onclick="closeModal()"
-                            class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400 text-sm">취소</button>
+                            class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400 text-sm">취소
+                    </button>
                     <button id="confirmBtn"
-                            class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 text-sm">승인</button>
+                            class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 text-sm">승인
+                    </button>
                 </div>
             </div>
         </div>

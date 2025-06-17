@@ -1,7 +1,6 @@
 package com.nhnacademy.front.shop.cart.client;
 
-import com.nhnacademy.front.shop.book.dto.BookResponse;
-import com.nhnacademy.front.shop.book.dto.MainBookResponse;
+import com.nhnacademy.front.shop.book.dto.BookDetailResponse;
 import com.nhnacademy.front.shop.cart.dto.CartCouponResponse;
 import java.util.List;
 
@@ -12,6 +11,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+
 import com.nhnacademy.front.common.dto.CommonResponse;
 import com.nhnacademy.front.shop.cart.dto.CartResponse;
 import com.nhnacademy.front.shop.cart.dto.CartUpdateRequest;
@@ -31,6 +32,9 @@ public interface CartClient {
     @GetMapping("/me/carts/coupons")
     CommonResponse<List<CartCouponResponse>> getCartsWithCoupon();
 
+    @GetMapping("/me/carts/selected/coupons")
+    CommonResponse<List<CartCouponResponse>> getSelectedCartsWithCoupon(@RequestParam(required = false) List<Long> cartIds);
+
     @GetMapping("/me/carts")
     CommonResponse<List<CartResponse>> getCarts();
 
@@ -41,5 +45,5 @@ public interface CartClient {
     void deleteCart(@PathVariable Long cartId);
 
     @GetMapping("/books/{bookId}")
-    CommonResponse<BookResponse> getBookById(@PathVariable Long bookId);
+    CommonResponse<BookDetailResponse> getBookById(@PathVariable Long bookId);
 }

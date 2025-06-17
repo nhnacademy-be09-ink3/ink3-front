@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>쿠폰 정책 수정</title>
+
+    <!-- Google Fonts -->
+    <link
+            href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap"
+            rel="stylesheet"
+    />
+
+    <!-- Tailwind CSS (빌드 시 @apply가 처리된 CSS 파일) -->
+    <link rel="stylesheet" th:href="@{/css/output.css}">
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- Select2 CSS & JS -->
+    <link
+            href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css"
+            rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .ink-input-group {
+            @apply grid grid-cols-1 gap-2 mb-6;
+        }
+
+        .ink-input-group label {
+            @apply text-gray-700 font-medium block mb-2;
+        }
+
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            border: 0;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100">
+<div th:replace="~{admin/layout/fragments/header :: headerFragment}"></div>
+
+<div class="flex flex-1 min-h-[calc(100vh-64px)]">
+    <div th:replace="~{admin/layout/fragments/sidebar :: sidebarFragment}"></div>
+
+    <main class="main-content-area flex-1 p-6 bg-gray-100 overflow-y-auto">
+        <div class="w-8/12 mx-auto flex flex-col space-y-6">
+            <div class="w-full flex flex-col space-y-4">
+                <div class="ink-card-white p-6">
+                    <h1 class="text-xl font-semibold text-gray-800 mb-6">
+                        쿠폰 정책 수정
+                    </h1>
+
+                    <!-- 수정 폼 시작 -->
+                    <!-- th:object를 사용하면 ${policy} 내부 프로퍼티 바인딩이 간편해집니다 -->
+                    <form th:action="@{/admin/coupon/policies/{id}(id=${policy.policyId})}"
+                          th:object="${policy}"
+                          method="post"
+                          class="space-y-6">
+                        <input type="hidden" name="_method" value="put"/>
+
+                        <!-- 1) 정책 식별 이름 -->
+                        <div class="grid grid-cols-1 gap-2">
+                            <label for="name" class="text-gray-700 font-medium">정책 식별 이름</label>
+                            <input
+                                    type="text"
+                                    id="name"
+                                    name="name"
+                                    required
+                                    class="ink-input-field w-full"
+                                    th:value="${policy.policyName}"
+                                    placeholder="예: SPRING_SALE2025"
+                            />
+                        </div>
+
+                        <!-- 2) 최소 주문 금액 -->
+                        <div class="grid grid-cols-1 gap-2">
+                            <label for="minimumOrderAmount" class="text-gray-700 font-medium">
+                                최소 주문 금액 (₩)
+                            </label>
+                            <input
+                                    type="number"
+                                    id="minimumOrderAmount"
+                                    name="minimumOrderAmount"
+                                    required
+                                    class="ink-input-field w-full"
+                                    min="0"
+                                    step="1"
+                                    th:value="${policy.minimumOrderAmount}"
+                                    placeholder="예: 10000"
+                            />
+                        </div>
+
+                        <!-- 3) 할인 정책 유형 (select2) -->
+                        <div class="ink-input-group">
+                            <label for="discountType">할인 정책 유형</label>
+                            <select id="discountType"
+                                    name="discountType"
+                                    class="js-select w-full"
+                                    th:value="*{discountType}">
+                                <option value="">할인 정책 선택</option>
+                                <!-- DiscountType enum 순회 -->
+                                <th:block
+                                        th:each="
+                                        dt : ${T(
+                                            com.nhnacademy.front.shop.coupon.policy.client.dto.DiscountType
+                                        ).values()}
+                                    "
+                                >
+                                    <option
+                                            th:value="${dt}"
+                                            th:text="${dt == T(com.nhnacademy.front.shop.coupon.policy.client.dto.DiscountType).RATE ? '정률 할인' : '정액 할인'}">
+                                    </option>
+                                </th:block>
+                            </select>
+                        </div>
+
+                        <!-- 4) 정액 할인(고정 금액) 입력란 -->
+                        <div id="fixedDiscountGroup" class="grid grid-cols-1 gap-2 hidden">
+                            <label for="discountValue" class="text-gray-700 font-medium">
+                                할인 금액 (₩)
+                            </label>
+                            <input
+                                    type="number"
+                                    id="discountValue"
+                                    name="discountValue"
+                                    class="ink-input-field w-full"
+                                    min="0"
+                                    step="1"
+                                    placeholder="예: 5000"
+                                    th:value="*{discountValue}"
+                            />
+                        </div>
+
+                        <!-- 5) 정률 할인(%) 입력란 -->
+                        <div id="rateDiscountGroup" class="grid grid-cols-1 gap-2 hidden">
+                            <label for="discountPercentage" class="text-gray-700 font-medium">
+                                할인률
+                                <span class="sr-only">백분율</span>
+                                (%)
+                            </label>
+                            <input
+                                    type="number"
+                                    id="discountPercentage"
+                                    name="discountPercentage"
+                                    class="ink-input-field w-full"
+                                    min="0"
+                                    max="100"
+                                    step="1"
+                                    placeholder="예: 10"
+                                    th:value="*{discountPercentage}"
+                            />
+                        </div>
+
+                        <!-- 6) 최대 할인 금액 입력란 -->
+                        <div class="grid grid-cols-1 gap-2">
+                            <label for="maximumDiscountAmount" class="text-gray-700 font-medium">
+                                최대 할인 금액 (₩)
+                            </label>
+                            <input
+                                    type="number"
+                                    id="maximumDiscountAmount"
+                                    name="maximumDiscountAmount"
+                                    required
+                                    class="ink-input-field w-full"
+                                    min="0"
+                                    step="1"
+                                    placeholder="예: 20000"
+                                    th:value="*{maximumDiscountAmount}"
+                            />
+                        </div>
+
+                        <!-- 7) 수정 버튼 (하나만 남깁니다) -->
+                        <div class="flex justify-end">
+                            <button type="submit" class="ink-btn-primary px-6 py-2">
+                                수정하기
+                            </button>
+                        </div>
+                    </form>
+                    <!-- 수정 폼 끝 -->
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+    $(function () {
+        // 1) Select2 초기화
+        $(".js-select").select2({
+            placeholder: "할인 정책 선택",
+            allowClear: true,
+            width: "100%",
+        });
+
+        // 2) 요소 캐싱
+        const $discountTypeSelect = $("#discountType");
+        const $fixedGroup = $("#fixedDiscountGroup");
+        const $rateGroup = $("#rateDiscountGroup");
+        const $discountValueInput = $("#discountValue");
+        const $discountPercentInput = $("#discountPercentage");
+
+        // 3) 토글 함수
+        function toggleDiscountFields() {
+            const selected = $discountTypeSelect.val(); // "RATE", "FIXED", or ""
+
+            if (selected === "FIXED") {
+                // 정액 할인(FIXED) 선택 시
+                $fixedGroup.removeClass("hidden");
+                $discountValueInput.prop("required", true).focus();
+
+                $rateGroup.addClass("hidden");
+                $discountPercentInput.prop("required", false).val("");
+            } else if (selected === "RATE") {
+                // 정률 할인(RATE) 선택 시
+                $rateGroup.removeClass("hidden");
+                $discountPercentInput.prop("required", true).focus();
+
+                $fixedGroup.addClass("hidden");
+                $discountValueInput.prop("required", false).val("");
+            } else {
+                // 선택 없음
+                $fixedGroup.addClass("hidden");
+                $rateGroup.addClass("hidden");
+                $discountValueInput.prop("required", false).val("");
+                $discountPercentInput.prop("required", false).val("");
+            }
+        }
+
+        toggleDiscountFields();
+
+        $discountTypeSelect.on("change", toggleDiscountFields);
+    });
+</script>
+</body>
+</html>
