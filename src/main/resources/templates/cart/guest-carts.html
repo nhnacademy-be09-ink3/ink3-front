@@ -173,7 +173,7 @@
                                     </td>
                                     <td>
                                         <div class="cart-item-info">
-                                            <img th:src="${cart.book.thumbnailUrl}" class="cart-image"/>
+                                            <img th:src="@{${cart.book.thumbnailUrl}}" class="cart-image"/>
                                             <div class="product-details">
                                                 <h3 class="product-title font-semibold text-lg"
                                                     th:text="${cart.book.bookTitle}">도서 제목</h3>
